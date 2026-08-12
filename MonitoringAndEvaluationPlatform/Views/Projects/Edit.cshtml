@@ -166,9 +166,6 @@
                                         <input asp-for="ExchangeRate" type="number" class="form-control form-control-lg" id="exchangeRateInput"
                                                min="0.01" step="0.01" placeholder="@Localizer["e.g. 13000"]" />
                                         <span class="input-group-text fw-bold">SYP</span>
-                                        <button type="button" class="btn btn-outline-primary" id="fetchRateBtn" title="@Localizer["Fetch current rate"]">
-                                            <i class="fas fa-sync-alt me-1"></i>@Localizer["Fetch Rate"]
-                                        </button>
                                     </div>
                                     <div id="exchangeRateMeta" class="form-text mt-1" style="@(Model.ExchangeRateDate.HasValue ? "" : "display:none;")">
                                         <i class="fas fa-calendar-alt me-1 text-muted"></i>
@@ -176,7 +173,6 @@
                                         <strong id="exchangeRateDateDisplay">@(Model.ExchangeRateDate?.ToString("yyyy-MM-dd") ?? "")</strong>
                                     </div>
                                     <input asp-for="ExchangeRateDate" type="hidden" id="exchangeRateDateInput" />
-                                    <div id="fetchRateError" class="text-danger small mt-1" style="display:none;"></div>
 
                                     <!-- USD Equivalent -->
                                     @{
@@ -1344,43 +1340,9 @@
     function toggleExchangeRateSection(currency) {
         if (currency === 'SYP') {
             $('#exchangeRateSection').show();
-            // Auto-fetch only if no rate is already saved
-            if (!$('#exchangeRateInput').val()) {
-                fetchExchangeRate();
-            }
         } else {
             $('#exchangeRateSection').hide();
         }
-    }
-
-    function fetchExchangeRate() {
-        const btn = $('#fetchRateBtn');
-        const errorDiv = $('#fetchRateError');
-        errorDiv.hide();
-        btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>@Localizer["Fetching..."]');
-
-        fetch('https://open.er-api.com/v6/latest/USD')
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.rates && data.rates.SYP) {
-                    const rate = Math.round(data.rates.SYP * 100) / 100;
-                    const today = new Date().toISOString().split('T')[0];
-                    $('#exchangeRateInput').val(rate);
-                    $('#exchangeRateDateInput').val(today);
-                    $('#exchangeRateDateDisplay').text(today);
-                    $('#exchangeRateMeta').show();
-                } else {
-                    setManualRateDate();
-                    errorDiv.text('@Localizer["Could not fetch live rate. Please enter manually."]').show();
-                }
-            })
-            .catch(() => {
-                setManualRateDate();
-                errorDiv.text('@Localizer["Could not fetch live rate. Please enter manually."]').show();
-            })
-            .finally(() => {
-                btn.prop('disabled', false).html('<i class="fas fa-sync-alt me-1"></i>@Localizer["Fetch Rate"]');
-            });
     }
 
     function setManualRateDate() {
@@ -1396,10 +1358,6 @@
             setManualRateDate();
         }
         updateUsdEquivalent();
-    });
-
-    $('#fetchRateBtn').on('click', function() {
-        fetchExchangeRate();
     });
 
     // ===== Thousand-separator formatting for Estimated Budget =====
