@@ -1052,6 +1052,7 @@
         locationAlreadyAdded: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["This location has already been added."].Value))',
         thisProjectWillCover: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["This project will cover all locations in the country. Specific location selection is disabled."].Value))',
         ministryAutoAssigned: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Ministry is automatically assigned based on your account"].Value))',
+        ministryLockedByProgram: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Ministry is automatically assigned based on the linked program"].Value))',
         pleaseSelectDonorFirst: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Please select a donor first."].Value))',
         donorAlreadyAdded: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["This donor has already been added."].Value))',
         fundingContribution: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Funding Contribution"].Value))',
@@ -1408,13 +1409,16 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             </text>
         }
 
-        // Make ministry dropdown readonly for ministry users
+        // Make ministry dropdown readonly for ministry users, and always for a project linked
+        // to a program (SubOutput) whose framework belongs to a ministry — even for admins.
         var isMinistryUser = @Html.Raw(Json.Serialize(ViewBag.IsMinistryUser ?? false));
+        var isMinistryLockedByProgram = @Html.Raw(Json.Serialize(ViewBag.IsMinistryLockedByProgram ?? false));
+        var isMinistryLocked = isMinistryUser || isMinistryLockedByProgram;
 
         // Handle ministry dropdown selection
         $('.ministry-item').click(function(e) {
             e.preventDefault();
-            if (isMinistryUser) return;
+            if (isMinistryLocked) return;
             const ministryCode = $(this).data('ministry-code');
             const ministryName = $(this).data('ministry-name');
             const ministryLogo = $(this).data('ministry-logo');
@@ -1477,7 +1481,7 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             }
         }
 
-        if (isMinistryUser) {
+        if (isMinistryLocked) {
             // Lock the visible dropdown button so it can't be opened/changed
             $('#ministryDropdown').prop('disabled', true).css({
                 'background-color': '#e9ecef',
@@ -1485,9 +1489,10 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
                 'pointer-events': 'none'
             });
 
-            // Also add a visual indicator
+            // Also add a visual indicator (the linked-program reason takes precedence when both apply)
+            var lockReason = isMinistryLockedByProgram ? localizedStrings.ministryLockedByProgram : localizedStrings.ministryAutoAssigned;
             $('#ministrySelect').closest('.mb-4').append(
-                '<small class="form-text text-muted"><i class="fas fa-lock me-1"></i>' + localizedStrings.ministryAutoAssigned + '</small>'
+                '<small class="form-text text-muted"><i class="fas fa-lock me-1"></i>' + lockReason + '</small>'
             );
         }
     });

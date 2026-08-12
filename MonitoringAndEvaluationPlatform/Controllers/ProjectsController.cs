@@ -52,6 +52,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return (false, user?.MinistryCode);
         }
 
+        private async Task<int?> GetLinkedProgramMinistryCodeAsync(int? indicatorId)
+        {
+            if (!indicatorId.HasValue) return null;
+
+            return await _context.Indicators
+                .Where(i => i.IndicatorCode == indicatorId.Value)
+                .Select(i => (int?)i.SubOutput.Output.Outcome.Framework.MinistryCode)
+                .FirstOrDefaultAsync();
+        }
+
         private async Task<bool> ProjectBelongsToScopeAsync(int projectId)
         {
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
@@ -567,6 +577,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
             }
 
+            // If this project is being created from a linked indicator whose program (SubOutput →
+            // Output → Outcome → Framework) belongs to a ministry, that ministry wins over the
+            // account's own ministry and over an admin's free choice.
+            var linkedProgramMinistryCode = await GetLinkedProgramMinistryCodeAsync(indicatorId);
+            bool isMinistryLockedByProgram = linkedProgramMinistryCode.HasValue;
+            if (isMinistryLockedByProgram)
+            {
+                userMinistryCode = linkedProgramMinistryCode;
+            }
+
             // Initialize project with defaults
             var project = new Project
             {
@@ -607,6 +627,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Pass ministry user info to the view
             ViewBag.IsMinistryUser = isMinistryUser;
             ViewBag.UserMinistryCode = userMinistryCode;
+            ViewBag.IsMinistryLockedByProgram = isMinistryLockedByProgram;
 
             // Initialize empty donor funding data for create form
             ViewBag.DonorFundingData = JsonConvert.SerializeObject(new Dictionary<string, decimal>());
@@ -630,8 +651,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             string? DonorFundingBreakdown,
             int? LinkedIndicatorId)
         {
+            int? linkedProgramMinistryCode = null;
             try
             {
+                // If this project is being created from a linked indicator whose program belongs to
+                // a ministry, that ministry wins over the account's own ministry / an admin's choice.
+                linkedProgramMinistryCode = await GetLinkedProgramMinistryCodeAsync(LinkedIndicatorId);
+
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
 
@@ -695,24 +721,44 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     project,
                     requireWhenPublic: true);
 
-                // Force MinistryCode to current user's ministry for non-admins (prevents form tampering)
-                var (isAdminCreate, scopedMinistryCodeCreate) = await GetScopeAsync();
-                if (!isAdminCreate)
+                if (linkedProgramMinistryCode.HasValue)
                 {
-                    if (scopedMinistryCodeCreate is null)
+                    // Program's ministry wins — even over an admin's choice or the account's own ministry.
+                    project.MinistryCode = linkedProgramMinistryCode;
+                }
+                else
+                {
+                    // Force MinistryCode to current user's ministry for non-admins (prevents form tampering)
+                    var (isAdminCreate, scopedMinistryCodeCreate) = await GetScopeAsync();
+                    if (!isAdminCreate)
                     {
-                        ModelState.AddModelError("", _localizer["You are not assigned to a ministry."]);
+                        if (scopedMinistryCodeCreate is null)
+                        {
+                            ModelState.AddModelError("", _localizer["You are not assigned to a ministry."]);
+                        }
+                        else
+                        {
+                            project.MinistryCode = scopedMinistryCodeCreate;
+                        }
                     }
-                    else
+                }
+
+                // Repopulates the create-view ViewBag on a redisplay (validation failure, missing
+                // linked indicator, etc.), keeping the program-derived ministry lock in effect.
+                async Task RepopulateCreateViewAsync()
+                {
+                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
+                    ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                    if (linkedProgramMinistryCode.HasValue)
                     {
-                        project.MinistryCode = scopedMinistryCodeCreate;
+                        ViewBag.IsMinistryLockedByProgram = true;
+                        project.MinistryCode = linkedProgramMinistryCode;
                     }
                 }
 
                 if (!ModelState.IsValid)
                 {
-                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
-                    ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                    await RepopulateCreateViewAsync();
                     return View(project);
                 }
 
@@ -750,8 +796,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     if (indicatorToLink == null)
                     {
                         ModelState.AddModelError("", _localizer["The indicator this project should link to could not be found. Please try again."]);
-                        await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
-                        ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                        await RepopulateCreateViewAsync();
                         return View(project);
                     }
                 }
@@ -798,6 +843,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
                 await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
                 ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                if (linkedProgramMinistryCode.HasValue)
+                {
+                    ViewBag.IsMinistryLockedByProgram = true;
+                    project.MinistryCode = linkedProgramMinistryCode;
+                }
                 return View(project);
             }
         }
