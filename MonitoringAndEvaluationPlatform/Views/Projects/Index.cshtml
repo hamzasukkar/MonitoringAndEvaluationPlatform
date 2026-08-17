@@ -493,10 +493,10 @@
         <div class="col-12">
             <div class="summary-card summary-card-budget">
                 <div class="summary-card-icon">
-                    <i class="fas fa-dollar-sign"></i>
+                    <i class="fas fa-coins"></i>
                 </div>
                 <div class="summary-card-content">
-                    <div class="summary-card-value">@Model.TotalBudget.ToString("N0")</div>
+                    <div class="summary-card-value">@await Html.PartialAsync("_SypTotal", Model.TotalBudget)</div>
                     <div class="summary-card-label">@Localizer["Total Budget"]</div>
                 </div>
             </div>
@@ -810,7 +810,7 @@
                                     </th>
                                     <th class="text-center sortable-header">
                                         <a asp-action="Index" asp-all-route-data="disbursementSortRoute" class="text-reset text-decoration-none">
-                                            <i class="fas fa-dollar-sign me-2"></i>@Localizer["Disbursement"]
+                                            <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement"]
                                             <i class="fas @Model.GetSortIcon("disbursement") ms-2"></i>
                                         </a>
                                     </th>

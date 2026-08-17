@@ -116,7 +116,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Plans
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Plans.Include(p => p.ActionPlan);
+            var applicationDbContext = _context.Plans
+                .Include(p => p.ActionPlan)
+                    .ThenInclude(ap => ap.ProjectPhase)
+                        .ThenInclude(ph => ph.Project);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -124,7 +127,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ViewBag.ProjectId = id;
 
-            var applicationDbContext = _context.Plans.Include(p => p.ActionPlan);
+            var applicationDbContext = _context.Plans
+                .Include(p => p.ActionPlan)
+                    .ThenInclude(ap => ap.ProjectPhase)
+                        .ThenInclude(ph => ph.Project);
             return View(await applicationDbContext.ToListAsync());
         }
 
@@ -138,6 +144,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var plan = await _context.Plans
                 .Include(p => p.ActionPlan)
+                    .ThenInclude(ap => ap.ProjectPhase)
+                        .ThenInclude(ph => ph.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (plan == null)
             {
@@ -237,6 +245,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var plan = await _context.Plans
                 .Include(p => p.ActionPlan)
+                    .ThenInclude(ap => ap.ProjectPhase)
+                        .ThenInclude(ph => ph.Project)
                 .FirstOrDefaultAsync(m => m.Code == id);
             if (plan == null)
             {

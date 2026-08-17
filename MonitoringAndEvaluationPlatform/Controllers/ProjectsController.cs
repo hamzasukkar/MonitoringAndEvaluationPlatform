@@ -30,8 +30,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly PlanService _planService;
         private readonly IProjectValidationService _validationService;
         private readonly IStringLocalizer<ProjectsController> _localizer;
+        private readonly ICurrencyConversionService _currencyConversion;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer, ICurrencyConversionService currencyConversion)
         {
             _context = context;
             _userManager = userManager;
@@ -39,6 +40,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _planService = planService;
             _validationService = validationService;
             _localizer = localizer;
+            _currencyConversion = currencyConversion;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -50,6 +52,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             return (false, user?.MinistryCode);
+        }
+
+        /// <summary>
+        /// Keeps the exchange rate consistent with the chosen currency before validation runs.
+        /// A rate on an SYP project is meaningless (SYP converts 1:1), and a blank rate must not
+        /// leave a stale date behind. The rate itself stays in ModelState so that
+        /// <see cref="Attributes.RequiredWhenCurrencyNotSypAttribute"/> can reject a missing one.
+        /// </summary>
+        private void NormalizeExchangeRate(Project project)
+        {
+            var isBaseCurrency = string.Equals(
+                project.Currency, CurrencyConverter.BaseCurrency, StringComparison.OrdinalIgnoreCase);
+
+            if (isBaseCurrency || project.ExchangeRate is null or <= 0)
+            {
+                if (isBaseCurrency) project.ExchangeRate = null;
+                project.ExchangeRateDate = null;
+            }
+            else if (project.ExchangeRateDate is null)
+            {
+                project.ExchangeRateDate = DateTime.Today;
+            }
+
+            ModelState.Remove(nameof(Project.ExchangeRateDate));
         }
 
         private async Task<int?> GetLinkedProgramMinistryCodeAsync(int? indicatorId)
@@ -123,7 +149,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.NotStartedProjects = await projectQuery.CountAsync(p => p.performance == 0);
             filter.InProgressProjects = await projectQuery.CountAsync(p => p.performance > 0 && p.performance < 100);
             filter.CompletedProjects = await projectQuery.CountAsync(p => p.performance >= 100);
-            filter.TotalBudget = await projectQuery.SumAsync(p => p.EstimatedBudget);
+            filter.TotalBudget = await _currencyConversion.SumBudgetToSypAsync(projectQuery);
 
             filter.TotalRecords = filter.TotalProjects;
             if (filter.CurrentPage < 1) filter.CurrentPage = 1;
@@ -415,6 +441,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             worksheet.Cell(1, 7).Value = _localizer["Performance"].Value + " (%)";
             worksheet.Cell(1, 8).Value = _localizer["Disbursement"].Value + " (%)";
             worksheet.Cell(1, 9).Value = _localizer["Estimated Budget"].Value;
+            worksheet.Cell(1, 10).Value = _localizer["Currency"].Value;
 
             // Style header
             var headerRange = worksheet.Range(1, 1, 1, 9);
@@ -453,12 +480,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 worksheet.Cell(row, 7).Value = performance;
                 worksheet.Cell(row, 8).Value = Math.Round(project.DisbursementPerformance, 2);
                 worksheet.Cell(row, 9).Value = project.EstimatedBudget;
+                worksheet.Cell(row, 9).Style.NumberFormat.Format = "#,##0";
+                // Each row keeps its own currency; the amounts are not converted here.
+                worksheet.Cell(row, 10).Value = project.Currency;
                 row++;
             }
 
             worksheet.Columns().AdjustToContents();
 
-            var dataRange = worksheet.Range(1, 1, Math.Max(row - 1, 1), 9);
+            var dataRange = worksheet.Range(1, 1, Math.Max(row - 1, 1), 10);
             dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
             dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
@@ -622,6 +652,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.PublicSectorTypeList = new SelectList(_context.PublicSectorTypes.ToList(), "Code", isArabic ? "AR_Name" : "EN_Name");
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
             ViewBag.Ministries = ministries; // Pass full ministry list with Logo property
+            ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
 
             // Pass ministry user info to the view
@@ -720,6 +751,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     selectedSectorCodes.Select(c => int.TryParse(c, out var code) ? code : 0),
                     project,
                     requireWhenPublic: true);
+
+                NormalizeExchangeRate(project);
 
                 if (linkedProgramMinistryCode.HasValue)
                 {
@@ -1070,6 +1103,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 selectedMinistryCode  // selected value
             );
             ViewBag.Ministries = allMinistries; // Pass full ministry list with Logo property
+            ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
 
             // Pass ministry user info to the view
             ViewBag.IsMinistryUser = isMinistryUser;
@@ -1202,16 +1236,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // still normalizes the type to null when the Public sector is deselected.
             await ValidatePublicSectorTypeAsync(SelectedSectorCodes, project, requireWhenPublic: false);
 
-            // Exchange rate is only meaningful when a non-USD rate is supplied; if no rate
-            // was entered, drop the optional date and any binding/validation noise on these
-            // fields so an optional currency detail can never block a save.
-            if (!project.ExchangeRate.HasValue || project.ExchangeRate <= 0)
-            {
-                project.ExchangeRate = null;
-                project.ExchangeRateDate = null;
-            }
-            ModelState.Remove(nameof(Project.ExchangeRate));
-            ModelState.Remove(nameof(Project.ExchangeRateDate));
+            NormalizeExchangeRate(project);
 
             if (!ModelState.IsValid)
             {
@@ -1502,6 +1527,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 project.MinistryCode
             );
             ViewBag.Ministries = allMinistries; // Drives the rich dropdown items (with logo) in Edit.cshtml
+            ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
 
             // Pass ministry user info to the view
             ViewBag.IsMinistryUser = isMinistryUser;
@@ -2069,6 +2095,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
             ViewBag.Ministries = ministries; // Drives the rich dropdown items (with logo) in Create.cshtml
+            ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
             ViewBag.IsMinistryUser = isMinistryUser;
             ViewBag.UserMinistryCode = userMinistryCode;
 

@@ -165,7 +165,7 @@
     <!-- Projects Disbursement Performance Chart -->
     <div class="chart-card">
         <h3 class="chart-title">
-            <i class="fas fa-dollar-sign"></i>
+            <i class="fas fa-money-bill-wave"></i>
             @Localizer["CHART_TOP_PROJECTS_DISBURSEMENT"]
         </h3>
         <div style="height: 300px;">
@@ -900,7 +900,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (govData && govData.ProjectCount > 0) {
                     tooltipContent += `<div class="tooltip-stats">
                         <div>@Localizer["TOOLTIP_PROJECTS"]: <strong>${govData.ProjectCount}</strong></div>
-                        <div>@Localizer["TOOLTIP_BUDGET"]: <strong>$${govData.TotalBudget.toLocaleString()}</strong></div>
+                        <div>@Localizer["TOOLTIP_BUDGET"]: <strong>${govData.TotalBudget.toLocaleString()}</strong></div>
                         <div>@Localizer["TOOLTIP_AVG_PERFORMANCE"]: <strong>${govData.AveragePerformance}%</strong></div>
                     </div>`;
                 } else {
@@ -937,7 +937,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('selectedGovernorateName').textContent = govName;
                 document.getElementById('selectedProjectCount').textContent = govData ? govData.ProjectCount : 0;
                 document.getElementById('selectedPerformance').textContent = (govData ? govData.AveragePerformance : 0) + '%';
-                document.getElementById('selectedBudget').textContent = '$' + (govData ? govData.TotalBudget.toLocaleString() : '0');
+                document.getElementById('selectedBudget').textContent = (govData ? govData.TotalBudget.toLocaleString() : '0');
             });
         });
     }

@@ -22,6 +22,9 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public double EstimatedBudget { get; set; }
         public double RealBudget { get; set; }  // مجموع Plans.Realised
         public string Currency { get; set; } = "USD";
+
+        /// <summary>SYP per unit of <see cref="Currency"/>; null falls back to the platform rate.</summary>
+        public decimal? ExchangeRate { get; set; }
         public double SpendingRate => EstimatedBudget > 0
             ? Math.Round(RealBudget / EstimatedBudget * 100, 1)
             : 0;

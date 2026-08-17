@@ -1,0 +1,75 @@
+@model MonitoringAndEvaluationPlatform.Models.CurrencyRate
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Edit Exchange Rate"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+    var displayName = isArabic ? Model.NameAr : Model.NameEn;
+}
+
+<div class="container-fluid py-4">
+
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">
+            <i class="fas fa-coins me-3"></i>@Localizer["Edit Exchange Rate"]
+        </h1>
+    </div>
+
+    <div class="row justify-content-center mt-3">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+
+                    <div class="d-flex align-items-center gap-2 mb-4">
+                        <span class="fs-3 fw-bold">@Model.Symbol</span>
+                        <div>
+                            <div class="fw-bold">@displayName</div>
+                            <div class="text-muted small">@Model.Code</div>
+                        </div>
+                    </div>
+
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Code" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                        <div class="mb-4">
+                            <label for="rateToSyp" class="form-label fw-bold">
+                                @string.Format(Localizer["1 {0} equals how many Syrian Pounds?"].Value, Model.Code)
+                            </label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">1 @Model.Code =</span>
+                                <input type="number" id="rateToSyp" name="rateToSyp"
+                                       class="form-control"
+                                       value="@Model.RateToSyp.ToString("0.####", CultureInfo.InvariantCulture)"
+                                       min="0.0001" step="0.0001" required />
+                                <span class="input-group-text fw-bold">SYP</span>
+                            </div>
+                            <span class="text-danger small">
+                                @Html.ValidationMessage("RateToSyp")
+                            </span>
+                            <div class="form-text">
+                                @Localizer["Changing this restates every total that relies on the fallback rate, including past reports."]
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>@Localizer["Save"]
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                @Localizer["Cancel"]
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

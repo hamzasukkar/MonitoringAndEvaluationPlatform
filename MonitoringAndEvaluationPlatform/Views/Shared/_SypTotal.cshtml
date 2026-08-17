@@ -1,0 +1,27 @@
+@model MonitoringAndEvaluationPlatform.Services.MoneyTotal
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@*
+    Renders a cross-project budget total in Syrian Pounds.
+
+    Amounts that could not be converted (unknown currency, and no platform rate to fall back
+    on) are never folded in silently — a short total that looks complete is worse than a
+    visible gap, so the warning states exactly what was left out.
+*@
+
+<span class="syp-total" style="font-variant-numeric: tabular-nums;">
+    @Model.Syp.ToString("N0", CultureInfo.InvariantCulture)
+    <span class="syp-total-unit">@Localizer["SYP"]</span>
+
+    @if (!Model.IsComplete)
+    {
+        var excluded = string.Join("، ", Model.UnconvertedByCurrency
+            .Select(pair => $"{pair.Value.ToString("N0", CultureInfo.InvariantCulture)} {pair.Key}"));
+
+        <i class="fas fa-triangle-exclamation text-warning ms-1"
+           data-bs-toggle="tooltip"
+           title="@string.Format(Localizer["{0} project(s) excluded — no exchange rate: {1}"].Value, Model.UnconvertedCount, excluded)"></i>
+    }
+</span>

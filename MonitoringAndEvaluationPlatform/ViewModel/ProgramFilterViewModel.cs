@@ -53,7 +53,9 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public int NotStartedProjects { get; set; }
         public int InProgressProjects { get; set; }
         public int CompletedProjects { get; set; }
-        public double TotalBudget { get; set; }
+        /// <summary>Budgets of all matching projects, converted to SYP.</summary>
+        public MonitoringAndEvaluationPlatform.Services.MoneyTotal TotalBudget { get; set; }
+            = MonitoringAndEvaluationPlatform.Services.MoneyTotal.Empty;
 
         // Sorting
         public string SortColumn { get; set; } = "performance";

@@ -68,7 +68,10 @@
     <value>Estimated budget is required</value>
   </data>
   <data name="EstimatedBudgetRange" xml:space="preserve">
-    <value>Estimated budget must be greater than $0.01</value>
+    <value>Estimated budget must be greater than 0.01</value>
+  </data>
+  <data name="ExchangeRateRequired" xml:space="preserve">
+    <value>An exchange rate is required when the currency is not Syrian Pounds</value>
   </data>
   <data name="RealBudgetRange" xml:space="preserve">
     <value>Real budget cannot be negative</value>

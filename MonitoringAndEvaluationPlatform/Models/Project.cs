@@ -39,9 +39,24 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Display(Name = "Budget Unit")]
         public BudgetUnit BudgetUnit { get; set; } = BudgetUnit.Ones;
 
-        [Display(Name = "Exchange Rate (1 USD = X SYP)")]
-        [Range(0.01, double.MaxValue)]
-        [Column(TypeName = "decimal(18,2)")]
+        /// <summary>
+        /// How many Syrian Pounds one unit of <see cref="Currency"/> is worth, captured when
+        /// this project was entered. Required for every non-SYP currency; stays null for SYP
+        /// projects, which convert at 1:1 and need no rate.
+        /// </summary>
+        /// <remarks>
+        /// This is the project's own historical snapshot and always wins over the platform-wide
+        /// <see cref="CurrencyRate"/> fallback, which only covers legacy rows saved before the
+        /// rate became mandatory. Note the meaning changed: it previously held "SYP per USD" on
+        /// SYP projects to drive a USD-equivalent display; those values were cleared by migration
+        /// because they are meaningless under this definition.
+        /// </remarks>
+        [Display(Name = "Exchange Rate to SYP")]
+        [Range(0.0001, double.MaxValue)]
+        [Column(TypeName = "decimal(18,4)")]
+        [RequiredWhenCurrencyNotSyp(nameof(Currency),
+            ErrorMessageResourceType = typeof(Resources.Models.Project),
+            ErrorMessageResourceName = "ExchangeRateRequired")]
         public decimal? ExchangeRate { get; set; }
 
         [Display(Name = "Exchange Rate Date")]
@@ -58,7 +73,7 @@ namespace MonitoringAndEvaluationPlatform.Models
         };
 
         [Range(0, double.MaxValue, ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "RealBudgetRange")]
-        [Display(Name = "Real Budget ($)")]
+        [Display(Name = "Real Budget")]
         public double RealBudget { get; set; }
 
         [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "ProjectManagerRequired")]

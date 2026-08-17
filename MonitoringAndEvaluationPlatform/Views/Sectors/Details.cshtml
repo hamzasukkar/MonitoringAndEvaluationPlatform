@@ -212,9 +212,9 @@
     </div>
     <div class="col-md-3 mb-3">
         <div class="stat-card budget position-relative">
-            <i class="fas fa-dollar-sign stat-icon"></i>
+            <i class="fas fa-coins stat-icon"></i>
             <div class="stat-label">@Localizer["Total Budget"]</div>
-            <div class="stat-value text-warning">@ViewBag.TotalBudget.ToString("N0")</div>
+            <div class="stat-value text-warning">@await Html.PartialAsync("_SypTotal", (MonitoringAndEvaluationPlatform.Services.MoneyTotal)ViewBag.TotalBudget)</div>
         </div>
     </div>
 </div>

@@ -20,12 +20,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IGuideService _guideService;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, IGuideService guideService)
+        private readonly ICurrencyConversionService _currencyConversion;
+
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, IGuideService guideService, ICurrencyConversionService currencyConversion)
         {
             _logger = logger;
             _context = context;
             _userManager = userManager;
             _guideService = guideService;
+            _currencyConversion = currencyConversion;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -166,6 +169,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Prepare governorate map data with project statistics
             var governoratesMapData = new List<GovernorateMapDataViewModel>();
+            // The map tooltip shows a single figure per governorate, so budgets are converted
+            // to SYP here rather than mixing currencies into a meaningless sum.
+            var mapConverter = await _currencyConversion.GetConverterAsync();
             foreach (var governorate in governorates)
             {
                 var governorateProjects = await projectsQuery
@@ -183,7 +189,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     AveragePerformance = governorateProjects.Any()
                         ? Math.Round(governorateProjects.Average(p => p.performance), 2)
                         : 0,
-                    TotalBudget = governorateProjects.Sum(p => p.EstimatedBudget)
+                    TotalBudget = mapConverter.SumBudget(governorateProjects).Syp
                 });
             }
 

@@ -74,7 +74,7 @@
                             <tr>
                                 <td>@Html.DisplayFor(modelItem => item.Name)</td>
                                 <td>@Html.DisplayFor(modelItem => item.Date)</td>
-                                <td>@Html.DisplayFor(modelItem => item.Realised)</td>
+                                <td>@(item.ActionPlan?.ProjectPhase?.Project?.CurrencySymbol)@item.Realised.ToString("N0")</td>
                                 <td>@Html.DisplayFor(modelItem => item.ActionPlan.Code)</td>
                                 <td class="text-end">
                                     <div class="btn-group" role="group">

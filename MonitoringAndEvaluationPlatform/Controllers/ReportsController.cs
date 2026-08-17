@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
 using System.Globalization;
 
@@ -15,11 +16,36 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ICurrencyConversionService _currencyConversion;
 
-        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ICurrencyConversionService currencyConversion)
         {
             _context = context;
             _userManager = userManager;
+            _currencyConversion = currencyConversion;
+        }
+
+        /// <summary>
+        /// Total disbursed across projects, converted to SYP. A project whose currency cannot be
+        /// converted contributes nothing here; the Exchange Rates admin screen lists those so the
+        /// gap is discoverable rather than invisible.
+        /// </summary>
+        private static double SumRealisedInSyp(IEnumerable<Project> projects, CurrencyConverter converter)
+        {
+            double total = 0;
+            foreach (var project in projects)
+            {
+                var factor = converter.FactorFor(project.Currency, project.ExchangeRate);
+                if (factor is null) continue;
+
+                var realised = project.Phases?
+                    .Where(phase => phase.ActionPlan != null)
+                    .SelectMany(phase => phase.ActionPlan!.Plans)
+                    .Sum(plan => (double)plan.Realised) ?? 0;
+
+                total += realised * factor.Value;
+            }
+            return total;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -264,20 +290,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 DisbursementPerformance = Math.Round(m.DisbursementPerformance, 2)
             }).OrderByDescending(m => m.IndicatorsPerformance).ToList();
 
+            // Every figure below puts projects that may be denominated differently onto one
+            // chart or into one sum, so all budgets are converted to SYP first.
+            var conv = await _currencyConversion.GetConverterAsync();
+
             // 3. Project Financial vs Physical (Scatter Plot)
             viewModel.ProjectScatterData = projects.Select(p => new ProjectScatterDataItem
             {
                 ProjectName = p.ProjectName,
                 FinancialProgress = p.DisbursementPerformance,
                 PhysicalProgress = p.performance,
-                Budget = p.RealBudget
+                Budget = conv.ToSyp(p.RealBudget, p.Currency, p.ExchangeRate) ?? 0
             }).ToList();
 
             // 4. Budget Overview
             viewModel.BudgetOverview = new BudgetOverviewItem
             {
-                TotalEstimatedBudget = projects.Sum(p => p.EstimatedBudget),
-                TotalRealBudget = projects.Sum(p => p.RealBudget)
+                TotalEstimatedBudget = conv.SumBudget(projects).Syp,
+                TotalRealBudget = conv.SumRealBudget(projects).Syp
             };
 
             // NEW: Category Reports
@@ -294,8 +324,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         Name = isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN,
                         NameAr = m.MinistryDisplayName_AR,
                         ProjectCount = m.Projects.Count,
-                        TotalBudget = m.Projects.Sum(p => p.EstimatedBudget),
-                        AmountSpent = ministryProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0),
+                        TotalBudget = conv.SumBudget(m.Projects).Syp,
+                        AmountSpent = SumRealisedInSyp(ministryProjects, conv),
                         IndicatorsPerformance = Math.Round(m.IndicatorsPerformance, 2),
                         DisbursementPerformance = Math.Round(m.DisbursementPerformance, 2)
                     };
@@ -315,8 +345,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         Name = isArabic ? s.AR_Name : s.EN_Name,
                         NameAr = s.AR_Name,
                         ProjectCount = s.Projects.Count,
-                        TotalBudget = s.Projects.Sum(p => p.EstimatedBudget),
-                        AmountSpent = sectorProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0),
+                        TotalBudget = conv.SumBudget(s.Projects).Syp,
+                        AmountSpent = SumRealisedInSyp(sectorProjects, conv),
                         IndicatorsPerformance = Math.Round(s.IndicatorsPerformance, 2),
                         DisbursementPerformance = Math.Round(s.DisbursementPerformance, 2)
                     };
@@ -335,8 +365,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         Name = isArabic ? t.AR_Name : t.EN_Name,
                         NameAr = t.AR_Name,
                         ProjectCount = typeProjects.Count,
-                        TotalBudget = typeProjects.Sum(p => p.EstimatedBudget),
-                        AmountSpent = typeProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0)
+                        TotalBudget = conv.SumBudget(typeProjects).Syp,
+                        AmountSpent = SumRealisedInSyp(typeProjects, conv)
                     };
                 })
                 .Where(t => t.ProjectCount > 0)
@@ -354,8 +384,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     {
                         Name = d.Partner,
                         ProjectCount = d.Projects.Count,
-                        TotalBudget = d.Projects.Sum(p => p.EstimatedBudget),
-                        AmountSpent = donorProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0),
+                        TotalBudget = conv.SumBudget(d.Projects).Syp,
+                        AmountSpent = SumRealisedInSyp(donorProjects, conv),
                         IndicatorsPerformance = Math.Round(d.IndicatorsPerformance, 2),
                         DisbursementPerformance = Math.Round(d.DisbursementPerformance, 2)
                     };
@@ -372,8 +402,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     {
                         Name = s.Name,
                         ProjectCount = supervisorProjects.Count,
-                        TotalBudget = supervisorProjects.Sum(p => p.EstimatedBudget),
-                        AmountSpent = supervisorProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0),
+                        TotalBudget = conv.SumBudget(supervisorProjects).Syp,
+                        AmountSpent = SumRealisedInSyp(supervisorProjects, conv),
                         IndicatorsPerformance = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.performance), 2) : 0,
                         DisbursementPerformance = supervisorProjects.Any() ? Math.Round(supervisorProjects.Average(p => p.DisbursementPerformance), 2) : 0
                     };
@@ -391,8 +421,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     {
                         Name = pm.Name,
                         ProjectCount = pmProjects.Count,
-                        TotalBudget = pmProjects.Sum(p => p.EstimatedBudget),
-                        AmountSpent = pmProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0),
+                        TotalBudget = conv.SumBudget(pmProjects).Syp,
+                        AmountSpent = SumRealisedInSyp(pmProjects, conv),
                         IndicatorsPerformance = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.performance), 2) : 0,
                         DisbursementPerformance = pmProjects.Any() ? Math.Round(pmProjects.Average(p => p.DisbursementPerformance), 2) : 0
                     };
@@ -419,8 +449,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         Name = isArabic ? g.AR_Name : g.EN_Name,
                         NameAr = g.AR_Name,
                         ProjectCount = allGovProjects.Count,
-                        TotalBudget = allGovProjects.Sum(p => p.EstimatedBudget),
-                        AmountSpent = allGovProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0),
+                        TotalBudget = conv.SumBudget(allGovProjects).Syp,
+                        AmountSpent = SumRealisedInSyp(allGovProjects, conv),
                         IndicatorsPerformance = Math.Round(allGovProjects.Average(p => p.performance), 2),
                         DisbursementPerformance = Math.Round(allGovProjects.Average(p => p.DisbursementPerformance), 2)
                     };
@@ -437,8 +467,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Name = isArabic ? "الدولة بأكملها" : "Entire Country",
                     NameAr = "الدولة بأكملها",
                     ProjectCount = nationalProjects.Count,
-                    TotalBudget = nationalProjects.Sum(p => p.EstimatedBudget),
-                    AmountSpent = nationalProjects.Sum(p => p.Phases?.Where(pp => pp.ActionPlan != null).SelectMany(pp => pp.ActionPlan!.Plans).Sum(plan => (double)plan.Realised) ?? 0),
+                    TotalBudget = conv.SumBudget(nationalProjects).Syp,
+                    AmountSpent = SumRealisedInSyp(nationalProjects, conv),
                     IndicatorsPerformance = Math.Round(nationalProjects.Average(p => p.performance), 2),
                     DisbursementPerformance = Math.Round(nationalProjects.Average(p => p.DisbursementPerformance), 2)
                 });
@@ -474,16 +504,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .Where(ph => ph.ActionPlan != null)
                         .SelectMany(ph => ph.ActionPlan!.Plans)
                         .Sum(plan => (double)plan.Realised),
-                    Currency = p.Currency ?? "USD"
+                    Currency = p.Currency ?? "USD",
+                    ExchangeRate = p.ExchangeRate
                 })
                 .OrderByDescending(p => p.EstimatedBudget)
                 .ToListAsync();
 
+            // Per-project figures stay in each project's own currency; only the totals below
+            // are converted, since they combine projects that may be denominated differently.
+            var conv = await _currencyConversion.GetConverterAsync();
+            double SumInSyp(Func<ProjectFinancialItem, double> selector) => projects
+                .Sum(p => (conv.ToSyp(selector(p), p.Currency, p.ExchangeRate)) ?? 0);
+
             var vm = new FinancialAnalysisViewModel
             {
                 Projects             = projects,
-                TotalEstimatedBudget = projects.Sum(p => p.EstimatedBudget),
-                TotalRealBudget      = projects.Sum(p => p.RealBudget),
+                TotalEstimatedBudget = SumInSyp(p => p.EstimatedBudget),
+                TotalRealBudget      = SumInSyp(p => p.RealBudget),
                 AverageSpendingRate  = projects.Any(p => p.EstimatedBudget > 0)
                     ? Math.Round(projects.Where(p => p.EstimatedBudget > 0)
                         .Average(p => p.SpendingRate), 1)

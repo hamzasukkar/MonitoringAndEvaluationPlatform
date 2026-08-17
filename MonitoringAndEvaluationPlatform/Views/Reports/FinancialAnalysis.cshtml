@@ -88,8 +88,8 @@
         <div class="col-xl-3 col-md-6">
             <div class="card stat-card shadow-sm h-100 border-0 bg-info text-white">
                 <div class="card-body text-center py-4">
-                    <i class="fas fa-dollar-sign fa-2x mb-2 opacity-75"></i>
-                    <div class="fs-2 fw-bold">$@FormatBudget(Model.TotalEstimatedBudget)</div>
+                    <i class="fas fa-coins fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-2 fw-bold">@FormatBudget(Model.TotalEstimatedBudget) <small>@(isRtl ? "ل.س" : "SYP")</small></div>
                     <div class="small opacity-75">@(isRtl ? "إجمالي الميزانية المخططة" : "Total Estimated Budget")</div>
 
                 </div>
@@ -99,7 +99,7 @@
             <div class="card stat-card shadow-sm h-100 border-0 bg-success text-white">
                 <div class="card-body text-center py-4">
                     <i class="fas fa-coins fa-2x mb-2 opacity-75"></i>
-                    <div class="fs-2 fw-bold">$@FormatBudget(Model.TotalRealBudget)</div>
+                    <div class="fs-2 fw-bold">@FormatBudget(Model.TotalRealBudget) <small>@(isRtl ? "ل.س" : "SYP")</small></div>
                     <div class="small opacity-75">@(isRtl ? "إجمالي الصرف الفعلي (من الخطط)" : "Total Actual Spending (from Plans)")</div>
                 </div>
             </div>

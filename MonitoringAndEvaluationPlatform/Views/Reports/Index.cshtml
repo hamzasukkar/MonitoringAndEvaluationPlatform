@@ -257,10 +257,10 @@
                 </div>
                 <div class="gov-stat-item">
                     <div class="gov-stat-icon bg-success">
-                        <i class="fas fa-dollar-sign"></i>
+                        <i class="fas fa-coins"></i>
                     </div>
                     <div class="gov-stat-content">
-                        <span class="gov-stat-value" id="govBudget">$0</span>
+                        <span class="gov-stat-value" id="govBudget">0</span>
                         <span class="gov-stat-label">@Localizer["Total Budget"]</span>
                     </div>
                 </div>
@@ -445,19 +445,19 @@
             <div class="d-flex flex-column gap-4 justify-content-center h-100 py-3">
                 <div class="summary-card projects mb-0"> <!-- Reusing style -->
                     <div class="summary-icon bg-primary text-white">
-                        <i class="fas fa-file-invoice-dollar"></i>
+                        <i class="fas fa-file-invoice"></i>
                     </div>
                     <div class="summary-content">
-                        <div class="summary-value" style="font-size: 1.5rem;">$@Model.BudgetOverview.TotalEstimatedBudget.ToString("N0")</div>
+                        <div class="summary-value" style="font-size: 1.5rem;">@Model.BudgetOverview.TotalEstimatedBudget.ToString("N0") <small>@Localizer["SYP"]</small></div>
                         <div class="summary-label">@Localizer["Total Estimated Budget"]</div>
                     </div>
                 </div>
                 <div class="summary-card frameworks mb-0"> <!-- Reusing style -->
                     <div class="summary-icon bg-success text-white">
-                        <i class="fas fa-hand-holding-usd"></i>
+                        <i class="fas fa-wallet"></i>
                     </div>
                     <div class="summary-content">
-                        <div class="summary-value" style="font-size: 1.5rem;">$@Model.BudgetOverview.TotalRealBudget.ToString("N0")</div>
+                        <div class="summary-value" style="font-size: 1.5rem;">@Model.BudgetOverview.TotalRealBudget.ToString("N0") <small>@Localizer["SYP"]</small></div>
                         <div class="summary-label">@Localizer["Total Real Budget"]</div>
                     </div>
                 </div>
@@ -705,8 +705,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-primary">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -765,8 +765,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-success">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -822,8 +822,8 @@
                                 <td><span class="rank-badge @(typeRank <= 3 ? (typeRank == 1 ? "gold" : typeRank == 2 ? "silver" : "bronze") : "default")">@typeRank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-success">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                             </tr>
                             typeRank++;
                         }
@@ -880,8 +880,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-warning text-dark">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -940,8 +940,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-info">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -1000,8 +1000,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-secondary">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -1063,8 +1063,8 @@
                                     <td><i class="fas fa-globe text-primary"></i></td>
                                     <td><i class="fas fa-flag me-1 text-primary"></i>@item.Name</td>
                                     <td><span class="badge bg-primary">@item.ProjectCount</span></td>
-                                    <td>$@item.TotalBudget.ToString("N0")</td>
-                                    <td>$@item.AmountSpent.ToString("N0")</td>
+                                    <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                    <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                     <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                     <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                                 </tr>
@@ -1076,8 +1076,8 @@
                                     <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                     <td>@item.Name</td>
                                     <td><span class="badge bg-danger">@item.ProjectCount</span></td>
-                                    <td>$@item.TotalBudget.ToString("N0")</td>
-                                    <td>$@item.AmountSpent.ToString("N0")</td>
+                                    <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                    <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                     <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                     <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                                 </tr>
@@ -1656,7 +1656,7 @@
                         callbacks: {
                             label: function(context) {
                                 const pt = context.raw;
-                                return pt.project + ': (@Localizer["Fin"]: ' + pt.x + '%, @Localizer["Phy"]: ' + pt.y + '%, @Localizer["Budget"]: $' + pt.budget.toLocaleString() + ')';
+                                return pt.project + ': (@Localizer["Fin"]: ' + pt.x + '%, @Localizer["Phy"]: ' + pt.y + '%, @Localizer["Budget"]: ' + pt.budget.toLocaleString() + ' @Localizer["SYP"])';
                             }
                         }
                     }
@@ -1941,7 +1941,7 @@
                         let modeLabel = tooltipMode === 'national' ? ' (@Localizer["national"])' : tooltipMode === 'provincial' ? ' (@Localizer["provincial"])' : '';
                         tooltipContent += `<div class="tooltip-stats">
                             <div>@Localizer["Projects"]: <strong>${tooltipCount}</strong>${modeLabel}</div>
-                            ${govData ? `<div>@Localizer["Budget"]: <strong>$${govData.TotalBudget.toLocaleString()}</strong></div>
+                            ${govData ? `<div>@Localizer["Budget"]: <strong>${govData.TotalBudget.toLocaleString()} @Localizer["SYP"]</strong></div>
                             <div>@Localizer["Performance"]: <strong>${govData.IndicatorsPerformance}%</strong></div>` : ''}
                         </div>`;
                     } else {
@@ -1998,7 +1998,7 @@
                     if (displayData) {
                         const modeCount = getEffectiveCount(govData, clickMode);
                         document.getElementById('govProjectCount').textContent = modeCount;
-                        document.getElementById('govBudget').textContent = '$' + displayData.TotalBudget.toLocaleString();
+                        document.getElementById('govBudget').textContent = displayData.TotalBudget.toLocaleString() + ' @Localizer["SYP"]';
                         document.getElementById('govPerformance').textContent = displayData.IndicatorsPerformance + '%';
                         document.getElementById('govDisbursement').textContent = displayData.DisbursementPerformance + '%';
 
@@ -2026,7 +2026,7 @@
                         }
                     } else {
                         document.getElementById('govProjectCount').textContent = '0';
-                        document.getElementById('govBudget').textContent = '$0';
+                        document.getElementById('govBudget').textContent = '0';
                         document.getElementById('govPerformance').textContent = '0%';
                         document.getElementById('govDisbursement').textContent = '0%';
                     }

@@ -8,6 +8,8 @@
     int totalPhases = ViewBag.TotalPhases ?? 1;
     double remainingBudget = ViewBag.RemainingBudget ?? (project?.EstimatedBudget ?? 0);
     double otherBudgetSum = ViewBag.OtherBudgetSum ?? 0;
+    // A phase belongs to a single project, so amounts here stay in that project's currency.
+    var currencySymbol = project?.CurrencySymbol ?? "";
 }
 
 <!-- Dashboard Header -->
@@ -69,12 +71,12 @@
         </div>
         <div class="banner-item">
             <div class="banner-icon budget-icon">
-                <i class="fas fa-dollar-sign"></i>
+                <i class="fas fa-coins"></i>
             </div>
             <div class="banner-content">
                 <div class="banner-label">@Localizer["Remaining Budget"]</div>
                 <div class="banner-value @(remainingBudget <= 0 ? "text-danger" : "text-success")">
-                    @remainingBudget.ToString("N2")
+                    @currencySymbol@remainingBudget.ToString("N2")
                 </div>
             </div>
         </div>
@@ -216,7 +218,7 @@
                                 <div class="budget-bar-fill" id="budgetBarFill" style="width:0%"></div>
                             </div>
                             <div class="budget-bar-labels">
-                                <span id="budgetUsedLabel">@Model.Budget.ToString("N2")</span> / @remainingBudget.ToString("N2") @Localizer["available"]
+                                @currencySymbol<span id="budgetUsedLabel">@Model.Budget.ToString("N2")</span> / @currencySymbol@remainingBudget.ToString("N2") @Localizer["available"]
                             </div>
                         </div>
                     </div>
