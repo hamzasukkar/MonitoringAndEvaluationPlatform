@@ -24,8 +24,11 @@ namespace MonitoringAndEvaluationPlatform.Services
 
         public async Task<TestDataGenerationResult> GenerateAsync(GenerateTestDataViewModel config)
         {
-            var prefix = config.NamePrefix?.Trim();
-            if (string.IsNullOrEmpty(prefix))
+            // Used verbatim: the default "[TEST] " ends in a deliberate separator space, and
+            // trimming it produced names like "[TEST]Project 26-1". Deletion trims its own input,
+            // so a prefix typed with or without the trailing space still matches either way.
+            var prefix = config.NamePrefix;
+            if (string.IsNullOrWhiteSpace(prefix))
                 throw new InvalidOperationException("A name prefix is required so generated data can be deleted later.");
 
             var ministry = await _context.Ministries.FirstOrDefaultAsync(m => m.Code == config.MinistryCode);

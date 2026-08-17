@@ -49,7 +49,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<CategoryReportItem> DonorReports { get; set; } = new List<CategoryReportItem>();
         public List<CategoryReportItem> SupervisorReports { get; set; } = new List<CategoryReportItem>();
         public List<CategoryReportItem> ProjectManagerReports { get; set; } = new List<CategoryReportItem>();
-        public List<CategoryReportItem> GovernorateReports { get; set; } = new List<CategoryReportItem>();
+        public List<GovernorateReportItem> GovernorateReports { get; set; } = new List<GovernorateReportItem>();
 
         // Totals for category summaries
         public int TotalMinistries { get; set; }
@@ -93,5 +93,26 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public double AmountSpent { get; set; }
         public double IndicatorsPerformance { get; set; }
         public double DisbursementPerformance { get; set; }
+
+        /// <summary>
+        /// Projects whose currency could not be converted to SYP. They contribute nothing to
+        /// <see cref="TotalBudget"/>, so a non-zero value here means the budget understates reality.
+        /// </summary>
+        public int UnconvertedProjectCount { get; set; }
+    }
+
+    /// <summary>
+    /// A governorate row on the reports map. The inherited figures are the merged view — projects
+    /// linked to this governorate PLUS every nationwide (IsEntireCountry) project, which is what the
+    /// map's "All" level shows. <see cref="Provincial"/> carries the province-only slice so the
+    /// "Provincial Level" toggle has real figures to show instead of subtracting counts client-side.
+    /// </summary>
+    public class GovernorateReportItem : CategoryReportItem
+    {
+        /// <summary>
+        /// Province-linked projects only, excluding nationwide ones. May be an all-zero slice when a
+        /// governorate has no projects of its own. Null on the synthetic "Entire Country" row.
+        /// </summary>
+        public CategoryReportItem? Provincial { get; set; }
     }
 }
