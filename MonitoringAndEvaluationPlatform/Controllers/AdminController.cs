@@ -33,19 +33,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Admin/Index
-        public async Task<IActionResult> Index(string searchTerm = "", string roleFilter = "", int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string searchTerm = "", string roleFilter = "", string ministryFilter = "", int page = 1, int pageSize = 10)
         {
-            return await GetUserManagementView(searchTerm, roleFilter, page, pageSize, "Index");
+            return await GetUserManagementView(searchTerm, roleFilter, ministryFilter, page, pageSize, "Index");
         }
 
         // GET: Admin/Users (Alternative page with same functionality)
-        public async Task<IActionResult> Users(string searchTerm = "", string roleFilter = "", int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Users(string searchTerm = "", string roleFilter = "", string ministryFilter = "", int page = 1, int pageSize = 10)
         {
-            return await GetUserManagementView(searchTerm, roleFilter, page, pageSize, "Users");
+            return await GetUserManagementView(searchTerm, roleFilter, ministryFilter, page, pageSize, "Users");
         }
 
         // Shared method for user management
-        private async Task<IActionResult> GetUserManagementView(string searchTerm, string roleFilter, int page, int pageSize, string viewName)
+        private async Task<IActionResult> GetUserManagementView(string searchTerm, string roleFilter, string ministryFilter, int page, int pageSize, string viewName)
         {
             var usersQuery = _userManager.Users.AsQueryable();
 
@@ -74,6 +74,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                     usersQuery = usersQuery.Where(u => userIdsInRole.Contains(u.Id));
                 }
+            }
+
+            // Filter by ministry if specified
+            if (!string.IsNullOrWhiteSpace(ministryFilter))
+            {
+                usersQuery = usersQuery.Where(u => u.MinistryName == ministryFilter);
             }
 
             var totalUsers = await usersQuery.CountAsync();
@@ -126,11 +132,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Users = userViewModels,
                 SearchTerm = searchTerm,
                 RoleFilter = roleFilter,
+                MinistryFilter = ministryFilter,
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalUsers = totalUsers,
                 TotalPages = (int)Math.Ceiling(totalUsers / (double)pageSize),
-                AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync()
+                AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync(),
+                AvailableMinistries = await _context.Ministries
+                    .OrderBy(m => m.MinistryDisplayName_EN)
+                    .ToListAsync()
             };
 
             return View(viewName, viewModel);
