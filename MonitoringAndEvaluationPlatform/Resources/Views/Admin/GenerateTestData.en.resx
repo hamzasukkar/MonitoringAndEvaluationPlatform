@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="GenerateTestData" xml:space="preserve">
+    <value>Generate Test Data</value>
+  </data>
+  <data name="GenerateTestDataDescription" xml:space="preserve">
+    <value>Build a complete experimental hierarchy under a ministry</value>
+  </data>
+  <data name="BackToAdmin" xml:space="preserve">
+    <value>Back to Admin</value>
+  </data>
+  <data name="GenerateTestDataHelp" xml:space="preserve">
+    <value>This creates a full Framework → Outcome → Output → Sub-Output → Indicator → Project → Phase → Action Plan → Plan tree under the ministry you choose. Every record is tagged with the name prefix so it can be deleted again as a set.</value>
+  </data>
+  <data name="GenerationSettings" xml:space="preserve">
+    <value>Generation Settings</value>
+  </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>Ministry</value>
+  </data>
+  <data name="SelectMinistry" xml:space="preserve">
+    <value>-- Select a ministry --</value>
+  </data>
+  <data name="NamePrefix" xml:space="preserve">
+    <value>Name Prefix</value>
+  </data>
+  <data name="NamePrefixHelp" xml:space="preserve">
+    <value>Prepended to every generated name. This is how the delete action finds the data later.</value>
+  </data>
+  <data name="FrameworkName" xml:space="preserve">
+    <value>Framework Name</value>
+  </data>
+  <data name="FrameworkNamePlaceholder" xml:space="preserve">
+    <value>Leave blank for an automatic name</value>
+  </data>
+  <data name="FrameworkNameHelp" xml:space="preserve">
+    <value>The prefix is added automatically. Blank generates a name with the current timestamp.</value>
+  </data>
+  <data name="ItemsPerLevel" xml:space="preserve">
+    <value>Items per Level</value>
+  </data>
+  <data name="OutcomesPerFramework" xml:space="preserve">
+    <value>Outcomes per Framework</value>
+  </data>
+  <data name="OutputsPerOutcome" xml:space="preserve">
+    <value>Outputs per Outcome</value>
+  </data>
+  <data name="SubOutputsPerOutput" xml:space="preserve">
+    <value>Sub-Outputs per Output</value>
+  </data>
+  <data name="IndicatorsPerSubOutput" xml:space="preserve">
+    <value>Indicators per Sub-Output</value>
+  </data>
+  <data name="ProjectSettings" xml:space="preserve">
+    <value>Project Settings</value>
+  </data>
+  <data name="CreateProjectPerIndicator" xml:space="preserve">
+    <value>Create a project for each indicator</value>
+  </data>
+  <data name="CreateProjectPerIndicatorHelp" xml:space="preserve">
+    <value>An indicator links to at most one project, so this is a yes/no rather than a count. Turn it off to generate the results chain only.</value>
+  </data>
+  <data name="PhasesPerProject" xml:space="preserve">
+    <value>Phases per Project</value>
+  </data>
+  <data name="ProjectDurationMonths" xml:space="preserve">
+    <value>Project Duration (months)</value>
+  </data>
+  <data name="MeasuresPerPhase" xml:space="preserve">
+    <value>Measures per Phase</value>
+  </data>
+  <data name="PopulateValues" xml:space="preserve">
+    <value>Populate performance values</value>
+  </data>
+  <data name="PopulateValuesHelp" xml:space="preserve">
+    <value>Fills in measure values and disbursement amounts, then recalculates the hierarchy so performance figures read non-zero. Leave off to create the structure only.</value>
+  </data>
+  <data name="EstimatedRecords" xml:space="preserve">
+    <value>Estimated Records</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>Frameworks</value>
+  </data>
+  <data name="Outcomes" xml:space="preserve">
+    <value>Outcomes</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>Outputs</value>
+  </data>
+  <data name="SubOutputs" xml:space="preserve">
+    <value>Sub-Outputs</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>Indicators</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Phases" xml:space="preserve">
+    <value>Phases</value>
+  </data>
+  <data name="ActionPlans" xml:space="preserve">
+    <value>Action Plans</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>Plans</value>
+  </data>
+  <data name="Measures" xml:space="preserve">
+    <value>Measures</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="RowLimitWarning" xml:space="preserve">
+    <value>This exceeds the 50,000 record limit for a single run. Reduce the counts, phases, or duration.</value>
+  </data>
+  <data name="Generate" xml:space="preserve">
+    <value>Generate</value>
+  </data>
+  <data name="DeleteGeneratedData" xml:space="preserve">
+    <value>Delete Generated Data</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="DeleteGeneratedDataWarning" xml:space="preserve">
+    <value>This permanently deletes every framework and project whose name starts with the prefix, along with everything beneath them. Data that was not generated with this prefix is left untouched.</value>
+  </data>
+  <data name="DeletePrefixHelp" xml:space="preserve">
+    <value>Must match the prefix used when generating.</value>
+  </data>
+  <data name="YourPassword" xml:space="preserve">
+    <value>Your Password</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="ToConfirm" xml:space="preserve">
+    <value>to confirm</value>
+  </data>
+  <data name="ConfirmGenerate" xml:space="preserve">
+    <value>Generate approximately {0} records? This can take a while for large runs.</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Permanently delete ALL data with the prefix '{0}'? This cannot be undone.</value>
+  </data>
+</root>

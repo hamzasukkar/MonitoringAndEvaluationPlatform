@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="GenerateTestData" xml:space="preserve">
+    <value>توليد بيانات تجريبية</value>
+  </data>
+  <data name="GenerateTestDataDescription" xml:space="preserve">
+    <value>إنشاء هيكل تجريبي كامل تحت وزارة محددة</value>
+  </data>
+  <data name="BackToAdmin" xml:space="preserve">
+    <value>العودة للإدارة</value>
+  </data>
+  <data name="GenerateTestDataHelp" xml:space="preserve">
+    <value>ينشئ هذا شجرة كاملة: الإطار ← النتيجة ← المخرج ← المخرج الفرعي ← المؤشر ← المشروع ← المرحلة ← خطة العمل ← الخطة، تحت الوزارة التي تختارها. يتم وسم كل سجل بالبادئة ليمكن حذفها جميعاً كمجموعة واحدة.</value>
+  </data>
+  <data name="GenerationSettings" xml:space="preserve">
+    <value>إعدادات التوليد</value>
+  </data>
+  <data name="Ministry" xml:space="preserve">
+    <value>الوزارة</value>
+  </data>
+  <data name="SelectMinistry" xml:space="preserve">
+    <value>-- اختر وزارة --</value>
+  </data>
+  <data name="NamePrefix" xml:space="preserve">
+    <value>بادئة الاسم</value>
+  </data>
+  <data name="NamePrefixHelp" xml:space="preserve">
+    <value>تُضاف إلى بداية كل اسم مولَّد. هذه هي الطريقة التي يعثر بها إجراء الحذف على البيانات لاحقاً.</value>
+  </data>
+  <data name="FrameworkName" xml:space="preserve">
+    <value>اسم الإطار</value>
+  </data>
+  <data name="FrameworkNamePlaceholder" xml:space="preserve">
+    <value>اتركه فارغاً لاسم تلقائي</value>
+  </data>
+  <data name="FrameworkNameHelp" xml:space="preserve">
+    <value>تُضاف البادئة تلقائياً. الحقل الفارغ يولّد اسماً يتضمن الوقت الحالي.</value>
+  </data>
+  <data name="ItemsPerLevel" xml:space="preserve">
+    <value>عدد العناصر في كل مستوى</value>
+  </data>
+  <data name="OutcomesPerFramework" xml:space="preserve">
+    <value>النتائج لكل إطار</value>
+  </data>
+  <data name="OutputsPerOutcome" xml:space="preserve">
+    <value>المخرجات لكل نتيجة</value>
+  </data>
+  <data name="SubOutputsPerOutput" xml:space="preserve">
+    <value>المخرجات الفرعية لكل مخرج</value>
+  </data>
+  <data name="IndicatorsPerSubOutput" xml:space="preserve">
+    <value>المؤشرات لكل مخرج فرعي</value>
+  </data>
+  <data name="ProjectSettings" xml:space="preserve">
+    <value>إعدادات المشروع</value>
+  </data>
+  <data name="CreateProjectPerIndicator" xml:space="preserve">
+    <value>إنشاء مشروع لكل مؤشر</value>
+  </data>
+  <data name="CreateProjectPerIndicatorHelp" xml:space="preserve">
+    <value>يرتبط المؤشر بمشروع واحد على الأكثر، لذا هذا خيار نعم/لا وليس عدداً. أوقفه لتوليد سلسلة النتائج فقط.</value>
+  </data>
+  <data name="PhasesPerProject" xml:space="preserve">
+    <value>المراحل لكل مشروع</value>
+  </data>
+  <data name="ProjectDurationMonths" xml:space="preserve">
+    <value>مدة المشروع (بالأشهر)</value>
+  </data>
+  <data name="MeasuresPerPhase" xml:space="preserve">
+    <value>القياسات لكل مرحلة</value>
+  </data>
+  <data name="PopulateValues" xml:space="preserve">
+    <value>تعبئة قيم الأداء</value>
+  </data>
+  <data name="PopulateValuesHelp" xml:space="preserve">
+    <value>يملأ قيم القياسات ومبالغ الصرف، ثم يعيد حساب الهيكل لتظهر نسب الأداء بقيم غير صفرية. اتركه متوقفاً لإنشاء الهيكل فقط.</value>
+  </data>
+  <data name="EstimatedRecords" xml:space="preserve">
+    <value>السجلات المتوقعة</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>الأطر</value>
+  </data>
+  <data name="Outcomes" xml:space="preserve">
+    <value>النتائج</value>
+  </data>
+  <data name="Outputs" xml:space="preserve">
+    <value>المخرجات</value>
+  </data>
+  <data name="SubOutputs" xml:space="preserve">
+    <value>المخرجات الفرعية</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Phases" xml:space="preserve">
+    <value>المراحل</value>
+  </data>
+  <data name="ActionPlans" xml:space="preserve">
+    <value>خطط العمل</value>
+  </data>
+  <data name="Plans" xml:space="preserve">
+    <value>الخطط</value>
+  </data>
+  <data name="Measures" xml:space="preserve">
+    <value>القياسات</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="RowLimitWarning" xml:space="preserve">
+    <value>هذا يتجاوز حد الـ 50,000 سجل للتشغيل الواحد. قلّل الأعداد أو المراحل أو المدة.</value>
+  </data>
+  <data name="Generate" xml:space="preserve">
+    <value>توليد</value>
+  </data>
+  <data name="DeleteGeneratedData" xml:space="preserve">
+    <value>حذف البيانات المولَّدة</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>تحذير</value>
+  </data>
+  <data name="DeleteGeneratedDataWarning" xml:space="preserve">
+    <value>يحذف هذا نهائياً كل إطار ومشروع يبدأ اسمه بالبادئة، مع كل ما تحته. البيانات التي لم تُولَّد بهذه البادئة تبقى دون مساس.</value>
+  </data>
+  <data name="DeletePrefixHelp" xml:space="preserve">
+    <value>يجب أن تطابق البادئة المستخدمة عند التوليد.</value>
+  </data>
+  <data name="YourPassword" xml:space="preserve">
+    <value>كلمة المرور الخاصة بك</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>اكتب</value>
+  </data>
+  <data name="ToConfirm" xml:space="preserve">
+    <value>للتأكيد</value>
+  </data>
+  <data name="ConfirmGenerate" xml:space="preserve">
+    <value>توليد ما يقارب {0} سجل؟ قد يستغرق ذلك بعض الوقت للعمليات الكبيرة.</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>حذف كل البيانات ذات البادئة '{0}' نهائياً؟ لا يمكن التراجع عن ذلك.</value>
+  </data>
+</root>

@@ -96,6 +96,7 @@ builder.Services.AddScoped<IProjectValidationService, ProjectValidationService>(
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDataManagementService, DataManagementService>();
+builder.Services.AddScoped<ITestDataGeneratorService, TestDataGeneratorService>();
 builder.Services.AddScoped<IGuideService, GuideService>();
 // Converts project budgets to SYP for cross-project totals; caches the rate table briefly
 // because nearly every page that shows a total needs it.
