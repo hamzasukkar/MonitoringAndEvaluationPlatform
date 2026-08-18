@@ -219,7 +219,8 @@ body.rtl .topbar {
     }
 
 /* Styling for the Language Select inside the Dropdown */
-.dropdown-menu form select {
+.dropdown-menu form select,
+.dropdown-menu form .ss-control {
     width: calc(100% - 2rem); /* Take full width minus padding on each side */
     padding: 0.5rem 1rem;
     margin: 0.5rem 1rem; /* Center it with surrounding dropdown items */
@@ -241,7 +242,8 @@ body.rtl .topbar {
     background-position: var(--select-arrow-bg-position-inline-end) center;
 }
 
-    .dropdown-menu form select:focus {
+    .dropdown-menu form select:focus,
+    .dropdown-menu form .ss-control:focus {
         outline: none;
         border-color: var(--accent-gold-color); /* Gold border on focus */
         box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25); /* Subtle gold glow */

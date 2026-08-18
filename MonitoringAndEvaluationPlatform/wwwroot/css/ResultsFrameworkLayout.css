@@ -383,7 +383,8 @@ body.rtl .table tbody tr:hover {
 
 /* Add these styles to your CSS file */
 
-.dropdown-menu form select {
+.dropdown-menu form select,
+.dropdown-menu form .ss-control {
     /* Base styling for the select dropdown */
     width: calc(100% - 2rem); /* Take full width minus padding on each side */
     padding: 0.5rem 1rem;
@@ -401,7 +402,8 @@ body.rtl .table tbody tr:hover {
     text-align: var(--text-align-start); /* Align text based on direction */
 }
 
-    .dropdown-menu form select:focus {
+    .dropdown-menu form select:focus,
+    .dropdown-menu form .ss-control:focus {
         outline: none;
         border-color: var(--accent-gold-color); /* Gold border on focus */
         box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25); /* Subtle gold glow */
@@ -416,14 +418,16 @@ body.rtl .table tbody tr:hover {
 
 /* Optional: Add a custom dropdown arrow icon if 'appearance: none' makes it look too plain */
 /* This requires a bit more advanced CSS or an SVG background */
-.dropdown-menu form select {
+.dropdown-menu form select,
+.dropdown-menu form .ss-control {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='%23C8A85F' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592c.859 0 1.319 1.013.753 1.658L8.753 11.14a1.86 1.86 0 0 1-1.506 0z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: calc(100% - 0.75rem) center; /* Position arrow on the right */
     background-size: 1rem;
 }
 
-body.rtl .dropdown-menu form select {
+body.rtl .dropdown-menu form select,
+body.rtl .dropdown-menu form .ss-control {
     background-position: 0.75rem center; /* Position arrow on the left for RTL */
 }
 
@@ -431,7 +435,8 @@ body.rtl .dropdown-menu form select {
 
 /* Style both dropdown and standalone language selectors */
 .dropdown-menu form select,
-form.language-selector select {
+form.language-selector select,
+form.language-selector .ss-control {
     width: calc(100% - 2rem);
     padding: 0.5rem 1rem;
     margin: 0.5rem 1rem;
@@ -453,7 +458,8 @@ form.language-selector select {
 }
 
     .dropdown-menu form select:focus,
-    form.language-selector select:focus {
+    form.language-selector select:focus,
+    form.language-selector .ss-control:focus {
         outline: none;
         border-color: var(--accent-gold-color);
         box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25);
@@ -468,6 +474,7 @@ form.language-selector select {
 
 /* RTL fix */
 body.rtl .dropdown-menu form select,
-body.rtl form.language-selector select {
+body.rtl form.language-selector select,
+body.rtl form.language-selector .ss-control {
     background-position: 0.75rem center;
 }

@@ -181,7 +181,8 @@ body.rtl .nav-links .nav {
     }
 
 /* Styling for the Language Select inside the Dropdown */
-.dropdown-menu form select {
+.dropdown-menu form select,
+.dropdown-menu form .ss-control {
     width: calc(100% - 2rem); /* Take full width minus padding on each side */
     padding: 0.5rem 1rem;
     margin: 0.5rem 1rem; /* Center it with surrounding dropdown items */
@@ -203,11 +204,13 @@ body.rtl .nav-links .nav {
     background-size: 1rem;
 }
 
-body.rtl .dropdown-menu form select {
+body.rtl .dropdown-menu form select,
+body.rtl .dropdown-menu form .ss-control {
     background-position: 0.75rem center; /* Position arrow on the left for RTL */
 }
 
-.dropdown-menu form select:focus {
+.dropdown-menu form select:focus,
+.dropdown-menu form .ss-control:focus {
     outline: none;
     border-color: var(--accent-gold-color); /* Gold border on focus */
     box-shadow: 0 0 0 0.2rem rgba(200, 168, 95, 0.25); /* Subtle gold glow */

@@ -117,6 +117,7 @@
 			display: none !important;
 		}
 	</style>
+	<link rel="stylesheet" href="~/css/searchable-select.css" asp-append-version="true" />
 </head>
 @* <body class="@(dir == "rtl" ? "rtl" : "ltr")" data-theme="default"> *@
 <body data-theme="default">
@@ -490,5 +491,6 @@
 	@* Chatbot hidden - uncomment to re-enable *@
 	@*@await Html.PartialAsync("_ChatbotWidget")*@
 	@*<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>*@
+	<script src="~/js/searchable-select.js" asp-append-version="true"></script>
 </body>
 </html>
