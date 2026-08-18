@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -213,7 +213,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Frameworks
         [Permission(Permissions.ReadStrategies)]
-        public async Task<IActionResult> Index(string sortOrder, string searchString, FrameworkFilterViewModel filter, bool unassignedOnly = false, string? viewMode = null)
+        public async Task<IActionResult> Index(string sortOrder, string searchString, FrameworkFilterViewModel filter, bool unassignedOnly = false, bool ownerlessOnly = false, string? viewMode = null)
         {
             ViewData["CurrentSort"] = sortOrder;
             // هنا قمنا بتغيير الفرز الافتراضي ليكون تنازليًا حسب أداءالمشاريع
@@ -343,6 +343,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ToList();
             }
 
+            // Strategies with no OWNER, whether or not a ministry reaches them through a project.
+            // The count above cannot find these: a strategy carrying another ministry's projects
+            // has a non-empty badge list, so it reads as assigned while nobody actually owns it.
+            filter.OwnerlessStrategyCount = filter.Frameworks.Count(f => f.MinistryCode == null);
+
+            filter.OwnerlessOnly = ownerlessOnly;
+            if (ownerlessOnly)
+            {
+                filter.Frameworks = filter.Frameworks.Where(f => f.MinistryCode == null).ToList();
+            }
+
             // One row per ministry that has at least one strategy, built by inverting the
             // framework -> ministries map. A non-admin is narrowed to their own ministry: a
             // strategy shared with another ministry would otherwise surface that ministry as
@@ -364,6 +375,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // the page: a search, a ministry, or the unassigned bucket always means a strategy list.
             filter.ShowMinistries = ResolveViewMode(viewMode, isAdmin) == ViewModeMinistries
                 && !unassignedOnly
+                && !ownerlessOnly
                 && string.IsNullOrEmpty(searchString)
                 && (filter.SelectedMinistries == null || !filter.SelectedMinistries.Any());
 
