@@ -94,18 +94,21 @@
             </p>
         </div>
         <div class="d-flex gap-2 align-items-center">
-            @* Layout switch. Both links are deliberately clean of filters: picking a layout
-               also clears any ministry / search narrowing. The choice is remembered server-side. *@
-            <div class="btn-group view-mode-toggle" role="group" aria-label="@Localizer["View"]">
-                <a href="@Url.Action("Index", "Frameworks")?viewMode=ministries"
-                   class="btn btn-lg @(Model.ShowMinistries ? "btn-primary" : "btn-outline-secondary")">
-                    <i class="fas fa-landmark me-2"></i>@Localizer["By Ministry"]
-                </a>
-                <a href="@Url.Action("Index", "Frameworks")?viewMode=strategies"
-                   class="btn btn-lg @(Model.ShowMinistries ? "btn-outline-secondary" : "btn-primary")">
-                    <i class="fas fa-list me-2"></i>@Localizer["All Strategies"]
-                </a>
-            </div>
+            @if (!Model.IsMinistryUser)
+            {
+                @* Layout switch. Both links are deliberately clean of filters: picking a layout
+                   also clears any ministry / search narrowing. The choice is remembered server-side. *@
+                <div class="btn-group view-mode-toggle" role="group" aria-label="@Localizer["View"]">
+                    <a href="@Url.Action("Index", "Frameworks")?viewMode=ministries"
+                       class="btn btn-lg @(Model.ShowMinistries ? "btn-primary" : "btn-outline-secondary")">
+                        <i class="fas fa-landmark me-2"></i>@Localizer["By Ministry"]
+                    </a>
+                    <a href="@Url.Action("Index", "Frameworks")?viewMode=strategies"
+                       class="btn btn-lg @(Model.ShowMinistries ? "btn-outline-secondary" : "btn-primary")">
+                        <i class="fas fa-list me-2"></i>@Localizer["All Strategies"]
+                    </a>
+                </div>
+            }
             @await Html.PartialAsync("_HelpButton")
             @if (SignInManager.IsSignedIn(User))
             {

@@ -125,7 +125,7 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
                     var user = await _userManager.FindByNameAsync(Input.UserName);
                     await _auditService.LogAuthenticationAsync("Login", user?.Id, Input.UserName, user?.Email, true);
                     _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
+                    return RedirectToAction("Index", "Frameworks");
                 }
                 if (result.RequiresTwoFactor)
                 {
