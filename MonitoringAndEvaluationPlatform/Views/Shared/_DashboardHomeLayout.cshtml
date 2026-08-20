@@ -1078,50 +1078,6 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="MinistriesandAgenciesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-building me-1"></i> @Localizer["Ministries and Agencies"]
-                        </a>
-                        <ul class="dropdown-menu p-2" aria-labelledby="MinistriesandAgenciesDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
-                            <li class="mb-2">
-                                <input type="text" class="form-control form-control-sm" id="ministrySearch" placeholder="@Localizer["Search"]">
-                            </li>
-                            @foreach (var ministry in _context.Ministries.ToList())
-                            {
-                                <li class="ministry-item">
-                                    <a asp-controller="Ministries" asp-action="ResultIndex" asp-route-ministryCode="@ministry.Code" class="dropdown-item">
-                                        @if (!string.IsNullOrEmpty(ministry.Logo))
-                                        {
-                                            <span class="ministry-logo me-1">@ministry.Logo</span>
-                                        }
-                                        @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN)
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="SectorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-industry me-1"></i> @Localizer["Sectors"]
-                        </a>
-                        <ul class="dropdown-menu p-2" aria-labelledby="SectorsDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
-                            <li class="ministry-item">
-                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="1">
-                                    @Localizer["Public"]
-                                </a>
-                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="2">
-                                    @Localizer["private"]
-                                </a>
-                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="3">
-                                    @Localizer["Common"]
-                                </a>
-                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="4">
-                                    @Localizer["Domestic"]
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
-                    <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="InternationalCooperationPartnersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-handshake me-1"></i> @Localizer["International Cooperation Partners"]
                         </a>
@@ -1444,21 +1400,6 @@
                     }
                 });
             });
-
-            // Ministry search functionality
-            const ministrySearch = document.getElementById("ministrySearch");
-            if (ministrySearch) {
-                ministrySearch.addEventListener("keyup", function () {
-                    let filter = this.value.toLowerCase();
-                    let items = document.querySelectorAll("ul.dropdown-menu li.ministry-item");
-                    items.forEach(item => {
-                        let anchor = item.querySelector("a.dropdown-item");
-                        if (anchor) {
-                            item.style.display = anchor.textContent.toLowerCase().includes(filter) ? "" : "none";
-                        }
-                    });
-                });
-            }
 
             // Dropdown submenu click functionality for mobile
             $('.dropdown-submenu a.dropdown-toggle').on("click", function(e){
