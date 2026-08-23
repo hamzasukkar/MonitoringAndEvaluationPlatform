@@ -9,6 +9,8 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<FrameworkPerformanceViewModel> FrameworksPerformance { get; set; } = new();
         public int TotlalMinistries { get; set; }
         public List<Ministry> Ministries { get; set; }
+        public bool IsMinistryUser { get; set; }
+        public int? UserMinistryCode { get; set; }
         public Dictionary<string, int> ProjectsByMinistry { get; set; } = new();
         public int TotalProjects { get; set; }
         public List<Project> Projects { get; set; }

@@ -535,7 +535,11 @@ public class DashboardController : Controller
             Frameworks = await frameworksQ.ToListAsync(),
 
             TotlalMinistries = await indicatorsQ.CountAsync(),
-            Ministries = await _context.Ministries.ToListAsync(),
+            Ministries = isAdmin
+                ? await _context.Ministries.ToListAsync()
+                : await _context.Ministries.Where(m => m.Code == scopedMinistryCode).ToListAsync(),
+            IsMinistryUser = !isAdmin,
+            UserMinistryCode = scopedMinistryCode,
 
             TotalProjects = await projectsQ.CountAsync(),
             Projects = await projectsQ.ToListAsync(),
