@@ -260,12 +260,12 @@
                                 </div>
 
                                 <!-- Exchange Rate (required for any non-SYP currency) -->
-                                <div class="mb-4 @(HasError("ExchangeRate") ? "has-validation-error" : "")" id="exchangeRateSection" style="display:none;">
+                                <div class="mb-4 @(HasError("ExchangeRate") ? "has-validation-error" : "")" id="exchangeRateSection">
                                     <label class="form-label fw-bold">
                                         <i class="fas fa-exchange-alt me-2"></i>
                                         @Localizer["Exchange Rate"]
                                         <small class="text-muted" id="exchangeRateHint"></small>
-                                        <span class="text-danger">*</span>
+                                        <span class="text-danger" id="exchangeRateRequiredMark">*</span>
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text">
@@ -302,10 +302,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Stakeholders -->
-                                <h6 class="text-primary mb-3">
-                                    <i class="fas fa-users me-2"></i>@Localizer["Stakeholders"]
-                                </h6>
                                 <div class="mb-4 @(HasError("Sectors") ? "has-validation-error" : "")" id="sectors-container">
                                     <label class="form-label fw-bold">
                                         <i class="fas fa-industry me-2"></i>
@@ -343,7 +339,7 @@
                                     <span asp-validation-for="ProjectManagerCode" class="invalid-feedback d-block"></span>
                                 </div>
 
-                                <div class="mb-4 @(HasError("SuperVisorCode") ? "has-validation-error" : "")">
+                                <div class="mb-4 d-none @(HasError("SuperVisorCode") ? "has-validation-error" : "")">
                                     <label asp-for="SuperVisorCode" class="form-label fw-bold">
                                         <i class="fas fa-user-check me-2"></i>
                                         @Localizer["Supervisor"] <span class="text-danger">*</span>
@@ -1542,7 +1538,7 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
     // A rate is required for every currency except the base one, which converts 1:1.
     function toggleExchangeRateSection(currency) {
         const needsRate = currency && currency !== 'SYP';
-        $('#exchangeRateSection').toggle(!!needsRate);
+        $('#exchangeRateRequiredMark').toggle(!!needsRate);
 
         if (needsRate) {
             $('#exchangeRateHint').text('(1 ' + currency + ' = ? SYP)');
@@ -1552,6 +1548,7 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
                 setManualRateDate();
             }
         } else {
+            $('#exchangeRateHint').text('');
             $('#exchangeRateClientError').hide();
         }
 
