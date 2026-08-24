@@ -191,6 +191,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return result;
         }
 
+        // Roll-up behind one row of the ministries table. A simple average: Framework carries
+        // no weight, so every strategy counts the same.
+        private static (double Indicators, double Disbursement) AverageStrategyPerformance(
+            IEnumerable<Framework> frameworks)
+        {
+            var list = frameworks.ToList();
+
+            return list.Count == 0
+                ? (0, 0)
+                : (Math.Round(list.Average(f => f.IndicatorsPerformance), 2),
+                   Math.Round(list.Average(f => f.DisbursementPerformance), 2));
+        }
+
         // Loads the ministries shown in the strategy creation dropdowns, plus the
         // scope flags the views use to lock the dropdown for ministry users.
         private async Task PopulateMinistrySelectionAsync(bool isAdmin, int? scopedMinistryCode)
@@ -330,28 +343,39 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Frameworks = await frameworksQuery.ToListAsync();
             filter.FrameworkMinistries = await BuildFrameworkMinistriesAsync(filter.Frameworks, filter.Ministries);
 
+            // Captured before the buckets below narrow filter.Frameworks: MinistryGroups is built
+            // from the full FrameworkMinistries map, so its roll-ups need the full strategy list.
+            var frameworksByCode = filter.Frameworks.ToDictionary(f => f.Code);
+
             // Strategies that belong to no ministry at all - neither an owning MinistryCode
             // nor a ministry reached through their projects.
-            filter.UnassignedStrategyCount = filter.Frameworks
-                .Count(f => !filter.FrameworkMinistries.TryGetValue(f.Code, out var ms) || ms.Count == 0);
+            var unassignedStrategies = filter.Frameworks
+                .Where(f => !filter.FrameworkMinistries.TryGetValue(f.Code, out var ms) || ms.Count == 0)
+                .ToList();
+
+            filter.UnassignedStrategyCount = unassignedStrategies.Count;
+            (filter.UnassignedIndicatorsPerformance, filter.UnassignedDisbursementPerformance) =
+                AverageStrategyPerformance(unassignedStrategies);
 
             filter.UnassignedOnly = unassignedOnly;
             if (unassignedOnly)
             {
-                filter.Frameworks = filter.Frameworks
-                    .Where(f => !filter.FrameworkMinistries.TryGetValue(f.Code, out var ms) || ms.Count == 0)
-                    .ToList();
+                filter.Frameworks = unassignedStrategies;
             }
 
             // Strategies with no OWNER, whether or not a ministry reaches them through a project.
             // The count above cannot find these: a strategy carrying another ministry's projects
             // has a non-empty badge list, so it reads as assigned while nobody actually owns it.
-            filter.OwnerlessStrategyCount = filter.Frameworks.Count(f => f.MinistryCode == null);
+            var ownerlessStrategies = filter.Frameworks.Where(f => f.MinistryCode == null).ToList();
+
+            filter.OwnerlessStrategyCount = ownerlessStrategies.Count;
+            (filter.OwnerlessIndicatorsPerformance, filter.OwnerlessDisbursementPerformance) =
+                AverageStrategyPerformance(ownerlessStrategies);
 
             filter.OwnerlessOnly = ownerlessOnly;
             if (ownerlessOnly)
             {
-                filter.Frameworks = filter.Frameworks.Where(f => f.MinistryCode == null).ToList();
+                filter.Frameworks = ownerlessStrategies;
             }
 
             // One row per ministry that has at least one strategy, built by inverting the
@@ -363,10 +387,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .SelectMany(entry => entry.Value.Select(ministry => new { FrameworkCode = entry.Key, Ministry = ministry }))
                 .Where(x => isAdmin || x.Ministry.Code == scopedMinistryCode)
                 .GroupBy(x => x.Ministry.Code)
-                .Select(g => new MinistryStrategyGroup
+                .Select(g =>
                 {
-                    Ministry = g.First().Ministry,
-                    StrategyCount = g.Select(x => x.FrameworkCode).Distinct().Count()
+                    var codes = g.Select(x => x.FrameworkCode).Distinct().ToList();
+                    var (indicators, disbursement) = AverageStrategyPerformance(
+                        codes.Where(frameworksByCode.ContainsKey).Select(code => frameworksByCode[code]));
+
+                    return new MinistryStrategyGroup
+                    {
+                        Ministry = g.First().Ministry,
+                        StrategyCount = codes.Count,
+                        IndicatorsPerformance = indicators,
+                        DisbursementPerformance = disbursement
+                    };
                 })
                 .OrderBy(g => isArabicUi ? g.Ministry.MinistryDisplayName_AR : g.Ministry.MinistryDisplayName_EN)
                 .ToList();

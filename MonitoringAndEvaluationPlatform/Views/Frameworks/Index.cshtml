@@ -314,13 +314,38 @@
                         <tr>
                             <th><i class="fas fa-landmark me-2"></i>@Localizer["Ministry"]</th>
                             <th class="text-center"><i class="fas fa-sitemap me-2"></i>@Localizer["Strategies"]</th>
+                            @* Rolled up from the strategies each row links to, so the number matches
+                               the list you land on. Sorted client-side - the rows are already all here. *@
+                            <th class="text-center sortable-header" style="cursor: pointer;"
+                                onclick="sortMinistryRows('indicators')">
+                                <div class="header-link">
+                                    <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
+                                    <i class="fas fa-sort ms-2" id="ministry-indicators-sort-icon"></i>
+                                </div>
+                            </th>
+                            <th class="text-center sortable-header" style="cursor: pointer;"
+                                onclick="sortMinistryRows('disbursement')">
+                                <div class="header-link">
+                                    <i class="fas fa-money-bill-wave me-2"></i>@Localizer["Disbursement Performance"]
+                                    <i class="fas fa-sort ms-2" id="ministry-disbursement-sort-icon"></i>
+                                </div>
+                            </th>
                             <th class="text-center"></th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="ministryStrategyRows">
                         @foreach (var group in Model.MinistryGroups)
                         {
+                            string groupIndicatorsClass = ProgressBarHelper.GetProgressBarClass(group.IndicatorsPerformance);
+                            string groupDisbursementClass = ProgressBarHelper.GetProgressBarClass(group.DisbursementPerformance);
+                            @* Invariant, not the UI culture: the Arabic decimal separator would make
+                               parseFloat truncate at the comma and sort every row by its integer part. *@
+                            string groupIndicatorsSortValue = group.IndicatorsPerformance.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            string groupDisbursementSortValue = group.DisbursementPerformance.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
                             <tr class="table-row ministry-row"
+                                data-indicators="@groupIndicatorsSortValue"
+                                data-disbursement="@groupDisbursementSortValue"
                                 onclick="window.location.href='@Url.Action("Index", "Frameworks")?SelectedMinistries=@group.Ministry.Code'">
                                 <td>
                                     <a class="ministry-row-link"
@@ -335,12 +360,26 @@
                                 <td class="text-center">
                                     <span class="badge bg-primary">@group.StrategyCount</span>
                                 </td>
+                                <td class="text-center" title="@Localizer["Indicators Performance"]: @group.IndicatorsPerformance%">
+                                    <div class="performance-metric">
+                                        @await Html.PartialAsync("_ProgressBar", Tuple.Create(group.IndicatorsPerformance, groupIndicatorsClass))
+                                    </div>
+                                </td>
+                                <td class="text-center" title="@Localizer["Disbursement Performance"]: @group.DisbursementPerformance%">
+                                    <div class="performance-metric">
+                                        @await Html.PartialAsync("_ProgressBar", Tuple.Create(group.DisbursementPerformance, groupDisbursementClass))
+                                    </div>
+                                </td>
                                 <td class="text-center">
                                     <i class="fas @(isArabic ? "fa-chevron-left" : "fa-chevron-right") text-muted"></i>
                                 </td>
                             </tr>
                         }
+                    </tbody>
 
+                    @* The two bucket rows live in their own tbody so sorting the ministry rows
+                       above never shuffles them out of the bottom of the table. *@
+                    <tbody>
                         @* Strategies with no ministry at all would otherwise be unreachable from here. *@
                         @if (Model.UnassignedStrategyCount > 0)
                         {
@@ -355,6 +394,16 @@
                                 </td>
                                 <td class="text-center">
                                     <span class="badge bg-secondary">@Model.UnassignedStrategyCount</span>
+                                </td>
+                                <td class="text-center" title="@Localizer["Indicators Performance"]: @Model.UnassignedIndicatorsPerformance%">
+                                    <div class="performance-metric">
+                                        @await Html.PartialAsync("_ProgressBar", Tuple.Create(Model.UnassignedIndicatorsPerformance, ProgressBarHelper.GetProgressBarClass(Model.UnassignedIndicatorsPerformance)))
+                                    </div>
+                                </td>
+                                <td class="text-center" title="@Localizer["Disbursement Performance"]: @Model.UnassignedDisbursementPerformance%">
+                                    <div class="performance-metric">
+                                        @await Html.PartialAsync("_ProgressBar", Tuple.Create(Model.UnassignedDisbursementPerformance, ProgressBarHelper.GetProgressBarClass(Model.UnassignedDisbursementPerformance)))
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <i class="fas @(isArabic ? "fa-chevron-left" : "fa-chevron-right") text-muted"></i>
@@ -380,6 +429,16 @@
                                 </td>
                                 <td class="text-center">
                                     <span class="badge bg-warning text-dark">@Model.OwnerlessStrategyCount</span>
+                                </td>
+                                <td class="text-center" title="@Localizer["Indicators Performance"]: @Model.OwnerlessIndicatorsPerformance%">
+                                    <div class="performance-metric">
+                                        @await Html.PartialAsync("_ProgressBar", Tuple.Create(Model.OwnerlessIndicatorsPerformance, ProgressBarHelper.GetProgressBarClass(Model.OwnerlessIndicatorsPerformance)))
+                                    </div>
+                                </td>
+                                <td class="text-center" title="@Localizer["Disbursement Performance"]: @Model.OwnerlessDisbursementPerformance%">
+                                    <div class="performance-metric">
+                                        @await Html.PartialAsync("_ProgressBar", Tuple.Create(Model.OwnerlessDisbursementPerformance, ProgressBarHelper.GetProgressBarClass(Model.OwnerlessDisbursementPerformance)))
+                                    </div>
                                 </td>
                                 <td class="text-center">
                                     <i class="fas @(isArabic ? "fa-chevron-left" : "fa-chevron-right") text-muted"></i>
@@ -956,6 +1015,47 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // Ministries table sorting. Client-side because every ministry row is already on the
+        // page - a round trip would only re-render the same rows. Only #ministryStrategyRows is
+        // touched; the Unassigned / no-owner buckets sit in their own tbody and stay at the end.
+        // Named ministrySort, not currentSort: that name is a Razor local in this file.
+        let ministrySort = { column: null, direction: 'desc' };
+
+        function sortMinistryRows(column) {
+            const tbody = document.getElementById('ministryStrategyRows');
+            if (!tbody) return; // strategies layout: no ministries table on the page
+
+            if (ministrySort.column === column) {
+                ministrySort.direction = ministrySort.direction === 'desc' ? 'asc' : 'desc';
+            } else {
+                ministrySort.direction = 'desc'; // a new column starts highest-first
+                ministrySort.column = column;
+            }
+
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            rows.sort((a, b) => {
+                const aValue = parseFloat(a.getAttribute(`data-${column}`)) || 0;
+                const bValue = parseFloat(b.getAttribute(`data-${column}`)) || 0;
+                return ministrySort.direction === 'desc' ? bValue - aValue : aValue - bValue;
+            });
+
+            tbody.innerHTML = '';
+            rows.forEach(row => tbody.appendChild(row));
+
+            updateMinistrySortIcons(column);
+        }
+
+        function updateMinistrySortIcons(activeColumn) {
+            ['indicators', 'disbursement'].forEach(name => {
+                const icon = document.getElementById(`ministry-${name}-sort-icon`);
+                if (!icon) return;
+
+                icon.className = name === activeColumn
+                    ? `fas fa-sort-${ministrySort.direction === 'desc' ? 'down' : 'up'} ms-2`
+                    : 'fas fa-sort ms-2';
+            });
+        }
+
         // Search on Enter key only
         const frameworkSearchInput = document.getElementById('frameworkSearchInput');
         const frameworkSearchForm = document.getElementById('frameworkSearchForm');

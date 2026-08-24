@@ -24,6 +24,13 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         // ministries landing view, so it gets a row for them too.
         public int UnassignedStrategyCount { get; set; }
 
+        // Roll-ups for the two bucket rows of the ministries table, so those rows carry the
+        // same two metrics as the ministry rows instead of empty cells.
+        public double UnassignedIndicatorsPerformance { get; set; }
+        public double UnassignedDisbursementPerformance { get; set; }
+        public double OwnerlessIndicatorsPerformance { get; set; }
+        public double OwnerlessDisbursementPerformance { get; set; }
+
         // True on the landing view (ministries table), false once a ministry, the unassigned
         // bucket, or a search narrows the page down to a strategy list.
         public bool ShowMinistries { get; set; }
@@ -42,6 +49,13 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
     {
         public Ministry Ministry { get; set; } = default!;
         public int StrategyCount { get; set; }
+
+        // Averaged over the strategies counted in StrategyCount - NOT the stored
+        // Ministry.IndicatorsPerformance / Ministry.DisbursementPerformance, which cover every
+        // project of the ministry. Rolling up what the row links to keeps the number and the
+        // strategy list you land on consistent.
+        public double IndicatorsPerformance { get; set; }
+        public double DisbursementPerformance { get; set; }
     }
 
 }
