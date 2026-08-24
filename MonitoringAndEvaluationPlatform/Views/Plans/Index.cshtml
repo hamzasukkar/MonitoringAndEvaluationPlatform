@@ -38,7 +38,7 @@
                 @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Realised)
+                @(item.ActionPlan?.ProjectPhase?.Project?.CurrencySymbol)@item.Realised.ToString("N0")
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ActionPlan.Code)

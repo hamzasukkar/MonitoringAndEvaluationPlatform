@@ -45,6 +45,14 @@
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <!-- Apply saved theme before first paint to avoid a flash of the default (blue) theme -->
+    <script>
+        (function () {
+            var savedTheme = localStorage.getItem('selectedTheme') || 'blue';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+
     <!-- Custom Dashboard Styles -->
     <style>
         :root {
@@ -77,25 +85,27 @@
             --theme-name: 'green';
         }
 
-            [data-theme="green"] button,
-            [data-theme="green"] .btn,
-            [data-theme="green"] input[type="submit"],
-            [data-theme="green"] input[type="button"] {
+            /* Gold treatment applies to standalone buttons only. Buttons inside a
+               .btn-group / .action-buttons are excluded with :not() rather than reset -
+               the old exclusion set `background-color: initial` (which computes to
+               transparent, not the Bootstrap default) and never reset `color`, leaving
+               white text on a white card. */
+            [data-theme="green"] button:not(.btn-group *):not(.action-buttons *):not(.btn-help-trigger),
+            [data-theme="green"] .btn:not(.btn-group *):not(.action-buttons *):not(.btn-help-trigger),
+            [data-theme="green"] input[type="submit"]:not(.btn-group *):not(.action-buttons *),
+            [data-theme="green"] input[type="button"]:not(.btn-group *):not(.action-buttons *) {
                 background-color: #C8A85F !important;
                 border-color: #C8A85F !important;
+                color: #1A3B33 !important; /* 5.37:1 on gold, passes AA. White on gold was 2.28:1. */
             }
 
-            /* Exclude buttons inside btn-group and action-buttons */
-            [data-theme="green"] .btn-group button,
-            [data-theme="green"] .btn-group .btn,
-            [data-theme="green"] .btn-group input[type="submit"],
-            [data-theme="green"] .btn-group input[type="button"],
-            [data-theme="green"] .action-buttons button,
-            [data-theme="green"] .action-buttons .btn,
-            [data-theme="green"] .action-buttons input[type="submit"],
-            [data-theme="green"] .action-buttons input[type="button"] {
-                background-color: initial !important;
-                border-color: initial !important;
+            /* Selected/primary toggle inside a group: theme dark green + white text.
+               Every other variant is left to Bootstrap. */
+            [data-theme="green"] .btn-group .btn-primary,
+            [data-theme="green"] .action-buttons .btn-primary {
+                background-color: var(--primary-color) !important;
+                border-color: var(--primary-color) !important;
+                color: #ffffff !important;
             }
 
         * {
@@ -472,6 +482,9 @@
         }
 
         .dashboard-subtitle {
+            /* Page subtitles are hidden platform-wide. Delete this one line to bring them back.
+               Mirrored in wwwroot/css/site.css, which this layout does not load. */
+            display: none !important;
             color: #666;
             font-size: 1.1rem;
             font-weight: 400;
@@ -926,6 +939,7 @@
     @*<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />*@
 
     @await RenderSectionAsync("Styles", required: false)
+    <link rel="stylesheet" href="~/css/searchable-select.css" asp-append-version="true" />
 </head>
 <body>
     <header>
@@ -937,7 +951,7 @@
             <div class="nav-links">
                 <ul class="nav">
                     <li class="nav-item">
-                        <a class="nav-link" asp-controller="Home" asp-action="Index">
+                        <a class="nav-link" asp-controller="Frameworks" asp-action="Index">
                             <i class="fas fa-home me-1"></i> @Localizer["Home"]
                         </a>
                     </li>
@@ -1066,50 +1080,6 @@
                             }
                         </ul>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="MinistriesandAgenciesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-building me-1"></i> @Localizer["Ministries and Agencies"]
-                        </a>
-                        <ul class="dropdown-menu p-2" aria-labelledby="MinistriesandAgenciesDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
-                            <li class="mb-2">
-                                <input type="text" class="form-control form-control-sm" id="ministrySearch" placeholder="@Localizer["Search"]">
-                            </li>
-                            @foreach (var ministry in _context.Ministries.ToList())
-                            {
-                                <li class="ministry-item">
-                                    <a asp-controller="Ministries" asp-action="ResultIndex" asp-route-ministryCode="@ministry.Code" class="dropdown-item">
-                                        @if (!string.IsNullOrEmpty(ministry.Logo))
-                                        {
-                                            <span class="ministry-logo me-1">@ministry.Logo</span>
-                                        }
-                                        @(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN)
-                                    </a>
-                                </li>
-                            }
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="SectorsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-industry me-1"></i> @Localizer["Sectors"]
-                        </a>
-                        <ul class="dropdown-menu p-2" aria-labelledby="SectorsDropdown" style="max-height: 300px; overflow-y: auto; min-width: 250px;">
-                            <li class="ministry-item">
-                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="1">
-                                    @Localizer["Public"]
-                                </a>
-                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="2">
-                                    @Localizer["private"]
-                                </a>
-                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="3">
-                                    @Localizer["Common"]
-                                </a>
-                                <a class="dropdown-item" asp-controller="Sectors" asp-action="ResultIndex" asp-route-code="4">
-                                    @Localizer["Domestic"]
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="InternationalCooperationPartnersDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-handshake me-1"></i> @Localizer["International Cooperation Partners"]
@@ -1434,21 +1404,6 @@
                 });
             });
 
-            // Ministry search functionality
-            const ministrySearch = document.getElementById("ministrySearch");
-            if (ministrySearch) {
-                ministrySearch.addEventListener("keyup", function () {
-                    let filter = this.value.toLowerCase();
-                    let items = document.querySelectorAll("ul.dropdown-menu li.ministry-item");
-                    items.forEach(item => {
-                        let anchor = item.querySelector("a.dropdown-item");
-                        if (anchor) {
-                            item.style.display = anchor.textContent.toLowerCase().includes(filter) ? "" : "none";
-                        }
-                    });
-                });
-            }
-
             // Dropdown submenu click functionality for mobile
             $('.dropdown-submenu a.dropdown-toggle').on("click", function(e){
                 if (!$(this).next('ul').hasClass('show')) {
@@ -1508,5 +1463,6 @@
     @* Chatbot hidden - uncomment to re-enable *@
     @*@await Html.PartialAsync("_ChatbotWidget")*@
     @*<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>*@
+    <script src="~/js/searchable-select.js" asp-append-version="true"></script>
 </body>
 </html>

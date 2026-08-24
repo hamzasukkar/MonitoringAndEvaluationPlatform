@@ -20,3 +20,9 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/* Page subtitles are hidden platform-wide. Delete this rule to bring them back.
+   Mirrored in Views/Shared/_DashboardHomeLayout.cshtml, which does not load this file. */
+.dashboard-subtitle {
+  display: none !important;
+}

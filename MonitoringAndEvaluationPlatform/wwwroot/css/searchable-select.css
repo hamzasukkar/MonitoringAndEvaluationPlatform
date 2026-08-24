@@ -1,0 +1,372 @@
+/* ============================================================================
+   searchable-select.css
+   Styling for the searchable dropdown built by wwwroot/js/searchable-select.js.
+
+   The visible control (.ss-control) inherits the original <select>'s own classes
+   (form-select, form-control, modern-select-filter, ...), so each page keeps its
+   look; only the caret and the dropdown panel are supplied here.
+   ========================================================================== */
+
+:root {
+    --ss-panel-bg: #ffffff;
+    --ss-panel-text: #212529;
+    --ss-panel-border: rgba(0, 0, 0, .15);
+    --ss-panel-shadow: 0 .5rem 1.5rem rgba(0, 0, 0, .175);
+    --ss-hover-bg: #f1f5f9;
+    --ss-selected-bg: var(--primary-color, #1A3B33);
+    --ss-selected-text: #ffffff;
+    --ss-muted: #6c757d;
+    --ss-radius: .375rem;
+}
+
+/* ------------------------------------------------------------ the container */
+
+.ss {
+    position: relative;
+    display: block;
+    max-width: 100%;
+}
+
+.ss--inline {
+    display: inline-block;
+    vertical-align: middle;
+    max-width: 100%;
+}
+
+.ss--hidden {
+    display: none !important;
+}
+
+/* The original <select> stays in the DOM and keeps its name/value/validation.
+   It is invisible but still rendered, so browser validation bubbles and
+   jQuery Validate (which skips :hidden fields) keep working. */
+.ss-native.ss-native {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    z-index: -1;
+    margin: 0;
+}
+
+/* --------------------------------------------------------------- the control */
+
+/* inline-flex, not flex: a control with no width rules of its own then sizes to its
+   content exactly like the native select it replaced, while form-select's width:100%
+   or a page's calc() width still take over when they are set. */
+.ss-control {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+    gap: .5rem;
+    max-width: 100%;
+    text-align: start;
+    cursor: pointer;
+    /* Kill the native <select> caret image inherited from .form-select. */
+    background-image: none !important;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Selects that carried no styling classes need a sane baseline. Kept to a single class
+   so any page or layout rule targeting the control still wins. */
+.ss-control--bare {
+    padding: .375rem .75rem;
+    border: 1px solid var(--ss-panel-border);
+    border-radius: var(--ss-radius);
+    background-color: var(--ss-panel-bg);
+    color: var(--ss-panel-text);
+    min-height: 38px;
+}
+
+.ss-control:disabled {
+    cursor: not-allowed;
+    opacity: .65;
+}
+
+.ss--open > .ss-control {
+    outline: 0;
+    box-shadow: 0 0 0 .2rem rgba(var(--primary-background-rgb, 13, 110, 253), .18);
+}
+
+.ss-label {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+.ss-label--placeholder {
+    color: var(--ss-muted);
+}
+
+.ss-caret {
+    flex: 0 0 auto;
+    width: 0;
+    height: 0;
+    border-inline-start: 4px solid transparent;
+    border-inline-end: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: .6;
+    transition: transform .15s ease;
+}
+
+.ss--open > .ss-control .ss-caret {
+    transform: rotate(180deg);
+}
+
+/* ----------------------------------------------------------------- the panel */
+
+/* Fixed + on <body>, so cards, table cells and modals cannot clip it. */
+.ss-panel {
+    position: fixed;
+    z-index: 20000;
+    background: var(--ss-panel-bg);
+    color: var(--ss-panel-text);
+    border: 1px solid var(--ss-panel-border);
+    border-radius: var(--ss-radius);
+    box-shadow: var(--ss-panel-shadow);
+    overflow: hidden;
+    font-size: .9rem;
+    animation: ss-fade .12s ease-out;
+}
+
+@keyframes ss-fade {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ss-panel--above {
+    animation-name: ss-fade-up;
+}
+
+@keyframes ss-fade-up {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.ss-search {
+    position: relative;
+    padding: .5rem;
+    border-bottom: 1px solid var(--ss-panel-border);
+}
+
+.ss-search-icon {
+    position: absolute;
+    top: 50%;
+    inset-inline-start: 1rem;
+    transform: translateY(-50%);
+    color: var(--ss-muted);
+    line-height: 0;
+    pointer-events: none;
+}
+
+.ss-search-input {
+    width: 100%;
+    padding: .375rem .625rem;
+    padding-inline-start: 2rem;
+    border: 1px solid var(--ss-panel-border);
+    border-radius: var(--ss-radius);
+    background: var(--ss-panel-bg);
+    color: var(--ss-panel-text);
+    font: inherit;
+    outline: none;
+}
+
+.ss-search-input:focus {
+    border-color: var(--ss-selected-bg);
+    box-shadow: 0 0 0 .15rem rgba(var(--primary-background-rgb, 13, 110, 253), .15);
+}
+
+.ss-list {
+    list-style: none;
+    margin: 0;
+    padding: .25rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.ss-option {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .45rem .625rem;
+    border-radius: calc(var(--ss-radius) - .125rem);
+    cursor: pointer;
+    line-height: 1.35;
+}
+
+.ss-option-text {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ss-option--active {
+    background: var(--ss-hover-bg);
+}
+
+.ss-option--selected {
+    font-weight: 600;
+}
+
+.ss-option--selected.ss-option--active {
+    background: var(--ss-selected-bg);
+    color: var(--ss-selected-text);
+}
+
+.ss-option--disabled {
+    opacity: .5;
+    cursor: not-allowed;
+}
+
+/* Tick for single-select, checkbox for multi-select. */
+.ss-tick {
+    flex: 0 0 auto;
+    line-height: 0;
+    visibility: hidden;
+    color: var(--ss-selected-bg);
+}
+
+.ss-option--selected .ss-tick {
+    visibility: visible;
+}
+
+.ss-option--selected.ss-option--active .ss-tick {
+    color: var(--ss-selected-text);
+}
+
+.ss-box {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border: 1px solid var(--ss-muted);
+    border-radius: 3px;
+    color: transparent;
+    line-height: 0;
+}
+
+.ss-option--selected .ss-box {
+    background: var(--ss-selected-bg);
+    border-color: var(--ss-selected-bg);
+    color: var(--ss-selected-text);
+}
+
+/* Selected + keyboard-active: invert, so the box stays visible on the dark row. */
+.ss-option--selected.ss-option--active .ss-box {
+    background: var(--ss-selected-text);
+    border-color: var(--ss-selected-text);
+    color: var(--ss-selected-bg);
+}
+
+.ss-group {
+    padding: .4rem .625rem .2rem;
+    font-size: .75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    color: var(--ss-muted);
+}
+
+.ss-empty,
+.ss-more {
+    padding: .75rem .625rem;
+    text-align: center;
+    color: var(--ss-muted);
+    font-size: .85rem;
+}
+
+.ss-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .4rem .625rem;
+    border-top: 1px solid var(--ss-panel-border);
+    font-size: .8rem;
+    color: var(--ss-muted);
+}
+
+.ss-clear {
+    border: 0;
+    background: transparent;
+    color: var(--ss-selected-bg);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    padding: .1rem .35rem;
+    border-radius: .25rem;
+}
+
+.ss-clear:hover {
+    background: var(--ss-hover-bg);
+}
+
+/* -------------------------------------------------- Bootstrap compatibility */
+
+/* Bootstrap addresses input-group and form-floating children with the direct-child
+   combinator, which the wrapper sits in the middle of. These rules hand the same
+   treatment through to the control. Radii stay physical to match Bootstrap's own
+   (LTR-built) rules on the neighbouring inputs. */
+
+.input-group > .ss {
+    display: flex;
+    flex: 1 1 auto;
+    width: 1%;
+    min-width: 0;
+}
+
+.input-group > .ss > .ss-control {
+    width: 100%;
+}
+
+.input-group > .ss:not(:first-child) > .ss-control {
+    margin-left: -1px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.input-group > .ss:not(:last-child) > .ss-control {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group > .ss.ss--open > .ss-control {
+    z-index: 3;
+}
+
+.form-floating > .ss > .ss-control {
+    height: calc(3.5rem + 2px);
+    padding-top: 1.625rem;
+    padding-bottom: .625rem;
+    line-height: 1.25;
+}
+
+.form-floating > .ss ~ label {
+    opacity: .65;
+    transform: scale(.85) translateY(-.5rem) translateX(.15rem);
+}
+
+/* ------------------------------------------------------------------- themes */
+
+/* Panels rendered on a dark themed page. */
+[data-theme="modern-glass"] .ss-panel,
+.ss-panel[data-dark="true"] {
+    --ss-panel-bg: #1f2937;
+    --ss-panel-text: #f8fafc;
+    --ss-panel-border: rgba(255, 255, 255, .18);
+    --ss-hover-bg: rgba(255, 255, 255, .08);
+    --ss-muted: #cbd5e1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ss-panel { animation: none; }
+    .ss-caret { transition: none; }
+}

@@ -68,7 +68,10 @@
     <value>الميزانية التقديرية مطلوبة</value>
   </data>
   <data name="EstimatedBudgetRange" xml:space="preserve">
-    <value>يجب أن تكون الميزانية التقديرية أكبر من 0.01 دولار</value>
+    <value>يجب أن تكون الميزانية التقديرية أكبر من 0.01</value>
+  </data>
+  <data name="ExchangeRateRequired" xml:space="preserve">
+    <value>سعر الصرف مطلوب عند اختيار عملة غير الليرة السورية</value>
   </data>
   <data name="RealBudgetRange" xml:space="preserve">
     <value>لا يمكن أن تكون الميزانية الفعلية سالبة</value>

@@ -133,7 +133,8 @@
     padding-left: calc(1.5rem - 3px);
 }
 
-[data-theme="default"] body.rtl .theme-switcher select {
+[data-theme="default"] body.rtl .theme-switcher select,
+[data-theme="default"] body.rtl .theme-switcher .ss-control {
     background-position: 0.5rem center;
     padding-right: 0.8rem;
     padding-left: 2rem;

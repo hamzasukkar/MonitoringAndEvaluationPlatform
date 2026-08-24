@@ -1,0 +1,141 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.CurrencyRate>
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["Exchange Rates"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+    var unconvertible = ViewBag.UnconvertibleProjects as IEnumerable<dynamic>;
+}
+
+<div class="container-fluid py-4">
+
+    <div class="dashboard-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h1 class="dashboard-title">
+                    <i class="fas fa-coins me-3"></i>@Localizer["Exchange Rates"]
+                </h1>
+                <p class="dashboard-subtitle mb-0">
+                    @Localizer["Used to express budget totals across several projects in Syrian Pounds."]
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="alert alert-info d-flex align-items-start gap-2 mt-3">
+        <i class="fas fa-circle-info mt-1"></i>
+        <div>
+            @Localizer["A project that carries its own exchange rate always uses it. These rates are the fallback for projects saved without one."]
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-3">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>@Localizer["Currency"]</th>
+                            <th class="text-center">@Localizer["Rate to SYP"]</th>
+                            <th>@Localizer["Last Updated"]</th>
+                            <th class="text-center">@Localizer["Actions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var rate in Model)
+                        {
+                            var isBase = rate.Code == "SYP";
+                            <tr>
+                                <td>
+                                    <span class="fw-bold me-2">@rate.Symbol</span>
+                                    <span>@(isArabic ? rate.NameAr : rate.NameEn)</span>
+                                    <span class="badge bg-secondary ms-2">@rate.Code</span>
+                                    @if (isBase)
+                                    {
+                                        <span class="badge bg-primary ms-1">@Localizer["Base currency"]</span>
+                                    }
+                                </td>
+                                <td class="text-center fw-bold" style="font-variant-numeric: tabular-nums;">
+                                    @rate.RateToSyp.ToString("#,##0.####", CultureInfo.InvariantCulture)
+                                </td>
+                                <td class="text-muted small">
+                                    @rate.UpdatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                                    @if (!string.IsNullOrEmpty(rate.UpdatedBy))
+                                    {
+                                        <span>— @rate.UpdatedBy</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (isBase)
+                                    {
+                                        <span class="text-muted small">
+                                            <i class="fas fa-lock me-1"></i>@Localizer["Fixed at 1"]
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <a asp-action="Edit" asp-route-id="@rate.Code" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-pen me-1"></i>@Localizer["Edit"]
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @if (unconvertible != null && unconvertible.Any())
+    {
+        <div class="card shadow-sm mt-4 border-warning">
+            <div class="card-header bg-warning-subtle">
+                <h5 class="mb-0">
+                    <i class="fas fa-triangle-exclamation me-2 text-warning"></i>
+                    @Localizer["Projects excluded from totals"]
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted small">
+                    @Localizer["These projects have no usable currency or exchange rate, so their budgets cannot be converted and are left out of every total. Edit each project to set its currency and rate."]
+                </p>
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Project Name"]</th>
+                                <th>@Localizer["Currency"]</th>
+                                <th class="text-end">@Localizer["Estimated Budget"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var project in unconvertible)
+                            {
+                                <tr>
+                                    <td>
+                                        <a asp-controller="Projects" asp-action="Edit" asp-route-id="@project.ProjectID">
+                                            @project.ProjectName
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-danger-subtle text-danger">
+                                            @(string.IsNullOrWhiteSpace((string)project.Currency) ? Localizer["Not set"].Value : project.Currency)
+                                        </span>
+                                    </td>
+                                    <td class="text-end" style="font-variant-numeric: tabular-nums;">
+                                        @(((double)project.EstimatedBudget).ToString("N0", CultureInfo.InvariantCulture))
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+
+</div>

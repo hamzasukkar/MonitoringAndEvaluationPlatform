@@ -34,6 +34,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         [StringLength(2000)]
         public string? Body { get; set; }
 
+        public virtual ICollection<RequestCommentAttachment> Attachments { get; set; } = new List<RequestCommentAttachment>();
+
         public DateTime CreatedAt { get; set; }
         public DateTime LastModifiedAt { get; set; }
     }

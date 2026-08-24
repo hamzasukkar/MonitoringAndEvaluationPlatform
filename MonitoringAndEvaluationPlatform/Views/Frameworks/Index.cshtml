@@ -1,4 +1,4 @@
-﻿@model MonitoringAndEvaluationPlatform.ViewModel.FrameworkFilterViewModel
+@model MonitoringAndEvaluationPlatform.ViewModel.FrameworkFilterViewModel
 
 @using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Identity
@@ -94,18 +94,21 @@
             </p>
         </div>
         <div class="d-flex gap-2 align-items-center">
-            @* Layout switch. Both links are deliberately clean of filters: picking a layout
-               also clears any ministry / search narrowing. The choice is remembered server-side. *@
-            <div class="btn-group view-mode-toggle" role="group" aria-label="@Localizer["View"]">
-                <a href="@Url.Action("Index", "Frameworks")?viewMode=ministries"
-                   class="btn btn-lg @(Model.ShowMinistries ? "btn-primary" : "btn-outline-secondary")">
-                    <i class="fas fa-landmark me-2"></i>@Localizer["By Ministry"]
-                </a>
-                <a href="@Url.Action("Index", "Frameworks")?viewMode=strategies"
-                   class="btn btn-lg @(Model.ShowMinistries ? "btn-outline-secondary" : "btn-primary")">
-                    <i class="fas fa-list me-2"></i>@Localizer["All Strategies"]
-                </a>
-            </div>
+            @if (!Model.IsMinistryUser)
+            {
+                @* Layout switch. Both links are deliberately clean of filters: picking a layout
+                   also clears any ministry / search narrowing. The choice is remembered server-side. *@
+                <div class="btn-group view-mode-toggle" role="group" aria-label="@Localizer["View"]">
+                    <a href="@Url.Action("Index", "Frameworks")?viewMode=ministries"
+                       class="btn btn-lg @(Model.ShowMinistries ? "btn-primary" : "btn-outline-secondary")">
+                        <i class="fas fa-landmark me-2"></i>@Localizer["By Ministry"]
+                    </a>
+                    <a href="@Url.Action("Index", "Frameworks")?viewMode=strategies"
+                       class="btn btn-lg @(Model.ShowMinistries ? "btn-outline-secondary" : "btn-primary")">
+                        <i class="fas fa-list me-2"></i>@Localizer["All Strategies"]
+                    </a>
+                </div>
+            }
             @await Html.PartialAsync("_HelpButton")
             @if (SignInManager.IsSignedIn(User))
             {
@@ -352,6 +355,31 @@
                                 </td>
                                 <td class="text-center">
                                     <span class="badge bg-secondary">@Model.UnassignedStrategyCount</span>
+                                </td>
+                                <td class="text-center">
+                                    <i class="fas @(isArabic ? "fa-chevron-left" : "fa-chevron-right") text-muted"></i>
+                                </td>
+                            </tr>
+                        }
+
+                        @*
+                            Separate from "Unassigned" above: these DO show a ministry badge, because
+                            a ministry's projects reach them, but nobody owns them. Without this row
+                            they look assigned and there is no way to find them.
+                        *@
+                        @if (Model.OwnerlessStrategyCount > 0)
+                        {
+                            <tr class="table-row ministry-row"
+                                onclick="window.location.href='@Url.Action("Index", "Frameworks")?ownerlessOnly=true'">
+                                <td>
+                                    <a class="ministry-row-link text-muted"
+                                       href="@Url.Action("Index", "Frameworks")?ownerlessOnly=true">
+                                        <span class="ministry-row-logo me-2"><i class="fas fa-user-slash"></i></span>
+                                        @Localizer["No owner ministry"]
+                                    </a>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-warning text-dark">@Model.OwnerlessStrategyCount</span>
                                 </td>
                                 <td class="text-center">
                                     <i class="fas @(isArabic ? "fa-chevron-left" : "fa-chevron-right") text-muted"></i>
@@ -607,19 +635,35 @@
                                             Model.FrameworkMinistries.TryGetValue(item.Code, out var itemMinistries);
                                             itemMinistries ??= new List<Ministry>();
                                         }
+                                        @*
+                                            Two different things share this cell: the OWNER
+                                            (Framework.MinistryCode) and ministries merely reached
+                                            through an indicator's project. Rendering them alike made
+                                            an unowned strategy look owned, so the owner is marked.
+                                        *@
                                         <span id="fw-ministry-@item.Code" class="fw-ministry-view">
                                             @if (itemMinistries.Count > 0)
                                             {
                                                 @foreach (var ministry in itemMinistries)
                                                 {
-                                                    <a class="ministry-badge" href="@MinistryFilterUrl(ministry.Code)"
-                                                       title="@Localizer["Filter by this ministry"]">
+                                                    var isOwner = item.MinistryCode == ministry.Code;
+                                                    <a class="ministry-badge @(isOwner ? "ministry-badge-owner" : "ministry-badge-linked")"
+                                                       href="@MinistryFilterUrl(ministry.Code)"
+                                                       title="@(isOwner ? Localizer["Owner ministry"].Value : Localizer["Linked through a project, not the owner"].Value)">
+                                                        <i class="fas @(isOwner ? "fa-star" : "fa-link") me-1"></i>
                                                         @if (!string.IsNullOrEmpty(ministry.Logo))
                                                         {
                                                             <span class="ministry-logo me-1">@ministry.Logo</span>
                                                         }
                                                         @MinistryName(ministry)
                                                     </a>
+                                                }
+                                                @if (item.MinistryCode == null)
+                                                {
+                                                    <span class="ministry-badge ministry-badge-empty"
+                                                          title="@Localizer["Shown here only through its projects. No ministry owns it."]">
+                                                        <i class="fas fa-user-slash me-1"></i>@Localizer["No owner"]
+                                                    </span>
                                                 }
                                             }
                                             else
@@ -1954,6 +1998,17 @@
             background: rgba(108, 117, 125, 0.1);
             color: #6c757d;
             font-weight: 500;
+        }
+
+        /* The owner is the authoritative link; project-derived ones are informational. */
+        .ministry-badge-owner {
+            border-color: #0d6efd;
+            font-weight: 600;
+        }
+
+        .ministry-badge-linked {
+            opacity: 0.75;
+            border-style: dashed;
         }
 
         .fw-ministry-edit-btn {

@@ -30,8 +30,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly PlanService _planService;
         private readonly IProjectValidationService _validationService;
         private readonly IStringLocalizer<ProjectsController> _localizer;
+        private readonly ICurrencyConversionService _currencyConversion;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer, ICurrencyConversionService currencyConversion)
         {
             _context = context;
             _userManager = userManager;
@@ -39,6 +40,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _planService = planService;
             _validationService = validationService;
             _localizer = localizer;
+            _currencyConversion = currencyConversion;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -50,6 +52,40 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             return (false, user?.MinistryCode);
+        }
+
+        /// <summary>
+        /// Keeps the exchange rate consistent with the chosen currency before validation runs.
+        /// A rate on an SYP project is meaningless (SYP converts 1:1), and a blank rate must not
+        /// leave a stale date behind. The rate itself stays in ModelState so that
+        /// <see cref="Attributes.RequiredWhenCurrencyNotSypAttribute"/> can reject a missing one.
+        /// </summary>
+        private void NormalizeExchangeRate(Project project)
+        {
+            var isBaseCurrency = string.Equals(
+                project.Currency, CurrencyConverter.BaseCurrency, StringComparison.OrdinalIgnoreCase);
+
+            if (isBaseCurrency || project.ExchangeRate is null or <= 0)
+            {
+                if (isBaseCurrency) project.ExchangeRate = null;
+                project.ExchangeRateDate = null;
+            }
+            else if (project.ExchangeRateDate is null)
+            {
+                project.ExchangeRateDate = DateTime.Today;
+            }
+
+            ModelState.Remove(nameof(Project.ExchangeRateDate));
+        }
+
+        private async Task<int?> GetLinkedProgramMinistryCodeAsync(int? indicatorId)
+        {
+            if (!indicatorId.HasValue) return null;
+
+            return await _context.Indicators
+                .Where(i => i.IndicatorCode == indicatorId.Value)
+                .Select(i => (int?)i.SubOutput.Output.Outcome.Framework.MinistryCode)
+                .FirstOrDefaultAsync();
         }
 
         private async Task<bool> ProjectBelongsToScopeAsync(int projectId)
@@ -78,16 +114,69 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             filter.Donors = await _context.Donors.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
             filter.PublicSectorTypes = await _context.PublicSectorTypes.ToListAsync();
-            filter.Frameworks = await _context.Frameworks.ToListAsync();
             filter.Governorates = await _context.Governorates.ToListAsync();
+
+            // Narrow the Framework dropdown to frameworks that actually have a project
+            // under the selected ministry/ministries - same "Project.Ministries" definition
+            // the SelectedMinistries project filter itself uses below, for consistency.
+            filter.Frameworks = filter.SelectedMinistries.Any()
+                ? await _context.Frameworks
+                    .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so =>
+                        so.Indicators.Any(i => i.Project != null &&
+                            i.Project.Ministries.Any(m => filter.SelectedMinistries.Contains(m.Code)))))))
+                    .OrderBy(f => f.Name)
+                    .ToListAsync()
+                : await _context.Frameworks.OrderBy(f => f.Name).ToListAsync();
+
+            // If the currently selected Framework (and anything cascading from it) no longer
+            // belongs to the narrowed list, clear it - otherwise the dropdown silently shows
+            // "All Frameworks" while still filtering by a hidden stale code.
+            if (filter.SelectedFrameworkCode.HasValue &&
+                !filter.Frameworks.Any(f => f.Code == filter.SelectedFrameworkCode.Value))
+            {
+                filter.SelectedFrameworkCode = null;
+                filter.SelectedOutcomeCode = null;
+                filter.SelectedOutputCode = null;
+                filter.SelectedSubOutputCode = null;
+            }
 
             // Build the filtered query (shared with ExportExcel)
             var projectQuery = await BuildFilteredProjectsQueryAsync(filter);
 
-            // Finalize and assign filtered results (eager-load Ministries and the
-            // Indicator -> SubOutput -> Output -> Outcome -> Framework chain so the
+            // Aggregates over the FULL filtered set, before paging - the summary cards
+            // must reflect every matching project, not just the current page.
+            filter.TotalProjects = await projectQuery.CountAsync();
+            filter.NotStartedProjects = await projectQuery.CountAsync(p => p.performance == 0);
+            filter.InProgressProjects = await projectQuery.CountAsync(p => p.performance > 0 && p.performance < 100);
+            filter.CompletedProjects = await projectQuery.CountAsync(p => p.performance >= 100);
+            filter.TotalBudget = await _currencyConversion.SumBudgetToSypAsync(projectQuery);
+
+            filter.TotalRecords = filter.TotalProjects;
+            if (filter.CurrentPage < 1) filter.CurrentPage = 1;
+            if (filter.PageSize < 5 || filter.PageSize > 100) filter.PageSize = 20;
+            filter.TotalPages = (int)Math.Ceiling(filter.TotalRecords / (double)filter.PageSize);
+            filter.CurrentPage = Math.Min(filter.CurrentPage, Math.Max(filter.TotalPages, 1));
+
+            bool ascending = filter.SortDirection == "asc";
+            projectQuery = filter.SortColumn?.ToLower() switch
+            {
+                "disbursement" => ascending
+                    ? projectQuery.OrderBy(p => p.DisbursementPerformance).ThenBy(p => p.ProjectID)
+                    : projectQuery.OrderByDescending(p => p.DisbursementPerformance).ThenBy(p => p.ProjectID),
+                "lastmodified" => ascending
+                    ? projectQuery.OrderBy(p => p.LastModifiedAt).ThenBy(p => p.ProjectID)
+                    : projectQuery.OrderByDescending(p => p.LastModifiedAt).ThenBy(p => p.ProjectID),
+                _ => ascending
+                    ? projectQuery.OrderBy(p => p.performance).ThenBy(p => p.ProjectID)
+                    : projectQuery.OrderByDescending(p => p.performance).ThenBy(p => p.ProjectID),
+            };
+
+            // Finalize and assign the current page's results (eager-load Ministries and
+            // the Indicator -> SubOutput -> Output -> Outcome -> Framework chain so the
             // view can show each project's ministries and frameworks)
             filter.Projects = await projectQuery
+                .Skip((filter.CurrentPage - 1) * filter.PageSize)
+                .Take(filter.PageSize)
                 .Include(p => p.Ministries)
                 .Include(p => p.Indicators)
                     .ThenInclude(i => i.SubOutput)
@@ -95,13 +184,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             .ThenInclude(o => o.Outcome)
                                 .ThenInclude(oc => oc.Framework)
                 .ToListAsync();
-
-            // Calculate summary statistics based on performance
-            filter.TotalProjects = filter.Projects.Count;
-            filter.NotStartedProjects = filter.Projects.Count(p => p.performance == 0);
-            filter.InProgressProjects = filter.Projects.Count(p => p.performance > 0 && p.performance < 100);
-            filter.CompletedProjects = filter.Projects.Count(p => p.performance >= 100);
-            filter.TotalBudget = filter.Projects.Sum(p => p.EstimatedBudget);
 
             return View(filter);
         }
@@ -359,6 +441,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             worksheet.Cell(1, 7).Value = _localizer["Performance"].Value + " (%)";
             worksheet.Cell(1, 8).Value = _localizer["Disbursement"].Value + " (%)";
             worksheet.Cell(1, 9).Value = _localizer["Estimated Budget"].Value;
+            worksheet.Cell(1, 10).Value = _localizer["Currency"].Value;
 
             // Style header
             var headerRange = worksheet.Range(1, 1, 1, 9);
@@ -397,12 +480,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 worksheet.Cell(row, 7).Value = performance;
                 worksheet.Cell(row, 8).Value = Math.Round(project.DisbursementPerformance, 2);
                 worksheet.Cell(row, 9).Value = project.EstimatedBudget;
+                worksheet.Cell(row, 9).Style.NumberFormat.Format = "#,##0";
+                // Each row keeps its own currency; the amounts are not converted here.
+                worksheet.Cell(row, 10).Value = project.Currency;
                 row++;
             }
 
             worksheet.Columns().AdjustToContents();
 
-            var dataRange = worksheet.Range(1, 1, Math.Max(row - 1, 1), 9);
+            var dataRange = worksheet.Range(1, 1, Math.Max(row - 1, 1), 10);
             dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
             dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
 
@@ -521,6 +607,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
             }
 
+            // If this project is being created from a linked indicator whose program (SubOutput →
+            // Output → Outcome → Framework) belongs to a ministry, that ministry wins over the
+            // account's own ministry and over an admin's free choice.
+            var linkedProgramMinistryCode = await GetLinkedProgramMinistryCodeAsync(indicatorId);
+            bool isMinistryLockedByProgram = linkedProgramMinistryCode.HasValue;
+            if (isMinistryLockedByProgram)
+            {
+                userMinistryCode = linkedProgramMinistryCode;
+            }
+
             // Initialize project with defaults
             var project = new Project
             {
@@ -556,11 +652,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.PublicSectorTypeList = new SelectList(_context.PublicSectorTypes.ToList(), "Code", isArabic ? "AR_Name" : "EN_Name");
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
             ViewBag.Ministries = ministries; // Pass full ministry list with Logo property
+            ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
 
             // Pass ministry user info to the view
             ViewBag.IsMinistryUser = isMinistryUser;
             ViewBag.UserMinistryCode = userMinistryCode;
+            ViewBag.IsMinistryLockedByProgram = isMinistryLockedByProgram;
 
             // Initialize empty donor funding data for create form
             ViewBag.DonorFundingData = JsonConvert.SerializeObject(new Dictionary<string, decimal>());
@@ -584,8 +682,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             string? DonorFundingBreakdown,
             int? LinkedIndicatorId)
         {
+            int? linkedProgramMinistryCode = null;
             try
             {
+                // If this project is being created from a linked indicator whose program belongs to
+                // a ministry, that ministry wins over the account's own ministry / an admin's choice.
+                linkedProgramMinistryCode = await GetLinkedProgramMinistryCodeAsync(LinkedIndicatorId);
+
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
 
@@ -649,24 +752,46 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     project,
                     requireWhenPublic: true);
 
-                // Force MinistryCode to current user's ministry for non-admins (prevents form tampering)
-                var (isAdminCreate, scopedMinistryCodeCreate) = await GetScopeAsync();
-                if (!isAdminCreate)
+                NormalizeExchangeRate(project);
+
+                if (linkedProgramMinistryCode.HasValue)
                 {
-                    if (scopedMinistryCodeCreate is null)
+                    // Program's ministry wins — even over an admin's choice or the account's own ministry.
+                    project.MinistryCode = linkedProgramMinistryCode;
+                }
+                else
+                {
+                    // Force MinistryCode to current user's ministry for non-admins (prevents form tampering)
+                    var (isAdminCreate, scopedMinistryCodeCreate) = await GetScopeAsync();
+                    if (!isAdminCreate)
                     {
-                        ModelState.AddModelError("", _localizer["You are not assigned to a ministry."]);
+                        if (scopedMinistryCodeCreate is null)
+                        {
+                            ModelState.AddModelError("", _localizer["You are not assigned to a ministry."]);
+                        }
+                        else
+                        {
+                            project.MinistryCode = scopedMinistryCodeCreate;
+                        }
                     }
-                    else
+                }
+
+                // Repopulates the create-view ViewBag on a redisplay (validation failure, missing
+                // linked indicator, etc.), keeping the program-derived ministry lock in effect.
+                async Task RepopulateCreateViewAsync()
+                {
+                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
+                    ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                    if (linkedProgramMinistryCode.HasValue)
                     {
-                        project.MinistryCode = scopedMinistryCodeCreate;
+                        ViewBag.IsMinistryLockedByProgram = true;
+                        project.MinistryCode = linkedProgramMinistryCode;
                     }
                 }
 
                 if (!ModelState.IsValid)
                 {
-                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
-                    ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                    await RepopulateCreateViewAsync();
                     return View(project);
                 }
 
@@ -704,8 +829,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     if (indicatorToLink == null)
                     {
                         ModelState.AddModelError("", _localizer["The indicator this project should link to could not be found. Please try again."]);
-                        await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
-                        ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                        await RepopulateCreateViewAsync();
                         return View(project);
                     }
                 }
@@ -752,6 +876,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
                 await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
                 ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                if (linkedProgramMinistryCode.HasValue)
+                {
+                    ViewBag.IsMinistryLockedByProgram = true;
+                    project.MinistryCode = linkedProgramMinistryCode;
+                }
                 return View(project);
             }
         }
@@ -974,6 +1103,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 selectedMinistryCode  // selected value
             );
             ViewBag.Ministries = allMinistries; // Pass full ministry list with Logo property
+            ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
 
             // Pass ministry user info to the view
             ViewBag.IsMinistryUser = isMinistryUser;
@@ -1106,16 +1236,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // still normalizes the type to null when the Public sector is deselected.
             await ValidatePublicSectorTypeAsync(SelectedSectorCodes, project, requireWhenPublic: false);
 
-            // Exchange rate is only meaningful when a non-USD rate is supplied; if no rate
-            // was entered, drop the optional date and any binding/validation noise on these
-            // fields so an optional currency detail can never block a save.
-            if (!project.ExchangeRate.HasValue || project.ExchangeRate <= 0)
-            {
-                project.ExchangeRate = null;
-                project.ExchangeRateDate = null;
-            }
-            ModelState.Remove(nameof(Project.ExchangeRate));
-            ModelState.Remove(nameof(Project.ExchangeRateDate));
+            NormalizeExchangeRate(project);
 
             if (!ModelState.IsValid)
             {
@@ -1382,13 +1503,35 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             );
 
             var allMinistries = await _context.Ministries.ToListAsync();
+
+            // Get the logged-in user for ministry check
+            var user = await _userManager.GetUserAsync(User);
+            bool isMinistryUser = false;
+
+            // Check if the user is associated with a Ministry (and not SystemAdministrator)
+            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
+            {
+                var userMinistry = allMinistries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
+                if (userMinistry != null)
+                {
+                    isMinistryUser = true;
+                    // For ministry users, ensure the ministry code is set to their ministry
+                    project.MinistryCode = userMinistry.Code;
+                }
+            }
+
             ViewBag.MinistryList = new SelectList(
                 allMinistries,
                 "Code",
                 isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN",
                 project.MinistryCode
             );
+            ViewBag.Ministries = allMinistries; // Drives the rich dropdown items (with logo) in Edit.cshtml
+            ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
 
+            // Pass ministry user info to the view
+            ViewBag.IsMinistryUser = isMinistryUser;
+            ViewBag.UserMinistryCode = isMinistryUser ? project.MinistryCode : null;
 
             ViewBag.ProjectManager = new SelectList(await _context.ProjectManagers.ToListAsync(), "Code", "Name", project.ProjectManagerCode);
             ViewBag.SuperVisor = new SelectList(await _context.SuperVisors.ToListAsync(), "Code", "Name", project.SuperVisorCode);
@@ -1952,6 +2095,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
             ViewBag.Ministries = ministries; // Drives the rich dropdown items (with logo) in Create.cshtml
+            ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
             ViewBag.IsMinistryUser = isMinistryUser;
             ViewBag.UserMinistryCode = userMinistryCode;
 

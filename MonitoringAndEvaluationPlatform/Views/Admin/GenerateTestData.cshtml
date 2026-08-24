@@ -1,0 +1,339 @@
+@model MonitoringAndEvaluationPlatform.ViewModels.GenerateTestDataViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization
+@inject IViewLocalizer Localizer
+
+@{
+    ViewData["Title"] = Localizer["GenerateTestData"];
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
+}
+
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="display-4 mb-2">
+                    <i class="fas fa-flask me-3"></i>@Localizer["GenerateTestData"]
+                </h1>
+                <p class="text-muted">@Localizer["GenerateTestDataDescription"]</p>
+            </div>
+            <div>
+                <a asp-action="Index" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["BackToAdmin"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        @Localizer["GenerateTestDataHelp"]
+    </div>
+
+    <form asp-action="ExecuteGenerateTestData" method="post" id="generateForm">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger d-none"></div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <!-- Generation settings -->
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-sitemap me-2"></i>@Localizer["GenerationSettings"]
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="MinistryCode" class="form-label fw-bold">@Localizer["Ministry"]</label>
+                                <select asp-for="MinistryCode" class="form-select" required>
+                                    <option value="">@Localizer["SelectMinistry"]</option>
+                                    @foreach (var ministry in Model.AvailableMinistries)
+                                    {
+                                        <option value="@ministry.Code">
+                                            @(isArabic ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN)
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="MinistryCode" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="NamePrefix" class="form-label fw-bold">@Localizer["NamePrefix"]</label>
+                                <input asp-for="NamePrefix" class="form-control" required>
+                                <div class="form-text">@Localizer["NamePrefixHelp"]</div>
+                                <span asp-validation-for="NamePrefix" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-12">
+                                <label asp-for="FrameworkName" class="form-label fw-bold">@Localizer["FrameworkName"]</label>
+                                <input asp-for="FrameworkName" class="form-control" placeholder="@Localizer["FrameworkNamePlaceholder"]">
+                                <div class="form-text">@Localizer["FrameworkNameHelp"]</div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-layer-group me-2"></i>@Localizer["ItemsPerLevel"]
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-3 col-6">
+                                <label asp-for="OutcomesPerFramework" class="form-label">@Localizer["OutcomesPerFramework"]</label>
+                                <input asp-for="OutcomesPerFramework" type="number" min="0" max="10" class="form-control count-input">
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <label asp-for="OutputsPerOutcome" class="form-label">@Localizer["OutputsPerOutcome"]</label>
+                                <input asp-for="OutputsPerOutcome" type="number" min="0" max="10" class="form-control count-input">
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <label asp-for="SubOutputsPerOutput" class="form-label">@Localizer["SubOutputsPerOutput"]</label>
+                                <input asp-for="SubOutputsPerOutput" type="number" min="0" max="10" class="form-control count-input">
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <label asp-for="IndicatorsPerSubOutput" class="form-label">@Localizer["IndicatorsPerSubOutput"]</label>
+                                <input asp-for="IndicatorsPerSubOutput" type="number" min="0" max="10" class="form-control count-input">
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h6 class="fw-bold mb-3">
+                            <i class="fas fa-project-diagram me-2"></i>@Localizer["ProjectSettings"]
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input asp-for="CreateProjectPerIndicator" class="form-check-input count-input" type="checkbox" role="switch">
+                                    <label asp-for="CreateProjectPerIndicator" class="form-check-label">
+                                        @Localizer["CreateProjectPerIndicator"]
+                                    </label>
+                                </div>
+                                <div class="form-text">@Localizer["CreateProjectPerIndicatorHelp"]</div>
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <label asp-for="PhasesPerProject" class="form-label">@Localizer["PhasesPerProject"]</label>
+                                <input asp-for="PhasesPerProject" type="number" min="1" max="9" class="form-control count-input">
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <label asp-for="ProjectDurationMonths" class="form-label">@Localizer["ProjectDurationMonths"]</label>
+                                <input asp-for="ProjectDurationMonths" type="number" min="1" max="60" class="form-control count-input">
+                            </div>
+                            <div class="col-md-4 col-6">
+                                <label asp-for="MeasuresPerPhase" class="form-label">@Localizer["MeasuresPerPhase"]</label>
+                                <input asp-for="MeasuresPerPhase" type="number" min="0" max="12" class="form-control count-input">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    <input asp-for="PopulateValues" class="form-check-input count-input" type="checkbox" role="switch">
+                                    <label asp-for="PopulateValues" class="form-check-label fw-bold">
+                                        @Localizer["PopulateValues"]
+                                    </label>
+                                </div>
+                                <div class="form-text">@Localizer["PopulateValuesHelp"]</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live estimate -->
+            <div class="col-lg-4">
+                <div class="card mb-4 estimate-card">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-calculator me-2"></i>@Localizer["EstimatedRecords"]
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-sm mb-3">
+                            <tbody>
+                                <tr><td>@Localizer["Frameworks"]</td><td class="text-end fw-bold">1</td></tr>
+                                <tr><td>@Localizer["Outcomes"]</td><td class="text-end fw-bold" id="estOutcomes">0</td></tr>
+                                <tr><td>@Localizer["Outputs"]</td><td class="text-end fw-bold" id="estOutputs">0</td></tr>
+                                <tr><td>@Localizer["SubOutputs"]</td><td class="text-end fw-bold" id="estSubOutputs">0</td></tr>
+                                <tr><td>@Localizer["Indicators"]</td><td class="text-end fw-bold" id="estIndicators">0</td></tr>
+                                <tr><td>@Localizer["Projects"]</td><td class="text-end fw-bold" id="estProjects">0</td></tr>
+                                <tr><td>@Localizer["Phases"]</td><td class="text-end fw-bold" id="estPhases">0</td></tr>
+                                <tr><td>@Localizer["ActionPlans"]</td><td class="text-end fw-bold" id="estActionPlans">0</td></tr>
+                                <tr><td>@Localizer["Plans"]</td><td class="text-end fw-bold" id="estPlans">0</td></tr>
+                                <tr><td>@Localizer["Measures"]</td><td class="text-end fw-bold" id="estMeasures">0</td></tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-active">
+                                    <th>@Localizer["Total"]</th>
+                                    <th class="text-end" id="estTotal">0</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div id="estWarning" class="alert alert-danger d-none mb-3 py-2 small">
+                            <i class="fas fa-exclamation-triangle me-1"></i>
+                            @Localizer["RowLimitWarning"]
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="generateBtn"
+                                onclick="return confirmGenerate()">
+                            <i class="fas fa-bolt me-2"></i>@Localizer["Generate"]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Delete generated data -->
+    <div class="card mb-4">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-trash-alt me-2"></i>@Localizer["DeleteGeneratedData"]
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>@Localizer["Warning"]:</strong> @Localizer["DeleteGeneratedDataWarning"]
+            </div>
+
+            <form asp-action="DeleteGeneratedTestData" method="post" id="deleteForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="prefix" class="form-label fw-bold">@Localizer["NamePrefix"]</label>
+                        <input type="text" class="form-control" id="prefix" name="prefix" value="[TEST] " required>
+                        <div class="form-text">@Localizer["DeletePrefixHelp"]</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="deletePassword" class="form-label fw-bold">@Localizer["YourPassword"]</label>
+                        <input type="password" class="form-control" id="deletePassword" name="password" required autocomplete="current-password">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="confirmationPhrase" class="form-label fw-bold">
+                            @Localizer["Type"] <code class="text-danger">DELETE TEST DATA</code> @Localizer["ToConfirm"]
+                        </label>
+                        <input type="text" class="form-control" id="confirmationPhrase" name="confirmationPhrase" required
+                               pattern="DELETE TEST DATA" title="Please type 'DELETE TEST DATA' exactly">
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-danger mt-3" onclick="return confirmDelete()">
+                    <i class="fas fa-trash-alt me-2"></i>@Localizer["DeleteGeneratedData"]
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .estimate-card {
+        position: sticky;
+        top: 1rem;
+    }
+
+    .estimate-card .table td,
+    .estimate-card .table th {
+        padding: 0.35rem 0.5rem;
+    }
+
+    .form-text {
+        font-size: 0.8rem;
+    }
+
+    /* RTL Support */
+    html[dir="rtl"] .estimate-card .text-end {
+        text-align: left !important;
+    }
+
+    html[dir="rtl"] .me-2,
+    html[dir="rtl"] .me-3 {
+        margin-right: 0 !important;
+    }
+
+    html[dir="rtl"] .fa-arrow-left {
+        transform: scaleX(-1);
+    }
+</style>
+
+<script>
+    // Mirrors GenerateTestDataViewModel's computed counts. This is a convenience preview only —
+    // the service re-checks the total server-side before inserting anything.
+    const MAX_ROWS = @MonitoringAndEvaluationPlatform.ViewModels.GenerateTestDataViewModel.MaxRowCount;
+
+    function num(id) {
+        const el = document.getElementById(id);
+        return el ? (parseInt(el.value, 10) || 0) : 0;
+    }
+
+    function checked(id) {
+        const el = document.getElementById(id);
+        return el ? el.checked : false;
+    }
+
+    function updateEstimate() {
+        const outcomes = num('OutcomesPerFramework');
+        const outputs = outcomes * num('OutputsPerOutcome');
+        const subOutputs = outputs * num('SubOutputsPerOutput');
+        const indicators = subOutputs * num('IndicatorsPerSubOutput');
+        const projects = checked('CreateProjectPerIndicator') ? indicators : 0;
+        const phases = projects * num('PhasesPerProject');
+        const actionPlans = phases;
+        const plans = phases * (num('ProjectDurationMonths') + 1);
+        const measures = checked('PopulateValues') ? phases * num('MeasuresPerPhase') : 0;
+        const total = 1 + outcomes + outputs + subOutputs + indicators
+                    + projects + phases + actionPlans + plans + measures;
+
+        const set = (id, v) => document.getElementById(id).textContent = v.toLocaleString();
+        set('estOutcomes', outcomes);
+        set('estOutputs', outputs);
+        set('estSubOutputs', subOutputs);
+        set('estIndicators', indicators);
+        set('estProjects', projects);
+        set('estPhases', phases);
+        set('estActionPlans', actionPlans);
+        set('estPlans', plans);
+        set('estMeasures', measures);
+        set('estTotal', total);
+
+        const overLimit = total > MAX_ROWS;
+        document.getElementById('estWarning').classList.toggle('d-none', !overLimit);
+        document.getElementById('generateBtn').disabled = overLimit;
+    }
+
+    document.querySelectorAll('.count-input').forEach(el => {
+        el.addEventListener('input', updateEstimate);
+        el.addEventListener('change', updateEstimate);
+    });
+
+    updateEstimate();
+
+    function confirmGenerate() {
+        const total = document.getElementById('estTotal').textContent;
+        return confirm('@Localizer["ConfirmGenerate"]'.replace('{0}', total));
+    }
+
+    function confirmDelete() {
+        const prefix = document.getElementById('prefix').value;
+        return confirm('@Localizer["ConfirmDelete"]'.replace('{0}', prefix));
+    }
+</script>

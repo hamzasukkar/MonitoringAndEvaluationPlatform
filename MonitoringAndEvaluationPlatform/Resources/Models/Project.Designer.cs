@@ -75,6 +75,15 @@ namespace MonitoringAndEvaluationPlatform.Resources.Models {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to An exchange rate is required when the currency is not Syrian Pounds.
+        /// </summary>
+        public static string ExchangeRateRequired {
+            get {
+                return ResourceManager.GetString("ExchangeRateRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Estimated budget is required.
         /// </summary>
         public static string EstimatedBudgetRequired {

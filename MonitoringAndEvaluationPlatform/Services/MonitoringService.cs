@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 
 public class MonitoringService
 {
@@ -10,6 +11,21 @@ public class MonitoringService
     public MonitoringService(ApplicationDbContext context)
     {
         _context = context;
+    }
+
+    /// <summary>
+    /// Builds a converter straight from the context rather than taking
+    /// <see cref="ICurrencyConversionService"/>, because this class is also constructed
+    /// directly (<c>new MonitoringService(_context)</c>) in a dozen places. Recomputes are
+    /// infrequent, so skipping the shared cache costs one small query.
+    /// </summary>
+    private async Task<CurrencyConverter> GetConverterAsync()
+    {
+        var rates = await _context.CurrencyRates
+            .AsNoTracking()
+            .ToDictionaryAsync(r => r.Code, r => r.RateToSyp, StringComparer.OrdinalIgnoreCase);
+
+        return new CurrencyConverter(rates);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -354,14 +370,34 @@ public class MonitoringService
         return estimatedBudget > 0 ? (totalRealised / estimatedBudget) * 100 : 0;
     }
 
-    // Σ Realised / Σ EstimatedBudget × 100 for a set of projects
-    private double CalcDisbursementPerfForProjects(IEnumerable<Project> projects)
+    // Σ Realised / Σ EstimatedBudget × 100 for a set of projects.
+    //
+    // Both sides are converted to SYP first: summing a USD project's budget straight into an
+    // SYP one produced a ratio with no meaning. Plan.Realised carries no currency of its own —
+    // it inherits the project's — so the same factor applies to numerator and denominator.
+    // A project that cannot be converted leaves BOTH sides together; dropping it from only one
+    // would silently skew the percentage.
+    private async Task<double> CalcDisbursementPerfForProjects(IEnumerable<Project> projects)
     {
-        double totalRealised = projects.Sum(p => p.Phases
-            .Where(ph => ph.ActionPlan != null)
-            .SelectMany(ph => ph.ActionPlan!.Plans)
-            .Sum(pl => (double)pl.Realised));
-        double totalBudget = projects.Sum(p => p.EstimatedBudget);
+        var converter = await GetConverterAsync();
+
+        double totalRealised = 0;
+        double totalBudget = 0;
+
+        foreach (var project in projects)
+        {
+            var factor = converter.FactorFor(project.Currency, project.ExchangeRate);
+            if (factor is null) continue;
+
+            var realised = project.Phases
+                .Where(ph => ph.ActionPlan != null)
+                .SelectMany(ph => ph.ActionPlan!.Plans)
+                .Sum(pl => (double)pl.Realised);
+
+            totalRealised += realised * factor.Value;
+            totalBudget += project.EstimatedBudget * factor.Value;
+        }
+
         return totalBudget > 0 ? (totalRealised / totalBudget) * 100 : 0;
     }
 
@@ -387,7 +423,7 @@ public class MonitoringService
             .ToListAsync();
 
         var projects = await GetProjectsForIndicators(projectIds);
-        subOutput.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
+        subOutput.DisbursementPerformance = projects.Any() ? await CalcDisbursementPerfForProjects(projects) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -412,7 +448,7 @@ public class MonitoringService
             .ToListAsync();
 
         var projects = await GetProjectsForIndicators(projectIds);
-        output.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
+        output.DisbursementPerformance = projects.Any() ? await CalcDisbursementPerfForProjects(projects) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -440,7 +476,7 @@ public class MonitoringService
             .ToListAsync();
 
         var projects = await GetProjectsForIndicators(projectIds);
-        outcome.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
+        outcome.DisbursementPerformance = projects.Any() ? await CalcDisbursementPerfForProjects(projects) : 0;
 
         await _context.SaveChangesAsync();
 
@@ -473,7 +509,7 @@ public class MonitoringService
             .ToListAsync();
 
         var projects = await GetProjectsForIndicators(projectIds);
-        framework.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
+        framework.DisbursementPerformance = projects.Any() ? await CalcDisbursementPerfForProjects(projects) : 0;
 
         await _context.SaveChangesAsync();
     }
@@ -486,7 +522,7 @@ public class MonitoringService
         if (ministry == null) return;
 
         var projects = await GetProjectsForIndicators(ministry.Projects.Select(p => p.ProjectID));
-        ministry.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
+        ministry.DisbursementPerformance = projects.Any() ? await CalcDisbursementPerfForProjects(projects) : 0;
 
         _context.Ministries.Update(ministry);
         await _context.SaveChangesAsync();
@@ -500,7 +536,7 @@ public class MonitoringService
         if (sector == null) return;
 
         var projects = await GetProjectsForIndicators(sector.Projects.Select(p => p.ProjectID));
-        sector.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
+        sector.DisbursementPerformance = projects.Any() ? await CalcDisbursementPerfForProjects(projects) : 0;
 
         _context.Sectors.Update(sector);
         await _context.SaveChangesAsync();
@@ -514,7 +550,7 @@ public class MonitoringService
         if (donor == null) return;
 
         var projects = await GetProjectsForIndicators(donor.Projects.Select(p => p.ProjectID));
-        donor.DisbursementPerformance = projects.Any() ? CalcDisbursementPerfForProjects(projects) : 0;
+        donor.DisbursementPerformance = projects.Any() ? await CalcDisbursementPerfForProjects(projects) : 0;
 
         _context.Donors.Update(donor);
         await _context.SaveChangesAsync();

@@ -535,7 +535,11 @@ public class DashboardController : Controller
             Frameworks = await frameworksQ.ToListAsync(),
 
             TotlalMinistries = await indicatorsQ.CountAsync(),
-            Ministries = await _context.Ministries.ToListAsync(),
+            Ministries = isAdmin
+                ? await _context.Ministries.ToListAsync()
+                : await _context.Ministries.Where(m => m.Code == scopedMinistryCode).ToListAsync(),
+            IsMinistryUser = !isAdmin,
+            UserMinistryCode = scopedMinistryCode,
 
             TotalProjects = await projectsQ.CountAsync(),
             Projects = await projectsQ.ToListAsync(),
@@ -1626,7 +1630,7 @@ public class DashboardController : Controller
                         table.Header(header =>
                         {
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
-                                .Text(isRtl ? "السياسة" : "Framework").FontColor(Colors.White).Bold();
+                                .Text(isRtl ? "الهدف الاستراتيجي" : "Framework").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
                                 .Text(isRtl ? "الأداء (%)" : "Performance (%)").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
@@ -1667,7 +1671,7 @@ public class DashboardController : Controller
                         table.Header(header =>
                         {
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
-                                .Text(isRtl ? "السياسة" : "Framework").FontColor(Colors.White).Bold();
+                                .Text(isRtl ? "الهدف الاستراتيجي" : "Framework").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)
                                 .Text(isRtl ? "المشروع" : "Project").FontColor(Colors.White).Bold();
                             header.Cell().Background(Colors.Indigo.Darken2).Padding(5)

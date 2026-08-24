@@ -419,6 +419,67 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("Communities");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.CurrencyRate", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("NameAr")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("RateToSyp")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<string>("Symbol")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("CurrencyRates");
+
+                    b.HasData(
+                        new
+                        {
+                            Code = "SYP",
+                            NameAr = "ليرة سورية",
+                            NameEn = "Syrian Pound",
+                            RateToSyp = 1m,
+                            Symbol = "SYP ",
+                            UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Code = "USD",
+                            NameAr = "دولار أمريكي",
+                            NameEn = "US Dollar",
+                            RateToSyp = 13000m,
+                            Symbol = "$",
+                            UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Code = "EUR",
+                            NameAr = "يورو",
+                            NameEn = "Euro",
+                            RateToSyp = 14000m,
+                            Symbol = "€",
+                            UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.District", b =>
                 {
                     b.Property<string>("Code")
@@ -1099,7 +1160,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .HasColumnType("float");
 
                     b.Property<decimal?>("ExchangeRate")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(18,4)");
 
                     b.Property<DateTime?>("ExchangeRateDate")
                         .HasColumnType("datetime2");
@@ -1436,6 +1497,35 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("RequestId");
 
                     b.ToTable("RequestComments");
+                });
+
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestCommentAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RequestCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UploadedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestCommentId");
+
+                    b.ToTable("RequestCommentAttachments");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestEmployee", b =>
@@ -2198,6 +2288,17 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Request");
                 });
 
+            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestCommentAttachment", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.RequestComment", "RequestComment")
+                        .WithMany("Attachments")
+                        .HasForeignKey("RequestCommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("RequestComment");
+                });
+
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestFile", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Request", "Request")
@@ -2409,6 +2510,8 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.RequestComment", b =>
                 {
+                    b.Navigation("Attachments");
+
                     b.Navigation("Replies");
                 });
 

@@ -48,12 +48,47 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<PlatformVersion> PlatformVersions { get; set; } = default!;
         public DbSet<RequestEmployee> RequestEmployees { get; set; } = default!;
         public DbSet<RequestComment> RequestComments { get; set; } = default!;
+        public DbSet<RequestCommentAttachment> RequestCommentAttachments { get; set; } = default!;
         public DbSet<RequestTest> RequestTests { get; set; } = default!;
+        public DbSet<CurrencyRate> CurrencyRates { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            // Seed the fallback exchange rates so a conversion never fails purely because an
+            // admin has not visited the rates screen yet. SYP is the base unit and stays 1.
+            // UpdatedAt must be a constant here — HasData is baked into the migration, so
+            // DateTime.UtcNow would rewrite the seed on every scaffold.
+            modelBuilder.Entity<CurrencyRate>().HasData(
+                new CurrencyRate
+                {
+                    Code = "SYP",
+                    RateToSyp = 1m,
+                    NameEn = "Syrian Pound",
+                    NameAr = "ليرة سورية",
+                    Symbol = "SYP ",
+                    UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                },
+                new CurrencyRate
+                {
+                    Code = "USD",
+                    RateToSyp = 13000m,
+                    NameEn = "US Dollar",
+                    NameAr = "دولار أمريكي",
+                    Symbol = "$",
+                    UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                },
+                new CurrencyRate
+                {
+                    Code = "EUR",
+                    RateToSyp = 14000m,
+                    NameEn = "Euro",
+                    NameAr = "يورو",
+                    Symbol = "€",
+                    UpdatedAt = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                });
 
             // Request number is the business key surfaced to users; keep it unique so a
             // concurrent insert fails loudly instead of duplicating a number.
@@ -132,6 +167,12 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany()
                 .HasForeignKey(c => c.OnBehalfOfEmployeeId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<RequestCommentAttachment>()
+                .HasOne(a => a.RequestComment)
+                .WithMany(c => c.Attachments)
+                .HasForeignKey(a => a.RequestCommentId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             // Test sign-offs die with their request. This is the only cascading path
             // into RequestTests, so SQL Server sees no multiple cascade paths.

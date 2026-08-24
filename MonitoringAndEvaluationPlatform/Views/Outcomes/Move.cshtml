@@ -1,0 +1,385 @@
+@using MonitoringAndEvaluationPlatform.ViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@model MoveOutcomeViewModel
+@{
+    ViewData["Title"] = "Move Outcome";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-exchange-alt me-3"></i>
+                @Localizer["Move Outcome"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Reassign this outcome and everything beneath it to a different framework"]
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a asp-action="Index" asp-route-frameworkCode="@Model.SourceFrameworkCode"
+               class="btn btn-outline-secondary btn-lg shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Outcomes"]
+            </a>
+        </div>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>@TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>@TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-bullseye"></i>
+        @Model.OutcomeName
+    </div>
+
+    @if (!Model.AvailableFrameworks.Any())
+    {
+        <div class="text-center py-5">
+            <div class="stat-icon warning mx-auto mb-3" style="width: 80px; height: 80px; font-size: 2rem;">
+                <i class="fas fa-exchange-alt"></i>
+            </div>
+            <h4 class="text-muted">@Localizer["No other framework available"]</h4>
+            <p class="text-muted">@Localizer["There must be at least one other framework to move this outcome into."]</p>
+            <a asp-action="Index" asp-route-frameworkCode="@Model.SourceFrameworkCode" class="btn btn-primary btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Outcomes"]
+            </a>
+        </div>
+    }
+    else
+    {
+        <form asp-action="Move" method="post" id="moveOutcomeForm">
+            <input type="hidden" name="id" value="@Model.OutcomeCode" />
+
+            <div class="row g-4 align-items-stretch">
+                <!-- From -->
+                <div class="col-lg-5">
+                    <div class="move-panel move-panel-from h-100">
+                        <div class="move-panel-label">
+                            <i class="fas fa-sign-out-alt me-2"></i>@Localizer["Current Framework"]
+                        </div>
+                        <div class="move-panel-value">@Model.SourceFrameworkName</div>
+                        @if (!string.IsNullOrEmpty(Model.SourceMinistryName))
+                        {
+                            <div class="move-panel-meta">
+                                <i class="fas fa-landmark me-1"></i>@Model.SourceMinistryName
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="col-lg-2 d-flex align-items-center justify-content-center">
+                    <div class="move-arrow">
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
+
+                <!-- To -->
+                <div class="col-lg-5">
+                    <div class="move-panel move-panel-to h-100">
+                        <div class="move-panel-label">
+                            <i class="fas fa-sign-in-alt me-2"></i>@Localizer["Destination Framework"]
+                        </div>
+                        <select asp-for="DestinationFrameworkCode"
+                                asp-items="Model.AvailableFrameworks"
+                                id="destinationFrameworkCode"
+                                class="form-select form-select-lg">
+                            <option value="">@Localizer["-- Select a framework --"]</option>
+                        </select>
+                        <div class="move-panel-meta" id="destinationMinistry"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cross-ministry warning -->
+            <div class="alert alert-warning mt-4 d-none" id="crossMinistryWarning" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>@Localizer["Cross-ministry move."]</strong>
+                <span>@Localizer["The destination framework belongs to a different ministry. Ownership of this outcome and everything beneath it will transfer with it."]</span>
+            </div>
+
+            <!-- Impact preview -->
+            <div class="impact-card mt-4">
+                <div class="impact-title">
+                    <i class="fas fa-sitemap me-2"></i>@Localizer["What moves with this outcome"]
+                </div>
+
+                <ul class="impact-tree">
+                    <li>
+                        <i class="fas fa-layer-group text-primary me-2"></i>
+                        <strong>@Model.OutputCount</strong> @Localizer["Outputs"]
+                        <ul>
+                            <li>
+                                <i class="fas fa-stream text-info me-2"></i>
+                                <strong>@Model.SubOutputCount</strong> @Localizer["Sub Outputs"]
+                                <ul>
+                                    <li>
+                                        <i class="fas fa-chart-line text-success me-2"></i>
+                                        <strong>@Model.IndicatorCount</strong> @Localizer["Indicators"]
+                                        @if (Model.LinkedProjectCount > 0)
+                                        {
+                                            <span class="badge bg-secondary ms-2">
+                                                <i class="fas fa-project-diagram me-1"></i>
+                                                @Model.LinkedProjectCount @Localizer["linked to projects"]
+                                            </span>
+                                        }
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <div class="impact-note">
+                    <i class="fas fa-info-circle me-1"></i>
+                    @Localizer["No data is deleted. Outcome weights in both the current and destination frameworks will be redistributed equally so each still totals 100%, and both frameworks' performance will be recalculated."]
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+                <a asp-action="Index" asp-route-frameworkCode="@Model.SourceFrameworkCode"
+                   class="btn btn-outline-secondary btn-lg me-2">
+                    <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                </a>
+                <button type="submit" id="moveBtn" class="btn btn-warning btn-lg px-4" disabled>
+                    <i class="fas fa-exchange-alt me-2"></i>@Localizer["Move Outcome"]
+                </button>
+            </div>
+        </form>
+    }
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        const frameworkMinistries = @Html.Raw(Json.Serialize(Model.FrameworkMinistries));
+        const sourceMinistry = @Html.Raw(Json.Serialize(Model.SourceMinistryName ?? ""));
+        const outcomeName = @Html.Raw(Json.Serialize(Model.OutcomeName));
+
+        // Outcome and framework names are free text, and SweetAlert renders `html` as
+        // markup - escape before interpolating.
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const select = document.getElementById('destinationFrameworkCode');
+            if (!select) return;
+
+            const moveBtn = document.getElementById('moveBtn');
+            const warning = document.getElementById('crossMinistryWarning');
+            const ministryLabel = document.getElementById('destinationMinistry');
+
+            select.addEventListener('change', function () {
+                const code = this.value;
+                moveBtn.disabled = !code;
+
+                if (!code) {
+                    ministryLabel.innerHTML = '';
+                    warning.classList.add('d-none');
+                    return;
+                }
+
+                const ministry = frameworkMinistries[code] || '';
+                ministryLabel.innerHTML = ministry
+                    ? '<i class="fas fa-landmark me-1"></i>' + escapeHtml(ministry)
+                    : '';
+
+                // Only warn when both sides have a ministry and they differ.
+                const crosses = ministry && sourceMinistry && ministry !== sourceMinistry;
+                warning.classList.toggle('d-none', !crosses);
+            });
+
+            document.getElementById('moveOutcomeForm').addEventListener('submit', function (e) {
+                if (this.dataset.confirmed === 'true') return;
+
+                e.preventDefault();
+
+                const frameworkName = select.options[select.selectedIndex].text;
+                const form = this;
+
+                const movingLine = '@Localizer["will be moved to"]';
+                const subtreeLine = '@Localizer["Outputs"]: @Model.OutputCount &middot; '
+                    + '@Localizer["Sub Outputs"]: @Model.SubOutputCount &middot; '
+                    + '@Localizer["Indicators"]: @Model.IndicatorCount';
+
+                Swal.fire({
+                    title: '@Localizer["Move this outcome?"]',
+                    html: '<strong>' + escapeHtml(outcomeName) + '</strong> ' + movingLine
+                        + ' <strong>' + escapeHtml(frameworkName) + '</strong>.<br><br>'
+                        + '<small>' + subtreeLine + '</small>',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ffc107',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '@Localizer["Yes, Move It"]',
+                    cancelButtonText: '@Localizer["Cancel"]'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.dataset.confirmed = 'true';
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .move-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        .move-panel-from {
+            border-left: 4px solid #6c757d;
+        }
+
+        .move-panel-to {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .move-panel-label {
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6c757d;
+            margin-bottom: 12px;
+        }
+
+        .move-panel-value {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .move-panel-meta {
+            margin-top: 10px;
+            color: #6c757d;
+            font-size: 0.95rem;
+            min-height: 1.5rem;
+        }
+
+        .move-arrow {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .impact-card {
+            background: rgba(23, 162, 184, 0.08);
+            border-radius: 15px;
+            border-left: 4px solid var(--accent-color);
+            padding: 25px;
+        }
+
+        .impact-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .impact-tree,
+        .impact-tree ul {
+            list-style: none;
+            margin: 0;
+            padding-inline-start: 22px;
+        }
+
+        .impact-tree li {
+            padding: 6px 0;
+            font-size: 1.05rem;
+            color: #333;
+        }
+
+        .impact-note {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Flip the connector arrow for RTL layouts */
+        [dir="rtl"] .move-arrow i {
+            transform: scaleX(-1);
+        }
+
+        [dir="rtl"] .move-panel-from,
+        [dir="rtl"] .move-panel-to {
+            border-left: 2px solid rgba(0, 0, 0, 0.06);
+        }
+
+        [dir="rtl"] .move-panel-from {
+            border-right: 4px solid #6c757d;
+        }
+
+        [dir="rtl"] .move-panel-to {
+            border-right: 4px solid var(--primary-color);
+        }
+
+        [dir="rtl"] .impact-card {
+            border-left: none;
+            border-right: 4px solid var(--accent-color);
+        }
+
+        @@media (max-width: 991px) {
+            .move-arrow i {
+                transform: rotate(90deg);
+            }
+
+            [dir="rtl"] .move-arrow i {
+                transform: rotate(90deg) scaleX(-1);
+            }
+        }
+    </style>
+}

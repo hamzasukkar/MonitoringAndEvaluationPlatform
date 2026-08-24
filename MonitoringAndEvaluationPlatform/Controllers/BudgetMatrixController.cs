@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -17,12 +18,22 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ICurrencyConversionService _currencyConversion;
 
-        public BudgetMatrixController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        public BudgetMatrixController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ICurrencyConversionService currencyConversion)
         {
             _context = context;
             _userManager = userManager;
+            _currencyConversion = currencyConversion;
         }
+
+        /// <summary>
+        /// The matrix compares and totals figures across projects, so every cell is expressed in
+        /// SYP rather than each project's own currency — a row-by-row mix would make the columns
+        /// and the totals row meaningless.
+        /// </summary>
+        private static double ToSyp(double amount, Project project, CurrencyConverter converter) =>
+            converter.ToSyp(amount, project.Currency, project.ExchangeRate) ?? 0;
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
@@ -84,6 +95,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var categories = ProjectPhase.DefaultCategoryNames.ToList();
 
+            var conv = await _currencyConversion.GetConverterAsync();
+
             var model = new BudgetMatrixViewModel
             {
                 Categories = categories,
@@ -98,9 +111,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     foreach (var category in categories)
                     {
                         var phase = p.Phases?.FirstOrDefault(ph => ph.Name == category);
-                        row.Budget[category] = phase?.Budget ?? 0;
-                        row.Disbursement[category] = phase?.ActionPlan?.Plans
-                            .Sum(pl => (double)pl.Realised) ?? 0;
+                        row.Budget[category] = ToSyp(phase?.Budget ?? 0, p, conv);
+                        row.Disbursement[category] = ToSyp(
+                            phase?.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0, p, conv);
                     }
 
                     return row;
@@ -139,11 +152,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             using (var workbook = new ClosedXML.Excel.XLWorkbook())
             {
+                var conv = await _currencyConversion.GetConverterAsync();
                 var worksheet = workbook.Worksheets.Add("Budget Matrix");
                 var row = 1;
 
                 // Header
-                worksheet.Cell(row, 1).Value = "Project Name";
+                worksheet.Cell(row, 1).Value = "Project Name (all amounts in SYP)";
                 worksheet.Cell(row, 2).Value = "Type";
                 for (int i = 0; i < categories.Count; i++)
                 {
@@ -164,7 +178,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     for (int i = 0; i < categories.Count; i++)
                     {
                         var phase = project.Phases?.FirstOrDefault(ph => ph.Name == categories[i]);
-                        worksheet.Cell(row, 3 + i).Value = phase?.Budget ?? 0;
+                        worksheet.Cell(row, 3 + i).Value = ToSyp(phase?.Budget ?? 0, project, conv);
                     }
                     row++;
 
@@ -173,7 +187,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     for (int i = 0; i < categories.Count; i++)
                     {
                         var phase = project.Phases?.FirstOrDefault(ph => ph.Name == categories[i]);
-                        var disb = phase?.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0;
+                        var disb = ToSyp(phase?.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0, project, conv);
                         worksheet.Cell(row, 3 + i).Value = disb;
                     }
                     row++;
@@ -184,7 +198,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 worksheet.Cell(row, 2).Value = "Budget";
                 for (int i = 0; i < categories.Count; i++)
                 {
-                    var total = projects.Sum(p => p.Phases?.FirstOrDefault(ph => ph.Name == categories[i])?.Budget ?? 0);
+                    var total = projects.Sum(p => ToSyp(p.Phases?.FirstOrDefault(ph => ph.Name == categories[i])?.Budget ?? 0, p, conv));
                     worksheet.Cell(row, 3 + i).Value = total;
                 }
                 worksheet.Row(row).Style.Font.Bold = true;
@@ -194,7 +208,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 worksheet.Cell(row, 2).Value = "Disbursement";
                 for (int i = 0; i < categories.Count; i++)
                 {
-                    var total = projects.Sum(p => p.Phases?.FirstOrDefault(ph => ph.Name == categories[i])?.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0);
+                    var total = projects.Sum(p => ToSyp(p.Phases?.FirstOrDefault(ph => ph.Name == categories[i])?.ActionPlan?.Plans.Sum(pl => (double)pl.Realised) ?? 0, p, conv));
                     worksheet.Cell(row, 3 + i).Value = total;
                 }
                 worksheet.Row(row).Style.Font.Bold = true;

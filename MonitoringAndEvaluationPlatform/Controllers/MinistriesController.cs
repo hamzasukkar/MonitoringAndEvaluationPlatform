@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -20,11 +21,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        private readonly ICurrencyConversionService _currencyConversion;
+
+        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ICurrencyConversionService currencyConversion)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
+            _currencyConversion = currencyConversion;
         }
         // GET: Ministries
         [Permission(Permissions.ReadMinistries)]
@@ -60,7 +64,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.TotalProjects = allProjects.Count;
             ViewBag.ActiveProjects = allProjects.Count(p => p.EndDate >= DateTime.Now);
             ViewBag.CompletedProjects = allProjects.Count(p => p.EndDate < DateTime.Now);
-            ViewBag.TotalBudget = allProjects.Sum(p => p.EstimatedBudget);
+            ViewBag.TotalBudget = (await _currencyConversion.GetConverterAsync()).SumBudget(allProjects);
 
             return View(ministries);
         }
@@ -93,7 +97,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.TotalProjects = projects.Count;
             ViewBag.ActiveProjects = projects.Count(p => p.EndDate >= DateTime.Now);
             ViewBag.CompletedProjects = projects.Count(p => p.EndDate < DateTime.Now);
-            ViewBag.TotalBudget = projects.Sum(p => p.EstimatedBudget);
+            ViewBag.TotalBudget = (await _currencyConversion.GetConverterAsync()).SumBudget(projects);
             ViewBag.Projects = projects;
 
             // Get ministry users

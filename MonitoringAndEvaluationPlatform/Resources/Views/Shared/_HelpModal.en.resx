@@ -398,40 +398,6 @@
   </data>
 
   <!-- Measures Help Content -->
-  <data name="HELP_MEASURES_TITLE" xml:space="preserve">
-    <value>Measures Help</value>
-  </data>
-  <data name="HELP_MEASURES_OVERVIEW" xml:space="preserve">
-    <value>Measures link projects to indicators and track planned versus realized values. They are the foundation for calculating performance metrics throughout the system.</value>
-  </data>
-  <data name="HELP_MEASURES_HOWTO_1" xml:space="preserve">
-    <value>Select a project and indicator combination to create a new measure.</value>
-  </data>
-  <data name="HELP_MEASURES_HOWTO_2" xml:space="preserve">
-    <value>Enter the planned (target) value for the indicator based on project goals.</value>
-  </data>
-  <data name="HELP_MEASURES_HOWTO_3" xml:space="preserve">
-    <value>Update the realized value as the project progresses to track actual performance.</value>
-  </data>
-  <data name="HELP_MEASURES_FAQ_Q1" xml:space="preserve">
-    <value>What happens when I update a measure?</value>
-  </data>
-  <data name="HELP_MEASURES_FAQ_A1" xml:space="preserve">
-    <value>Performance calculations automatically propagate up through indicators, sub-outputs, outputs, outcomes, and frameworks.</value>
-  </data>
-  <data name="HELP_MEASURES_FAQ_Q2" xml:space="preserve">
-    <value>Can a project have multiple measures for the same indicator?</value>
-  </data>
-  <data name="HELP_MEASURES_FAQ_A2" xml:space="preserve">
-    <value>Typically each project-indicator pair has one measure, but you can track multiple time periods by using plans within the project.</value>
-  </data>
-  <data name="HELP_MEASURES_TIP_1" xml:space="preserve">
-    <value>Keep measures updated regularly to maintain accurate performance reporting.</value>
-  </data>
-  <data name="HELP_MEASURES_TIP_2" xml:space="preserve">
-    <value>Use the bulk edit features when you need to update multiple measures at once.</value>
-  </data>
-
   <!-- Action Plans Help Content -->
   <data name="HELP_ACTIONPLANS_TITLE" xml:space="preserve">
     <value>Action Plans Help</value>
@@ -797,5 +763,38 @@ Calculation:
   </data>
   <data name="HELP_MEASURES_TIP_2" xml:space="preserve">
     <value>**Total Achievement:** The "Selected Phase Total" at the top of the list shows the cumulative achievement across all measures in the phase. For Quantitative phases this is the sum of individual achievement percentages; for Qualitative phases it is the direct sum of entered values. Both are capped at 100%.</value>
+  </data>
+  <data name="HELP_REQUESTS_TITLE" xml:space="preserve">
+    <value>Requests Help</value>
+  </data>
+  <data name="HELP_REQUESTS_OVERVIEW" xml:space="preserve">
+    <value>Requests let you raise support needs, change proposals, and inquiries with the platform team and follow them through to completion. Each request has a category, a priority, and a status, and carries its own discussion thread, test records, and attachments.</value>
+  </data>
+  <data name="HELP_REQUESTS_HOWTO_1" xml:space="preserve">
+    <value>Open Submit Request from the user menu, choose a category and a priority, then enter a clear title and description and attach any supporting files.</value>
+  </data>
+  <data name="HELP_REQUESTS_HOWTO_2" xml:space="preserve">
+    <value>Follow your own requests from My Requests. Administrators see every request in Requests Management and can filter by status, category, and priority.</value>
+  </data>
+  <data name="HELP_REQUESTS_HOWTO_3" xml:space="preserve">
+    <value>On the request details page, use the quick status dropdown to move the request forward, and the comment box to record discussion or the result of a test.</value>
+  </data>
+  <data name="HELP_REQUESTS_FAQ_Q1" xml:space="preserve">
+    <value>What does the Needs Discussion status mean?</value>
+  </data>
+  <data name="HELP_REQUESTS_FAQ_A1" xml:space="preserve">
+    <value>It marks a request that cannot move forward until something is clarified or agreed. Record the discussion in the request's comment thread. A request left in this status still counts as unfinished when a platform version is released.</value>
+  </data>
+  <data name="HELP_REQUESTS_FAQ_Q2" xml:space="preserve">
+    <value>Who can change a request's status or delete a request?</value>
+  </data>
+  <data name="HELP_REQUESTS_FAQ_A2" xml:space="preserve">
+    <value>Submitting and viewing requests is available to the System Administrator, Ministries User, and Data Entry roles. Managing and deleting requests is restricted to the System Administrator.</value>
+  </data>
+  <data name="HELP_REQUESTS_TIP_1" xml:space="preserve">
+    <value>Give the request a specific title and description. A precise description is handled far faster than a vague one.</value>
+  </data>
+  <data name="HELP_REQUESTS_TIP_2" xml:space="preserve">
+    <value>Quote the request number (REQ-YYYY-000) whenever you follow up, and check What's New to see which requests shipped in the latest release.</value>
   </data>
 </root>

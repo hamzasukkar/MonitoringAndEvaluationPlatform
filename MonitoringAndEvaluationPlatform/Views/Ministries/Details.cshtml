@@ -10,7 +10,7 @@
     var totalProjects = ViewBag.TotalProjects ?? 0;
     var activeProjects = ViewBag.ActiveProjects ?? 0;
     var completedProjects = ViewBag.CompletedProjects ?? 0;
-    var totalBudget = ViewBag.TotalBudget ?? 0m;
+    var totalBudget = (MonitoringAndEvaluationPlatform.Services.MoneyTotal)(ViewBag.TotalBudget ?? MonitoringAndEvaluationPlatform.Services.MoneyTotal.Empty);
     var projects = ViewBag.Projects as List<Project> ?? new List<Project>();
     var ministryUsers = ViewBag.MinistryUsers as List<ApplicationUser> ?? new List<ApplicationUser>();
 }
@@ -101,10 +101,10 @@
                             <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                 @Localizer["Total Budget"]
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-gray-800">$@totalBudget.ToString("N0")</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@await Html.PartialAsync("_SypTotal", totalBudget)</div>
                         </div>
                         <div class="col-auto">
-                            <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            <i class="fas fa-coins fa-2x text-gray-300"></i>
                         </div>
                     </div>
                 </div>

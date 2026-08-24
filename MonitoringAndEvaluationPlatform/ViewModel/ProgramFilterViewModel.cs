@@ -53,7 +53,29 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public int NotStartedProjects { get; set; }
         public int InProgressProjects { get; set; }
         public int CompletedProjects { get; set; }
-        public double TotalBudget { get; set; }
+        /// <summary>Budgets of all matching projects, converted to SYP.</summary>
+        public MonitoringAndEvaluationPlatform.Services.MoneyTotal TotalBudget { get; set; }
+            = MonitoringAndEvaluationPlatform.Services.MoneyTotal.Empty;
+
+        // Sorting
+        public string SortColumn { get; set; } = "performance";
+        public string SortDirection { get; set; } = "desc";
+
+        // Paging
+        public int CurrentPage { get; set; } = 1;
+        public int PageSize { get; set; } = 20;
+        public int TotalRecords { get; set; }
+        public int TotalPages { get; set; }
+
+        public int FirstItemIndex => TotalRecords == 0 ? 0 : (CurrentPage - 1) * PageSize + 1;
+        public int LastItemIndex => Math.Min(CurrentPage * PageSize, TotalRecords);
+
+        public string GetSortDirection(string column) =>
+            string.Equals(SortColumn, column, StringComparison.OrdinalIgnoreCase) && SortDirection == "asc" ? "desc" : "asc";
+
+        public string GetSortIcon(string column) =>
+            !string.Equals(SortColumn, column, StringComparison.OrdinalIgnoreCase) ? "fa-sort text-muted"
+            : SortDirection == "asc" ? "fa-chevron-up" : "fa-chevron-down";
     }
 
 }

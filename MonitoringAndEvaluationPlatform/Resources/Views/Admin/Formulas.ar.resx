@@ -98,7 +98,7 @@
   </data>
   <!-- Hierarchy Section -->
   <data name="HierarchyIntro" xml:space="preserve">
-    <value>تستخدم منصة الرصد والتقييم هيكلاً هرمياً حيث يتدفق الأداء من الأسفل (الخطط) إلى الأعلى (السياسة). يجمع كل مستوى الأداء من عناصره الفرعية.</value>
+    <value>تستخدم منصة الرصد والتقييم هيكلاً هرمياً حيث يتدفق الأداء من الأسفل (الخطط) إلى الأعلى (الهدف الاستراتيجي). يجمع كل مستوى الأداء من عناصره الفرعية.</value>
   </data>
   <data name="Framework" xml:space="preserve">
     <value>الهدف الاستراتيجي</value>
@@ -107,7 +107,7 @@
     <value>الأهداف الاستراتيجية</value>
   </data>
   <data name="Outcome" xml:space="preserve">
-    <value>السباسة</value>
+    <value>السياسة</value>
   </data>
   <data name="Output" xml:space="preserve">
     <value>البرنامج</value>
@@ -224,7 +224,7 @@
     <value>المؤشرات غير المرتبطة بأي مشروع تأخذ أداءً افتراضيًا قدره 0 وتُستثنى من المتوسطات المرجحة في المستويات الأعلى.</value>
   </data>
   <data name="IndicatorCalcDetail3" xml:space="preserve">
-    <value>تُستخدم أوزان المؤشرات على مستوى المخرج الفرعي لحساب المتوسط المرجح عبر المؤشرات.</value>
+    <value>تُستخدم أوزان المؤشرات على مستوى البرنامج الفرعي لحساب المتوسط المرجح عبر المؤشرات.</value>
   </data>
   <!-- Hierarchy Propagation Section -->
   <data name="HierarchyPropagationIntro" xml:space="preserve">
@@ -255,7 +255,7 @@
     <value>البرامج</value>
   </data>
   <data name="Outcomes" xml:space="preserve">
-    <value>النتائج</value>
+    <value>السياسات</value>
   </data>
   <data name="WeightedAverageMethod" xml:space="preserve">
     <value>المتوسط المرجح</value>

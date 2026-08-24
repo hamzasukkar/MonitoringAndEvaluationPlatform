@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -14,8 +15,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public SectorsController(ApplicationDbContext context)
+        private readonly ICurrencyConversionService _currencyConversion;
+
+        public SectorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion)
         {
+            _currencyConversion = currencyConversion;
             _context = context;
         }
 
@@ -69,7 +73,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.TotalProjects = sector.Projects.Count;
             ViewBag.ActiveProjects = sector.Projects.Count(p => p.EndDate >= DateTime.Now);
             ViewBag.CompletedProjects = sector.Projects.Count(p => p.EndDate < DateTime.Now);
-            ViewBag.TotalBudget = sector.Projects.Sum(p => p.EstimatedBudget);
+            ViewBag.TotalBudget = (await _currencyConversion.GetConverterAsync()).SumBudget(sector.Projects);
 
             return View(sector);
         }

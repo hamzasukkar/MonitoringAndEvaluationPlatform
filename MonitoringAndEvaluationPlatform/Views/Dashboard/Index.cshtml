@@ -95,11 +95,15 @@
 					<div class="stat-number" id="totalMinistries">@Model.TotlalMinistries</div>
 					<div class="stat-label">@Localizer["Total Ministries"]</div>
 					<div class="stat-filter">
-						<select id="ministryFilter" class="modern-select-filter">
-							<option disabled selected value="">@Localizer["Select Ministry"]</option>
+						<select id="ministryFilter" class="modern-select-filter" @(Model.IsMinistryUser ? "disabled" : "")>
+							@if (!Model.IsMinistryUser)
+							{
+								<option disabled selected value="">@Localizer["Select Ministry"]</option>
+							}
 							@foreach (var min in Model.Ministries)
 							{
-								<option value="@min.Code">@(!string.IsNullOrEmpty(min.Logo) ? min.Logo + " " : "")@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? min.MinistryDisplayName_AR : min.MinistryDisplayName_EN)</option>
+								var selected = Model.IsMinistryUser && min.Code == Model.UserMinistryCode;
+								<option value="@min.Code" selected="@selected">@(!string.IsNullOrEmpty(min.Logo) ? min.Logo + " " : "")@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? min.MinistryDisplayName_AR : min.MinistryDisplayName_EN)</option>
 							}
 						</select>
 					</div>

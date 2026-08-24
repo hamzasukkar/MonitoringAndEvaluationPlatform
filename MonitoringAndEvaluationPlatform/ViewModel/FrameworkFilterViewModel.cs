@@ -1,4 +1,4 @@
-﻿using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.ViewModel
 {
@@ -28,6 +28,12 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         // bucket, or a search narrows the page down to a strategy list.
         public bool ShowMinistries { get; set; }
         public bool UnassignedOnly { get; set; }
+
+        // Strategies with no OWNER (Framework.MinistryCode is null) even though a ministry may
+        // still reach them through a project. UnassignedStrategyCount cannot surface these,
+        // because it counts the owner+project union and those rows are not empty.
+        public int OwnerlessStrategyCount { get; set; }
+        public bool OwnerlessOnly { get; set; }
 
         public bool IsMinistryUser { get; set; } = false;
     }

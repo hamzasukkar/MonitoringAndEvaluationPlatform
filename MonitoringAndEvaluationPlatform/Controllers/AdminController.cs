@@ -13,17 +13,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
+        private readonly ITestDataGeneratorService _testDataGenerator;
 
         public AdminController(
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            ITestDataGeneratorService testDataGenerator)
         {
             _userManager = userManager;
+            _signInManager = signInManager;
             _roleManager = roleManager;
             _context = context;
+            _testDataGenerator = testDataGenerator;
         }
 
         // GET: Admin/Test - Simple test to check if controller works
@@ -33,19 +39,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Admin/Index
-        public async Task<IActionResult> Index(string searchTerm = "", string roleFilter = "", int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Index(string searchTerm = "", string roleFilter = "", string ministryFilter = "", int page = 1, int pageSize = 10)
         {
-            return await GetUserManagementView(searchTerm, roleFilter, page, pageSize, "Index");
+            return await GetUserManagementView(searchTerm, roleFilter, ministryFilter, page, pageSize, "Index");
         }
 
         // GET: Admin/Users (Alternative page with same functionality)
-        public async Task<IActionResult> Users(string searchTerm = "", string roleFilter = "", int page = 1, int pageSize = 10)
+        public async Task<IActionResult> Users(string searchTerm = "", string roleFilter = "", string ministryFilter = "", int page = 1, int pageSize = 10)
         {
-            return await GetUserManagementView(searchTerm, roleFilter, page, pageSize, "Users");
+            return await GetUserManagementView(searchTerm, roleFilter, ministryFilter, page, pageSize, "Users");
         }
 
         // Shared method for user management
-        private async Task<IActionResult> GetUserManagementView(string searchTerm, string roleFilter, int page, int pageSize, string viewName)
+        private async Task<IActionResult> GetUserManagementView(string searchTerm, string roleFilter, string ministryFilter, int page, int pageSize, string viewName)
         {
             var usersQuery = _userManager.Users.AsQueryable();
 
@@ -74,6 +80,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                     usersQuery = usersQuery.Where(u => userIdsInRole.Contains(u.Id));
                 }
+            }
+
+            // Filter by ministry if specified
+            if (!string.IsNullOrWhiteSpace(ministryFilter))
+            {
+                usersQuery = usersQuery.Where(u => u.MinistryName == ministryFilter);
             }
 
             var totalUsers = await usersQuery.CountAsync();
@@ -126,11 +138,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Users = userViewModels,
                 SearchTerm = searchTerm,
                 RoleFilter = roleFilter,
+                MinistryFilter = ministryFilter,
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalUsers = totalUsers,
                 TotalPages = (int)Math.Ceiling(totalUsers / (double)pageSize),
-                AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync()
+                AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync(),
+                AvailableMinistries = await _context.Ministries
+                    .OrderBy(m => m.MinistryDisplayName_EN)
+                    .ToListAsync()
             };
 
             return View(viewName, viewModel);
@@ -457,6 +473,131 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             };
 
             return View(viewModel);
+        }
+
+        // ─────────────────────────────────────────────────────────────────────
+        // TEST DATA GENERATOR
+        // Builds a full Framework → … → Plan tree under a chosen ministry so the
+        // platform can be exercised without hand-entering dozens of forms.
+        // ─────────────────────────────────────────────────────────────────────
+
+        // GET: Admin/GenerateTestData
+        public async Task<IActionResult> GenerateTestData()
+        {
+            var model = new GenerateTestDataViewModel();
+            await PopulateMinistriesAsync(model);
+            return View(model);
+        }
+
+        // POST: Admin/ExecuteGenerateTestData
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExecuteGenerateTestData(GenerateTestDataViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                await PopulateMinistriesAsync(model);
+                return View(nameof(GenerateTestData), model);
+            }
+
+            try
+            {
+                var result = await _testDataGenerator.GenerateAsync(model);
+                await LogAuditAction("GenerateTestData", "TestData",
+                    $"Generated under ministry {model.MinistryCode} with prefix '{model.NamePrefix}': {result}");
+
+                TempData["SuccessMessage"] =
+                    $"Generated {result.Total} records — {result}.";
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Generation failed: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(GenerateTestData));
+        }
+
+        // POST: Admin/DeleteGeneratedTestData
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteGeneratedTestData(string prefix, string password, string confirmationPhrase)
+        {
+            if (!await ValidateSecurityConfirmation(password, confirmationPhrase,
+                    GenerateTestDataViewModel.DeleteConfirmationPhrase))
+            {
+                TempData["ErrorMessage"] =
+                    $"Invalid password or confirmation phrase. Type '{GenerateTestDataViewModel.DeleteConfirmationPhrase}' exactly.";
+                return RedirectToAction(nameof(GenerateTestData));
+            }
+
+            try
+            {
+                var result = await _testDataGenerator.DeleteByPrefixAsync(prefix);
+
+                if (result.Total == 0)
+                {
+                    TempData["ErrorMessage"] = $"No data found with the prefix '{prefix}'. Nothing was deleted.";
+                }
+                else
+                {
+                    await LogAuditAction("DeleteTestData", "TestData",
+                        $"Deleted data with prefix '{prefix}': {result}");
+                    TempData["SuccessMessage"] = $"Deleted {result.Total} records — {result}.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Deletion failed: {ex.Message}";
+            }
+
+            return RedirectToAction(nameof(GenerateTestData));
+        }
+
+        private async Task PopulateMinistriesAsync(GenerateTestDataViewModel model)
+        {
+            model.AvailableMinistries = await _context.Ministries
+                .OrderBy(m => m.MinistryDisplayName_EN)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Two factors for destructive actions: the admin's own password re-verified, plus an
+        /// exact typed phrase. Mirrors DataManagementController.ValidateSecurityConfirmation.
+        /// </summary>
+        private async Task<bool> ValidateSecurityConfirmation(string password, string confirmationPhrase, string expectedPhrase)
+        {
+            if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(confirmationPhrase))
+                return false;
+
+            if (!confirmationPhrase.Equals(expectedPhrase, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return false;
+
+            var result = await _signInManager.CheckPasswordSignInAsync(user, password, false);
+            return result.Succeeded;
+        }
+
+        private async Task LogAuditAction(string action, string entityName, string details)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var auditLog = new AuditLog
+            {
+                EntityName = entityName,
+                EntityId = "Admin",
+                Action = action,
+                UserId = user?.Id,
+                UserName = user?.UserName,
+                Timestamp = DateTime.UtcNow,
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                UserAgent = Request.Headers["User-Agent"].ToString(),
+                NewValues = System.Text.Json.JsonSerializer.Serialize(new { Details = details })
+            };
+
+            _context.AuditLogs.Add(auditLog);
+            await _context.SaveChangesAsync();
         }
     }
 }

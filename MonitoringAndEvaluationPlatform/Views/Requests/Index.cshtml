@@ -6,6 +6,7 @@
 @{
     ViewData["Title"] = Localizer["RequestsManagement"];
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "REQUESTS";
 
     // Without at least one named employee there is nobody to attribute a test to,
     // so the record button and its modal stay hidden.
@@ -21,6 +22,7 @@
         RequestStatus.OnHold => "bg-secondary",
         RequestStatus.Completed => "bg-success",
         RequestStatus.Cancelled => "bg-dark",
+        RequestStatus.NeedsDiscussion => "bg-info",
         _ => "bg-light text-dark"
     };
 
@@ -42,10 +44,11 @@
                 </h1>
                 <p class="text-muted mb-0">@Localizer["TrackAndManageRequests"]</p>
             </div>
-            <div>
+            <div class="d-flex gap-2 align-items-center">
                 <a asp-action="Create" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus me-2"></i>@Localizer["NewRequest"]
                 </a>
+                @await Html.PartialAsync("_HelpButton")
             </div>
         </div>
     </div>
@@ -403,4 +406,8 @@
             });
         });
     </script>
+}
+
+@section Modals {
+    @await Html.PartialAsync("_HelpModal")
 }

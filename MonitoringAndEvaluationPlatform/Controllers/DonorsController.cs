@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using Microsoft.Extensions.Localization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -16,9 +17,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IStringLocalizer<DonorsController> _localizer;
+        private readonly ICurrencyConversionService _currencyConversion;
 
-        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer)
+        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer, ICurrencyConversionService currencyConversion)
         {
+            _currencyConversion = currencyConversion;
             _context = context;
             _localizer = localizer;
         }
@@ -76,7 +79,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.TotalProjects = projects.Count;
             ViewBag.ActiveProjects = projects.Count(p => p.EndDate >= DateTime.Now);
             ViewBag.CompletedProjects = projects.Count(p => p.EndDate < DateTime.Now);
-            ViewBag.TotalBudget = projects.Sum(p => p.EstimatedBudget);
+            ViewBag.TotalBudget = (await _currencyConversion.GetConverterAsync()).SumBudget(projects);
             ViewBag.Projects = projects;
 
             return View(donor);

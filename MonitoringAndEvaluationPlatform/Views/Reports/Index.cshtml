@@ -257,10 +257,10 @@
                 </div>
                 <div class="gov-stat-item">
                     <div class="gov-stat-icon bg-success">
-                        <i class="fas fa-dollar-sign"></i>
+                        <i class="fas fa-coins"></i>
                     </div>
                     <div class="gov-stat-content">
-                        <span class="gov-stat-value" id="govBudget">$0</span>
+                        <span class="gov-stat-value" id="govBudget">0</span>
                         <span class="gov-stat-label">@Localizer["Total Budget"]</span>
                     </div>
                 </div>
@@ -445,19 +445,19 @@
             <div class="d-flex flex-column gap-4 justify-content-center h-100 py-3">
                 <div class="summary-card projects mb-0"> <!-- Reusing style -->
                     <div class="summary-icon bg-primary text-white">
-                        <i class="fas fa-file-invoice-dollar"></i>
+                        <i class="fas fa-file-invoice"></i>
                     </div>
                     <div class="summary-content">
-                        <div class="summary-value" style="font-size: 1.5rem;">$@Model.BudgetOverview.TotalEstimatedBudget.ToString("N0")</div>
+                        <div class="summary-value" style="font-size: 1.5rem;">@Model.BudgetOverview.TotalEstimatedBudget.ToString("N0") <small>@Localizer["SYP"]</small></div>
                         <div class="summary-label">@Localizer["Total Estimated Budget"]</div>
                     </div>
                 </div>
                 <div class="summary-card frameworks mb-0"> <!-- Reusing style -->
                     <div class="summary-icon bg-success text-white">
-                        <i class="fas fa-hand-holding-usd"></i>
+                        <i class="fas fa-wallet"></i>
                     </div>
                     <div class="summary-content">
-                        <div class="summary-value" style="font-size: 1.5rem;">$@Model.BudgetOverview.TotalRealBudget.ToString("N0")</div>
+                        <div class="summary-value" style="font-size: 1.5rem;">@Model.BudgetOverview.TotalRealBudget.ToString("N0") <small>@Localizer["SYP"]</small></div>
                         <div class="summary-label">@Localizer["Total Real Budget"]</div>
                     </div>
                 </div>
@@ -705,8 +705,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-primary">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -765,8 +765,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-success">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -822,8 +822,8 @@
                                 <td><span class="rank-badge @(typeRank <= 3 ? (typeRank == 1 ? "gold" : typeRank == 2 ? "silver" : "bronze") : "default")">@typeRank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-success">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                             </tr>
                             typeRank++;
                         }
@@ -880,8 +880,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-warning text-dark">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -940,8 +940,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-info">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -1000,8 +1000,8 @@
                                 <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                 <td>@item.Name</td>
                                 <td><span class="badge bg-secondary">@item.ProjectCount</span></td>
-                                <td>$@item.TotalBudget.ToString("N0")</td>
-                                <td>$@item.AmountSpent.ToString("N0")</td>
+                                <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                 <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                             </tr>
@@ -1030,8 +1030,13 @@
                         <span class="stat-value">@Model.TotalGovernorates</span>
                         <span class="stat-label">@Localizer["Total Governorates"]</span>
                     </div>
+                    @*
+                        Sum the province-only slices and add the nationwide row once. Summing the
+                        merged ProjectCount instead counted every nationwide project up to 14 times,
+                        because each governorate row already folds them all in.
+                    *@
                     <div class="category-stat">
-                        <span class="stat-value">@Model.GovernorateReports.Sum(g => g.ProjectCount)</span>
+                        <span class="stat-value">@Model.GovernorateReports.Sum(g => g.Provincial?.ProjectCount ?? g.ProjectCount)</span>
                         <span class="stat-label">@Localizer["Projects by Location"]</span>
                     </div>
                 </div>
@@ -1063,8 +1068,8 @@
                                     <td><i class="fas fa-globe text-primary"></i></td>
                                     <td><i class="fas fa-flag me-1 text-primary"></i>@item.Name</td>
                                     <td><span class="badge bg-primary">@item.ProjectCount</span></td>
-                                    <td>$@item.TotalBudget.ToString("N0")</td>
-                                    <td>$@item.AmountSpent.ToString("N0")</td>
+                                    <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                    <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                     <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                     <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                                 </tr>
@@ -1076,8 +1081,8 @@
                                     <td><span class="rank-badge @(rank <= 3 ? (rank == 1 ? "gold" : rank == 2 ? "silver" : "bronze") : "default")">@rank</span></td>
                                     <td>@item.Name</td>
                                     <td><span class="badge bg-danger">@item.ProjectCount</span></td>
-                                    <td>$@item.TotalBudget.ToString("N0")</td>
-                                    <td>$@item.AmountSpent.ToString("N0")</td>
+                                    <td>@item.TotalBudget.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
+                                    <td>@item.AmountSpent.ToString("N0") <small class="text-muted">@Localizer["SYP"]</small></td>
                                     <td><span class="performance-badge @GetPerformanceClass(item.IndicatorsPerformance)">@item.IndicatorsPerformance%</span></td>
                                     <td><span class="performance-badge @GetPerformanceClass(item.DisbursementPerformance)">@item.DisbursementPerformance%</span></td>
                                 </tr>
@@ -1090,6 +1095,25 @@
                     }
                 </tbody>
             </table>
+            @*
+                A project whose currency has no exchange rate contributes nothing to the SYP totals
+                above. Say so, rather than letting an understated budget read as complete.
+            *@
+            @{
+                var unconvertedGov = Model.GovernorateReports
+                    .Where(g => g.NameAr != "الدولة بأكملها" && g.Name != "Entire Country")
+                    .Sum(g => g.Provincial?.UnconvertedProjectCount ?? 0)
+                    + Model.GovernorateReports
+                        .Where(g => g.NameAr == "الدولة بأكملها" || g.Name == "Entire Country")
+                        .Sum(g => g.UnconvertedProjectCount);
+            }
+            @if (unconvertedGov > 0)
+            {
+                <p class="text-warning small mb-0">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    @unconvertedGov @Localizer["project(s) are excluded from these budget totals because their currency has no exchange rate."]
+                </p>
+            }
         </div>
     </div>
 </div>
@@ -1656,7 +1680,7 @@
                         callbacks: {
                             label: function(context) {
                                 const pt = context.raw;
-                                return pt.project + ': (@Localizer["Fin"]: ' + pt.x + '%, @Localizer["Phy"]: ' + pt.y + '%, @Localizer["Budget"]: $' + pt.budget.toLocaleString() + ')';
+                                return pt.project + ': (@Localizer["Fin"]: ' + pt.x + '%, @Localizer["Phy"]: ' + pt.y + '%, @Localizer["Budget"]: ' + pt.budget.toLocaleString() + ' @Localizer["SYP"])';
                             }
                         }
                     }
@@ -1855,23 +1879,30 @@
         const governorateReportsData = allGovernorateReportsData.filter(g => g.Name !== 'Entire Country' && g.NameAr !== 'الدولة بأكملها');
         const isRtlLang = @(isRtl ? "true" : "false");
 
-        // Governorate mapping - maps path IDs to governorate info
-        // Corrected mapping based on actual SVG structure
+        // Governorate mapping - maps SVG path IDs to governorate info.
+        //
+        // nameAr is the lookup key (see findGovernorateData) and must stay byte-identical to
+        // Governorate.AR_Name. Both seeders agree on the Arabic, so it is stable across
+        // environments. nameEn is DISPLAY ONLY in a non-RTL UI -- do not match on it: the seeded
+        // English differs ("Idleb", "Rural Damascus", "Lattakia", "Tartous", ...).
+        //
+        // No governorate code here: the seeders disagree (SeedData/Governorates.json produces
+        // SY01..SY14, DbInitializer produces 01..14), so a code column would be unreliable as a key.
         const governorateMapping = {
-            'path1': { nameEn: 'Damascus', nameAr: 'دمشق', code: 'SY01' },
-            'path2': { nameEn: 'Aleppo', nameAr: 'حلب', code: 'SY12' },
-            'path3': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق', code: 'SY03' },
-            'path4': { nameEn: 'Homs', nameAr: 'حمص', code: 'SY04' },
-            'path5': { nameEn: 'Hama', nameAr: 'حماة', code: 'SY07' },
-            'path6': { nameEn: 'Latakia', nameAr: 'اللاذقية', code: 'SY06' },
-            'path7': { nameEn: 'Idlib', nameAr: 'إدلب', code: 'SY08' },
-            'path8': { nameEn: 'Al-Hasakah', nameAr: 'الحسكة', code: 'SY13' },
-            'path9': { nameEn: 'Deir ez-Zor', nameAr: 'دير الزور', code: 'SY09' },
-            'path10': { nameEn: 'Tartus', nameAr: 'طرطوس', code: 'SY14' },
-            'path11': { nameEn: 'Ar-Raqqah', nameAr: 'الرقة', code: 'SY11' },
-            'path12': { nameEn: 'Daraa', nameAr: 'درعا', code: 'SY05' },
-            'path13': { nameEn: 'As-Suwayda', nameAr: 'السويداء', code: 'SY10' },
-            'path14': { nameEn: 'Quneitra', nameAr: 'القنيطرة', code: 'SY02' }
+            'path1': { nameEn: 'Damascus', nameAr: 'دمشق' },
+            'path2': { nameEn: 'Aleppo', nameAr: 'حلب' },
+            'path3': { nameEn: 'Rif Dimashq', nameAr: 'ريف دمشق' },
+            'path4': { nameEn: 'Homs', nameAr: 'حمص' },
+            'path5': { nameEn: 'Hama', nameAr: 'حماة' },
+            'path6': { nameEn: 'Latakia', nameAr: 'اللاذقية' },
+            'path7': { nameEn: 'Idlib', nameAr: 'إدلب' },
+            'path8': { nameEn: 'Al-Hasakah', nameAr: 'الحسكة' },
+            'path9': { nameEn: 'Deir ez-Zor', nameAr: 'دير الزور' },
+            'path10': { nameEn: 'Tartus', nameAr: 'طرطوس' },
+            'path11': { nameEn: 'Ar-Raqqah', nameAr: 'الرقة' },
+            'path12': { nameEn: 'Daraa', nameAr: 'درعا' },
+            'path13': { nameEn: 'As-Suwayda', nameAr: 'السويداء' },
+            'path14': { nameEn: 'Quneitra', nameAr: 'القنيطرة' }
         };
 
         // Load external SVG map
@@ -1895,7 +1926,6 @@
                             path.classList.add('governorate');
                             path.dataset.nameEn = govInfo.nameEn;
                             path.dataset.nameAr = govInfo.nameAr;
-                            path.dataset.code = govInfo.code;
                         }
                     });
 
@@ -1928,21 +1958,18 @@
                     const govNameAr = this.dataset.nameAr;
                     const govName = isRtlLang ? govNameAr : govNameEn;
 
-                    const govData = governorateReportsData.find(g =>
-                        g.Name.toLowerCase().includes(govNameEn.toLowerCase()) ||
-                        govNameEn.toLowerCase().includes(g.Name.toLowerCase()) ||
-                        (g.NameAr && govNameAr === g.NameAr)
-                    );
+                    const govData = findGovernorateData(govNameAr);
 
                     const tooltipMode = window.mapLevelMode || 'all';
-                    const tooltipCount = getEffectiveCount(govData, tooltipMode);
+                    const tooltipData = getModeFigures(govData, tooltipMode);
+                    const tooltipCount = tooltipData ? tooltipData.ProjectCount : 0;
                     let tooltipContent = `<div class="tooltip-title">${govName}</div>`;
                     if (tooltipCount > 0) {
                         let modeLabel = tooltipMode === 'national' ? ' (@Localizer["national"])' : tooltipMode === 'provincial' ? ' (@Localizer["provincial"])' : '';
                         tooltipContent += `<div class="tooltip-stats">
                             <div>@Localizer["Projects"]: <strong>${tooltipCount}</strong>${modeLabel}</div>
-                            ${govData ? `<div>@Localizer["Budget"]: <strong>$${govData.TotalBudget.toLocaleString()}</strong></div>
-                            <div>@Localizer["Performance"]: <strong>${govData.IndicatorsPerformance}%</strong></div>` : ''}
+                            <div>@Localizer["Budget"]: <strong>${tooltipData.TotalBudget.toLocaleString()} @Localizer["SYP"]</strong></div>
+                            <div>@Localizer["Performance"]: <strong>${tooltipData.IndicatorsPerformance}%</strong></div>
                         </div>`;
                     } else {
                         tooltipContent += `<div class="tooltip-stats">@Localizer["No projects in this governorate"]</div>`;
@@ -1972,18 +1999,13 @@
                     const govNameEn = this.dataset.nameEn;
                     const govNameAr = this.dataset.nameAr;
                     const govName = isRtlLang ? govNameAr : govNameEn;
-                    const govCode = this.dataset.code;
 
                     // Update active state
                     document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active'));
                     this.classList.add('active');
 
                     // Find governorate data
-                    const govData = governorateReportsData.find(g =>
-                        g.Name.toLowerCase().includes(govNameEn.toLowerCase()) ||
-                        govNameEn.toLowerCase().includes(g.Name.toLowerCase()) ||
-                        (g.NameAr && govNameAr === g.NameAr)
-                    );
+                    const govData = findGovernorateData(govNameAr);
 
                     // Update title
                     document.getElementById('selectedGovTitle').textContent = govName;
@@ -1994,11 +2016,10 @@
                     document.getElementById('resetMapBtn').style.display = 'inline-block';
 
                     const clickMode = window.mapLevelMode || 'all';
-                    const displayData = govData || (nationalProjectCount > 0 ? nationalEntry : null);
+                    const displayData = getModeFigures(govData, clickMode);
                     if (displayData) {
-                        const modeCount = getEffectiveCount(govData, clickMode);
-                        document.getElementById('govProjectCount').textContent = modeCount;
-                        document.getElementById('govBudget').textContent = '$' + displayData.TotalBudget.toLocaleString();
+                        document.getElementById('govProjectCount').textContent = displayData.ProjectCount;
+                        document.getElementById('govBudget').textContent = displayData.TotalBudget.toLocaleString() + ' @Localizer["SYP"]';
                         document.getElementById('govPerformance').textContent = displayData.IndicatorsPerformance + '%';
                         document.getElementById('govDisbursement').textContent = displayData.DisbursementPerformance + '%';
 
@@ -2013,22 +2034,26 @@
                             perfValue.style.color = '#F44336';
                         }
 
-                        // Show nationwide note
+                        // Nationwide projects are only folded into the figures at the 'all' level;
+                        // saying so in the other two modes would be false.
+                        const showNote = clickMode === 'all' && nationalProjectCount > 0;
                         let noteEl = document.getElementById('govNationalNote');
-                        if (nationalProjectCount > 0 && !noteEl) {
+                        if (showNote && !noteEl) {
                             noteEl = document.createElement('p');
                             noteEl.id = 'govNationalNote';
                             noteEl.className = 'text-info small mt-2 mb-0';
                             noteEl.innerHTML = '<i class="fas fa-globe me-1"></i>@Localizer["Includes"] ' + nationalProjectCount + ' @Localizer["nationwide project(s)"]';
                             document.getElementById('governorateStats').appendChild(noteEl);
                         } else if (noteEl) {
-                            noteEl.style.display = nationalProjectCount > 0 ? 'block' : 'none';
+                            noteEl.style.display = showNote ? 'block' : 'none';
                         }
                     } else {
                         document.getElementById('govProjectCount').textContent = '0';
-                        document.getElementById('govBudget').textContent = '$0';
+                        document.getElementById('govBudget').textContent = '0';
                         document.getElementById('govPerformance').textContent = '0%';
                         document.getElementById('govDisbursement').textContent = '0%';
+                        const noteEl = document.getElementById('govNationalNote');
+                        if (noteEl) noteEl.style.display = 'none';
                     }
 
                     // Store selected governorate for filtering
@@ -2050,11 +2075,33 @@
         // Current map presentation mode: 'all' | 'national' | 'provincial'
         window.mapLevelMode = 'all';
 
-        function getEffectiveCount(govData, mode) {
-            if (mode === 'national') return nationalProjectCount;
-            if (mode === 'provincial') return govData ? Math.max(govData.ProjectCount - nationalProjectCount, 0) : 0;
+        // Resolve an SVG path to its governorate row.
+        //
+        // Matches on the Arabic name only. It is the one key that is stable: the English names in
+        // governorateMapping below do NOT match what is seeded (SeedData/Governorates.json spells
+        // them "Idleb", "Rural Damascus", "Lattakia", ...), and CategoryReportItem.Name is
+        // culture-dependent, so it is Arabic in an Arabic UI anyway. Substring matching was also
+        // unsafe -- 'ريف دمشق'.includes('دمشق') is true, so Damascus could resolve to Rural Damascus.
+        function findGovernorateData(nameAr) {
+            if (!nameAr) return undefined;
+            return governorateReportsData.find(g => g.NameAr === nameAr);
+        }
+
+        // Returns the whole figure set for the selected level, so count, budget, performance and
+        // disbursement always come from ONE object. Reading a mode-adjusted count alongside a raw
+        // budget is what made a governorate with no projects of its own show 0 projects next to the
+        // entire national budget.
+        function getModeFigures(govData, mode) {
+            if (mode === 'national') return nationalEntry || null;
+            // Province-only slice, computed server-side (null on the "Entire Country" row).
+            if (mode === 'provincial') return govData ? (govData.Provincial || null) : null;
             // 'all': gov-specific (already includes national) or fall back to national-only
-            return govData ? govData.ProjectCount : nationalProjectCount;
+            return govData || nationalEntry || null;
+        }
+
+        function getEffectiveCount(govData, mode) {
+            const figures = getModeFigures(govData, mode);
+            return figures ? figures.ProjectCount : 0;
         }
 
         // Color governorates based on project count and current mode
@@ -2065,12 +2112,7 @@
             document.getElementById('maxProjectsLabel').textContent = maxProjects + '+';
 
             document.querySelectorAll('.governorate').forEach(path => {
-                const govNameEn = path.dataset.nameEn;
-                const govData = governorateReportsData.find(g =>
-                    g.Name.toLowerCase().includes(govNameEn.toLowerCase()) ||
-                    govNameEn.toLowerCase().includes(g.Name.toLowerCase()) ||
-                    (g.NameAr && path.dataset.nameAr === g.NameAr)
-                );
+                const govData = findGovernorateData(path.dataset.nameAr);
 
                 const effectiveCount = getEffectiveCount(govData, mode);
 

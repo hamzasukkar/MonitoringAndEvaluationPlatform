@@ -40,6 +40,7 @@
     @* Chatbot hidden - uncomment to re-enable *@
     @*<link rel="stylesheet" href="~/css/chatbot-widget.css" asp-append-version="true" />*@
 
+    <link rel="stylesheet" href="~/css/searchable-select.css" asp-append-version="true" />
 </head>
 <body>
     <header>
@@ -87,6 +88,7 @@
                             @if (User.IsInRole("SystemAdministrator"))
                             {
                                 <li><a class="dropdown-item" href="/DataManagement/Index"><i class="fas fa-database me-2"></i>@Localizer["DataManagement"]</a></li>
+                                <li><a class="dropdown-item" href="/CurrencyRates/Index"><i class="fas fa-coins me-2"></i>@Localizer["Exchange Rates"]</a></li>
                             }
                             <li><hr class="dropdown-divider"></li>
                             <li>
@@ -183,5 +185,6 @@
     @* Chatbot hidden - uncomment to re-enable *@
     @*@await Html.PartialAsync("_ChatbotWidget")*@
     @*<script src="~/js/chatbot-widget.js" asp-append-version="true"></script>*@
+    <script src="~/js/searchable-select.js" asp-append-version="true"></script>
 </body>
 </html>

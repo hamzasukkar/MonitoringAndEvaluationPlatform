@@ -44,7 +44,7 @@
                             <a class="nav-link @(currentController?.Equals("Donors", StringComparison.OrdinalIgnoreCase) == true ? "active" : "")"
                                href="@Url.Action("Index", "Donors")"
                                role="tab">
-                                <i class="fas fa-hand-holding-usd me-2"></i>
+                                <i class="fas fa-wallet me-2"></i>
                                 <span class="nav-text">@Localizer["Donors"]</span>
                                 <small class="nav-subtitle d-block">@Localizer["Funding Partners"]</small>
                             </a>
@@ -93,7 +93,7 @@
                                 case "donors":
                                     pageTitle = Localizer["Donors Management"].Value;
                                     pageDescription = Localizer["Manage funding partners and donors"].Value;
-                                    pageIcon = "fas fa-hand-holding-usd";
+                                    pageIcon = "fas fa-wallet";
                                     break;
                                 case "supervisors":
                                     pageTitle = Localizer["SuperVisors Management"].Value;

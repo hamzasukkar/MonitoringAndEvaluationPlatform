@@ -6,6 +6,7 @@ namespace MonitoringAndEvaluationPlatform.Enums
         InProgress = 2,
         OnHold = 3,
         Completed = 4,
-        Cancelled = 5
+        Cancelled = 5,
+        NeedsDiscussion = 6
     }
 }

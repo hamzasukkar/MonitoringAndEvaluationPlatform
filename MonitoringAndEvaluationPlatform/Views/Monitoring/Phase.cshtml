@@ -33,7 +33,7 @@
             {
                 var perfLevel = phase.PhasePerformance >= 80 ? "excellent" : phase.PhasePerformance >= 60 ? "good" : "critical";
                 var perfRounded = Math.Round(phase.PhasePerformance);
-                var budgetFormatted = phase.Budget.ToString("N0");
+                var budgetFormatted = phase.Project?.CurrencySymbol + phase.Budget.ToString("N0");
 
                 <div class="modern-framework-card">
                     <div class="framework-card-header">
