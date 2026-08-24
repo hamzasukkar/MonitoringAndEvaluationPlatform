@@ -297,8 +297,8 @@
   <data name="Project Timeline" xml:space="preserve">
     <value>Project Timeline</value>
   </data>
-  <data name="Sectors" xml:space="preserve">
-    <value>Sectors</value>
+  <data name="Select Sector" xml:space="preserve">
+    <value>Select Sector</value>
   </data>
   <data name="Ministries" xml:space="preserve">
     <value>Ministries</value>
@@ -323,9 +323,6 @@
   </data>
   <data name="Please enter a value greater than or equal to 0.01." xml:space="preserve">
     <value>Please enter a value greater than or equal to 0.01.</value>
-  </data>
-  <data name="Hold Ctrl/Cmd to select multiple sectors" xml:space="preserve">
-    <value>Hold Ctrl/Cmd to select multiple sectors</value>
   </data>
   <data name="Choose the primary manager responsible for this project" xml:space="preserve">
     <value>Choose the primary manager responsible for this project</value>
@@ -353,9 +350,6 @@
   </data>
   <data name="Select Ministry" xml:space="preserve">
     <value>Select Ministry</value>
-  </data>
-  <data name="Select one or more sectors" xml:space="preserve">
-    <value>Select one or more sectors</value>
   </data>
   <data name="Enter a descriptive project name (3-200 characters)" xml:space="preserve">
     <value>Enter a descriptive project name (3-200 characters)</value>
@@ -457,7 +451,7 @@
     <value>At least one project location must be selected, or check 'Entire Country' option.</value>
   </data>
   <data name="At least one sector must be selected." xml:space="preserve">
-    <value>At least one sector must be selected.</value>
+    <value>Please select a sector.</value>
   </data>
   <data name="An indicator must be selected." xml:space="preserve">
     <value>An indicator must be selected.</value>
@@ -555,16 +549,16 @@
   <data name="No matching locations found for this governorate." xml:space="preserve">
     <value>No matching locations found for this governorate.</value>
   </data>
-  <data name="Required when the Public sector is selected" xml:space="preserve">
-    <value>Required when the Public sector is selected</value>
+  <data name="Choose the category that best classifies this project" xml:space="preserve">
+    <value>Choose the category that best classifies this project</value>
   </data>
   <data name="Select Public Sector Type" xml:space="preserve">
-    <value>Select Public Sector Type</value>
+    <value>Select Sector Type</value>
   </data>
   <data name="Public Sector Type" xml:space="preserve">
-    <value>Public Sector Type</value>
+    <value>Sector Type</value>
   </data>
   <data name="Please select a public sector type." xml:space="preserve">
-    <value>Please select a public sector type.</value>
+    <value>Please select a sector type.</value>
   </data>
 </root>

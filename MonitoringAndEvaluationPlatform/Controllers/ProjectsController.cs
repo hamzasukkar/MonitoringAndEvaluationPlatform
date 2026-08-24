@@ -358,8 +358,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (filter.SelectedSectors.Any())
             {
                 projectQuery = projectQuery
-                    .Where(p => p.Sectors
-                                 .Any(s => filter.SelectedSectors.Contains(s.Code)));
+                    .Where(p => filter.SelectedSectors.Contains(p.SectorCode));
             }
 
             if (filter.SelectedPublicSectorTypes.Any())
@@ -629,7 +628,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 MinistryCode = userMinistryCode, // Set ministry for ministry users
                 SuperVisorCode = supervisors.FirstOrDefault()?.Code ?? 0,
                 ProjectManagerCode = projectManagers.FirstOrDefault()?.Code ?? 0,
-                Sectors = sectors.Take(1).ToList(),
+                SectorCode = sectors.FirstOrDefault()?.Code ?? 0,
                 GoalCode = goals.FirstOrDefault()?.Code ?? 0,
             };
 
@@ -639,16 +638,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 project.ProjectName = indicatorName;
             }
 
-            var firstSectorCode = sectors.FirstOrDefault()?.Code;
-
             // Prepare dropdown and multiselect data
             ViewBag.Donor = new SelectList(donors, "Code", "Partner");
             ViewBag.InvestmentBudgetDonorCodes = donors
                 .Where(d => d.IsInvestmentBudget)
                 .Select(d => d.Code.ToString())
                 .ToList();
-            ViewBag.SectorList = new MultiSelectList(sectors, "Code", "AR_Name", firstSectorCode.HasValue ? new List<int> { firstSectorCode.Value } : new List<int>());
-            ViewBag.PublicSectorCode = sectors.FirstOrDefault(s => s.EN_Name == "Public")?.Code;
+            ViewBag.SectorList = new SelectList(sectors, "Code", isArabic ? "AR_Name" : "EN_Name", project.SectorCode);
             ViewBag.PublicSectorTypeList = new SelectList(_context.PublicSectorTypes.ToList(), "Code", isArabic ? "AR_Name" : "EN_Name");
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
             ViewBag.Ministries = ministries; // Pass full ministry list with Logo property
@@ -712,7 +708,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 // Get form data
-                var selectedSectorCodes = Request.Form["Sectors"].ToList();
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
                 var selectedLocations = string.IsNullOrEmpty(selections)
                     ? new List<LocationSelectionViewModel>()
@@ -742,15 +737,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 _validationService.ValidateProjectCreation(
                     project,
                     selectedLocations,
-                    selectedSectorCodes,
                     ModelState,
                     IsEntireCountry);
 
-                // Public sector type is required when the Public sector is selected
-                await ValidatePublicSectorTypeAsync(
-                    selectedSectorCodes.Select(c => int.TryParse(c, out var code) ? code : 0),
-                    project,
-                    requireWhenPublic: true);
+                // Sector type is required for every sector now
+                ValidateSectorType(project, requireSectorType: true);
 
                 NormalizeExchangeRate(project);
 
@@ -780,7 +771,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // linked indicator, etc.), keeping the program-derived ministry lock in effect.
                 async Task RepopulateCreateViewAsync()
                 {
-                    await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
+                    await PopulateCreateViewBagAsync(selectedDonorCodes, selections, DonorFundingBreakdown);
                     ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
                     if (linkedProgramMinistryCode.HasValue)
                     {
@@ -798,12 +789,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // The budget is entered in the chosen unit (e.g. "5" + Millions). Scale it up to the
                 // full monetary value now, before donor funding and any other budget-based calculations.
                 project.EstimatedBudget *= project.BudgetUnit.Multiplier();
-
-                // Process sectors
-                var selectedSectors = _context.Sectors
-                    .Where(s => selectedSectorCodes.Contains(s.Code.ToString()))
-                    .ToList();
-                project.Sectors = selectedSectors;
 
                 // Process donor funding
                 ProcessDonorFunding(project, selectedDonorCodes, DonorFundingBreakdown);
@@ -872,9 +857,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 ModelState.AddModelError("", _localizer["An error occurred while creating the project."]);
                 // Get form data for preservation
-                var selectedSectorCodes = Request.Form["Sectors"].ToList();
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
-                await PopulateCreateViewBagAsync(selectedSectorCodes, selectedDonorCodes, selections, DonorFundingBreakdown);
+                await PopulateCreateViewBagAsync(selectedDonorCodes, selections, DonorFundingBreakdown);
                 ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
                 if (linkedProgramMinistryCode.HasValue)
                 {
@@ -909,7 +893,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Districts)
                 .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
-                .Include(p => p.Sectors)
+                .Include(p => p.Sector)
                 .Include(p => p.PublicSectorType)
                 .Include(p => p.Indicators)
                     .ThenInclude(i => i.SubOutput)
@@ -1006,7 +990,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.Entry(project).Collection(p => p.Districts).LoadAsync();
             await _context.Entry(project).Collection(p => p.SubDistricts).LoadAsync();
             await _context.Entry(project).Collection(p => p.Communities).LoadAsync();
-            await _context.Entry(project).Collection(p => p.Sectors).LoadAsync();
+            await _context.Entry(project).Reference(p => p.Sector).LoadAsync();
             await _context.Entry(project).Collection(p => p.ProjectFiles).LoadAsync();
 
             if (project == null) return NotFound();
@@ -1026,22 +1010,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.Governorates = _context.Governorates.ToList();
             ViewBag.SelectedLocations = selectedLocations;
 
-            // Build the Sectors MultiSelectList, marking the project's existing sector codes as "selected":
+            // Build the Sector SelectList, marking the project's existing sector as "selected":
             var allSectors = await _context.Sectors.ToListAsync();
-            // Grab an array of strings (or ints) that represent the already‐assigned sectors:
-            var selectedSectorCodes = project.Sectors
-                                        .Select(s => s.Code)      // a collection of int
-                                        .ToList();
-
-            // When you construct the MultiSelectList, pass in that "selected" list:
-            ViewBag.SectorList = new MultiSelectList(
+            ViewBag.SectorList = new SelectList(
                 allSectors,
                 "Code",      // value field
-                 isArabic ? "AR_Name" : "EN_Name",      // text field
-                selectedSectorCodes  // whichever codes should be pre‐checked
+                isArabic ? "AR_Name" : "EN_Name",      // text field
+                project.SectorCode  // selected value
             );
 
-            ViewBag.PublicSectorCode = allSectors.FirstOrDefault(s => s.EN_Name == "Public")?.Code;
             ViewBag.PublicSectorTypeList = new SelectList(
                 await _context.PublicSectorTypes.ToListAsync(),
                 "Code",
@@ -1150,7 +1127,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
           int id,
           Project project,
           List<IFormFile> UploadedFiles,
-          List<int>? SelectedSectorCodes,
           List<int>? SelectedDonorCodes,
           string? selections,
           string? DonorFundingBreakdown)
@@ -1175,8 +1151,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 project.MinistryCode = scopedMinistryCodeEditPost;
             }
 
-            // Initialize to empty lists if null to prevent null reference exceptions and remove duplicates
-            SelectedSectorCodes = SelectedSectorCodes ?? new List<int>();
+            // Initialize to empty list if null to prevent null reference exceptions and remove duplicates
             SelectedDonorCodes = SelectedDonorCodes ?? new List<int>();
 
             // Explicitly read IsEntireCountry from form (checkbox sends "true" if checked, nothing if unchecked)
@@ -1219,7 +1194,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Remove nav-props so EF Core won't demand them at bind time
             ModelState.Remove(nameof(Project.ProjectManager));
-            ModelState.Remove(nameof(Project.Sectors));
+            ModelState.Remove(nameof(Project.Sector));
             ModelState.Remove(nameof(Project.SuperVisor));
             ModelState.Remove(nameof(Project.Ministries));
             ModelState.Remove(nameof(Project.Ministry));
@@ -1232,22 +1207,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Project.Goal));
             ModelState.Remove(nameof(Project.PublicSectorType));
 
-            // Optional on Edit: existing projects predate this field and must stay saveable;
-            // still normalizes the type to null when the Public sector is deselected.
-            await ValidatePublicSectorTypeAsync(SelectedSectorCodes, project, requireWhenPublic: false);
+            // Optional on Edit: existing projects predate this field and must stay saveable.
+            ValidateSectorType(project, requireSectorType: false);
 
             NormalizeExchangeRate(project);
 
             if (!ModelState.IsValid)
             {
                 // If validation fails, re‐populate all dropdowns with the already‐selected codes:
-                await PopulateEditDropdowns(project, SelectedSectorCodes, SelectedDonorCodes);
+                await PopulateEditDropdowns(project, SelectedDonorCodes);
                 return View(project);
             }
 
             // --- Include Regions, Sectors, Donors, and Indicators ---
             var dbProject = await _context.Projects
-                .Include(p => p.Sectors)
+                .Include(p => p.Sector)
                 .Include(p => p.Donors)
                 .Include(p => p.ProjectDonors)
                 .Include(p => p.Ministries)
@@ -1283,17 +1257,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             dbProject.SuperVisorCode = project.SuperVisorCode;
             dbProject.GoalCode = project.GoalCode;
             dbProject.PublicSectorTypeCode = project.PublicSectorTypeCode;
-
-
-
-            // --- Update Sectors many‐to‐many ---
-            var sectors = await _context.Sectors
-                .Where(s => SelectedSectorCodes.Contains(s.Code))
-                .ToListAsync();
-
-            dbProject.Sectors.Clear();
-            foreach (var s in sectors)
-                dbProject.Sectors.Add(s);
+            dbProject.SectorCode = project.SectorCode;
 
             // --- Update Donors with funding percentages ---
             // Clear existing project donors
@@ -1456,7 +1420,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         // Helper to DRY‑up re‑populating dropdowns on POST failure
-        private async Task PopulateEditDropdowns(Project project, List<int> SelectedSectorCodes, List<int> SelectedDonorCodes)
+        private async Task PopulateEditDropdowns(Project project, List<int> SelectedDonorCodes)
         {
             //To check
             //ViewBag.Governorates = new SelectList(
@@ -1479,14 +1443,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
             var allSectors = await _context.Sectors.ToListAsync();
-            ViewBag.SectorList = new MultiSelectList(
+            ViewBag.SectorList = new SelectList(
                 allSectors,
                 "Code",
                 isArabic ? "AR_Name" : "EN_Name",
-                SelectedSectorCodes
+                project.SectorCode
             );
 
-            ViewBag.PublicSectorCode = allSectors.FirstOrDefault(s => s.EN_Name == "Public")?.Code;
             ViewBag.PublicSectorTypeList = new SelectList(
                 await _context.PublicSectorTypes.ToListAsync(),
                 "Code",
@@ -2017,7 +1980,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var propertiesToRemove = new[]
             {
                 nameof(Project.ProjectManager),
-                nameof(Project.Sectors),
+                nameof(Project.Sector),
                 nameof(Project.Donors),
                 nameof(Project.Ministries),
                 nameof(Project.Ministry),
@@ -2037,43 +2000,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
-        // Resolves the Code of the seeded "Public" sector (null if it was renamed/deleted).
-        private Task<int?> GetPublicSectorCodeAsync() =>
-            _context.Sectors
-                .Where(s => s.EN_Name == "Public")
-                .Select(s => (int?)s.Code)
-                .FirstOrDefaultAsync();
-
-        // A public sector type must never be persisted when the Public sector is not selected.
-        // requireWhenPublic: true on Create (new projects must classify); false on Edit so
-        // pre-existing projects (created before this field existed) are never blocked from saving.
-        private async Task ValidatePublicSectorTypeAsync(IEnumerable<int> selectedSectorCodes, Project project, bool requireWhenPublic)
+        // Sector type applies to every sector now; required on Create, optional on Edit so
+        // pre-existing projects (created before this field became required) are never blocked from saving.
+        private void ValidateSectorType(Project project, bool requireSectorType)
         {
-            var publicSectorCode = await GetPublicSectorCodeAsync();
-            bool publicSelected = publicSectorCode.HasValue && selectedSectorCodes.Contains(publicSectorCode.Value);
-
-            if (requireWhenPublic && publicSelected && !project.PublicSectorTypeCode.HasValue)
+            if (requireSectorType && !project.PublicSectorTypeCode.HasValue)
             {
                 ModelState.AddModelError(nameof(Project.PublicSectorTypeCode),
                     _localizer["Please select a public sector type."]);
             }
-
-            if (!publicSelected)
-            {
-                project.PublicSectorTypeCode = null;
-            }
         }
 
-        private async Task PopulateCreateViewBagAsync(List<string> selectedSectorCodes = null, List<string> selectedDonorCodes = null, string locationSelections = null, string donorFundingBreakdown = null)
+        private async Task PopulateCreateViewBagAsync(List<string> selectedDonorCodes = null, string locationSelections = null, string donorFundingBreakdown = null)
         {
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
             ViewBag.Governorates = _context.Governorates.ToList();
 
-            // Preserve selected sectors
-            var sectorCodes = selectedSectorCodes?.Select(int.Parse).ToList() ?? new List<int>();
-            ViewBag.SectorList = new MultiSelectList(_context.Sectors, "Code", "AR_Name", sectorCodes);
-            ViewBag.PublicSectorCode = await GetPublicSectorCodeAsync();
+            ViewBag.SectorList = new SelectList(_context.Sectors, "Code", isArabic ? "AR_Name" : "EN_Name");
             ViewBag.PublicSectorTypeList = new SelectList(await _context.PublicSectorTypes.ToListAsync(), "Code", isArabic ? "AR_Name" : "EN_Name");
 
             // Get the logged-in user for ministry check
@@ -2117,7 +2061,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "AR_Name" : "EN_Name"
             );
             // Preserve form data
-            ViewBag.SelectedSectorCodes = selectedSectorCodes ?? new List<string>();
             ViewBag.SelectedDonorCodes = selectedDonorCodes ?? new List<string>();
             ViewBag.LocationSelections = locationSelections ?? "";
             ViewBag.DonorFundingBreakdown = donorFundingBreakdown ?? "";

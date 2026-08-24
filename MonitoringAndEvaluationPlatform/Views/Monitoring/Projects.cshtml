@@ -217,7 +217,7 @@
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">@Localizer["Sector"]</div>
-                                <div class="detail-value">@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? (item.Sectors?.FirstOrDefault()?.AR_Name ?? Localizer["unavailable"].Value) : (item.Sectors?.FirstOrDefault()?.EN_Name ?? Localizer["unavailable"].Value))</div>
+                                <div class="detail-value">@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? (item.Sector?.AR_Name ?? Localizer["unavailable"].Value) : (item.Sector?.EN_Name ?? Localizer["unavailable"].Value))</div>
                             </div>
                         </div>
 

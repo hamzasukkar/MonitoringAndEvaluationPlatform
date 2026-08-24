@@ -424,7 +424,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                         .Include(p => p.Indicators)
                         .Include(p => p.ProjectDonors)
                         .Include(p => p.ProjectFiles)
-                        .Include(p => p.Sectors)
+                        .Include(p => p.Sector)
                         .Include(p => p.Ministries)
                         .Include(p => p.Governorates)
                         .Include(p => p.Districts)
@@ -457,7 +457,6 @@ namespace MonitoringAndEvaluationPlatform.Services
                     totalDeleted += project.ProjectDonors.Count + project.ProjectFiles.Count;
 
                     // Clear many-to-many relationships
-                    project.Sectors?.Clear();
                     project.Ministries?.Clear();
                     project.Governorates?.Clear();
                     project.Districts?.Clear();

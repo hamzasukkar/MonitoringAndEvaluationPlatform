@@ -250,11 +250,13 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .OnDelete(DeleteBehavior.SetNull);
 
             modelBuilder.Entity<Project>()
-                .HasMany(p => p.Sectors)
-                .WithMany(r => r.Projects)
-                .UsingEntity(j => j.ToTable("ProjectSectors"));
+                .HasOne(p => p.Sector)
+                .WithMany(s => s.Projects)
+                .HasForeignKey(p => p.SectorCode)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Project → PublicSectorType (many-to-one, only set when the Public sector is selected)
+            // Project → PublicSectorType (many-to-one; applies regardless of which Sector is selected)
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.PublicSectorType)
                 .WithMany(t => t.Projects)

@@ -40,7 +40,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: ProjectPhases/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,EndDate,Budget,Weight,TargetQuantity,ProjectID")] ProjectPhase phase)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,EndDate,Budget,ProjectID")] ProjectPhase phase)
         {
             if (id != phase.Id) return NotFound();
 
@@ -72,12 +72,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ModelState.AddModelError("Budget", $"Total phase budgets cannot exceed the project budget of {project.EstimatedBudget:N2}. Other phases use {otherBudgetSum:N2}, leaving {project.EstimatedBudget - otherBudgetSum:N2}.");
             }
 
-            // Validate weight: it will be validated as part of the weight group
-            if (phase.Weight < 0 || phase.Weight > 100)
-            {
-                ModelState.AddModelError("Weight", "Weight must be between 0 and 100.");
-            }
-
             if (!ModelState.IsValid)
             {
                 phase.Project = project;
@@ -97,13 +91,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 existingPhase.StartDate = phase.StartDate;
                 existingPhase.EndDate = phase.EndDate;
                 existingPhase.Budget = phase.Budget;
-                existingPhase.Weight = phase.Weight;
-                existingPhase.TargetQuantity = phase.TargetQuantity;
 
                 _context.ProjectPhases.Update(existingPhase);
                 await _context.SaveChangesAsync();
 
-                // Recalculate project performance with updated weight
                 await _monitoringService.UpdateProjectPerformanceFromPhases(phase.ProjectID);
             }
             catch (DbUpdateConcurrencyException)

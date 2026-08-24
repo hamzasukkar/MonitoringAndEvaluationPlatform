@@ -297,8 +297,8 @@
   <data name="Project Timeline" xml:space="preserve">
     <value>الجدول الزمني للمشروع</value>
   </data>
-  <data name="Sectors" xml:space="preserve">
-    <value>القطاعات</value>
+  <data name="Select Sector" xml:space="preserve">
+    <value>اختر القطاع</value>
   </data>
   <data name="Ministries" xml:space="preserve">
     <value>الوزارات</value>
@@ -323,9 +323,6 @@
   </data>
   <data name="Please enter a value greater than or equal to 0.01." xml:space="preserve">
     <value>يرجى إدخال قيمة أكبر من أو تساوي 0.01.</value>
-  </data>
-  <data name="Hold Ctrl/Cmd to select multiple sectors" xml:space="preserve">
-    <value>اضغط باستمرار على Ctrl/Cmd لتحديد قطاعات متعددة</value>
   </data>
   <data name="Choose the primary manager responsible for this project" xml:space="preserve">
     <value>اختر الجهة المعنية بهذا المشروع</value>
@@ -353,9 +350,6 @@
   </data>
   <data name="Select Ministry" xml:space="preserve">
     <value>اختر الوزارة</value>
-  </data>
-  <data name="Select one or more sectors" xml:space="preserve">
-    <value>حدد قطاعًا واحدًا أو أكثر</value>
   </data>
   <data name="Enter a descriptive project name (3-200 characters)" xml:space="preserve">
     <value>أدخل اسمًا وصفيًا للمشروع (3-200 حرف)</value>
@@ -458,7 +452,7 @@
     <value>يجب اختيار موقع مشروع واحد على الأقل، أو حدد خيار "الدولة بأكملها".</value>
   </data>
   <data name="At least one sector must be selected." xml:space="preserve">
-    <value>يجب اختيار قطاع واحد على الأقل.</value>
+    <value>يرجى اختيار قطاع.</value>
   </data>
   <data name="An indicator must be selected." xml:space="preserve">
     <value>يجب اختيار مؤشر.</value>
@@ -571,8 +565,8 @@
   <data name="No matching locations found for this governorate." xml:space="preserve">
     <value>لا توجد مواقع مطابقة لهذه المحافظة.</value>
   </data>
-  <data name="Required when the Public sector is selected" xml:space="preserve">
-    <value>مطلوب عند اختيار القطاع العام</value>
+  <data name="Choose the category that best classifies this project" xml:space="preserve">
+    <value>اختر التصنيف الأنسب لهذا المشروع</value>
   </data>
   <data name="Select Public Sector Type" xml:space="preserve">
     <value>اختر نوع القطاع</value>

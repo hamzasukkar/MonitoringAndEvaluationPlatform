@@ -148,6 +148,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (sector == null)
                 return Json(new { success = false, message = "Sector not found" });
 
+            // The FK is Restrict — surface a friendly message instead of a constraint exception
+            var projectsUsingSector = await _context.Projects.CountAsync(p => p.SectorCode == id);
+            if (projectsUsingSector > 0)
+            {
+                return Json(new { success = false, message = $"This sector is in use by {projectsUsingSector} project(s) and cannot be deleted." });
+            }
+
             try
             {
                 _context.Sectors.Remove(sector);

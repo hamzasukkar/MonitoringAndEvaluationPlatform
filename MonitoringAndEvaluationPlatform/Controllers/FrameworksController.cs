@@ -300,7 +300,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         o.Outputs.Any(op =>
                             op.SubOutputs.Any(so =>
                                 so.Indicators.Any(i =>
-                                    i.Project != null && i.Project.Sectors.Any(sec => filter.SelectedSector.Contains(sec.Code)))))));
+                                    i.Project != null && filter.SelectedSector.Contains(i.Project.SectorCode))))));
             }
 
             // Apply sorting logic

@@ -48,7 +48,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Get associated projects
             var projects = await _context.Projects
-                .Include(p => p.Sectors)
+                .Include(p => p.Sector)
                 .Include(p => p.Donors)
                 .Include(p => p.ProjectManager)
                 .Include(p => p.Ministries)

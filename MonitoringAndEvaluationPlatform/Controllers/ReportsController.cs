@@ -110,7 +110,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToListAsync();
 
             var projects = await projectsQuery
-                .Include(p => p.Sectors)
+                .Include(p => p.Sector)
                 .Include(p => p.Ministry)
                 .Include(p => p.Donors)
                 .Include(p => p.SuperVisor)

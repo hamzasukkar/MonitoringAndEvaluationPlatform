@@ -302,19 +302,18 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-4 @(HasError("Sectors") ? "has-validation-error" : "")" id="sectors-container">
-                                    <label class="form-label fw-bold">
+                                <div class="mb-4 @(HasError("SectorCode") ? "has-validation-error" : "")" id="sectors-container">
+                                    <label asp-for="SectorCode" class="form-label fw-bold">
                                         <i class="fas fa-industry me-2"></i>
-                                        @Localizer["Sectors"] <span class="text-danger">*</span>
+                                        @Localizer["Sector"] <span class="text-danger">*</span>
                                     </label>
-                                    <select asp-for="Sectors" class="form-select @ValidationClass("Sectors")" asp-items="ViewBag.SectorList" multiple size="4">
-                                        <option disabled>@Localizer["Select one or more sectors"]</option>
+                                    <select asp-for="SectorCode" class="form-select @ValidationClass("SectorCode")" asp-items="ViewBag.SectorList">
+                                        <option value="">-- @Localizer["Select Sector"] --</option>
                                     </select>
-                                    <div class="form-text">@Localizer["Hold Ctrl/Cmd to select multiple sectors"]</div>
                                     <div id="sectors-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
                                 </div>
 
-                                <div class="mb-4 @(HasError("PublicSectorTypeCode") ? "has-validation-error" : "")" id="public-sector-type-container" style="display: none;">
+                                <div class="mb-4 @(HasError("PublicSectorTypeCode") ? "has-validation-error" : "")" id="public-sector-type-container">
                                     <label asp-for="PublicSectorTypeCode" class="form-label fw-bold">
                                         <i class="fas fa-sitemap me-2"></i>
                                         @Localizer["Public Sector Type"] <span class="text-danger">*</span>
@@ -322,7 +321,7 @@
                                     <select asp-for="PublicSectorTypeCode" class="form-select @ValidationClass("PublicSectorTypeCode")" asp-items="ViewBag.PublicSectorTypeList">
                                         <option value="">-- @Localizer["Select Public Sector Type"] --</option>
                                     </select>
-                                    <div class="form-text">@Localizer["Required when the Public sector is selected"]</div>
+                                    <div class="form-text">@Localizer["Choose the category that best classifies this project"]</div>
                                     <div id="public-sector-type-validation-error" class="invalid-feedback d-block" style="display: none;"></div>
                                     <span asp-validation-for="PublicSectorTypeCode" class="invalid-feedback d-block"></span>
                                 </div>
@@ -1083,28 +1082,6 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
     };
 
     let selections = [];
-
-    // ── Public Sector Type dependent dropdown ──
-    // Shown (and required) only while the Public sector is selected in the Sectors multiselect.
-    const publicSectorCode = @Html.Raw(Json.Serialize(ViewBag.PublicSectorCode));
-
-    function isPublicSectorSelected() {
-        const selectedSectors = $('select[name="Sectors"]').val() || [];
-        return publicSectorCode != null && selectedSectors.includes(String(publicSectorCode));
-    }
-
-    function togglePublicSectorType() {
-        if (isPublicSectorSelected()) {
-            $('#public-sector-type-container').show();
-        } else {
-            $('#public-sector-type-container').hide();
-            $('select[name="PublicSectorTypeCode"]').val('');
-            $('#public-sector-type-validation-error').hide();
-        }
-    }
-
-    $('select[name="Sectors"]').on('change', togglePublicSectorType);
-    togglePublicSectorType();
 
     // Handle Entire Country checkbox
     $("#selectAllPhases").click(function() {
@@ -2039,20 +2016,20 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             isValid = false;
         }
 
-        // Check if sectors are selected
-        const selectedSectors = $('select[name="Sectors"]').val();
-        if (!selectedSectors || selectedSectors.length === 0) {
+        // Check if a sector is selected
+        const selectedSector = $('select[name="SectorCode"]').val();
+        if (!selectedSector) {
             errorMessages.push(localizedStrings.atLeastOneSector);
             $('#sectors-validation-error').text(localizedStrings.atLeastOneSector).show();
-            addFieldError('select[name="Sectors"]', '#sectors-container');
+            addFieldError('select[name="SectorCode"]', '#sectors-container');
             isValid = false;
         } else {
             $('#sectors-validation-error').hide();
-            removeFieldError('select[name="Sectors"]', '#sectors-container');
+            removeFieldError('select[name="SectorCode"]', '#sectors-container');
         }
 
-        // Public sector type is required when the Public sector is selected
-        if (isPublicSectorSelected() && !$('select[name="PublicSectorTypeCode"]').val()) {
+        // Sector type is required
+        if (!$('select[name="PublicSectorTypeCode"]').val()) {
             errorMessages.push(localizedStrings.publicSectorTypeRequired);
             $('#public-sector-type-validation-error').text(localizedStrings.publicSectorTypeRequired).show();
             addFieldError('select[name="PublicSectorTypeCode"]', '#public-sector-type-container');
@@ -2158,17 +2135,9 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
     // Function to restore form data after validation failure
     function restoreFormData() {
         // Get preserved data from ViewBag
-        var selectedSectorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedSectorCodes ?? new List<string>()));
         var selectedDonorCodes = @Html.Raw(Json.Serialize(ViewBag.SelectedDonorCodes ?? new List<string>()));
         var locationSelections = @Html.Raw(Json.Serialize(ViewBag.LocationSelections ?? ""));
         var donorFundingBreakdown = @Html.Raw(Json.Serialize(ViewBag.DonorFundingBreakdown ?? ""));
-
-        // Restore selected sectors
-        if (selectedSectorCodes && selectedSectorCodes.length > 0) {
-            selectedSectorCodes.forEach(function(code) {
-                $('select[name="Sectors"] option[value="' + code + '"]').prop('selected', true);
-            });
-        }
 
         // Restore location selections
         if (locationSelections && locationSelections !== '') {
@@ -2188,9 +2157,6 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         if (selectedDonorCodes && selectedDonorCodes.length > 0) {
             restoreDonorSelections(selectedDonorCodes, donorFundingBreakdown);
         }
-
-        // Re-evaluate the Public Sector Type dropdown visibility after sectors were reselected
-        togglePublicSectorType();
     }
 
     // Function to restore location selections in the UI

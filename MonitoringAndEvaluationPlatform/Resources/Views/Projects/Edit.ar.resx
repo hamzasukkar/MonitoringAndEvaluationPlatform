@@ -261,8 +261,8 @@
   <data name="Update the project information and settings" xml:space="preserve">
     <value>تحديث معلومات المشروع والإعدادات</value>
   </data>
-  <data name="Sectors" xml:space="preserve">
-    <value>القطاعات</value>
+  <data name="Select Sector" xml:space="preserve">
+    <value>اختر القطاع</value>
   </data>
   <data name="Ministries" xml:space="preserve">
     <value>الوزارات</value>
@@ -318,17 +318,11 @@
   <data name="Partially funded" xml:space="preserve">
     <value>ممول جزئيا</value>
   </data>
-  <data name="Hold Ctrl/Cmd to select multiple sectors" xml:space="preserve">
-    <value>اضغط باستمرار على Ctrl/Cmd لتحديد قطاعات متعددة</value>
-  </data>
   <data name="Select a donor to add" xml:space="preserve">
     <value>حدد الممول لإضافته</value>
   </data>
   <data name="Project Timeline" xml:space="preserve">
     <value>الجدول الزمني للمشروع</value>
-  </data>
-  <data name="Select one or more sectors" xml:space="preserve">
-    <value>حدد قطاعًا واحدًا أو أكثر</value>
   </data>
   <data name="Back to Projects" xml:space="preserve">
     <value>العودة إلى المشاريع</value>
@@ -537,7 +531,7 @@
   <data name="Please select a public sector type." xml:space="preserve">
     <value>يرجى اختيار نوع القطاع.</value>
   </data>
-  <data name="Optional — sub-classification of the Public sector" xml:space="preserve">
-    <value>اختياري — التصنيف الفرعي للقطاع العام</value>
+  <data name="Choose the category that best classifies this project" xml:space="preserve">
+    <value>اختر التصنيف الأنسب لهذا المشروع</value>
   </data>
 </root>

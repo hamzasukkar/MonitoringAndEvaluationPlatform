@@ -119,9 +119,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Get projects by sector count
             var projectsBySector = await projectsQuery
-                .Include(p => p.Sectors)
-                .SelectMany(p => p.Sectors.Select(s => new { Sector = s }))
-                .GroupBy(x => x.Sector.EN_Name ?? x.Sector.AR_Name)
+                .Include(p => p.Sector)
+                .GroupBy(p => p.Sector.EN_Name ?? p.Sector.AR_Name)
                 .Select(g => new { Sector = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.Sector, x => x.Count);
 
@@ -221,7 +220,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ProjectsByMinistry = projectsByMinistry,
                 TotalProjects = await projectsQuery.CountAsync(),
                 Projects = await projectsQuery
-                    .Include(p => p.Sectors)
+                    .Include(p => p.Sector)
                     .Include(p => p.Ministries)
                     .Include(p => p.Donors)
                     .Take(5)

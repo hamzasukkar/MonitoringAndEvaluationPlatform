@@ -551,6 +551,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -562,6 +563,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -573,6 +575,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -584,6 +587,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -595,6 +599,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -606,6 +611,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -617,6 +623,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -628,6 +635,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -639,6 +647,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 },
                 new Project
@@ -650,6 +659,7 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     MinistryCode = ministry.Code,
                     SuperVisorCode = supervisor.Code,
                     ProjectManagerCode = projectManager.Code,
+                    SectorCode = sector.Code,
                     IsEntireCountry = governorate == null
                 }
             };
@@ -758,12 +768,6 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
             foreach (var project in projects)
             {
                 project.Ministries = new List<Ministry> { ministry };
-            }
-
-            // Link projects to sectors
-            foreach (var project in projects)
-            {
-                project.Sectors = new List<Sector> { sector };
             }
 
             // Link projects to governorates if available

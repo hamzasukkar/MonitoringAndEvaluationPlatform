@@ -620,7 +620,7 @@ public class DashboardController : Controller
 
         //To check
         if (sectorId.HasValue)
-            projectsQuery = projectsQuery.Where(p => p.Sectors.Any(s => s.Code == sectorId.Value));
+            projectsQuery = projectsQuery.Where(p => p.SectorCode == sectorId.Value);
 
         //To check
         if (donorId.HasValue)

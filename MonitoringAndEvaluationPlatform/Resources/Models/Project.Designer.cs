@@ -129,6 +129,15 @@ namespace MonitoringAndEvaluationPlatform.Resources.Models {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to Sector is required.
+        /// </summary>
+        public static string SectorRequired {
+            get {
+                return ResourceManager.GetString("SectorRequired", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to Start date is required.
         /// </summary>
         public static string StartDateRequired {

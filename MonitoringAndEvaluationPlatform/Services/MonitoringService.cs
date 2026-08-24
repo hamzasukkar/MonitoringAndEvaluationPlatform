@@ -215,7 +215,6 @@ public class MonitoringService
     {
         var project = await _context.Projects
             .Include(p => p.Ministries)
-            .Include(p => p.Sectors)
             .Include(p => p.Donors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
@@ -224,8 +223,7 @@ public class MonitoringService
         foreach (var ministry in project.Ministries)
             await UpdateMinistryPerformanceByMinistryCode(ministry.Code);
 
-        foreach (var sector in project.Sectors)
-            await UpdateSectorPerformanceBySectorId(sector.Code);
+        await UpdateSectorPerformanceBySectorId(project.SectorCode);
 
         foreach (var donor in project.Donors)
             await UpdateDonorPerformanceByDonorCode(donor.Code);
@@ -294,7 +292,6 @@ public class MonitoringService
                 .ThenInclude(pp => pp.ActionPlan)
                     .ThenInclude(ap => ap.Plans)
             .Include(p => p.Ministries)
-            .Include(p => p.Sectors)
             .Include(p => p.Donors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
@@ -333,8 +330,7 @@ public class MonitoringService
         // Update cross-cutting disbursement
         foreach (var ministry in project.Ministries)
             await UpdateMinistryDisbursementPerformanceByCode(ministry.Code);
-        foreach (var sector in project.Sectors)
-            await UpdateSectorDisbursementPerformanceByCode(sector.Code);
+        await UpdateSectorDisbursementPerformanceByCode(project.SectorCode);
         foreach (var donor in project.Donors)
             await UpdateDonorDisbursementPerformanceByCode(donor.Code);
     }
@@ -609,7 +605,6 @@ public class MonitoringService
         var project = await _context.Projects
             .Include(p => p.Indicators)
             .Include(p => p.Ministries)
-            .Include(p => p.Sectors)
             .Include(p => p.Donors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
@@ -619,7 +614,7 @@ public class MonitoringService
         var indicatorIds = project.Indicators.Select(i => i.IndicatorCode).ToList();
         var subOutputCodes = project.Indicators.Select(i => i.SubOutputCode).Distinct().Where(c => c != 0).ToList();
         var ministryCodes = project.Ministries.Select(m => m.Code).ToList();
-        var sectorIds = project.Sectors.Select(s => s.Code).ToList();
+        var sectorCode = project.SectorCode;
         var donorCodes = project.Donors.Select(d => d.Code).ToList();
 
         // Delete linked indicators together with the project (they are created and exist as a pair)
@@ -634,8 +629,7 @@ public class MonitoringService
         foreach (var ministryCode in ministryCodes)
             await UpdateMinistryPerformanceByMinistryCode(ministryCode);
 
-        foreach (var sectorId in sectorIds)
-            await UpdateSectorPerformanceBySectorId(sectorId);
+        await UpdateSectorPerformanceBySectorId(sectorCode);
 
         foreach (var donorCode in donorCodes)
             await UpdateDonorPerformanceByDonorCode(donorCode);
@@ -658,11 +652,9 @@ public class MonitoringService
     public async Task UpdateSectorPerformance(int projectId)
     {
         var project = await _context.Projects
-            .Include(p => p.Sectors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
         if (project == null) return;
-        foreach (var sector in project.Sectors)
-            await UpdateSectorPerformanceBySectorId(sector.Code);
+        await UpdateSectorPerformanceBySectorId(project.SectorCode);
     }
 
     public async Task UpdateDonorPerformance(int projectId)

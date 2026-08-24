@@ -43,7 +43,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             IQueryable<Ministry> query = _context.Ministries
                 .Include(m => m.Projects)
-                    .ThenInclude(p => p.Sectors)
+                    .ThenInclude(p => p.Sector)
                 .Include(m => m.Projects)
                     .ThenInclude(p => p.Donors)
                 .Include(m => m.Projects)
@@ -86,7 +86,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Get associated projects
             var projects = await _context.Projects
-                .Include(p => p.Sectors)
+                .Include(p => p.Sector)
                 .Include(p => p.Donors)
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)

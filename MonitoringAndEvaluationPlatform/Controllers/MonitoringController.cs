@@ -325,7 +325,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             // Query projects linked via Indicator.ProjectID
             var projectsQuery = _context.Projects
-                .Include(p => p.Sectors)
+                .Include(p => p.Sector)
                 .Include(p => p.Donors)
                 .Include(p => p.Ministries)
                 .Include(p => p.Communities)

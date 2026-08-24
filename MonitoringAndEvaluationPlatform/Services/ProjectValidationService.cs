@@ -9,7 +9,6 @@ namespace MonitoringAndEvaluationPlatform.Services
         void ValidateProjectCreation(
             Project project,
             List<LocationSelectionViewModel>? selectedLocations,
-            List<string> selectedSectorCodes,
             ModelStateDictionary modelState,
             bool isEntireCountry = false);
     }
@@ -19,7 +18,6 @@ namespace MonitoringAndEvaluationPlatform.Services
         public void ValidateProjectCreation(
             Project project,
             List<LocationSelectionViewModel>? selectedLocations,
-            List<string> selectedSectorCodes,
             ModelStateDictionary modelState,
             bool isEntireCountry = false)
         {
@@ -29,10 +27,10 @@ namespace MonitoringAndEvaluationPlatform.Services
                 modelState.AddModelError("", "At least one project location must be selected. Please use the location selector to add project locations.");
             }
 
-            // Validate sectors
-            if (!selectedSectorCodes.Any())
+            // Validate sector
+            if (project.SectorCode <= 0)
             {
-                modelState.AddModelError("Sectors", "At least one sector must be selected for the project.");
+                modelState.AddModelError(nameof(project.SectorCode), "Please select a sector for the project.");
             }
 
             // Validate project manager and supervisor

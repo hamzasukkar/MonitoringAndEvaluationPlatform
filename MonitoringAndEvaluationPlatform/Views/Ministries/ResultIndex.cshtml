@@ -224,16 +224,12 @@
                                                         <tr>
                                                             <td>
                                                                 <strong>@project.ProjectName</strong>
-                                                                @if (project.Sectors?.Any() == true)
+                                                                @if (project.Sector != null)
                                                                 {
                                                                     <br>
                                                                     <small class="text-muted">
                                                                         <i class="fas fa-industry me-1"></i>
-                                                                        @string.Join(", ", project.Sectors.Take(2).Select(s => s.AR_Name))
-                                                                        @if (project.Sectors.Count > 2)
-                                                                        {
-                                                                            <span>+@(project.Sectors.Count - 2) @Localizer["more"]</span>
-                                                                        }
+                                                                        @project.Sector.AR_Name
                                                                     </small>
                                                                 }
                                                             </td>

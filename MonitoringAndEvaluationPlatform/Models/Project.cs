@@ -14,7 +14,10 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Display(Name = "Project Name")]
         public string ProjectName { get; set; } = string.Empty;
 
-        public ICollection<Sector>? Sectors { get; set; } = new List<Sector>();
+        [Required(ErrorMessageResourceType = typeof(Resources.Models.Project), ErrorMessageResourceName = "SectorRequired")]
+        [Display(Name = "Sector")]
+        public int SectorCode { get; set; }
+        public virtual Sector? Sector { get; set; }
 
         [Display(Name = "Public Sector Type")]
         public int? PublicSectorTypeCode { get; set; }

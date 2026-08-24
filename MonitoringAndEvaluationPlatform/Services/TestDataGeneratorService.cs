@@ -189,6 +189,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                             EndDate = endDate,
                             ProjectManagerCode = projectManagerCode,
                             SuperVisorCode = superVisorCode,
+                            SectorCode = defaultSector?.Code ?? 0,
                             MinistryCode = ministry.Code,
                             IsEntireCountry = true,
                             performance = 0,
@@ -206,10 +207,6 @@ namespace MonitoringAndEvaluationPlatform.Services
                     {
                         indicators[i].ProjectID = projects[i].ProjectID;
                         projects[i].Ministries.Add(ministry);
-                        if (defaultSector != null)
-                        {
-                            projects[i].Sectors!.Add(defaultSector);
-                        }
                     }
                     await _context.SaveChangesAsync();
 
@@ -457,7 +454,6 @@ namespace MonitoringAndEvaluationPlatform.Services
                 // Join-table rows have no entity class; clear the skip navigations instead.
                 var projects = await _context.Projects
                     .Where(p => projectIds.Contains(p.ProjectID))
-                    .Include(p => p.Sectors)
                     .Include(p => p.Ministries)
                     .Include(p => p.Donors)
                     .Include(p => p.Governorates)
@@ -468,7 +464,6 @@ namespace MonitoringAndEvaluationPlatform.Services
 
                 foreach (var project in projects)
                 {
-                    project.Sectors?.Clear();
                     project.Ministries.Clear();
                     project.Donors?.Clear();
                     project.Governorates.Clear();
