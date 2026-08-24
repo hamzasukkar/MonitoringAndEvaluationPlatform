@@ -82,7 +82,7 @@
                     </div>
                     <div class="breadcrumb-content">
                         <span class="breadcrumb-label">@Localizer["Frameworks"]</span>
-                        <span class="breadcrumb-title">@framework.Name</span>
+                        <span class="breadcrumb-title" title="@framework.Name">@framework.Name</span>
                     </div>
                 </a>
             </div>
@@ -103,7 +103,7 @@
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Outcome"]</span>
-                                <span class="breadcrumb-title">@outcome.Name</span>
+                                <span class="breadcrumb-title" title="@outcome.Name">@outcome.Name</span>
                             </div>
                         </a>
                     </div>
@@ -117,7 +117,7 @@
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Outcome"]</span>
-                                <span class="breadcrumb-title">@outcome.Name</span>
+                                <span class="breadcrumb-title" title="@outcome.Name">@outcome.Name</span>
                             </div>
                         </div>
                     </div>
@@ -140,7 +140,7 @@
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Output"]</span>
-                                <span class="breadcrumb-title">@output.Name</span>
+                                <span class="breadcrumb-title" title="@output.Name">@output.Name</span>
                             </div>
                         </a>
                     </div>
@@ -154,7 +154,7 @@
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Output"]</span>
-                                <span class="breadcrumb-title">@output.Name</span>
+                                <span class="breadcrumb-title" title="@output.Name">@output.Name</span>
                             </div>
                         </div>
                     </div>
@@ -177,7 +177,7 @@
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["SubOutput"]</span>
-                                <span class="breadcrumb-title">@subOutput.Name</span>
+                                <span class="breadcrumb-title" title="@subOutput.Name">@subOutput.Name</span>
                             </div>
                         </a>
                     </div>
@@ -191,7 +191,7 @@
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["SubOutput"]</span>
-                                <span class="breadcrumb-title">@subOutput.Name</span>
+                                <span class="breadcrumb-title" title="@subOutput.Name">@subOutput.Name</span>
                             </div>
                         </div>
                     </div>
@@ -232,7 +232,7 @@
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Project"]</span>
-                                <span class="breadcrumb-title">@project.ProjectName</span>
+                                <span class="breadcrumb-title" title="@project.ProjectName">@project.ProjectName</span>
                             </div>
                         </a>
                     </div>
@@ -246,7 +246,7 @@
                             </div>
                             <div class="breadcrumb-content">
                                 <span class="breadcrumb-label">@Localizer["Project"]</span>
-                                <span class="breadcrumb-title">@project.ProjectName</span>
+                                <span class="breadcrumb-title" title="@project.ProjectName">@project.ProjectName</span>
                             </div>
                         </div>
                     </div>
@@ -357,10 +357,9 @@
             font-size: 13px;
             font-weight: 600;
             line-height: 1.2;
-            max-width: 150px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            max-width: 280px;
+            white-space: normal;
+            word-break: break-word;
         }
 
         .breadcrumb-separator {
@@ -398,7 +397,7 @@
             }
 
             .breadcrumb-title {
-                max-width: 200px;
+                max-width: 220px;
             }
         }
 
@@ -416,7 +415,7 @@
 
             .breadcrumb-title {
                 font-size: 12px;
-                max-width: 120px;
+                max-width: 160px;
             }
 
             .breadcrumb-label {

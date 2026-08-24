@@ -31,8 +31,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IProjectValidationService _validationService;
         private readonly IStringLocalizer<ProjectsController> _localizer;
         private readonly ICurrencyConversionService _currencyConversion;
+        private readonly IndicatorProjectPairService _pairService;
+        private readonly IPerformanceService _performanceService;
+        private readonly IAuthorizationService _authorizationService;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer, ICurrencyConversionService currencyConversion)
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer, ICurrencyConversionService currencyConversion, IndicatorProjectPairService pairService, IPerformanceService performanceService, IAuthorizationService authorizationService)
         {
             _context = context;
             _userManager = userManager;
@@ -41,6 +44,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _validationService = validationService;
             _localizer = localizer;
             _currencyConversion = currencyConversion;
+            _pairService = pairService;
+            _performanceService = performanceService;
+            _authorizationService = authorizationService;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -86,6 +92,36 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Where(i => i.IndicatorCode == indicatorId.Value)
                 .Select(i => (int?)i.SubOutput.Output.Outcome.Framework.MinistryCode)
                 .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// Same ministry lock as <see cref="GetLinkedProgramMinistryCodeAsync"/>, but for the
+        /// "Add &amp; Create Project" flow, where the indicator does not exist yet and only its
+        /// target suboutput is known.
+        /// </summary>
+        private async Task<int?> GetProgramMinistryCodeForSubOutputAsync(int? subOutputCode)
+        {
+            if (!subOutputCode.HasValue) return null;
+
+            return await _context.SubOutputs
+                .Where(s => s.Code == subOutputCode.Value)
+                .Select(s => (int?)s.Output.Outcome.Framework.MinistryCode)
+                .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// Guards the pending-indicator values against form tampering: a non-admin must not be able to
+        /// point the new indicator at a suboutput outside their ministry.
+        /// </summary>
+        private async Task<bool> SubOutputBelongsToScopeAsync(int subOutputCode)
+        {
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (isAdmin) return true;
+            if (scopedMinistryCode is null) return false;
+
+            return await _context.SubOutputs
+                .Where(s => s.Code == subOutputCode)
+                .AnyAsync(s => s.Output.Outcome.Framework.MinistryCode == scopedMinistryCode);
         }
 
         private async Task<bool> ProjectBelongsToScopeAsync(int projectId)
@@ -570,7 +606,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // GET: Programs/Create
         [Permission(Permissions.AddProject)]
-        public async Task<IActionResult> Create(int? indicatorId, string indicatorName)
+        public async Task<IActionResult> Create(int? indicatorId, string indicatorName,
+            string? pendingIndicatorName, int? pendingIndicatorTarget, int? pendingIndicatorSubOutputCode)
         {
             // Retrieve related data
             var donors = _context.Donors.ToList()
@@ -586,9 +623,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ViewBag.Governorates = _context.Governorates.ToList();
 
-            // Pass indicator information for auto-filling if coming from "Add & Create Project"
+            // Pass indicator information for auto-filling if coming from "Add & Create Project".
+            // That flow sends the *pending* values (the indicator is not created until this form is
+            // submitted); indicatorId/indicatorName still serve links that point at an existing indicator.
+            var preFilledProjectName = !string.IsNullOrEmpty(indicatorName) ? indicatorName : pendingIndicatorName;
             ViewBag.PreSelectedIndicatorId = indicatorId;
-            ViewBag.PreFilledProjectName = indicatorName;
+            ViewBag.PendingIndicatorName = pendingIndicatorName;
+            ViewBag.PendingIndicatorTarget = pendingIndicatorTarget;
+            ViewBag.PendingIndicatorSubOutputCode = pendingIndicatorSubOutputCode;
+            ViewBag.PreFilledProjectName = preFilledProjectName;
 
             // Get the logged-in user
             var user = await _userManager.GetUserAsync(User);
@@ -609,7 +652,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // If this project is being created from a linked indicator whose program (SubOutput →
             // Output → Outcome → Framework) belongs to a ministry, that ministry wins over the
             // account's own ministry and over an admin's free choice.
-            var linkedProgramMinistryCode = await GetLinkedProgramMinistryCodeAsync(indicatorId);
+            var linkedProgramMinistryCode = await GetLinkedProgramMinistryCodeAsync(indicatorId)
+                                            ?? await GetProgramMinistryCodeForSubOutputAsync(pendingIndicatorSubOutputCode);
             bool isMinistryLockedByProgram = linkedProgramMinistryCode.HasValue;
             if (isMinistryLockedByProgram)
             {
@@ -633,9 +677,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             };
 
             // Pre-fill project name if coming from indicator creation
-            if (!string.IsNullOrEmpty(indicatorName))
+            if (!string.IsNullOrEmpty(preFilledProjectName))
             {
-                project.ProjectName = indicatorName;
+                project.ProjectName = preFilledProjectName;
             }
 
             // Prepare dropdown and multiselect data
@@ -676,14 +720,49 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             List<IFormFile> UploadedFiles,
             string? selections,
             string? DonorFundingBreakdown,
-            int? LinkedIndicatorId)
+            int? LinkedIndicatorId,
+            string? PendingIndicatorName,
+            int? PendingIndicatorTarget,
+            int? PendingIndicatorSubOutputCode)
         {
             int? linkedProgramMinistryCode = null;
+
+            // The "Add & Create Project" flow defers the indicator insert to this request so that
+            // abandoning the form leaves nothing behind. Values arrive as hidden fields.
+            bool hasPendingIndicator = PendingIndicatorSubOutputCode.HasValue
+                                       && !string.IsNullOrWhiteSpace(PendingIndicatorName);
+
             try
             {
+                // The two entry points are mutually exclusive: either the indicator already exists
+                // (LinkedIndicatorId) or it is still pending. A request carrying both is crafted.
+                if (hasPendingIndicator && LinkedIndicatorId.HasValue)
+                {
+                    return BadRequest();
+                }
+
+                // Guard the suboutput before it is used, and guard on HasValue rather than on
+                // hasPendingIndicator: a blank name would otherwise skip the check while the
+                // suboutput still drove the ministry override below.
+                if (PendingIndicatorSubOutputCode.HasValue &&
+                    !await SubOutputBelongsToScopeAsync(PendingIndicatorSubOutputCode.Value))
+                {
+                    return Forbid();
+                }
+
+                // Creating the indicator half of the pair requires the indicator permission in its own
+                // right. AddProject is held by roles (DataEntry, MinistriesUser) that may not add
+                // indicators, and this action now performs the insert that AddIndicator used to gate.
+                if (hasPendingIndicator &&
+                    !(await _authorizationService.AuthorizeAsync(User, Permissions.AddIndicator)).Succeeded)
+                {
+                    return Forbid();
+                }
+
                 // If this project is being created from a linked indicator whose program belongs to
                 // a ministry, that ministry wins over the account's own ministry / an admin's choice.
-                linkedProgramMinistryCode = await GetLinkedProgramMinistryCodeAsync(LinkedIndicatorId);
+                linkedProgramMinistryCode = await GetLinkedProgramMinistryCodeAsync(LinkedIndicatorId)
+                                            ?? await GetProgramMinistryCodeForSubOutputAsync(PendingIndicatorSubOutputCode);
 
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
@@ -722,6 +801,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     {
                         ModelState.AddModelError("ProjectName", _localizer["A project with this name already exists."]);
                     }
+                }
+
+                // Re-check the pending indicator's name: it was only checked when the form opened, and
+                // nothing reserves it in between.
+                if (hasPendingIndicator &&
+                    await _pairService.IndicatorNameExistsInSubOutputAsync(PendingIndicatorSubOutputCode!.Value, PendingIndicatorName!))
+                {
+                    ModelState.AddModelError("", _localizer["An indicator with this name already exists in this suboutput."]);
+                }
+
+                // Re-run the target check that CreateAndRedirectToProject applied, since the value now
+                // reaches the insert through a hidden field on a separate request.
+                if (hasPendingIndicator && PendingIndicatorTarget is null or <= 0)
+                {
+                    ModelState.AddModelError("", _localizer["Name and Target are required and must be valid."]);
                 }
 
                 // Check if any selected donor is "موازنة أستثمارية"
@@ -773,6 +867,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     await PopulateCreateViewBagAsync(selectedDonorCodes, selections, DonorFundingBreakdown);
                     ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                    ViewBag.PendingIndicatorName = PendingIndicatorName;
+                    ViewBag.PendingIndicatorTarget = PendingIndicatorTarget;
+                    ViewBag.PendingIndicatorSubOutputCode = PendingIndicatorSubOutputCode;
                     if (linkedProgramMinistryCode.HasValue)
                     {
                         ViewBag.IsMinistryLockedByProgram = true;
@@ -821,6 +918,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 using (var tx = await _context.Database.BeginTransactionAsync())
                 {
+                    // The deferred half of "Add & Create Project": the indicator is born here, inside the
+                    // same transaction as the project, so the pair is either fully created or not at all.
+                    if (hasPendingIndicator)
+                    {
+                        indicatorToLink = new Indicator
+                        {
+                            Name = PendingIndicatorName!.Trim(),
+                            Target = PendingIndicatorTarget!.Value,
+                            SubOutputCode = PendingIndicatorSubOutputCode!.Value
+                        };
+                        _context.Indicators.Add(indicatorToLink);
+                        await _context.SaveChangesAsync();
+                    }
+
                     _context.Projects.Add(project);
                     await _context.SaveChangesAsync();
 
@@ -831,6 +942,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
 
                     await tx.CommitAsync();
+                }
+
+                // Weights first, then performance: the suboutput's weighted average is computed from the
+                // indicator weights, so recalculating it before the redistribution would leave it stale.
+                if (hasPendingIndicator)
+                {
+                    await _pairService.RedistributeIndicatorWeightsAsync(PendingIndicatorSubOutputCode!.Value);
+                    await _performanceService.UpdateSubOutputPerformance(PendingIndicatorSubOutputCode!.Value);
                 }
 
                 // Create project phases: user-selected phases for "موازنة أستثمارية" donor; single auto-created phase for all others
@@ -849,7 +968,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // scoped key the Create view used (see Create.cshtml form-draft init).
                 TempData["ClearDraftKey"] = LinkedIndicatorId.HasValue
                     ? $"draft:project:create:fromIndicator:{LinkedIndicatorId.Value}"
-                    : "draft:project:create";
+                    : hasPendingIndicator
+                        ? $"draft:project:create:pendingIndicator:{PendingIndicatorSubOutputCode!.Value}"
+                        : "draft:project:create";
 
                 return RedirectToAction("Details", new { id = project.ProjectID });
             }
@@ -860,6 +981,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var selectedDonorCodes = Request.Form["Donors"].ToList();
                 await PopulateCreateViewBagAsync(selectedDonorCodes, selections, DonorFundingBreakdown);
                 ViewBag.PreSelectedIndicatorId = LinkedIndicatorId;
+                ViewBag.PendingIndicatorName = PendingIndicatorName;
+                ViewBag.PendingIndicatorTarget = PendingIndicatorTarget;
+                ViewBag.PendingIndicatorSubOutputCode = PendingIndicatorSubOutputCode;
                 if (linkedProgramMinistryCode.HasValue)
                 {
                     ViewBag.IsMinistryLockedByProgram = true;
@@ -1102,7 +1226,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.EditProject)]
         public async Task<IActionResult> UpdateProjectName(int projectId, string projectName)
         {
-            var project = await _context.Projects.FindAsync(projectId);
+            var project = await _context.Projects
+                .Include(p => p.Indicators)
+                .FirstOrDefaultAsync(p => p.ProjectID == projectId);
             if (project == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
@@ -1111,7 +1237,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
+            var previousProjectName = project.ProjectName;
             project.ProjectName = projectName;
+
+            // Keep the paired indicators' names in step (only those that still carried the old name).
+            _pairService.SyncIndicatorNamesToProject(project, previousProjectName, projectName);
+
             await _context.SaveChangesAsync();
             return Ok();
         }
@@ -1237,7 +1368,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
 
             // --- Update scalar properties ---
+            var previousProjectName = dbProject.ProjectName;
             dbProject.ProjectName = project.ProjectName;
+
+            // Keep the paired indicators' names in step (only those that still carried the old name).
+            // dbProject.Indicators is already included above.
+            _pairService.SyncIndicatorNamesToProject(dbProject, previousProjectName, project.ProjectName);
+
             dbProject.StartDate = project.StartDate;
             dbProject.EndDate = project.EndDate;
             // The budget is entered in the chosen unit; scale it up to the full stored value.

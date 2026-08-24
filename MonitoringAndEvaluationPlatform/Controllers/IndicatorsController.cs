@@ -13,6 +13,7 @@ using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
 using ClosedXML.Excel;
 using QuestPDF.Fluent;
@@ -29,13 +30,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly PlanService _planService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStringLocalizer<IndicatorsController> _localizer;
+        private readonly IndicatorProjectPairService _pairService;
 
-        public IndicatorsController(ApplicationDbContext context, PlanService planService, UserManager<ApplicationUser> userManager, IStringLocalizer<IndicatorsController> localizer)
+        public IndicatorsController(ApplicationDbContext context, PlanService planService, UserManager<ApplicationUser> userManager, IStringLocalizer<IndicatorsController> localizer, IndicatorProjectPairService pairService)
         {
             _context = context;
             _planService = planService;
             _userManager = userManager;
             _localizer = localizer;
+            _pairService = pairService;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -476,9 +479,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         /// <summary>
-        /// This is the NEW action that handles the "Add & Create Project" button.
-        /// It creates the Indicator and then redirects to the Create action in the ProjectsController,
-        /// passing the new Indicator's ID and Name for auto-filling the project form.
+        /// Handles the "Add &amp; Create Project" button. It deliberately does NOT persist the indicator:
+        /// the indicator and the project are a pair, so creating the indicator here would leave an orphan
+        /// behind whenever the user cancels the project form, closes the tab or navigates away. Instead the
+        /// entered values travel to ProjectsController.Create, which inserts both inside one transaction.
         /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -496,37 +500,24 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
-            // Check if indicator name already exists within the same suboutput
-            var existingIndicator = await _context.Indicators
-                .FirstOrDefaultAsync(i => i.SubOutputCode == SubOutputCode &&
-                                          i.Name.ToLower() == Name.Trim().ToLower());
-            if (existingIndicator != null)
+            // Check if indicator name already exists within the same suboutput. Re-checked on the
+            // project POST as well, since nothing is reserved between the two requests.
+            if (await _pairService.IndicatorNameExistsInSubOutputAsync(SubOutputCode, Name))
             {
                 TempData["Error"] = _localizer["An indicator with this name already exists in this suboutput."].Value;
                 return RedirectToAction("Index", new { subOutputCode = SubOutputCode });
             }
 
-            var indicator = new Indicator
+            // "SuccessMessage" is the key _Notifications renders; the project Create view shows it.
+            TempData["SuccessMessage"] = _localizer["Enter the project details. The indicator will be created together with the project."].Value;
+
+            // Carry the indicator's values — not an ID, because nothing has been saved yet.
+            return RedirectToAction("Create", "Projects", new
             {
-                Name = Name,
-                Target = Target,
-                SubOutputCode = SubOutputCode
-            };
-
-            _context.Indicators.Add(indicator);
-            await _context.SaveChangesAsync(); // This saves the indicator and populates its ID
-
-            // Update related entities
-            await UpdateSubOutputPerformance(indicator.SubOutputCode);
-            // Recalculate weights
-            await RedistributeWeights(indicator.SubOutputCode);
-
-            TempData["Success"] = _localizer["Indicator created. You can now add project details."].Value;
-
-            // Redirect to the "Create" action in the "Projects" controller.
-            // Pass the newly created indicator's ID and Name so the project can be associated with it
-            // and the project name can be auto-filled.
-            return RedirectToAction("Create", "Projects", new { indicatorId = indicator.IndicatorCode, indicatorName = indicator.Name });
+                pendingIndicatorName = Name.Trim(),
+                pendingIndicatorTarget = Target,
+                pendingIndicatorSubOutputCode = SubOutputCode
+            });
         }
 
         // تحديث SubOutput بناءً على Indicators
@@ -636,7 +627,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var newName = data.GetProperty("name").GetString();
+            var previousIndicatorName = indicator.Name;
             indicator.Name = newName;
+
+            // Keep the paired project's name in step (only if it still carried the old name).
+            await _pairService.SyncProjectNameToIndicatorAsync(indicator, previousIndicatorName, newName);
+
             await _context.SaveChangesAsync();
 
             return Ok();
@@ -741,9 +737,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         return Forbid();
                     }
 
+                    var previousIndicatorName = existing.Name;
                     existing.Name = indicator.Name;
                     existing.SubOutputCode = indicator.SubOutputCode;
                     // ProjectID is immutable — not overwritten
+
+                    // Keep the paired project's name in step (only if it still carried the old name).
+                    await _pairService.SyncProjectNameToIndicatorAsync(existing, previousIndicatorName, indicator.Name);
 
                     await _context.SaveChangesAsync();
 

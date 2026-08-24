@@ -61,6 +61,15 @@
   <data name="A project with this name already exists." xml:space="preserve">
     <value>يوجد مشروع بهذا الاسم بالفعل.</value>
   </data>
+  <data name="An indicator with this name already exists in this suboutput." xml:space="preserve">
+    <value>يوجد مؤشر بهذا الاسم بالفعل في هذا البرنامج الفرعي.</value>
+  </data>
+  <data name="Name and Target are required and must be valid." xml:space="preserve">
+    <value>الاسم والهدف مطلوبان ويجب أن يكونا صالحين.</value>
+  </data>
+  <data name="The indicator this project should link to could not be found. Please try again." xml:space="preserve">
+    <value>تعذر العثور على المؤشر المرتبط بهذا المشروع. يرجى المحاولة مرة أخرى.</value>
+  </data>
   <data name="Project '{0}' has been created successfully." xml:space="preserve">
     <value>تم إنشاء المشروع '{0}' بنجاح.</value>
   </data>

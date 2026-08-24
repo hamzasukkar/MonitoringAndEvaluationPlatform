@@ -496,6 +496,11 @@
 
                                     <input type="hidden" id="donorFundingData" name="DonorFundingBreakdown" />
                                     <input type="hidden" name="LinkedIndicatorId" value="@ViewBag.PreSelectedIndicatorId" />
+                                    @* "Add & Create Project": the indicator is not saved yet, so its values ride
+                                       along and are inserted together with this project. Cancelling creates nothing. *@
+                                    <input type="hidden" name="PendingIndicatorName" value="@ViewBag.PendingIndicatorName" />
+                                    <input type="hidden" name="PendingIndicatorTarget" value="@ViewBag.PendingIndicatorTarget" />
+                                    <input type="hidden" name="PendingIndicatorSubOutputCode" value="@ViewBag.PendingIndicatorSubOutputCode" />
                                 </div>
 
                                     </div>
@@ -1036,10 +1041,18 @@
     // "Create Project from Indicator" flow.
     document.addEventListener('DOMContentLoaded', function () {
         var indicatorId = '@(ViewBag.PreSelectedIndicatorId ?? "")';
-        var draftKey = indicatorId ? 'draft:project:create:fromIndicator:' + indicatorId : 'draft:project:create';
+        var pendingSubOutput = '@(ViewBag.PendingIndicatorSubOutputCode ?? "")';
+        var draftKey = indicatorId
+            ? 'draft:project:create:fromIndicator:' + indicatorId
+            : (pendingSubOutput ? 'draft:project:create:pendingIndicator:' + pendingSubOutput : 'draft:project:create');
         new FormDraft({
             form: 'form.needs-validation',
             key: draftKey,
+            // These identify which indicator the project is being created for. They come from the
+            // server on every request; restoring them from an older draft would attach the project
+            // to the wrong indicator (or create one under a stale name).
+            skipNames: ['__RequestVerificationToken', 'LinkedIndicatorId',
+                        'PendingIndicatorName', 'PendingIndicatorTarget', 'PendingIndicatorSubOutputCode'],
             restoredText: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Unsaved draft restored"].Value))',
             discardText: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Discard draft"].Value))'
         }).init();
