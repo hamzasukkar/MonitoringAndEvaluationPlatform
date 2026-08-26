@@ -98,7 +98,7 @@
                                 <td class="text-center">
                                     <div class="weight-input-container">
                                         <div class="input-group justify-content-center" style="max-width: 150px; margin: 0 auto;">
-                                            <input asp-for="@Model[i].Weight"
+                                            <input asp-for="@Model[i].Weight" asp-format="{0:0.##}"
                                                    class="form-control form-control-lg text-center weight-input"
                                                    type="number"
                                                    min="0"

@@ -53,7 +53,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             double total = indicators.Sum(i => i.Weight);
             if (Math.Abs(total - 100.0) > 0.01)
             {
-                indicators[^1].Weight += 100.0 - total;
+                indicators[^1].Weight = Math.Round(indicators[^1].Weight + (100.0 - total), 2);
             }
 
             await _context.SaveChangesAsync();

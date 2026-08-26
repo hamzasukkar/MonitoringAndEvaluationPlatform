@@ -358,7 +358,7 @@
                             </td>
                             <td class="text-center">
                                 <div class="weight-badge">
-                                    <span class="badge bg-info fs-6">@item.Weight%</span>
+                                    <span class="badge bg-info fs-6">@item.Weight.ToPercentString()%</span>
                                 </div>
                             </td>
                             <td class="text-center">
@@ -445,7 +445,7 @@
                                                     <div class="phase-card">
                                                         <div class="phase-card-header">
                                                             <span class="phase-name"><i class="fas fa-tasks me-1"></i>@phase.Name</span>
-                                                            <span class="phase-weight-badge">@phase.Weight%</span>
+                                                            <span class="phase-weight-badge">@phase.Weight.ToPercentString()%</span>
                                                         </div>
                                                         <div class="phase-card-body">
                                                             <div class="mini-info">

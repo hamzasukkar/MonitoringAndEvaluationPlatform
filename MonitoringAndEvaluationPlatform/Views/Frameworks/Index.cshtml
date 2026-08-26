@@ -1,4 +1,4 @@
-@model MonitoringAndEvaluationPlatform.ViewModel.FrameworkFilterViewModel
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.FrameworkFilterViewModel
 
 @using MonitoringAndEvaluationPlatform.Helpers
 @using Microsoft.AspNetCore.Identity
@@ -85,12 +85,15 @@
 <div class="dashboard-header">
     <div class="d-flex justify-content-between align-items-center">
         <div>
+            @* The ministries layout lists ministries, not strategies, so the heading follows the toggle. *@
             <h1 class="dashboard-title">
-                <i class="fas fa-sitemap me-3"></i>
-                @Localizer["Results Frameworks"]
+                <i class="fas @(Model.ShowMinistries ? "fa-landmark" : "fa-sitemap") me-3"></i>
+                @(Model.ShowMinistries ? Localizer["Ministries and Entities"] : Localizer["Results Frameworks"])
             </h1>
             <p class="dashboard-subtitle">
-                @Localizer["Comprehensive overview of monitoring frameworks and their performance metrics"]
+                @(Model.ShowMinistries
+                    ? Localizer["Comprehensive overview of ministries and entities and their performance metrics"]
+                    : Localizer["Comprehensive overview of monitoring frameworks and their performance metrics"])
             </p>
         </div>
         <div class="d-flex gap-2 align-items-center">
@@ -315,12 +318,13 @@
                             <th><i class="fas fa-landmark me-2"></i>@Localizer["Ministry"]</th>
                             <th class="text-center"><i class="fas fa-sitemap me-2"></i>@Localizer["Strategies"]</th>
                             @* Rolled up from the strategies each row links to, so the number matches
-                               the list you land on. Sorted client-side - the rows are already all here. *@
+                               the list you land on. Rows arrive sorted by performance, highest first;
+                               the headers re-sort client-side since every row is already on the page. *@
                             <th class="text-center sortable-header" style="cursor: pointer;"
                                 onclick="sortMinistryRows('indicators')">
                                 <div class="header-link">
                                     <i class="fas fa-chart-line me-2"></i>@Localizer["Indicators Performance"]
-                                    <i class="fas fa-sort ms-2" id="ministry-indicators-sort-icon"></i>
+                                    <i class="fas fa-sort-down ms-2" id="ministry-indicators-sort-icon"></i>
                                 </div>
                             </th>
                             <th class="text-center sortable-header" style="cursor: pointer;"
@@ -1019,7 +1023,9 @@
         // page - a round trip would only re-render the same rows. Only #ministryStrategyRows is
         // touched; the Unassigned / no-owner buckets sit in their own tbody and stay at the end.
         // Named ministrySort, not currentSort: that name is a Razor local in this file.
-        let ministrySort = { column: null, direction: 'desc' };
+        // Seeded to match the order the server already rendered, so the first click on the
+        // performance header toggles to ascending instead of re-applying descending.
+        let ministrySort = { column: 'indicators', direction: 'desc' };
 
         function sortMinistryRows(column) {
             const tbody = document.getElementById('ministryStrategyRows');

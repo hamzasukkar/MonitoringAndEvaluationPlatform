@@ -149,7 +149,7 @@
                                                     <br />
                                                     <small class="text-muted">@Localizer["Code:"] @indicator.IndicatorCode</small>
                                                 </td>
-                                                <td class="text-center"><span class="badge bg-info">@indicator.Weight</span></td>
+                                                <td class="text-center"><span class="badge bg-info">@indicator.Weight.ToPercentString()</span></td>
                                                 <td class="text-center">@indicator.Target.ToString("N2")</td>
                                                 <td class="text-center text-success"><strong>@indicator.Achieved.ToString("N2")</strong></td>
                                                 <td class="text-center">

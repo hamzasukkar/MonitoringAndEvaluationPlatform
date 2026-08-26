@@ -113,14 +113,25 @@ builder.Services.AddLocalization(options => options.ResourcesPath = "Resources")
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
+    // Arabic formats numbers with U+066B ARABIC DECIMAL SEPARATOR ("8٫37"). An HTML
+    // <input type="number"> only accepts "." as the decimal mark, so weight/budget boxes render
+    // an invalid value under "ar". Keep Arabic text but Latin numerals -- which is also what
+    // _ProgressBar.cshtml and BudgetUnitHelper already force via InvariantCulture.
+    var arabic = new CultureInfo("ar");
+    arabic.NumberFormat.NumberDecimalSeparator = ".";
+    arabic.NumberFormat.NumberGroupSeparator = ",";
+    arabic.NumberFormat.PercentDecimalSeparator = ".";
+    arabic.NumberFormat.PercentGroupSeparator = ",";
+    arabic.NumberFormat.DigitSubstitution = DigitShapes.None;
+
     var supportedCultures = new[]
     {
         new CultureInfo("en"),
-        new CultureInfo("ar"), // Arabic
+        arabic,
         new CultureInfo("fr")  // French, optional
     };
 
-    options.DefaultRequestCulture = new RequestCulture("ar");
+    options.DefaultRequestCulture = new RequestCulture(arabic);
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
 

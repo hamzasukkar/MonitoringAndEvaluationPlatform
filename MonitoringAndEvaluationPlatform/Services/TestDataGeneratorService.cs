@@ -559,7 +559,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             double total = equal * count;
             if (Math.Abs(total - 100.0) > 0.001)
             {
-                weights[count - 1] += 100.0 - total;
+                weights[count - 1] = Math.Round(weights[count - 1] + (100.0 - total), 2);
             }
             return weights;
         }

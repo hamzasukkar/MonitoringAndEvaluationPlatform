@@ -127,7 +127,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"F{f.Code}",
                 name = o.Name,
                 type = "Outcome",
-                weight = o.Weight,
+                weight = Math.Round(o.Weight, 2),
                 IndicatorsPerformance = Math.Round(o.IndicatorsPerformance, 0).ToString() + "%",
                 DisbursementPerformance = Math.Round(o.DisbursementPerformance, 0).ToString() + "%"
             }
@@ -140,7 +140,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"O{o.Code}",
                 name = op.Name,
                 type = "Output",
-                weight = op.Weight,
+                weight = Math.Round(op.Weight, 2),
                 IndicatorsPerformance = Math.Round(op.IndicatorsPerformance, 0).ToString() + "%",
                 DisbursementPerformance = Math.Round(op.DisbursementPerformance, 0).ToString() + "%"
             }
@@ -153,7 +153,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pid = $"Op{op.Code}",
                 name = so.Name,
                 type = "SubOutput",
-                weight = so.Weight,
+                weight = Math.Round(so.Weight, 2),
                 IndicatorsPerformance = Math.Round(so.IndicatorsPerformance, 0).ToString() + "%",
                 DisbursementPerformance = Math.Round(so.DisbursementPerformance, 0).ToString() + "%"
             }
@@ -166,7 +166,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         pid = $"S{so.Code}",
                         name = i.Name,
                         type = "Indicator",
-                        weight = i.Weight,
+                        weight = Math.Round(i.Weight, 2),
                         IndicatorsPerformance = Math.Round(i.IndicatorsPerformance, 0).ToString() + "%",
                         DisbursementPerformance = Math.Round(i.DisbursementPerformance, 0).ToString() + "%"
                     };

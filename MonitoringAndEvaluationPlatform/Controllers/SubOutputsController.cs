@@ -316,7 +316,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (Math.Abs(total - 100.0) > 0.01)
             {
                 double correction = 100.0 - total;
-                subOutputs.Last().Weight += correction;
+                subOutputs.Last().Weight = Math.Round(subOutputs.Last().Weight + correction, 2);
             }
 
             await _context.SaveChangesAsync();
@@ -382,7 +382,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var subOutput = await _context.SubOutputs.FindAsync(vm.Code);
                 if (subOutput != null)
                 {
-                    subOutput.Weight = vm.Weight;
+                    // Store what the 2-decimal UI actually shows, so a value posted back from the
+                    // form cannot reintroduce floating-point residue.
+                    subOutput.Weight = Math.Round(vm.Weight, 2);
                     _context.Update(subOutput);
                 }
             }

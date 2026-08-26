@@ -75,10 +75,10 @@
                                 <i class="fas fa-balance-scale metric-icon"></i>
                             </div>
                             <div class="metric-content">
-                                <div class="metric-value">@phase.Weight%</div>
+                                <div class="metric-value">@phase.Weight.ToPercentString()%</div>
                                 <div class="metric-label">@Localizer["Weight"]</div>
                                 <div class="metric-progress-bar">
-                                    <div class="progress-fill" style="width: @phase.Weight%"></div>
+                                    <div class="progress-fill" style="width: @phase.Weight.ToPercentString()%"></div>
                                 </div>
                             </div>
                         </div>

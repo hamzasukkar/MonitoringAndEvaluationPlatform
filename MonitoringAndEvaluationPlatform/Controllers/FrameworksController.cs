@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -401,7 +401,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         DisbursementPerformance = disbursement
                     };
                 })
-                .OrderBy(g => isArabicUi ? g.Ministry.MinistryDisplayName_AR : g.Ministry.MinistryDisplayName_EN)
+                // Best performers first - the same default the strategies list uses. Sorted here
+                // rather than in the browser so the first paint is already ordered; the header
+                // click handler takes over from this state.
+                .OrderByDescending(g => g.IndicatorsPerformance)
+                .ThenBy(g => isArabicUi ? g.Ministry.MinistryDisplayName_AR : g.Ministry.MinistryDisplayName_EN)
                 .ToList();
 
             // The ministries table shows only when that layout is selected AND nothing narrows
@@ -628,7 +632,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (Math.Abs(total - 100.0) > 0.01)
             {
                 double correction = 100.0 - total;
-                indicators.Last().Weight += correction;
+                indicators.Last().Weight = Math.Round(indicators.Last().Weight + correction, 2);
             }
 
             await _context.SaveChangesAsync();

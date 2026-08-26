@@ -154,12 +154,12 @@
                                 </div>
 
                                 <!-- Exchange Rate (required for any non-SYP currency) -->
-                                <div class="mb-4" id="exchangeRateSection">
+                                <div class="mb-4" id="exchangeRateSection" style="display:none;">
                                     <label class="form-label fw-bold">
                                         <i class="fas fa-exchange-alt me-2"></i>
                                         @Localizer["Exchange Rate"]
                                         <small class="text-muted" id="exchangeRateHint"></small>
-                                        <span class="text-danger" id="exchangeRateRequiredMark">*</span>
+                                        <span class="text-danger">*</span>
                                     </label>
                                     <div class="input-group">
                                         <span class="input-group-text">
@@ -180,20 +180,6 @@
                                         <strong id="exchangeRateDateDisplay">@(Model.ExchangeRateDate?.ToString("yyyy-MM-dd") ?? "")</strong>
                                     </div>
                                     <input asp-for="ExchangeRateDate" type="hidden" id="exchangeRateDateInput" />
-                                </div>
-
-                                <!-- USD Equivalent: shown for SYP budgets, using the platform rate -->
-                                <div id="usdEquivalentBox" class="mb-4 p-3 rounded-3" style="display:none; background: linear-gradient(135deg, #e8f5e9, #f1f8e9); border: 1px solid #a5d6a7;">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <i class="fas fa-dollar-sign text-success fs-5"></i>
-                                        <span class="text-muted small">@Localizer["Budget in USD"]:</span>
-                                        <strong class="text-success fs-5" id="usdEquivalentValue">—</strong>
-                                        <span class="text-muted small">USD</span>
-                                    </div>
-                                    <div class="text-muted" style="font-size: 0.78rem; margin-top: 4px;">
-                                        <i class="fas fa-calculator me-1"></i>
-                                        <span id="usdEquivalentFormula"></span>
-                                    </div>
                                 </div>
 
                                 <!-- Location Hierarchy -->
@@ -1328,14 +1314,14 @@
     });
 
     // ========== EXCHANGE RATE SECTION ==========
-    // Platform fallback rates (SYP per 1 unit), used to prefill the input and to price the
-    // USD-equivalent hint for SYP budgets.
+    // Platform fallback rates (SYP per 1 unit), used to prefill the input.
     const platformRates = @Html.Raw(Json.Serialize(ViewBag.PlatformRates ?? new Dictionary<string, decimal>()));
 
-    // A rate is required for every currency except the base one, which converts 1:1.
+    // A rate is required for every currency except the base one, which converts 1:1 —
+    // a SYP project has nothing to convert, so the whole section stays hidden for it.
     function toggleExchangeRateSection(currency) {
         const needsRate = currency && currency !== 'SYP';
-        $('#exchangeRateRequiredMark').toggle(!!needsRate);
+        $('#exchangeRateSection').toggle(!!needsRate);
 
         if (needsRate) {
             $('#exchangeRateHint').text('(1 ' + currency + ' = ? SYP)');
@@ -1345,11 +1331,8 @@
                 setManualRateDate();
             }
         } else {
-            $('#exchangeRateHint').text('');
             $('#exchangeRateClientError').hide();
         }
-
-        updateUsdEquivalent();
     }
 
     function setManualRateDate() {
@@ -1365,7 +1348,6 @@
             setManualRateDate();
             $('#exchangeRateClientError').hide();
         }
-        updateUsdEquivalent();
     });
 
     // ===== Thousand-separator formatting for Estimated Budget =====
@@ -1451,9 +1433,6 @@
     });
     // ================================================================
 
-    // Recalculate when budget changes
-    $('[name="EstimatedBudget"]').on('input change', updateUsdEquivalent);
-
     // Arabic words conversion for the estimated budget
     function convertNumberToArabicWords(num) {
         if (!isFinite(num) || num < 1000) {
@@ -1504,24 +1483,6 @@
 
     $('[name="EstimatedBudget"]').on('input change', updateBudgetArabicWords);
     updateBudgetArabicWords();
-
-    // Courtesy hint for SYP budgets only: what the amount is worth in USD at the platform rate.
-    // Other currencies already state their own unit, so the hint would just add noise.
-    function updateUsdEquivalent() {
-        const budget = parseBudget($('[name="EstimatedBudget"]'));
-        const rate = parseFloat(platformRates['USD']);
-        if ($('#currencySelect').val() === 'SYP' && budget > 0 && rate > 0) {
-            const usd = budget / rate;
-            const formatted = usd.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            const budgetFormatted = budget.toLocaleString('en-US');
-            const rateFormatted = rate.toLocaleString('en-US');
-            $('#usdEquivalentValue').text(formatted);
-            $('#usdEquivalentFormula').text(budgetFormatted + ' SYP ÷ ' + rateFormatted + ' = ' + formatted + ' USD');
-            $('#usdEquivalentBox').show();
-        } else {
-            $('#usdEquivalentBox').hide();
-        }
-    }
 
     // Initialize exchange rate section on page load
     toggleExchangeRateSection($('#currencySelect').val());
