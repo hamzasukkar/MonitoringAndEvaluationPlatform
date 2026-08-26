@@ -82,7 +82,7 @@
     <value>أداء المشروع</value>
   </data>
   <data name="IndicatorPerformance" xml:space="preserve">
-    <value>أداء البرنامج</value>
+    <value>أداء المشروع</value>
   </data>
   <data name="HierarchyPropagation" xml:space="preserve">
     <value>انتشار التسلسل الهرمي</value>
@@ -116,7 +116,7 @@
     <value>البرنامج الفرعي</value>
   </data>
   <data name="Indicator" xml:space="preserve">
-    <value>المشاريع</value>
+    <value>المشروع</value>
   </data>
   <data name="Project" xml:space="preserve">
     <value>المشروع</value>
@@ -224,7 +224,7 @@
     <value>المؤشرات غير المرتبطة بأي مشروع تأخذ أداءً افتراضيًا قدره 0 وتُستثنى من المتوسطات المرجحة في المستويات الأعلى.</value>
   </data>
   <data name="IndicatorCalcDetail3" xml:space="preserve">
-    <value>تُستخدم أوزان المؤشرات على مستوى البرنامج الفرعي لحساب المتوسط المرجح عبر المؤشرات.</value>
+    <value>تُستخدم أوزان المشاريع على مستوى البرنامج الفرعي لحساب المتوسط المرجح عبر المشاريع.</value>
   </data>
   <!-- Hierarchy Propagation Section -->
   <data name="HierarchyPropagationIntro" xml:space="preserve">
@@ -373,7 +373,7 @@
     <value>المتوسط البسيط</value>
   </data>
   <data name="IndicatorDetails" xml:space="preserve">
-    <value>صفحة تفاصيل البرامج</value>
+    <value>صفحة تفاصيل المشاريع</value>
   </data>
   <data name="CumulativeSum" xml:space="preserve">
     <value>المجموع التراكمي</value>
