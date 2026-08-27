@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Projects" xml:space="preserve">
+    <value>Projects</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Back to Project" xml:space="preserve">
+    <value>Back to Project</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Target</value>
+  </data>
+  <data name="Achieved" xml:space="preserve">
+    <value>Achieved</value>
+  </data>
+  <data name="Achievement Rate" xml:space="preserve">
+    <value>Achievement Rate</value>
+  </data>
+  <data name="Remaining to Target" xml:space="preserve">
+    <value>Remaining to Target</value>
+  </data>
+  <data name="Indicator Information" xml:space="preserve">
+    <value>Indicator Information</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>Period</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="Not specified" xml:space="preserve">
+    <value>Not specified</value>
+  </data>
+  <data name="Achievements Recorded" xml:space="preserve">
+    <value>Achievements Recorded</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="How the rate is calculated" xml:space="preserve">
+    <value>How the rate is calculated</value>
+  </data>
+  <data name="Impact indicators are measured separately from project execution — they do not affect project performance or the results framework." xml:space="preserve">
+    <value>Impact indicators are measured separately from project execution — they do not affect project performance or the results framework.</value>
+  </data>
+  <data name="Achievements" xml:space="preserve">
+    <value>Achievements</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>Note</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>Optional</value>
+  </data>
+  <data name="Record" xml:space="preserve">
+    <value>Record</value>
+  </data>
+  <data name="Cumulative" xml:space="preserve">
+    <value>Cumulative</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Total Achieved" xml:space="preserve">
+    <value>Total Achieved</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Delete this achievement?" xml:space="preserve">
+    <value>Delete this achievement?</value>
+  </data>
+  <data name="No Achievements Yet" xml:space="preserve">
+    <value>No Achievements Yet</value>
+  </data>
+  <data name="Record the first achievement to start tracking this indicator." xml:space="preserve">
+    <value>Record the first achievement to start tracking this indicator.</value>
+  </data>
+  <data name="Danger Zone" xml:space="preserve">
+    <value>Danger Zone</value>
+  </data>
+  <data name="Deleting this indicator also deletes all of its recorded achievements." xml:space="preserve">
+    <value>Deleting this indicator also deletes all of its recorded achievements.</value>
+  </data>
+  <data name="Delete this indicator and all its achievements? This cannot be undone." xml:space="preserve">
+    <value>Delete this indicator and all its achievements? This cannot be undone.</value>
+  </data>
+  <data name="Delete Indicator" xml:space="preserve">
+    <value>Delete Indicator</value>
+  </data>
+  <data name="Edit Achievement" xml:space="preserve">
+    <value>Edit Achievement</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Save Changes" xml:space="preserve">
+    <value>Save Changes</value>
+  </data>
+</root>

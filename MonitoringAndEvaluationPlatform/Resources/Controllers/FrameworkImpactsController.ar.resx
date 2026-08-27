@@ -58,32 +58,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
-  <data name="Ministries &amp; Strategies" xml:space="preserve">
-    <value>استراتيجية التنمية الوطنية</value>
+  <data name="Impact target created successfully." xml:space="preserve">
+    <value>تم إنشاء هدف الأثر بنجاح.</value>
   </data>
-  <data name="Search..." xml:space="preserve">
-    <value>بحث...</value>
+  <data name="Impact target updated successfully." xml:space="preserve">
+    <value>تم تحديث هدف الأثر بنجاح.</value>
   </data>
-  <data name="FrameworkGoals" xml:space="preserve">
-    <value>الأهداف المقاسة</value>
+  <data name="Impact target deleted. The indicators themselves were not affected." xml:space="preserve">
+    <value>تم حذف هدف الأثر. المؤشرات نفسها لم تتأثر.</value>
   </data>
-  <data name="Outcomes" xml:space="preserve">
-    <value>السياسات</value>
+  <data name="Target year must be after the baseline year." xml:space="preserve">
+    <value>يجب أن تكون سنة الهدف بعد سنة الأساس.</value>
   </data>
-  <data name="Outputs" xml:space="preserve">
-    <value>برامج</value>
+  <data name="{0} indicator(s) linked. Weights were redistributed equally." xml:space="preserve">
+    <value>تم ربط {0} مؤشر. وأُعيد توزيع الأوزان بالتساوي.</value>
   </data>
-  <data name="SubOutputs" xml:space="preserve">
-    <value>برامج فرعية</value>
+  <data name="No weight data provided." xml:space="preserve">
+    <value>لم تُرسل أي بيانات أوزان.</value>
   </data>
-  <data name="Indicators" xml:space="preserve">
-    <value>المشاريع</value>
+  <data name="All weights must be non-negative." xml:space="preserve">
+    <value>يجب أن تكون كل الأوزان غير سالبة.</value>
   </data>
-  <data name="Indicators &amp; Projects Table" xml:space="preserve">
-    <value>جدول المشاريع</value>
+  <data name="Weights must sum to exactly 100. Current sum: {0}." xml:space="preserve">
+    <value>يجب أن يكون مجموع الأوزان 100 بالضبط. المجموع الحالي: {0}.</value>
   </data>
-  <data name="Impact Indicators Measurement" xml:space="preserve">
-    <value>قياس مؤشرات الأثر</value>
+  <data name="Weights updated successfully." xml:space="preserve">
+    <value>تم تحديث الأوزان بنجاح.</value>
   </data>
 </root>

@@ -1,0 +1,307 @@
+@model MonitoringAndEvaluationPlatform.Models.FrameworkImpact
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@inject IAuthorizationService Auth
+@{
+    ViewData["Title"] = "Impact Target";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var canModify = (await Auth.AuthorizeAsync(User, Permissions.ModifyStrategy)).Succeeded;
+    var links = (Model.Indicators ?? new List<FrameworkImpactIndicator>())
+        .OrderByDescending(l => l.Weight).ThenBy(l => l.ImpactIndicator.Name).ToList();
+    var unit = string.IsNullOrWhiteSpace(Model.Unit) ? "" : Model.Unit;
+    var weightSum = links.Sum(l => l.Weight);
+}
+
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", new { frameworkCode = Model.FrameworkCode })" class="breadcrumb-link">
+                    <i class="fas fa-chart-pie"></i>@Localizer["Impact Indicators Measurement"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Model.Name</span>
+            </div>
+            <h1 class="dashboard-title">@Model.Name</h1>
+        </div>
+        <div class="header-actions d-flex gap-2">
+            @if (canModify)
+            {
+                <a href="@Url.Action("SelectIndicators", new { id = Model.Id })" class="impact-btn primary">
+                    <i class="fas fa-link me-2"></i>@Localizer["Select Indicators"]
+                </a>
+                <a href="@Url.Action("Edit", new { id = Model.Id })" class="impact-btn secondary">
+                    <i class="fas fa-edit me-2"></i>@Localizer["Edit"]
+                </a>
+            }
+            <a href="@Url.Action("Index", new { frameworkCode = Model.FrameworkCode })" class="impact-btn secondary">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- ═══════════════════ SUMMARY ═══════════════════ -->
+    <div class="impact-summary">
+        <div class="impact-tile">
+            <div class="impact-tile-icon target"><i class="fas fa-flag"></i></div>
+            <div>
+                <div class="impact-tile-label">@Localizer["Baseline"] · @Model.BaselineYear</div>
+                <div class="impact-tile-value">
+                    @Model.BaselineValue.ToString("N0")<span class="impact-tile-unit">@unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="impact-tile">
+            <div class="impact-tile-icon achieved"><i class="fas fa-bullseye"></i></div>
+            <div>
+                <div class="impact-tile-label">@Localizer["Target"] · @Model.TargetYear</div>
+                <div class="impact-tile-value">
+                    @Model.TargetValue.ToString("N0")<span class="impact-tile-unit">@unit</span>
+                </div>
+            </div>
+        </div>
+        <div class="impact-tile">
+            <div class="impact-tile-icon rate"><i class="fas fa-percent"></i></div>
+            <div>
+                <div class="impact-tile-label">@Localizer["Weighted Achievement Rate"]</div>
+                <div class="impact-tile-value">
+                    @(links.Any() ? Model.WeightedAchievementRate.ToString("0.#") + "%" : "—")
+                </div>
+            </div>
+        </div>
+        <div class="impact-tile">
+            <div class="impact-tile-icon remaining"><i class="fas fa-link"></i></div>
+            <div>
+                <div class="impact-tile-label">@Localizer["Linked Indicators"]</div>
+                <div class="impact-tile-value">@links.Count</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════ TARGET INFO ═══════════════════ -->
+    <div class="chart-card mb-4">
+        <h3 class="chart-title">
+            <i class="fas fa-info-circle me-2"></i>@Localizer["Target Information"]
+        </h3>
+        <div class="chart-content">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="impact-tile-label">@Localizer["Strategy"]</div>
+                    <div>@Model.Framework?.Name</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="impact-tile-label">@Localizer["Period"]</div>
+                    <div>@Model.BaselineYear – @Model.TargetYear (@Model.YearSpan @Localizer["years"])</div>
+                </div>
+                <div class="col-md-4">
+                    <div class="impact-tile-label">@Localizer["Direction"]</div>
+                    <div>
+                        @if (Model.IsIncreaseTarget)
+                        {
+                            <span class="text-success"><i class="fas fa-arrow-up me-1"></i>@Localizer["Increase"]</span>
+                        }
+                        else
+                        {
+                            <span class="text-info"><i class="fas fa-arrow-down me-1"></i>@Localizer["Decrease"]</span>
+                        }
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="impact-tile-label">@Localizer["Progress"]</div>
+                    <partial name="_WeightedRate" model="Model" />
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <div class="col-12">
+                        <div class="impact-tile-label">@Localizer["Description"]</div>
+                        <div>@Model.Description</div>
+                    </div>
+                }
+            </div>
+
+            <div class="alert alert-light border mt-3 mb-0 small">
+                <i class="fas fa-calculator me-1"></i>
+                <strong>@Localizer["How the rate is calculated"]:</strong>
+                @Localizer["Weighted Achievement Rate"] = Σ(@Localizer["indicator rate"] × @Localizer["weight"]) ÷ Σ(@Localizer["weight"])
+                <br />
+                <span class="text-muted">
+                    @Localizer["The baseline and target values are recorded separately and are not yet linked to this rate — that decision is still open."]
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════ LINKED INDICATORS ═══════════════════ -->
+    <div class="chart-card mb-4">
+        <h3 class="chart-title">
+            <i class="fas fa-list-check me-2"></i>@Localizer["Linked Indicators"]
+        </h3>
+        <div class="chart-content">
+            @if (links.Any())
+            {
+                <div class="modern-table-container">
+                    <table class="modern-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th>#</th>
+                                <th><i class="fas fa-tag me-1"></i>@Localizer["Indicator"]</th>
+                                <th><i class="fas fa-project-diagram me-1"></i>@Localizer["Project"]</th>
+                                <th class="text-center"><i class="fas fa-weight me-1"></i>@Localizer["Weight"] %</th>
+                                <th style="min-width:170px"><i class="fas fa-percent me-1"></i>@Localizer["Value"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int idx = 0; }
+                            @foreach (var link in links)
+                            {
+                                idx++;
+                                var ind = link.ImpactIndicator;
+                                <tr class="table-row">
+                                    <td>@idx</td>
+                                    <td>
+                                        <a href="@Url.Action("Details", "ImpactIndicators", new { id = ind.Id })"
+                                           class="fw-bold text-decoration-none">@ind.Name</a>
+                                        <div class="text-muted small">
+                                            @ind.AchievedValue.ToString("N0") / @ind.TargetValue.ToString("N0") @ind.Unit
+                                        </div>
+                                    </td>
+                                    <td class="text-muted small">@ind.Project?.ProjectName</td>
+                                    <td class="text-center">
+                                        @if (canModify)
+                                        {
+                                            <div class="input-group input-group-sm" style="width:110px;margin:0 auto;">
+                                                <input type="number" step="0.01" min="0" max="100"
+                                                       class="form-control link-weight-input"
+                                                       data-link-id="@link.Id"
+                                                       value="@link.Weight.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)" />
+                                                <span class="input-group-text">%</span>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="modern-badge badge-primary">@link.Weight.ToString("0.##")%</span>
+                                        }
+                                    </td>
+                                    <td><partial name="_ImpactRate" model="ind" /></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-row fw-bold" style="border-top:2px solid var(--primary-color);">
+                                <td colspan="3" class="text-end">@Localizer["Total"]</td>
+                                <td class="text-center">
+                                    <span id="weight-sum">@weightSum.ToString("0.##")</span>%
+                                </td>
+                                <td>@Model.WeightedAchievementRate.ToString("0.#")%</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                @if (canModify)
+                {
+                    <div class="mt-3 p-3 bg-light rounded border d-flex align-items-center gap-3 flex-wrap">
+                        <button id="save-weights-btn" class="btn btn-sm btn-primary" onclick="saveWeights(@Model.Id)">
+                            <i class="fas fa-save me-1"></i>@Localizer["Save Weights"]
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="distributeEvenly()">
+                            <i class="fas fa-balance-scale me-1"></i>@Localizer["Distribute Evenly"]
+                        </button>
+                        <span class="small text-muted">@Localizer["Weights must sum to 100."]</span>
+                        <span id="weight-status" class="small"></span>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-link"></i></div>
+                    <h5 class="empty-title">@Localizer["No Indicators Linked Yet"]</h5>
+                    <p class="empty-text">@Localizer["Select impact indicators from this strategy's projects to drive this target."]</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script>
+        function inputs() { return Array.from(document.querySelectorAll('.link-weight-input')); }
+
+        function recalcSum() {
+            var sum = inputs().reduce(function (a, el) { return a + (parseFloat(el.value) || 0); }, 0);
+            var el = document.getElementById('weight-sum');
+            if (el) el.textContent = sum.toFixed(2);
+
+            var btn = document.getElementById('save-weights-btn');
+            var ok = Math.abs(sum - 100) < 0.01;
+            if (btn) btn.disabled = !ok;
+
+            var status = document.getElementById('weight-status');
+            if (status) {
+                status.textContent = ok ? '' : '@Localizer["Sum must be 100"]' + ' (' + sum.toFixed(2) + ')';
+                status.className = 'small ' + (ok ? 'text-success' : 'text-danger');
+            }
+        }
+
+        function distributeEvenly() {
+            var els = inputs();
+            if (!els.length) return;
+            var each = Math.round((100 / els.length) * 100) / 100;
+            els.forEach(function (el) { el.value = each.toFixed(2); });
+            // Absorb the rounding remainder in the last row so the total is exactly 100.
+            var sum = els.reduce(function (a, el) { return a + parseFloat(el.value); }, 0);
+            els[els.length - 1].value = (parseFloat(els[els.length - 1].value) + (100 - sum)).toFixed(2);
+            recalcSum();
+        }
+
+        function saveWeights(impactId) {
+            var payload = {
+                impactId: impactId,
+                links: inputs().map(function (el) {
+                    return { linkId: parseInt(el.dataset.linkId, 10), weight: parseFloat(el.value) || 0 };
+                })
+            };
+            var status = document.getElementById('weight-status');
+            fetch('@Url.Action("UpdateWeights")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(function (r) { return r.json().then(function (b) { return { ok: r.ok, body: b }; }); })
+            .then(function (res) {
+                if (res.ok) { location.reload(); }
+                else { status.textContent = res.body.message; status.className = 'small text-danger'; }
+            })
+            .catch(function () {
+                status.textContent = '@Localizer["Could not save the weights."]';
+                status.className = 'small text-danger';
+            });
+        }
+
+        inputs().forEach(function (el) { el.addEventListener('input', recalcSum); });
+        recalcSum();
+    </script>
+    @Html.AntiForgeryToken()
+}

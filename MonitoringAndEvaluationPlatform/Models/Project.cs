@@ -113,6 +113,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Indicators linked directly to this project (one-to-many, replacing the old many-to-many via ProjectIndicator)
         public virtual ICollection<Indicator> Indicators { get; set; } = new List<Indicator>();
 
+        // Impact indicators — a parallel measurement track that does not feed `performance`
+        public virtual ICollection<ImpactIndicator> ImpactIndicators { get; set; } = new List<ImpactIndicator>();
+
         [NotMapped]
         public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();
         public ICollection<ProjectFile> ProjectFiles { get; set; } = new List<ProjectFile>();

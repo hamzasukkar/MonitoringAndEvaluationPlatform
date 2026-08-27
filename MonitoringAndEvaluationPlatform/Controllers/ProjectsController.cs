@@ -1030,6 +1030,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Phases)
                     .ThenInclude(pp => pp.ActionPlan)
                         .ThenInclude(ap => ap.Plans)
+                .Include(p => p.ImpactIndicators)
                 .Include(p => p.ProjectFiles)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ProjectID == id);

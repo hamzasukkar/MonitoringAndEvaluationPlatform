@@ -1,0 +1,85 @@
+@model MonitoringAndEvaluationPlatform.Models.ImpactIndicator
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@*
+    The field set shared by Create and Edit. The enclosing <form>, hidden keys and submit
+    button belong to the calling view.
+*@
+@{
+    var project = ViewBag.Project as MonitoringAndEvaluationPlatform.Models.Project;
+
+    // Bound the date pickers to the project's window so an out-of-range date cannot be
+    // picked in the first place. The server still enforces it in ValidateIndicatorDates —
+    // this only saves the user a round trip. Razor omits the attribute when the value is null.
+    var minDate = project?.StartDate.ToString("yyyy-MM-dd");
+    var maxDate = project?.EndDate.ToString("yyyy-MM-dd");
+}
+
+<div asp-validation-summary="All" class="impact-validation"></div>
+
+<div class="impact-grid">
+    <div class="impact-field full">
+        <label asp-for="Name" class="impact-label">
+            <i class="fas fa-tag"></i>@Localizer["Indicator Name"] *
+        </label>
+        <input asp-for="Name" class="impact-input" autofocus
+               placeholder="@Localizer["e.g. Schools rehabilitated"]" />
+        <span asp-validation-for="Name" class="impact-error"></span>
+    </div>
+
+    <div class="impact-field">
+        <label asp-for="TargetValue" class="impact-label">
+            <i class="fas fa-bullseye"></i>@Localizer["Target Value"] *
+        </label>
+        <input asp-for="TargetValue" type="number" step="any" min="0.0001" class="impact-input" placeholder="120" />
+        <span asp-validation-for="TargetValue" class="impact-error"></span>
+        <div class="impact-hint">@Localizer["The total amount this indicator aims to reach."]</div>
+    </div>
+
+    <div class="impact-field">
+        <label asp-for="Unit" class="impact-label">
+            <i class="fas fa-ruler"></i>@Localizer["Unit"]
+        </label>
+        <input asp-for="Unit" class="impact-input" maxlength="100"
+               placeholder="@Localizer["e.g. school, km, beneficiary"]" />
+        <span asp-validation-for="Unit" class="impact-error"></span>
+        <div class="impact-hint">@Localizer["Without a unit the target and achieved numbers are hard to read in reports."]</div>
+    </div>
+
+    <div class="impact-field">
+        <label asp-for="StartDate" class="impact-label">
+            <i class="fas fa-calendar-plus"></i>@Localizer["Start Date"] *
+        </label>
+        <input asp-for="StartDate" type="date" class="impact-input"
+               value="@Model.StartDate.ToString("yyyy-MM-dd")"
+               min="@minDate" max="@maxDate" />
+        <span asp-validation-for="StartDate" class="impact-error"></span>
+        @if (project != null)
+        {
+            <div class="impact-hint">@Localizer["Must be on or after"] @project.StartDate.ToString("dd/MM/yyyy")</div>
+        }
+    </div>
+
+    <div class="impact-field">
+        <label asp-for="EndDate" class="impact-label">
+            <i class="fas fa-calendar-minus"></i>@Localizer["End Date"] *
+        </label>
+        <input asp-for="EndDate" type="date" class="impact-input"
+               value="@Model.EndDate.ToString("yyyy-MM-dd")"
+               min="@minDate" max="@maxDate" />
+        <span asp-validation-for="EndDate" class="impact-error"></span>
+        @if (project != null)
+        {
+            <div class="impact-hint">@Localizer["Must be on or before"] @project.EndDate.ToString("dd/MM/yyyy")</div>
+        }
+    </div>
+
+    <div class="impact-field full">
+        <label asp-for="Description" class="impact-label">
+            <i class="fas fa-align-left"></i>@Localizer["Description"]
+        </label>
+        <textarea asp-for="Description" class="impact-input" rows="3"
+                  placeholder="@Localizer["What this indicator measures and how it is computed"]"></textarea>
+        <span asp-validation-for="Description" class="impact-error"></span>
+    </div>
+</div>

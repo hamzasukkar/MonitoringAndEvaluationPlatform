@@ -24,5 +24,9 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Navigation property for related Goals
         public ICollection<FrameworkGoal> Goals { get; set; } = new List<FrameworkGoal>();
 
+        // Impact targets driven by weighted project-level ImpactIndicators. Separate from Goals,
+        // whose current value is entered by hand rather than computed.
+        public ICollection<FrameworkImpact> Impacts { get; set; } = new List<FrameworkImpact>();
+
     }
 }

@@ -58,32 +58,46 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
-  <data name="Ministries &amp; Strategies" xml:space="preserve">
-    <value>استراتيجية التنمية الوطنية</value>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
   </data>
-  <data name="Search..." xml:space="preserve">
-    <value>بحث...</value>
+  <data name="e.g. Health coverage rate" xml:space="preserve">
+    <value>e.g. Health coverage rate</value>
   </data>
-  <data name="FrameworkGoals" xml:space="preserve">
-    <value>الأهداف المقاسة</value>
+  <data name="Baseline Year" xml:space="preserve">
+    <value>Baseline Year</value>
   </data>
-  <data name="Outcomes" xml:space="preserve">
-    <value>السياسات</value>
+  <data name="Baseline Value" xml:space="preserve">
+    <value>Baseline Value</value>
   </data>
-  <data name="Outputs" xml:space="preserve">
-    <value>برامج</value>
+  <data name="Where this measure stood in the baseline year." xml:space="preserve">
+    <value>Where this measure stood in the baseline year.</value>
   </data>
-  <data name="SubOutputs" xml:space="preserve">
-    <value>برامج فرعية</value>
+  <data name="Target Year" xml:space="preserve">
+    <value>Target Year</value>
   </data>
-  <data name="Indicators" xml:space="preserve">
-    <value>المشاريع</value>
+  <data name="Must be after the baseline year." xml:space="preserve">
+    <value>Must be after the baseline year.</value>
   </data>
-  <data name="Indicators &amp; Projects Table" xml:space="preserve">
-    <value>جدول المشاريع</value>
+  <data name="Target Value" xml:space="preserve">
+    <value>Target Value</value>
   </data>
-  <data name="Impact Indicators Measurement" xml:space="preserve">
-    <value>قياس مؤشرات الأثر</value>
+  <data name="Where it should stand in the target year." xml:space="preserve">
+    <value>Where it should stand in the target year.</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="e.g. %, km, beneficiary" xml:space="preserve">
+    <value>e.g. %, km, beneficiary</value>
+  </data>
+  <data name="Without a unit, &quot;from 20 to 80&quot; is hard to read in reports." xml:space="preserve">
+    <value>Without a unit, "from 20 to 80" is hard to read in reports.</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="What this impact target means and how it is judged" xml:space="preserve">
+    <value>What this impact target means and how it is judged</value>
   </data>
 </root>

@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Impact Indicators Measurement" xml:space="preserve">
+    <value>قياس مؤشرات الأثر</value>
+  </data>
+  <data name="Select Indicators" xml:space="preserve">
+    <value>اختيار المؤشرات</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Back" xml:space="preserve">
+    <value>رجوع</value>
+  </data>
+  <data name="Baseline" xml:space="preserve">
+    <value>الأساس</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="Weighted Achievement Rate" xml:space="preserve">
+    <value>نسبة الإنجاز المرجّحة</value>
+  </data>
+  <data name="Linked Indicators" xml:space="preserve">
+    <value>المؤشرات المرتبطة</value>
+  </data>
+  <data name="Target Information" xml:space="preserve">
+    <value>معلومات الهدف</value>
+  </data>
+  <data name="Strategy" xml:space="preserve">
+    <value>الاستراتيجية</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>الفترة</value>
+  </data>
+  <data name="years" xml:space="preserve">
+    <value>سنة</value>
+  </data>
+  <data name="Direction" xml:space="preserve">
+    <value>الاتجاه</value>
+  </data>
+  <data name="Increase" xml:space="preserve">
+    <value>زيادة</value>
+  </data>
+  <data name="Decrease" xml:space="preserve">
+    <value>نقصان</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>التقدم</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="How the rate is calculated" xml:space="preserve">
+    <value>كيف تُحتسب النسبة</value>
+  </data>
+  <data name="indicator rate" xml:space="preserve">
+    <value>نسبة المؤشر</value>
+  </data>
+  <data name="weight" xml:space="preserve">
+    <value>الوزن</value>
+  </data>
+  <data name="The baseline and target values are recorded separately and are not yet linked to this rate — that decision is still open." xml:space="preserve">
+    <value>قيمة الأساس وقيمة الهدف مسجّلتان بشكل منفصل وغير مرتبطتين بهذه النسبة حسابياً بعد — القرار ما زال مفتوحاً.</value>
+  </data>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>المشروع</value>
+  </data>
+  <data name="Weight" xml:space="preserve">
+    <value>الوزن</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>القيمة</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>المجموع</value>
+  </data>
+  <data name="Save Weights" xml:space="preserve">
+    <value>حفظ الأوزان</value>
+  </data>
+  <data name="Distribute Evenly" xml:space="preserve">
+    <value>توزيع متساوٍ</value>
+  </data>
+  <data name="Weights must sum to 100." xml:space="preserve">
+    <value>يجب أن يكون مجموع الأوزان 100.</value>
+  </data>
+  <data name="Sum must be 100" xml:space="preserve">
+    <value>المجموع يجب أن يساوي 100</value>
+  </data>
+  <data name="Could not save the weights." xml:space="preserve">
+    <value>تعذّر حفظ الأوزان.</value>
+  </data>
+  <data name="No Indicators Linked Yet" xml:space="preserve">
+    <value>لا توجد مؤشرات مرتبطة بعد</value>
+  </data>
+  <data name="Select impact indicators from this strategy's projects to drive this target." xml:space="preserve">
+    <value>اختر مؤشرات أثر من مشاريع هذه الاستراتيجية لتحريك هذا الهدف.</value>
+  </data>
+</root>

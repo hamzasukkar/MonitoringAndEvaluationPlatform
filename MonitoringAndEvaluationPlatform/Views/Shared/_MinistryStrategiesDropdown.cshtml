@@ -104,6 +104,11 @@
                                     </a>
                                 </li>
                                 <li>
+                                    <a class="dropdown-item" asp-controller="FrameworkImpacts" asp-action="Index" asp-route-frameworkCode="@framework.Code">
+                                        <i class="fas fa-chart-pie"></i>@Localizer["Impact Indicators Measurement"]
+                                    </a>
+                                </li>
+                                <li>
                                     <a class="dropdown-item" asp-controller="Outcomes" asp-action="Index" asp-route-frameworkCode="@framework.Code">
                                         <i class="fas fa-bullseye"></i>@Localizer["Outcomes"]
                                     </a>

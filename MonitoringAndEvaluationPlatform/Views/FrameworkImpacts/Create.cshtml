@@ -1,0 +1,82 @@
+@model MonitoringAndEvaluationPlatform.Models.FrameworkImpact
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "New Impact Target";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var framework = ViewBag.Framework as MonitoringAndEvaluationPlatform.Models.Framework;
+}
+
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                @if (framework != null)
+                {
+                    <a href="@Url.Action("Index", new { frameworkCode = framework.Code })" class="breadcrumb-link">
+                        <i class="fas fa-chart-pie"></i>@Localizer["Impact Indicators Measurement"]
+                    </a>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                }
+                <span class="current-page">@Localizer["New Impact Target"]</span>
+            </div>
+            <h1 class="dashboard-title">@Localizer["New Impact Target"]</h1>
+        </div>
+        @if (framework != null)
+        {
+            <div class="header-actions">
+                <a href="@Url.Action("Index", new { frameworkCode = framework.Code })" class="impact-btn secondary">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="impact-form-section">
+    <div class="impact-form-card">
+        <div class="impact-form-header">
+            <div class="impact-form-icon"><i class="fas fa-chart-pie"></i></div>
+            <div>
+                <h3 class="impact-form-title">@Localizer["Impact Target Details"]</h3>
+                <p class="impact-form-subtitle">@(framework?.Name ?? "")</p>
+            </div>
+        </div>
+
+        <div class="impact-form-body">
+            <form asp-action="Create" method="post" id="impactForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="FrameworkCode" />
+
+                <partial name="_ImpactForm" model="Model" />
+
+                <div class="impact-actions">
+                    @if (framework != null)
+                    {
+                        <a href="@Url.Action("Index", new { frameworkCode = framework.Code })" class="impact-btn secondary">
+                            <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                        </a>
+                    }
+                    <button type="submit" class="impact-btn primary" id="submitBtn">
+                        <i class="fas fa-save me-2"></i>@Localizer["Create"]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('impactForm').addEventListener('submit', function () {
+            var btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Saving..."]';
+        });
+    </script>
+}

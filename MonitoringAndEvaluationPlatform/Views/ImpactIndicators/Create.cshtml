@@ -1,0 +1,91 @@
+@model MonitoringAndEvaluationPlatform.Models.ImpactIndicator
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Create Impact Indicator";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var project = ViewBag.Project as MonitoringAndEvaluationPlatform.Models.Project;
+}
+
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Projects")" class="breadcrumb-link">
+                    <i class="fas fa-project-diagram"></i>@Localizer["Projects"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                @if (project != null)
+                {
+                    <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="breadcrumb-link">
+                        @project.ProjectName
+                    </a>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                }
+                <span class="current-page">@Localizer["New Impact Indicator"]</span>
+            </div>
+            <h1 class="dashboard-title">@Localizer["New Impact Indicator"]</h1>
+        </div>
+        @if (project != null)
+        {
+            <div class="header-actions">
+                <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="impact-btn secondary">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Project"]
+                </a>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="impact-form-section">
+    <div class="impact-form-card">
+        <div class="impact-form-header">
+            <div class="impact-form-icon"><i class="fas fa-bullseye"></i></div>
+            <div>
+                <h3 class="impact-form-title">@Localizer["Indicator Details"]</h3>
+                <p class="impact-form-subtitle">
+                    @if (project != null)
+                    {
+                        @project.ProjectName
+                    }
+                </p>
+            </div>
+        </div>
+
+        <div class="impact-form-body">
+            <form asp-action="Create" method="post" id="impactForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ProjectID" />
+
+                <partial name="_IndicatorForm" model="Model" />
+
+                <div class="impact-actions">
+                    @if (project != null)
+                    {
+                        <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="impact-btn secondary">
+                            <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                        </a>
+                    }
+                    <button type="submit" class="impact-btn primary" id="submitBtn">
+                        <i class="fas fa-save me-2"></i>@Localizer["Create Indicator"]
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('impactForm').addEventListener('submit', function () {
+            var btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>@Localizer["Saving..."]';
+        });
+    </script>
+}

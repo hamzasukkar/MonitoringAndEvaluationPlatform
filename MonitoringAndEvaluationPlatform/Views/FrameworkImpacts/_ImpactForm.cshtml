@@ -1,0 +1,74 @@
+@model MonitoringAndEvaluationPlatform.Models.FrameworkImpact
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@*
+    The field set shared by Create and Edit. The enclosing <form>, hidden keys and submit
+    button belong to the calling view.
+*@
+
+<div asp-validation-summary="All" class="impact-validation"></div>
+
+<div class="impact-grid">
+    <div class="impact-field full">
+        <label asp-for="Name" class="impact-label">
+            <i class="fas fa-tag"></i>@Localizer["Name"] *
+        </label>
+        <input asp-for="Name" class="impact-input" autofocus
+               placeholder="@Localizer["e.g. Health coverage rate"]" />
+        <span asp-validation-for="Name" class="impact-error"></span>
+    </div>
+
+    <div class="impact-field">
+        <label asp-for="BaselineYear" class="impact-label">
+            <i class="fas fa-calendar-plus"></i>@Localizer["Baseline Year"] *
+        </label>
+        <input asp-for="BaselineYear" type="number" min="1900" max="2200" step="1" class="impact-input" />
+        <span asp-validation-for="BaselineYear" class="impact-error"></span>
+    </div>
+
+    <div class="impact-field">
+        <label asp-for="BaselineValue" class="impact-label">
+            <i class="fas fa-flag"></i>@Localizer["Baseline Value"] *
+        </label>
+        <input asp-for="BaselineValue" type="number" step="any" class="impact-input" placeholder="20" />
+        <span asp-validation-for="BaselineValue" class="impact-error"></span>
+        <div class="impact-hint">@Localizer["Where this measure stood in the baseline year."]</div>
+    </div>
+
+    <div class="impact-field">
+        <label asp-for="TargetYear" class="impact-label">
+            <i class="fas fa-calendar-check"></i>@Localizer["Target Year"] *
+        </label>
+        <input asp-for="TargetYear" type="number" min="1900" max="2200" step="1" class="impact-input" />
+        <span asp-validation-for="TargetYear" class="impact-error"></span>
+        <div class="impact-hint">@Localizer["Must be after the baseline year."]</div>
+    </div>
+
+    <div class="impact-field">
+        <label asp-for="TargetValue" class="impact-label">
+            <i class="fas fa-bullseye"></i>@Localizer["Target Value"] *
+        </label>
+        <input asp-for="TargetValue" type="number" step="any" class="impact-input" placeholder="80" />
+        <span asp-validation-for="TargetValue" class="impact-error"></span>
+        <div class="impact-hint">@Localizer["Where it should stand in the target year."]</div>
+    </div>
+
+    <div class="impact-field full">
+        <label asp-for="Unit" class="impact-label">
+            <i class="fas fa-ruler"></i>@Localizer["Unit"]
+        </label>
+        <input asp-for="Unit" class="impact-input" maxlength="100"
+               placeholder="@Localizer["e.g. %, km, beneficiary"]" />
+        <span asp-validation-for="Unit" class="impact-error"></span>
+        <div class="impact-hint">@Localizer["Without a unit, \"from 20 to 80\" is hard to read in reports."]</div>
+    </div>
+
+    <div class="impact-field full">
+        <label asp-for="Description" class="impact-label">
+            <i class="fas fa-align-left"></i>@Localizer["Description"]
+        </label>
+        <textarea asp-for="Description" class="impact-input" rows="3"
+                  placeholder="@Localizer["What this impact target means and how it is judged"]"></textarea>
+        <span asp-validation-for="Description" class="impact-error"></span>
+    </div>
+</div>

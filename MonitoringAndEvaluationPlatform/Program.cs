@@ -93,6 +93,7 @@ builder.Services.AddScoped<MonitoringService>();
 builder.Services.AddScoped<PlanService>();
 builder.Services.AddScoped<IPerformanceService, PerformanceService>();
 builder.Services.AddScoped<IndicatorProjectPairService>();
+builder.Services.AddScoped<ImpactIndicatorService>();
 builder.Services.AddScoped<IProjectValidationService, ProjectValidationService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditService, AuditService>();

@@ -1,0 +1,319 @@
+/* Impact indicators — shared styles for the ImpactIndicators views and the
+   "Impact Measurement" section on the project details page.
+
+   Layout chrome (.dashboard-header, .chart-card, .chart-title) comes from
+   _DashboardHomeLayout.cshtml; tables and badges come from project-details.css.
+   Only what is genuinely new to impact indicators lives here. */
+
+/* ── Achievement rate bar ─────────────────────────────────────────────── */
+
+.rate-bar {
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    min-width: 90px;
+}
+
+.rate-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    transition: width .3s ease;
+}
+
+/* Behind schedule / near target / target met keep the same colour language as
+   ProgressBarHelper.GetBadgeClass so a row reads consistently. */
+.rate-bar-fill.low { background: linear-gradient(90deg, #dc3545, #c82333); }
+.rate-bar-fill.mid { background: linear-gradient(90deg, #fd7e14, #e96700); }
+.rate-bar-fill.over { background: linear-gradient(90deg, #0d6efd, #0a58ca); }
+
+.rate-value {
+    font-weight: 700;
+    font-size: .95rem;
+    white-space: nowrap;
+}
+
+/* ── Summary tiles on the indicator details page ──────────────────────── */
+
+.impact-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.impact-tile {
+    background: rgba(255, 255, 255, .95);
+    border-radius: 15px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .08);
+    border: 1px solid rgba(0, 0, 0, .05);
+    transition: all .3s ease;
+}
+
+.impact-tile:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, .12);
+}
+
+.impact-tile-icon {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #fff;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+}
+
+.impact-tile-icon.target { background: linear-gradient(135deg, #6f42c1, #59359a); }
+.impact-tile-icon.achieved { background: linear-gradient(135deg, #28a745, #1e7e34); }
+.impact-tile-icon.rate { background: linear-gradient(135deg, #17a2b8, #138496); }
+.impact-tile-icon.remaining { background: linear-gradient(135deg, #fd7e14, #e96700); }
+
+.impact-tile-label {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: .25rem;
+}
+
+.impact-tile-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.impact-tile-unit {
+    font-size: .85rem;
+    font-weight: 500;
+    color: #6c757d;
+    margin-left: .25rem;
+}
+
+/* ── Create / Edit form ───────────────────────────────────────────────── */
+
+.impact-form-section {
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.impact-form-card {
+    background: rgba(255, 255, 255, .97);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, .1);
+}
+
+.impact-form-header {
+    background: linear-gradient(135deg, #6f42c1 0%, #59359a 100%);
+    padding: 2rem;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.impact-form-icon {
+    width: 55px;
+    height: 55px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, .2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+}
+
+.impact-form-title {
+    margin: 0 0 .25rem 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.impact-form-subtitle {
+    margin: 0;
+    opacity: .85;
+    font-size: .95rem;
+}
+
+.impact-form-body {
+    padding: 2rem;
+}
+
+.impact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.impact-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.impact-field.full {
+    grid-column: 1 / -1;
+}
+
+.impact-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: .5rem;
+    font-size: .9rem;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.impact-input {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: .75rem 1rem;
+    font-size: .95rem;
+    color: #333;
+    background: #fff;
+    transition: all .3s ease;
+    width: 100%;
+}
+
+.impact-input:focus {
+    outline: none;
+    border-color: #6f42c1;
+    box-shadow: 0 0 0 3px rgba(111, 66, 193, .15);
+}
+
+textarea.impact-input {
+    resize: vertical;
+}
+
+.impact-error {
+    color: #dc3545;
+    font-size: .82rem;
+    margin-top: .35rem;
+}
+
+.impact-hint {
+    color: #6c757d;
+    font-size: .82rem;
+    margin-top: .4rem;
+}
+
+.impact-validation {
+    background: rgba(220, 53, 69, .08);
+    border: 1px solid rgba(220, 53, 69, .3);
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    color: #842029;
+    font-size: .9rem;
+}
+
+.impact-validation ul {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.impact-validation:empty {
+    display: none;
+}
+
+.impact-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f0f0f0;
+}
+
+.impact-btn {
+    border: none;
+    border-radius: 10px;
+    padding: .75rem 2rem;
+    font-weight: 600;
+    font-size: .95rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all .3s ease;
+}
+
+.impact-btn.primary {
+    background: linear-gradient(135deg, #6f42c1 0%, #59359a 100%);
+    color: #fff;
+}
+
+.impact-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(111, 66, 193, .4);
+    color: #fff;
+}
+
+.impact-btn.secondary {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    color: #6c757d;
+}
+
+.impact-btn.secondary:hover {
+    background: #e9ecef;
+    color: #495057;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.impact-btn:disabled {
+    opacity: .65;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* ── Inline "record achievement" row ──────────────────────────────────── */
+
+.achievement-form {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.achievement-form-grid {
+    display: grid;
+    grid-template-columns: 160px 140px 1fr auto;
+    gap: 1rem;
+    align-items: end;
+}
+
+@media (max-width: 768px) {
+    .impact-grid,
+    .achievement-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .impact-field.full {
+        grid-column: 1;
+    }
+
+    .impact-actions {
+        flex-direction: column-reverse;
+    }
+
+    .impact-btn {
+        width: 100%;
+    }
+}

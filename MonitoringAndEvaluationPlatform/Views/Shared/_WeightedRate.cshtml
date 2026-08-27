@@ -1,0 +1,40 @@
+@model MonitoringAndEvaluationPlatform.Models.FrameworkImpact
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@*
+    One rendering of a framework impact target's weighted achievement rate, shared by the
+    Index table and the Details page so the number always reads the same way.
+
+    Mirrors _ImpactRate.cshtml (the per-indicator version): the number is uncapped because
+    exceeding the target is real information, while the bar is clamped to 100%.
+*@
+@{
+    var rate = Model.WeightedAchievementRate;
+    var barWidth = Math.Min(rate, 100);
+    var fillClass = rate >= 100 ? "over" : rate >= 60 ? "" : rate >= 30 ? "mid" : "low";
+    var textClass = rate >= 100 ? "text-primary" : rate >= 60 ? "text-success" : rate >= 30 ? "text-warning" : "text-danger";
+    var hasLinks = Model.Indicators != null && Model.Indicators.Any();
+}
+
+@if (hasLinks)
+{
+    <div class="d-flex align-items-center gap-2">
+        <span class="rate-value @textClass">@rate.ToString("0.#")%</span>
+        <div class="rate-bar flex-grow-1">
+            <div class="rate-bar-fill @fillClass"
+                 style="width:@barWidth.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+        </div>
+        @if (rate >= 100)
+        {
+            <span class="badge bg-primary" title="@Localizer["Target met or exceeded"]">
+                <i class="fas fa-check"></i>
+            </span>
+        }
+    </div>
+}
+else
+{
+    <span class="text-muted small">
+        <i class="fas fa-unlink me-1"></i>@Localizer["No indicators linked"]
+    </span>
+}

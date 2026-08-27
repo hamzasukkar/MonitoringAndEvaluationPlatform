@@ -58,32 +58,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
-  <data name="Ministries &amp; Strategies" xml:space="preserve">
-    <value>استراتيجية التنمية الوطنية</value>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
   </data>
-  <data name="Search..." xml:space="preserve">
-    <value>بحث...</value>
+  <data name="Edit Impact Indicator" xml:space="preserve">
+    <value>تعديل مؤشر الأثر</value>
   </data>
-  <data name="FrameworkGoals" xml:space="preserve">
-    <value>الأهداف المقاسة</value>
+  <data name="Back to Indicator" xml:space="preserve">
+    <value>العودة إلى المؤشر</value>
   </data>
-  <data name="Outcomes" xml:space="preserve">
-    <value>السياسات</value>
+  <data name="This indicator has {0} recorded achievement(s). Changing the target updates the rate immediately; narrowing the period is blocked if it would strand any of them." xml:space="preserve">
+    <value>لهذا المؤشر {0} إنجاز مسجل. تعديل الهدف يحدّث النسبة فوراً؛ وتضييق الفترة مرفوض إذا كان سيُخرج أي إنجاز خارج نطاقها.</value>
   </data>
-  <data name="Outputs" xml:space="preserve">
-    <value>برامج</value>
+  <data name="Indicator Details" xml:space="preserve">
+    <value>تفاصيل المؤشر</value>
   </data>
-  <data name="SubOutputs" xml:space="preserve">
-    <value>برامج فرعية</value>
+  <data name="Editing:" xml:space="preserve">
+    <value>تعديل:</value>
   </data>
-  <data name="Indicators" xml:space="preserve">
-    <value>المشاريع</value>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
   </data>
-  <data name="Indicators &amp; Projects Table" xml:space="preserve">
-    <value>جدول المشاريع</value>
+  <data name="Save Changes" xml:space="preserve">
+    <value>حفظ التغييرات</value>
   </data>
-  <data name="Impact Indicators Measurement" xml:space="preserve">
-    <value>قياس مؤشرات الأثر</value>
+  <data name="Saving..." xml:space="preserve">
+    <value>جارٍ الحفظ...</value>
   </data>
 </root>

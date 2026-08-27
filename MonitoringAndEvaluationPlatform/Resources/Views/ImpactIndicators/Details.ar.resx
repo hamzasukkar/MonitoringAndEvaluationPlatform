@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Back to Project" xml:space="preserve">
+    <value>العودة إلى المشروع</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="Achieved" xml:space="preserve">
+    <value>الإنجاز المحقق</value>
+  </data>
+  <data name="Achievement Rate" xml:space="preserve">
+    <value>نسبة الإنجاز</value>
+  </data>
+  <data name="Remaining to Target" xml:space="preserve">
+    <value>المتبقي للهدف</value>
+  </data>
+  <data name="Indicator Information" xml:space="preserve">
+    <value>معلومات المؤشر</value>
+  </data>
+  <data name="Period" xml:space="preserve">
+    <value>الفترة</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>وحدة القياس</value>
+  </data>
+  <data name="Not specified" xml:space="preserve">
+    <value>غير محددة</value>
+  </data>
+  <data name="Achievements Recorded" xml:space="preserve">
+    <value>عدد الإنجازات المسجلة</value>
+  </data>
+  <data name="Progress" xml:space="preserve">
+    <value>التقدم</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="How the rate is calculated" xml:space="preserve">
+    <value>كيف تُحتسب النسبة</value>
+  </data>
+  <data name="Impact indicators are measured separately from project execution — they do not affect project performance or the results framework." xml:space="preserve">
+    <value>تُقاس مؤشرات الأثر بمعزل عن تنفيذ المشروع — فهي لا تؤثر على أداء المشروع ولا على الإطار النتائجي.</value>
+  </data>
+  <data name="Achievements" xml:space="preserve">
+    <value>الإنجازات</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>التاريخ</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>القيمة</value>
+  </data>
+  <data name="Note" xml:space="preserve">
+    <value>ملاحظة</value>
+  </data>
+  <data name="Optional" xml:space="preserve">
+    <value>اختياري</value>
+  </data>
+  <data name="Record" xml:space="preserve">
+    <value>تسجيل</value>
+  </data>
+  <data name="Cumulative" xml:space="preserve">
+    <value>التراكمي</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>إجراءات</value>
+  </data>
+  <data name="Total Achieved" xml:space="preserve">
+    <value>إجمالي الإنجاز</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Delete this achievement?" xml:space="preserve">
+    <value>حذف هذا الإنجاز؟</value>
+  </data>
+  <data name="No Achievements Yet" xml:space="preserve">
+    <value>لا توجد إنجازات بعد</value>
+  </data>
+  <data name="Record the first achievement to start tracking this indicator." xml:space="preserve">
+    <value>سجّل أول إنجاز لتبدأ متابعة هذا المؤشر.</value>
+  </data>
+  <data name="Danger Zone" xml:space="preserve">
+    <value>منطقة الإجراءات الخطرة</value>
+  </data>
+  <data name="Deleting this indicator also deletes all of its recorded achievements." xml:space="preserve">
+    <value>حذف هذا المؤشر يحذف أيضاً كل إنجازاته المسجلة.</value>
+  </data>
+  <data name="Delete this indicator and all its achievements? This cannot be undone." xml:space="preserve">
+    <value>حذف هذا المؤشر وكل إنجازاته؟ لا يمكن التراجع عن هذا الإجراء.</value>
+  </data>
+  <data name="Delete Indicator" xml:space="preserve">
+    <value>حذف المؤشر</value>
+  </data>
+  <data name="Edit Achievement" xml:space="preserve">
+    <value>تعديل الإنجاز</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Save Changes" xml:space="preserve">
+    <value>حفظ التغييرات</value>
+  </data>
+</root>

@@ -1,0 +1,65 @@
+@model List<MonitoringAndEvaluationPlatform.Models.ImpactIndicator>
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@inject IAuthorizationService Auth
+@{
+    ViewData["Title"] = "Impact Indicators";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var project = ViewBag.Project as Project;
+    var canAdd = (await Auth.AuthorizeAsync(User, Permissions.AddIndicator)).Succeeded;
+}
+
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", "Projects")" class="breadcrumb-link">
+                    <i class="fas fa-project-diagram"></i>@Localizer["Projects"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                @if (project != null)
+                {
+                    <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="breadcrumb-link">
+                        @project.ProjectName
+                    </a>
+                    <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                }
+                <span class="current-page">@Localizer["Impact measurement"]</span>
+            </div>
+            <h1 class="dashboard-title">@Localizer["Impact measurement"]</h1>
+        </div>
+
+        <div class="header-actions d-flex gap-2">
+            @if (canAdd && project != null)
+            {
+                <a href="@Url.Action("Create", new { projectId = project.ProjectID })" class="impact-btn primary">
+                    <i class="fas fa-plus me-2"></i>@Localizer["New Indicator"]
+                </a>
+            }
+            @if (project != null)
+            {
+                <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="impact-btn secondary">
+                    <i class="fas fa-arrow-left me-2"></i>@Localizer["Back to Project"]
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="chart-card mb-4">
+        <h3 class="chart-title">
+            <i class="fas fa-bullseye me-2"></i>@Localizer["Impact Indicators"]
+        </h3>
+        <div class="chart-content">
+            <partial name="_ImpactIndicatorsTable" model="Model" />
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}

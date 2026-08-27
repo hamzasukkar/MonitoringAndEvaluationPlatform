@@ -1,0 +1,29 @@
+@model MonitoringAndEvaluationPlatform.Models.ImpactIndicator
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@*
+    One rendering of an impact indicator's achievement rate, shared by the ImpactIndicators
+    views and the project details page so a rate always reads the same way.
+
+    The number is uncapped — exceeding the target is real information — while the bar is
+    clamped to 100% because a bar past its track means nothing.
+*@
+@{
+    var rate = Model.AchievementRate;
+    var barWidth = Math.Min(rate, 100);
+    var fillClass = rate >= 100 ? "over" : rate >= 60 ? "" : rate >= 30 ? "mid" : "low";
+    var textClass = rate >= 100 ? "text-primary" : rate >= 60 ? "text-success" : rate >= 30 ? "text-warning" : "text-danger";
+}
+<div class="d-flex align-items-center gap-2">
+    <span class="rate-value @textClass">@rate.ToString("0.#")%</span>
+    <div class="rate-bar flex-grow-1">
+        <div class="rate-bar-fill @fillClass"
+             style="width:@barWidth.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+    </div>
+    @if (rate >= 100)
+    {
+        <span class="badge bg-primary" title="@Localizer["Target met or exceeded"]">
+            <i class="fas fa-check"></i>
+        </span>
+    }
+</div>

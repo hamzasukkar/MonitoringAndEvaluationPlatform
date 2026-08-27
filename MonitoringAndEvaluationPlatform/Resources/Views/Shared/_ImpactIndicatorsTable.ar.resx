@@ -58,32 +58,43 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
-  <data name="Ministries &amp; Strategies" xml:space="preserve">
-    <value>استراتيجية التنمية الوطنية</value>
+  <data name="Indicator" xml:space="preserve">
+    <value>المؤشر</value>
   </data>
-  <data name="Search..." xml:space="preserve">
-    <value>بحث...</value>
+  <data name="Unit" xml:space="preserve">
+    <value>وحدة القياس</value>
   </data>
-  <data name="FrameworkGoals" xml:space="preserve">
-    <value>الأهداف المقاسة</value>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
   </data>
-  <data name="Outcomes" xml:space="preserve">
-    <value>السياسات</value>
+  <data name="Achieved" xml:space="preserve">
+    <value>الإنجاز المحقق</value>
   </data>
-  <data name="Outputs" xml:space="preserve">
-    <value>برامج</value>
+  <data name="Achievement Rate" xml:space="preserve">
+    <value>نسبة الإنجاز</value>
   </data>
-  <data name="SubOutputs" xml:space="preserve">
-    <value>برامج فرعية</value>
+  <data name="Period" xml:space="preserve">
+    <value>الفترة</value>
   </data>
-  <data name="Indicators" xml:space="preserve">
-    <value>المشاريع</value>
+  <data name="Actions" xml:space="preserve">
+    <value>إجراءات</value>
   </data>
-  <data name="Indicators &amp; Projects Table" xml:space="preserve">
-    <value>جدول المشاريع</value>
+  <data name="Achievements" xml:space="preserve">
+    <value>الإنجازات</value>
   </data>
-  <data name="Impact Indicators Measurement" xml:space="preserve">
-    <value>قياس مؤشرات الأثر</value>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Delete this indicator and all its achievements? This cannot be undone." xml:space="preserve">
+    <value>حذف هذا المؤشر وكل إنجازاته؟ لا يمكن التراجع عن هذا الإجراء.</value>
+  </data>
+  <data name="No Impact Indicators Yet" xml:space="preserve">
+    <value>لا توجد مؤشرات أثر بعد</value>
+  </data>
+  <data name="Add an indicator to start measuring what this project delivers." xml:space="preserve">
+    <value>أضف مؤشراً لتبدأ بقياس ما ينجزه هذا المشروع.</value>
   </data>
 </root>

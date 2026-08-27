@@ -51,6 +51,10 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<RequestCommentAttachment> RequestCommentAttachments { get; set; } = default!;
         public DbSet<RequestTest> RequestTests { get; set; } = default!;
         public DbSet<CurrencyRate> CurrencyRates { get; set; } = default!;
+        public DbSet<ImpactIndicator> ImpactIndicators { get; set; } = default!;
+        public DbSet<ImpactAchievement> ImpactAchievements { get; set; } = default!;
+        public DbSet<FrameworkImpact> FrameworkImpacts { get; set; } = default!;
+        public DbSet<FrameworkImpactIndicator> FrameworkImpactIndicators { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -240,6 +244,51 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .WithMany(ap => ap.Plans)
                 .HasForeignKey(p => p.ActionPlanCode)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // ImpactIndicator → Project (many-to-one). Cascade: an impact indicator has no
+            // meaning without its project, unlike Indicator which outlives the link.
+            modelBuilder.Entity<ImpactIndicator>()
+                .HasOne(ii => ii.Project)
+                .WithMany(p => p.ImpactIndicators)
+                .HasForeignKey(ii => ii.ProjectID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ImpactAchievement → ImpactIndicator (many-to-one)
+            modelBuilder.Entity<ImpactAchievement>()
+                .HasOne(ia => ia.ImpactIndicator)
+                .WithMany(ii => ii.Achievements)
+                .HasForeignKey(ia => ia.ImpactIndicatorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Framework → FrameworkImpact (one-to-many), mirroring the FrameworkGoal block below.
+            modelBuilder.Entity<FrameworkImpact>()
+                .HasOne(fi => fi.Framework)
+                .WithMany(f => f.Impacts)
+                .HasForeignKey(fi => fi.FrameworkCode)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // FrameworkImpactIndicator → FrameworkImpact: the link is owned by the impact target,
+            // so deleting the target takes its links with it.
+            modelBuilder.Entity<FrameworkImpactIndicator>()
+                .HasOne(fii => fii.FrameworkImpact)
+                .WithMany(fi => fi.Indicators)
+                .HasForeignKey(fii => fii.FrameworkImpactId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // FrameworkImpactIndicator → ImpactIndicator: Restrict, NOT cascade. Deleting an
+            // indicator that a framework target depends on must fail loudly rather than silently
+            // changing that target's weighted rate.
+            modelBuilder.Entity<FrameworkImpactIndicator>()
+                .HasOne(fii => fii.ImpactIndicator)
+                .WithMany(ii => ii.FrameworkLinks)
+                .HasForeignKey(fii => fii.ImpactIndicatorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // One link per indicator per impact target — the real guard against double-counting
+            // an indicator in the weighted average.
+            modelBuilder.Entity<FrameworkImpactIndicator>()
+                .HasIndex(fii => new { fii.FrameworkImpactId, fii.ImpactIndicatorId })
+                .IsUnique();
 
             // Indicator → Project (many-to-one, replaces old ProjectIndicator many-to-many)
             modelBuilder.Entity<Indicator>()

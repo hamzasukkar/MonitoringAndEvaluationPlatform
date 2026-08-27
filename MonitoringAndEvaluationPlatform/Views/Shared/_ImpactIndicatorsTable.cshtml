@@ -1,0 +1,96 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ImpactIndicator>
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@inject IAuthorizationService Auth
+@*
+    The impact indicators table, shared by ImpactIndicators/Index and the "Impact Measurement"
+    section on the project details page so both stay identical.
+
+    Requires project-details.css (modern-table, modern-badge, empty-state) and
+    impact-indicators.css (rate bar) — the calling view links them.
+*@
+@{
+    var indicators = (Model ?? Enumerable.Empty<ImpactIndicator>())
+        .OrderBy(i => i.StartDate).ThenBy(i => i.Name).ToList();
+
+    var canModify = (await Auth.AuthorizeAsync(User, Permissions.ModifyIndicator)).Succeeded;
+    var canDelete = (await Auth.AuthorizeAsync(User, Permissions.DeleteIndicator)).Succeeded;
+}
+
+@if (indicators.Any())
+{
+    <div class="modern-table-container">
+        <table class="modern-table">
+            <thead class="table-header">
+                <tr>
+                    <th>#</th>
+                    <th><i class="fas fa-tag me-1"></i>@Localizer["Indicator"]</th>
+                    <th><i class="fas fa-ruler me-1"></i>@Localizer["Unit"]</th>
+                    <th class="text-center"><i class="fas fa-bullseye me-1"></i>@Localizer["Target"]</th>
+                    <th class="text-center"><i class="fas fa-check-double me-1"></i>@Localizer["Achieved"]</th>
+                    <th style="min-width:170px"><i class="fas fa-percent me-1"></i>@Localizer["Achievement Rate"]</th>
+                    <th><i class="fas fa-calendar-alt me-1"></i>@Localizer["Period"]</th>
+                    <th class="text-center"><i class="fas fa-cogs me-1"></i>@Localizer["Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{ int idx = 0; }
+                @foreach (var ind in indicators)
+                {
+                    idx++;
+                    <tr class="table-row">
+                        <td>@idx</td>
+                        <td>
+                            <a href="@Url.Action("Details", "ImpactIndicators", new { id = ind.Id })"
+                               class="fw-bold text-decoration-none">@ind.Name</a>
+                        </td>
+                        <td class="text-muted">@(string.IsNullOrWhiteSpace(ind.Unit) ? "—" : ind.Unit)</td>
+                        <td class="text-center">@ind.TargetValue.ToString("N0")</td>
+                        <td class="text-center fw-bold">@ind.AchievedValue.ToString("N0")</td>
+                        <td><partial name="_ImpactRate" model="ind" /></td>
+                        <td class="text-muted small">
+                            @ind.StartDate.ToString("MM/yyyy") – @ind.EndDate.ToString("MM/yyyy")
+                        </td>
+                        <td class="text-center">
+                            <div class="btn-group action-buttons" role="group">
+                                <a href="@Url.Action("Details", "ImpactIndicators", new { id = ind.Id })"
+                                   class="btn btn-outline-info btn-sm action-btn" title="@Localizer["Achievements"]">
+                                    <i class="fas fa-list-check"></i>
+                                </a>
+                                @if (canModify)
+                                {
+                                    <a href="@Url.Action("Edit", "ImpactIndicators", new { id = ind.Id })"
+                                       class="btn btn-outline-primary btn-sm action-btn" title="@Localizer["Edit"]">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                }
+                                @if (canDelete)
+                                {
+                                    <form asp-controller="ImpactIndicators" asp-action="Delete" asp-route-id="@ind.Id"
+                                          method="post" style="display:inline"
+                                          onsubmit="return confirm('@Localizer["Delete this indicator and all its achievements? This cannot be undone."]')">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm action-btn"
+                                                title="@Localizer["Delete"]">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-bullseye"></i></div>
+        <h5 class="empty-title">@Localizer["No Impact Indicators Yet"]</h5>
+        <p class="empty-text">@Localizer["Add an indicator to start measuring what this project delivers."]</p>
+    </div>
+}

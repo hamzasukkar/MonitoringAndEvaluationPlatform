@@ -58,32 +58,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
-  <data name="Ministries &amp; Strategies" xml:space="preserve">
-    <value>استراتيجية التنمية الوطنية</value>
-  </data>
-  <data name="Search..." xml:space="preserve">
-    <value>بحث...</value>
-  </data>
-  <data name="FrameworkGoals" xml:space="preserve">
-    <value>الأهداف المقاسة</value>
-  </data>
-  <data name="Outcomes" xml:space="preserve">
-    <value>السياسات</value>
-  </data>
-  <data name="Outputs" xml:space="preserve">
-    <value>برامج</value>
-  </data>
-  <data name="SubOutputs" xml:space="preserve">
-    <value>برامج فرعية</value>
-  </data>
-  <data name="Indicators" xml:space="preserve">
-    <value>المشاريع</value>
-  </data>
-  <data name="Indicators &amp; Projects Table" xml:space="preserve">
-    <value>جدول المشاريع</value>
-  </data>
   <data name="Impact Indicators Measurement" xml:space="preserve">
     <value>قياس مؤشرات الأثر</value>
+  </data>
+  <data name="Impact Targets" xml:space="preserve">
+    <value>أهداف الأثر</value>
+  </data>
+  <data name="New Impact Target" xml:space="preserve">
+    <value>هدف أثر جديد</value>
+  </data>
+  <data name="Each impact target is driven by a weighted set of project impact indicators. The weighted rate updates on its own as achievements are recorded." xml:space="preserve">
+    <value>كل هدف أثر تحرّكه مجموعة مؤشرات أثر مرجّحة تابعة للمشاريع. والنسبة المرجّحة تتحدّث تلقائياً مع تسجيل الإنجازات.</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="Baseline" xml:space="preserve">
+    <value>الأساس</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="Indicators" xml:space="preserve">
+    <value>المؤشرات</value>
+  </data>
+  <data name="Weighted Achievement Rate" xml:space="preserve">
+    <value>نسبة الإنجاز المرجّحة</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>إجراءات</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>التفاصيل</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Delete this impact target? Its indicator links are removed; the indicators themselves are kept." xml:space="preserve">
+    <value>حذف هذا الهدف؟ ستُحذف روابط المؤشرات فقط، أما المؤشرات نفسها فتبقى.</value>
+  </data>
+  <data name="No Impact Targets Yet" xml:space="preserve">
+    <value>لا توجد أهداف أثر بعد</value>
+  </data>
+  <data name="Add an impact target to start measuring this strategy's effect." xml:space="preserve">
+    <value>أضف هدف أثر لتبدأ بقياس أثر هذه الاستراتيجية.</value>
   </data>
 </root>

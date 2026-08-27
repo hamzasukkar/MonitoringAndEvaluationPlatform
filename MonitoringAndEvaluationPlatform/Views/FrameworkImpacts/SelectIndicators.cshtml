@@ -1,0 +1,154 @@
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Select Indicators";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var impact = (FrameworkImpact)ViewBag.Impact;
+    var available = (List<ImpactIndicator>)ViewBag.Available;
+    var linkedIds = (HashSet<int>)ViewBag.LinkedIds;
+    var byProject = available.GroupBy(ii => ii.Project?.ProjectName ?? "—").ToList();
+}
+
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <a href="@Url.Action("Index", new { frameworkCode = impact.FrameworkCode })" class="breadcrumb-link">
+                    <i class="fas fa-chart-pie"></i>@Localizer["Impact Indicators Measurement"]
+                </a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <a href="@Url.Action("Details", new { id = impact.Id })" class="breadcrumb-link">@impact.Name</a>
+                <i class="fas fa-chevron-right breadcrumb-separator"></i>
+                <span class="current-page">@Localizer["Select Indicators"]</span>
+            </div>
+            <h1 class="dashboard-title">@Localizer["Select Indicators"]</h1>
+        </div>
+        <div class="header-actions">
+            <a href="@Url.Action("Details", new { id = impact.Id })" class="impact-btn secondary">
+                <i class="fas fa-arrow-left me-2"></i>@Localizer["Back"]
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="chart-card mb-4">
+        <h3 class="chart-title">
+            <i class="fas fa-link me-2"></i>@Localizer["Impact Indicators in this Strategy"]
+        </h3>
+        <div class="chart-content">
+            <p class="text-muted small">
+                @Localizer["These are the impact indicators belonging to projects under this strategy. Checked indicators drive this target; unchecking one removes it. Weights are redistributed equally on save."]
+            </p>
+
+            @if (available.Any())
+            {
+                <form asp-action="SelectIndicators" asp-route-id="@impact.Id" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="d-flex align-items-center gap-3 mb-3 p-2 bg-light rounded border">
+                        <label class="d-flex align-items-center gap-2 mb-0" style="cursor:pointer;">
+                            <input type="checkbox" id="selectAll" class="form-check-input mt-0"
+                                   style="width:1.1em;height:1.1em;cursor:pointer;" />
+                            <strong>@Localizer["Select All"]</strong>
+                        </label>
+                        <span class="text-muted small">
+                            <span id="selectedCount">@linkedIds.Count</span> / @available.Count @Localizer["selected"]
+                        </span>
+                    </div>
+
+                    @foreach (var group in byProject)
+                    {
+                        <div class="mb-3">
+                            <h6 class="mb-2">
+                                <i class="fas fa-project-diagram me-1 text-muted"></i>@group.Key
+                            </h6>
+                            <div class="modern-table-container">
+                                <table class="modern-table">
+                                    <thead class="table-header">
+                                        <tr>
+                                            <th style="width:48px"></th>
+                                            <th><i class="fas fa-tag me-1"></i>@Localizer["Indicator"]</th>
+                                            <th class="text-center"><i class="fas fa-bullseye me-1"></i>@Localizer["Target"]</th>
+                                            <th class="text-center"><i class="fas fa-check-double me-1"></i>@Localizer["Achieved"]</th>
+                                            <th style="min-width:170px"><i class="fas fa-percent me-1"></i>@Localizer["Value"]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var ind in group)
+                                        {
+                                            <tr class="table-row">
+                                                <td class="text-center">
+                                                    <input type="checkbox" name="selectedIndicatorIds"
+                                                           value="@ind.Id" class="form-check-input indicator-cb mt-0"
+                                                           style="width:1.1em;height:1.1em;cursor:pointer;"
+                                                           @(linkedIds.Contains(ind.Id) ? "checked" : "") />
+                                                </td>
+                                                <td class="fw-bold">@ind.Name</td>
+                                                <td class="text-center">@ind.TargetValue.ToString("N0") @ind.Unit</td>
+                                                <td class="text-center">@ind.AchievedValue.ToString("N0") @ind.Unit</td>
+                                                <td><partial name="_ImpactRate" model="ind" /></td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="impact-actions">
+                        <a href="@Url.Action("Details", new { id = impact.Id })" class="impact-btn secondary">
+                            <i class="fas fa-times me-2"></i>@Localizer["Cancel"]
+                        </a>
+                        <button type="submit" class="impact-btn primary">
+                            <i class="fas fa-save me-2"></i>@Localizer["Submit"]
+                        </button>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-unlink"></i></div>
+                    <h5 class="empty-title">@Localizer["No Impact Indicators Available"]</h5>
+                    <p class="empty-text">
+                        @Localizer["No project under this strategy has impact indicators yet. Add them from a project's details page first."]
+                    </p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script>
+        var boxes = Array.from(document.querySelectorAll('.indicator-cb'));
+        var selectAll = document.getElementById('selectAll');
+        var countEl = document.getElementById('selectedCount');
+
+        function refresh() {
+            var checked = boxes.filter(function (b) { return b.checked; }).length;
+            if (countEl) countEl.textContent = checked;
+            if (selectAll) {
+                selectAll.checked = checked === boxes.length && boxes.length > 0;
+                selectAll.indeterminate = checked > 0 && checked < boxes.length;
+            }
+        }
+
+        if (selectAll) {
+            selectAll.addEventListener('change', function () {
+                boxes.forEach(function (b) { b.checked = selectAll.checked; });
+                refresh();
+            });
+        }
+        boxes.forEach(function (b) { b.addEventListener('change', refresh); });
+        refresh();
+    </script>
+}

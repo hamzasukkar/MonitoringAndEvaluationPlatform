@@ -58,32 +58,52 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-
-  <data name="Ministries &amp; Strategies" xml:space="preserve">
-    <value>استراتيجية التنمية الوطنية</value>
+  <data name="Impact Indicators Measurement" xml:space="preserve">
+    <value>Impact Indicators Measurement</value>
   </data>
-  <data name="Search..." xml:space="preserve">
-    <value>بحث...</value>
+  <data name="Impact Targets" xml:space="preserve">
+    <value>Impact Targets</value>
   </data>
-  <data name="FrameworkGoals" xml:space="preserve">
-    <value>الأهداف المقاسة</value>
+  <data name="New Impact Target" xml:space="preserve">
+    <value>New Impact Target</value>
   </data>
-  <data name="Outcomes" xml:space="preserve">
-    <value>السياسات</value>
+  <data name="Each impact target is driven by a weighted set of project impact indicators. The weighted rate updates on its own as achievements are recorded." xml:space="preserve">
+    <value>Each impact target is driven by a weighted set of project impact indicators. The weighted rate updates on its own as achievements are recorded.</value>
   </data>
-  <data name="Outputs" xml:space="preserve">
-    <value>برامج</value>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
   </data>
-  <data name="SubOutputs" xml:space="preserve">
-    <value>برامج فرعية</value>
+  <data name="Baseline" xml:space="preserve">
+    <value>Baseline</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>Target</value>
   </data>
   <data name="Indicators" xml:space="preserve">
-    <value>المشاريع</value>
+    <value>Indicators</value>
   </data>
-  <data name="Indicators &amp; Projects Table" xml:space="preserve">
-    <value>جدول المشاريع</value>
+  <data name="Weighted Achievement Rate" xml:space="preserve">
+    <value>Weighted Achievement Rate</value>
   </data>
-  <data name="Impact Indicators Measurement" xml:space="preserve">
-    <value>قياس مؤشرات الأثر</value>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Delete this impact target? Its indicator links are removed; the indicators themselves are kept." xml:space="preserve">
+    <value>Delete this impact target? Its indicator links are removed; the indicators themselves are kept.</value>
+  </data>
+  <data name="No Impact Targets Yet" xml:space="preserve">
+    <value>No Impact Targets Yet</value>
+  </data>
+  <data name="Add an impact target to start measuring this strategy's effect." xml:space="preserve">
+    <value>Add an impact target to start measuring this strategy's effect.</value>
   </data>
 </root>

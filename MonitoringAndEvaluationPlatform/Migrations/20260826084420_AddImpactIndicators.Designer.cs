@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MonitoringAndEvaluationPlatform.Data;
 
@@ -11,9 +12,11 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260826084420_AddImpactIndicators")]
+    partial class AddImpactIndicators
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -695,76 +698,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsUnique();
 
                     b.ToTable("FrameworkGoalYearlyValues");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.FrameworkImpact", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<double>("BaselineValue")
-                        .HasColumnType("float");
-
-                    b.Property<int>("BaselineYear")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<int>("FrameworkCode")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<double>("TargetValue")
-                        .HasColumnType("float");
-
-                    b.Property<int>("TargetYear")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Unit")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FrameworkCode");
-
-                    b.ToTable("FrameworkImpacts");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.FrameworkImpactIndicator", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("FrameworkImpactId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ImpactIndicatorId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Weight")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImpactIndicatorId");
-
-                    b.HasIndex("FrameworkImpactId", "ImpactIndicatorId")
-                        .IsUnique();
-
-                    b.ToTable("FrameworkImpactIndicators");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Goal", b =>
@@ -2186,36 +2119,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("FrameworkGoal");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.FrameworkImpact", b =>
-                {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.Framework", "Framework")
-                        .WithMany("Impacts")
-                        .HasForeignKey("FrameworkCode")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Framework");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.FrameworkImpactIndicator", b =>
-                {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.FrameworkImpact", "FrameworkImpact")
-                        .WithMany("Indicators")
-                        .HasForeignKey("FrameworkImpactId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.ImpactIndicator", "ImpactIndicator")
-                        .WithMany("FrameworkLinks")
-                        .HasForeignKey("ImpactIndicatorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("FrameworkImpact");
-
-                    b.Navigation("ImpactIndicator");
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.GuideSectionVersion", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.GuideSection", "GuideSection")
@@ -2605,8 +2508,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                 {
                     b.Navigation("Goals");
 
-                    b.Navigation("Impacts");
-
                     b.Navigation("Outcomes");
                 });
 
@@ -2617,11 +2518,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("ManualExpectedTargets");
 
                     b.Navigation("YearlyValues");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.FrameworkImpact", b =>
-                {
-                    b.Navigation("Indicators");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Goal", b =>
@@ -2642,8 +2538,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ImpactIndicator", b =>
                 {
                     b.Navigation("Achievements");
-
-                    b.Navigation("FrameworkLinks");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Measure", b =>
