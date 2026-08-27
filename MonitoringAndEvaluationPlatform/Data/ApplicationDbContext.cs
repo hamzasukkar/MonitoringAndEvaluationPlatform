@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Models;
 
@@ -52,7 +52,6 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<RequestTest> RequestTests { get; set; } = default!;
         public DbSet<CurrencyRate> CurrencyRates { get; set; } = default!;
         public DbSet<ImpactIndicator> ImpactIndicators { get; set; } = default!;
-        public DbSet<ImpactAchievement> ImpactAchievements { get; set; } = default!;
         public DbSet<FrameworkImpact> FrameworkImpacts { get; set; } = default!;
         public DbSet<FrameworkImpactIndicator> FrameworkImpactIndicators { get; set; } = default!;
 
@@ -251,13 +250,6 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasOne(ii => ii.Project)
                 .WithMany(p => p.ImpactIndicators)
                 .HasForeignKey(ii => ii.ProjectID)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // ImpactAchievement → ImpactIndicator (many-to-one)
-            modelBuilder.Entity<ImpactAchievement>()
-                .HasOne(ia => ia.ImpactIndicator)
-                .WithMany(ii => ii.Achievements)
-                .HasForeignKey(ia => ia.ImpactIndicatorId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // Framework → FrameworkImpact (one-to-many), mirroring the FrameworkGoal block below.

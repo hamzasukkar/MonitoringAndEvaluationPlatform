@@ -8,17 +8,10 @@
     ViewData["Title"] = "Impact Indicator";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 
-    var canAdd = (await Auth.AuthorizeAsync(User, Permissions.AddIndicator)).Succeeded;
     var canModify = (await Auth.AuthorizeAsync(User, Permissions.ModifyIndicator)).Succeeded;
     var canDelete = (await Auth.AuthorizeAsync(User, Permissions.DeleteIndicator)).Succeeded;
 
-    var achievements = (Model.Achievements ?? new List<ImpactAchievement>())
-        .OrderBy(a => a.Date).ToList();
     var unit = string.IsNullOrWhiteSpace(Model.Unit) ? "" : Model.Unit;
-    var today = DateTime.Today;
-    var defaultDate = today < Model.StartDate ? Model.StartDate
-                    : today > Model.EndDate ? Model.EndDate
-                    : today;
 }
 
 <div class="dashboard-header">
@@ -117,17 +110,13 @@
         </h3>
         <div class="chart-content">
             <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="impact-tile-label">@Localizer["Period"]</div>
-                    <div>@Model.StartDate.ToString("dd/MM/yyyy") – @Model.EndDate.ToString("dd/MM/yyyy")</div>
-                </div>
-                <div class="col-md-4">
+                <div class="col-md-6">
                     <div class="impact-tile-label">@Localizer["Unit"]</div>
                     <div>@(string.IsNullOrWhiteSpace(Model.Unit) ? Localizer["Not specified"].Value : Model.Unit)</div>
                 </div>
-                <div class="col-md-4">
-                    <div class="impact-tile-label">@Localizer["Achievements Recorded"]</div>
-                    <div>@achievements.Count.ToString("N0")</div>
+                <div class="col-md-6">
+                    <div class="impact-tile-label">@Localizer["Project"]</div>
+                    <div>@(Model.Project?.ProjectName ?? "—")</div>
                 </div>
                 <div class="col-12">
                     <div class="impact-tile-label">@Localizer["Progress"]</div>
@@ -153,135 +142,13 @@
                     @Localizer["Impact indicators are measured separately from project execution — they do not affect project performance or the results framework."]
                 </span>
             </div>
-        </div>
-    </div>
 
-    <!-- ═══════════════════ ACHIEVEMENTS ═══════════════════ -->
-    <div class="chart-card mb-4">
-        <h3 class="chart-title">
-            <i class="fas fa-list-check me-2"></i>@Localizer["Achievements"]
-        </h3>
-        <div class="chart-content">
-
-            @if (canAdd)
+            @if (canModify)
             {
-                <form asp-action="AddAchievement" method="post" class="achievement-form">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="ImpactIndicatorId" value="@Model.Id" />
-                    <div class="achievement-form-grid">
-                        <div class="impact-field">
-                            <label class="impact-label" for="newDate">
-                                <i class="fas fa-calendar"></i>@Localizer["Date"] *
-                            </label>
-                            <input type="date" id="newDate" name="Date" class="impact-input" required
-                                   value="@defaultDate.ToString("yyyy-MM-dd")"
-                                   min="@Model.StartDate.ToString("yyyy-MM-dd")"
-                                   max="@Model.EndDate.ToString("yyyy-MM-dd")" />
-                        </div>
-                        <div class="impact-field">
-                            <label class="impact-label" for="newValue">
-                                <i class="fas fa-hashtag"></i>@Localizer["Value"] *
-                            </label>
-                            <input type="number" id="newValue" name="Value" class="impact-input" required
-                                   step="any" min="0.0001" placeholder="@(string.IsNullOrWhiteSpace(unit) ? "0" : unit)" />
-                        </div>
-                        <div class="impact-field">
-                            <label class="impact-label" for="newNote">
-                                <i class="fas fa-sticky-note"></i>@Localizer["Note"]
-                            </label>
-                            <input type="text" id="newNote" name="Note" class="impact-input" maxlength="1000"
-                                   placeholder="@Localizer["Optional"]" />
-                        </div>
-                        <div class="impact-field">
-                            <button type="submit" class="impact-btn primary">
-                                <i class="fas fa-plus me-2"></i>@Localizer["Record"]
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            }
-
-            @if (achievements.Any())
-            {
-                <div class="modern-table-container">
-                    <table class="modern-table">
-                        <thead class="table-header">
-                            <tr>
-                                <th>#</th>
-                                <th><i class="fas fa-calendar me-1"></i>@Localizer["Date"]</th>
-                                <th class="text-center"><i class="fas fa-hashtag me-1"></i>@Localizer["Value"]</th>
-                                <th class="text-center"><i class="fas fa-layer-group me-1"></i>@Localizer["Cumulative"]</th>
-                                <th><i class="fas fa-sticky-note me-1"></i>@Localizer["Note"]</th>
-                                @if (canModify || canDelete)
-                                {
-                                    <th class="text-center"><i class="fas fa-cogs me-1"></i>@Localizer["Actions"]</th>
-                                }
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                int idx = 0;
-                                double running = 0;
-                            }
-                            @foreach (var a in achievements)
-                            {
-                                idx++;
-                                running += a.Value;
-                                <tr class="table-row">
-                                    <td>@idx</td>
-                                    <td>@a.Date.ToString("dd/MM/yyyy")</td>
-                                    <td class="text-center fw-bold">@a.Value.ToString("N0") @unit</td>
-                                    <td class="text-center text-muted">@running.ToString("N0") @unit</td>
-                                    <td>@(string.IsNullOrWhiteSpace(a.Note) ? "—" : a.Note)</td>
-                                    @if (canModify || canDelete)
-                                    {
-                                        <td class="text-center">
-                                            <div class="btn-group action-buttons" role="group">
-                                                @if (canModify)
-                                                {
-                                                    <button type="button" class="btn btn-outline-primary btn-sm action-btn edit-achievement"
-                                                            title="@Localizer["Edit"]"
-                                                            data-id="@a.Id"
-                                                            data-date="@a.Date.ToString("yyyy-MM-dd")"
-                                                            data-value="@a.Value.ToString("0.####", System.Globalization.CultureInfo.InvariantCulture)"
-                                                            data-note="@a.Note">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                }
-                                                @if (canDelete)
-                                                {
-                                                    <form asp-action="DeleteAchievement" asp-route-id="@a.Id" method="post"
-                                                          style="display:inline"
-                                                          onsubmit="return confirm('@Localizer["Delete this achievement?"]')">
-                                                        @Html.AntiForgeryToken()
-                                                        <button type="submit" class="btn btn-outline-danger btn-sm action-btn"
-                                                                title="@Localizer["Delete"]">
-                                                            <i class="fas fa-trash-alt"></i>
-                                                        </button>
-                                                    </form>
-                                                }
-                                            </div>
-                                        </td>
-                                    }
-                                </tr>
-                            }
-                        </tbody>
-                        <tfoot>
-                            <tr class="table-row fw-bold" style="border-top:2px solid var(--primary-color);">
-                                <td colspan="2" class="text-end">@Localizer["Total Achieved"]</td>
-                                <td class="text-center">@Model.AchievedValue.ToString("N0") @unit</td>
-                                <td colspan="@(canModify || canDelete ? 3 : 2)"></td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            }
-            else
-            {
-                <div class="empty-state">
-                    <div class="empty-icon"><i class="fas fa-list-check"></i></div>
-                    <h5 class="empty-title">@Localizer["No Achievements Yet"]</h5>
-                    <p class="empty-text">@Localizer["Record the first achievement to start tracking this indicator."]</p>
+                <div class="mt-3">
+                    <a href="@Url.Action("Edit", new { id = Model.Id })" class="impact-btn primary">
+                        <i class="fas fa-pen-to-square me-2"></i>@Localizer["Update Achieved Value"]
+                    </a>
                 </div>
             }
         </div>
@@ -295,10 +162,10 @@
             </h3>
             <div class="chart-content d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <span class="text-muted small">
-                    @Localizer["Deleting this indicator also deletes all of its recorded achievements."]
+                    @Localizer["An indicator linked to a framework impact target cannot be deleted until it is unlinked there."]
                 </span>
                 <form asp-action="Delete" asp-route-id="@Model.Id" method="post"
-                      onsubmit="return confirm('@Localizer["Delete this indicator and all its achievements? This cannot be undone."]')">
+                      onsubmit="return confirm('@Localizer["Delete this indicator? This cannot be undone."]')">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-outline-danger">
                         <i class="fas fa-trash-alt me-2"></i>@Localizer["Delete Indicator"]
@@ -309,61 +176,7 @@
     }
 </div>
 
-@if (canModify)
-{
-    <div class="modal fade" id="editAchievementModal" tabindex="-1">
-        <div class="modal-dialog">
-            <form asp-action="EditAchievement" method="post" class="modal-content">
-                @Html.AntiForgeryToken()
-                <input type="hidden" name="Id" id="editId" />
-                <input type="hidden" name="ImpactIndicatorId" value="@Model.Id" />
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>@Localizer["Edit Achievement"]</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="impact-label" for="editDate">@Localizer["Date"] *</label>
-                        <input type="date" id="editDate" name="Date" class="impact-input" required
-                               min="@Model.StartDate.ToString("yyyy-MM-dd")"
-                               max="@Model.EndDate.ToString("yyyy-MM-dd")" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="impact-label" for="editValue">@Localizer["Value"] *</label>
-                        <input type="number" id="editValue" name="Value" class="impact-input" required
-                               step="any" min="0.0001" />
-                    </div>
-                    <div>
-                        <label class="impact-label" for="editNote">@Localizer["Note"]</label>
-                        <input type="text" id="editNote" name="Note" class="impact-input" maxlength="1000" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="impact-btn secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
-                    <button type="submit" class="impact-btn primary">
-                        <i class="fas fa-save me-2"></i>@Localizer["Save Changes"]
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-}
-
 @section Styles {
     <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
-}
-
-@section Scripts {
-    <script>
-        document.querySelectorAll('.edit-achievement').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                document.getElementById('editId').value = this.dataset.id;
-                document.getElementById('editDate').value = this.dataset.date;
-                document.getElementById('editValue').value = this.dataset.value;
-                document.getElementById('editNote').value = this.dataset.note || '';
-                new bootstrap.Modal(document.getElementById('editAchievementModal')).show();
-            });
-        });
-    </script>
 }

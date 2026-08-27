@@ -66,8 +66,8 @@ namespace MonitoringAndEvaluationPlatform.Models
         /// Only rates can be averaged here — the indicators have different units (schools, km,
         /// beneficiaries), so averaging their raw AchievedValue would produce a meaningless number.
         ///
-        /// Computed, never stored, so it can never drift from its sources and picks up new
-        /// achievements immediately. Requires the caller to have loaded
+        /// Computed, never stored, so it can never drift from its sources and reflects an edited
+        /// AchievedValue immediately. Requires the caller to have loaded
         /// <c>Indicators.ThenInclude(l =&gt; l.ImpactIndicator)</c>; with nothing loaded it reads 0.
         ///
         /// Dividing by the actual total weight rather than a hard-coded 100 keeps the result

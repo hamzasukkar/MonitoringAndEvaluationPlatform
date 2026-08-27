@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using MonitoringAndEvaluationPlatform.Attributes;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -41,22 +40,13 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Display(Name = "Target Value")]
         public double TargetValue { get; set; }
 
-        [Required(ErrorMessage = "Start date is required.")]
-        [DataType(DataType.Date)]
-        [Display(Name = "Start Date")]
-        public DateTime StartDate { get; set; }
-
-        [Required(ErrorMessage = "End date is required.")]
-        [DataType(DataType.Date)]
-        [DateRangeValidation(nameof(StartDate))]
-        [Display(Name = "End Date")]
-        public DateTime EndDate { get; set; }
-
         /// <summary>
-        /// Cumulative achieved value — the sum of every achievement's value.
-        /// Persisted so listings and reports can sort and filter without loading achievements,
-        /// and written by exactly one place: <c>ImpactIndicatorService.RecalculateAsync</c>.
+        /// How much has actually been delivered, in <see cref="Unit"/>. Entered directly by the
+        /// user on the indicator form — there is no dated achievement ledger behind it.
+        /// Zero is valid and means the indicator has not started.
         /// </summary>
+        [Required(ErrorMessage = "Achieved value is required.")]
+        [Range(0, double.MaxValue, ErrorMessage = "Achieved value cannot be negative.")]
         [Display(Name = "Achieved Value")]
         public double AchievedValue { get; set; } = 0;
 
@@ -76,8 +66,6 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         public int ProjectID { get; set; }
         public virtual Project Project { get; set; } = null!;
-
-        public virtual ICollection<ImpactAchievement> Achievements { get; set; } = new List<ImpactAchievement>();
 
         /// <summary>
         /// Framework-level impact targets this indicator contributes to. Delete is restricted

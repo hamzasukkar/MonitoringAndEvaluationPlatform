@@ -5,7 +5,6 @@
     ViewData["Title"] = "Edit Impact Indicator";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var project = ViewBag.Project as MonitoringAndEvaluationPlatform.Models.Project;
-    var achievementCount = Model.Achievements?.Count ?? 0;
 }
 
 <div class="dashboard-header">
@@ -34,14 +33,6 @@
 </div>
 
 <div class="impact-form-section">
-    @if (achievementCount > 0)
-    {
-        <div class="alert alert-info py-2 small mb-3">
-            <i class="fas fa-info-circle me-1"></i>
-            @Localizer["This indicator has {0} recorded achievement(s). Changing the target updates the rate immediately; narrowing the period is blocked if it would strand any of them.", achievementCount]
-        </div>
-    }
-
     <div class="impact-form-card">
         <div class="impact-form-header">
             <div class="impact-form-icon"><i class="fas fa-edit"></i></div>

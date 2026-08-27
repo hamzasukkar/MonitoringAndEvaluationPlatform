@@ -82,17 +82,11 @@
   <data name="Indicator Information" xml:space="preserve">
     <value>معلومات المؤشر</value>
   </data>
-  <data name="Period" xml:space="preserve">
-    <value>الفترة</value>
-  </data>
   <data name="Unit" xml:space="preserve">
     <value>وحدة القياس</value>
   </data>
   <data name="Not specified" xml:space="preserve">
     <value>غير محددة</value>
-  </data>
-  <data name="Achievements Recorded" xml:space="preserve">
-    <value>عدد الإنجازات المسجلة</value>
   </data>
   <data name="Progress" xml:space="preserve">
     <value>التقدم</value>
@@ -106,64 +100,31 @@
   <data name="Impact indicators are measured separately from project execution — they do not affect project performance or the results framework." xml:space="preserve">
     <value>تُقاس مؤشرات الأثر بمعزل عن تنفيذ المشروع — فهي لا تؤثر على أداء المشروع ولا على الإطار النتائجي.</value>
   </data>
-  <data name="Achievements" xml:space="preserve">
-    <value>الإنجازات</value>
-  </data>
-  <data name="Date" xml:space="preserve">
-    <value>التاريخ</value>
-  </data>
-  <data name="Value" xml:space="preserve">
-    <value>القيمة</value>
-  </data>
-  <data name="Note" xml:space="preserve">
-    <value>ملاحظة</value>
-  </data>
-  <data name="Optional" xml:space="preserve">
-    <value>اختياري</value>
-  </data>
-  <data name="Record" xml:space="preserve">
-    <value>تسجيل</value>
-  </data>
-  <data name="Cumulative" xml:space="preserve">
-    <value>التراكمي</value>
-  </data>
-  <data name="Actions" xml:space="preserve">
-    <value>إجراءات</value>
-  </data>
-  <data name="Total Achieved" xml:space="preserve">
-    <value>إجمالي الإنجاز</value>
-  </data>
   <data name="Delete" xml:space="preserve">
     <value>حذف</value>
-  </data>
-  <data name="Delete this achievement?" xml:space="preserve">
-    <value>حذف هذا الإنجاز؟</value>
-  </data>
-  <data name="No Achievements Yet" xml:space="preserve">
-    <value>لا توجد إنجازات بعد</value>
-  </data>
-  <data name="Record the first achievement to start tracking this indicator." xml:space="preserve">
-    <value>سجّل أول إنجاز لتبدأ متابعة هذا المؤشر.</value>
   </data>
   <data name="Danger Zone" xml:space="preserve">
     <value>منطقة الإجراءات الخطرة</value>
   </data>
-  <data name="Deleting this indicator also deletes all of its recorded achievements." xml:space="preserve">
-    <value>حذف هذا المؤشر يحذف أيضاً كل إنجازاته المسجلة.</value>
-  </data>
-  <data name="Delete this indicator and all its achievements? This cannot be undone." xml:space="preserve">
-    <value>حذف هذا المؤشر وكل إنجازاته؟ لا يمكن التراجع عن هذا الإجراء.</value>
-  </data>
   <data name="Delete Indicator" xml:space="preserve">
     <value>حذف المؤشر</value>
-  </data>
-  <data name="Edit Achievement" xml:space="preserve">
-    <value>تعديل الإنجاز</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>إلغاء</value>
   </data>
   <data name="Save Changes" xml:space="preserve">
     <value>حفظ التغييرات</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>المشروع</value>
+  </data>
+  <data name="Update Achieved Value" xml:space="preserve">
+    <value>تحديث قيمة الإنجاز</value>
+  </data>
+  <data name="An indicator linked to a framework impact target cannot be deleted until it is unlinked there." xml:space="preserve">
+    <value>المؤشر المرتبط بهدف أثر لا يمكن حذفه حتى يُفكّ ارتباطه هناك أولاً.</value>
+  </data>
+  <data name="Delete this indicator? This cannot be undone." xml:space="preserve">
+    <value>حذف هذا المؤشر؟ لا يمكن التراجع عن هذه العملية.</value>
   </data>
 </root>

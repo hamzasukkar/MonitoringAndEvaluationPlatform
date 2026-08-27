@@ -282,26 +282,8 @@ textarea.impact-input {
     transform: none;
 }
 
-/* ── Inline "record achievement" row ──────────────────────────────────── */
-
-.achievement-form {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: 12px;
-    padding: 1.25rem;
-    margin-bottom: 1.5rem;
-}
-
-.achievement-form-grid {
-    display: grid;
-    grid-template-columns: 160px 140px 1fr auto;
-    gap: 1rem;
-    align-items: end;
-}
-
 @media (max-width: 768px) {
-    .impact-grid,
-    .achievement-form-grid {
+    .impact-grid {
         grid-template-columns: 1fr;
     }
 

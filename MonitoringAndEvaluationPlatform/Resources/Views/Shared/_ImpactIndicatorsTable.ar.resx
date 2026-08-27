@@ -73,14 +73,8 @@
   <data name="Achievement Rate" xml:space="preserve">
     <value>نسبة الإنجاز</value>
   </data>
-  <data name="Period" xml:space="preserve">
-    <value>الفترة</value>
-  </data>
   <data name="Actions" xml:space="preserve">
     <value>إجراءات</value>
-  </data>
-  <data name="Achievements" xml:space="preserve">
-    <value>الإنجازات</value>
   </data>
   <data name="Edit" xml:space="preserve">
     <value>تعديل</value>
@@ -88,13 +82,16 @@
   <data name="Delete" xml:space="preserve">
     <value>حذف</value>
   </data>
-  <data name="Delete this indicator and all its achievements? This cannot be undone." xml:space="preserve">
-    <value>حذف هذا المؤشر وكل إنجازاته؟ لا يمكن التراجع عن هذا الإجراء.</value>
-  </data>
   <data name="No Impact Indicators Yet" xml:space="preserve">
     <value>لا توجد مؤشرات أثر بعد</value>
   </data>
   <data name="Add an indicator to start measuring what this project delivers." xml:space="preserve">
     <value>أضف مؤشراً لتبدأ بقياس ما ينجزه هذا المشروع.</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>التفاصيل</value>
+  </data>
+  <data name="Delete this indicator? This cannot be undone." xml:space="preserve">
+    <value>حذف هذا المؤشر؟ لا يمكن التراجع عن هذه العملية.</value>
   </data>
 </root>

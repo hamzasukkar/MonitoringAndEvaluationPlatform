@@ -64,34 +64,10 @@
   <data name="Impact indicator updated successfully." xml:space="preserve">
     <value>Impact indicator updated successfully.</value>
   </data>
-  <data name="Impact indicator deleted along with its achievements." xml:space="preserve">
-    <value>Impact indicator deleted along with its achievements.</value>
-  </data>
-  <data name="Achievement recorded." xml:space="preserve">
-    <value>Achievement recorded.</value>
-  </data>
-  <data name="Achievement updated." xml:space="preserve">
-    <value>Achievement updated.</value>
-  </data>
-  <data name="Achievement deleted." xml:space="preserve">
-    <value>Achievement deleted.</value>
-  </data>
-  <data name="{0} recorded achievement(s) fall outside the new period. Existing achievements run from {1} to {2}." xml:space="preserve">
-    <value>{0} recorded achievement(s) fall outside the new period. Existing achievements run from {1} to {2}.</value>
-  </data>
-  <data name="Indicator dates must be within the project dates ({0} – {1})." xml:space="preserve">
-    <value>Indicator dates must be within the project dates ({0} – {1}).</value>
-  </data>
-  <data name="End date must be on or after start date." xml:space="preserve">
-    <value>End date must be on or after start date.</value>
-  </data>
-  <data name="Achievement date must be within the indicator period ({0} – {1})." xml:space="preserve">
-    <value>Achievement date must be within the indicator period ({0} – {1}).</value>
-  </data>
-  <data name="Please check the values you entered." xml:space="preserve">
-    <value>Please check the values you entered.</value>
-  </data>
   <data name="This indicator cannot be deleted because {0} impact target(s) depend on it: {1}. Unlink it there first." xml:space="preserve">
     <value>This indicator cannot be deleted because {0} impact target(s) depend on it: {1}. Unlink it there first.</value>
+  </data>
+  <data name="Impact indicator deleted." xml:space="preserve">
+    <value>Impact indicator deleted.</value>
   </data>
 </root>

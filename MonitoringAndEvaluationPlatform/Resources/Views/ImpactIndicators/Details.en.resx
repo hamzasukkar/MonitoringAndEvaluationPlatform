@@ -82,17 +82,11 @@
   <data name="Indicator Information" xml:space="preserve">
     <value>Indicator Information</value>
   </data>
-  <data name="Period" xml:space="preserve">
-    <value>Period</value>
-  </data>
   <data name="Unit" xml:space="preserve">
     <value>Unit</value>
   </data>
   <data name="Not specified" xml:space="preserve">
     <value>Not specified</value>
-  </data>
-  <data name="Achievements Recorded" xml:space="preserve">
-    <value>Achievements Recorded</value>
   </data>
   <data name="Progress" xml:space="preserve">
     <value>Progress</value>
@@ -106,64 +100,31 @@
   <data name="Impact indicators are measured separately from project execution — they do not affect project performance or the results framework." xml:space="preserve">
     <value>Impact indicators are measured separately from project execution — they do not affect project performance or the results framework.</value>
   </data>
-  <data name="Achievements" xml:space="preserve">
-    <value>Achievements</value>
-  </data>
-  <data name="Date" xml:space="preserve">
-    <value>Date</value>
-  </data>
-  <data name="Value" xml:space="preserve">
-    <value>Value</value>
-  </data>
-  <data name="Note" xml:space="preserve">
-    <value>Note</value>
-  </data>
-  <data name="Optional" xml:space="preserve">
-    <value>Optional</value>
-  </data>
-  <data name="Record" xml:space="preserve">
-    <value>Record</value>
-  </data>
-  <data name="Cumulative" xml:space="preserve">
-    <value>Cumulative</value>
-  </data>
-  <data name="Actions" xml:space="preserve">
-    <value>Actions</value>
-  </data>
-  <data name="Total Achieved" xml:space="preserve">
-    <value>Total Achieved</value>
-  </data>
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
-  </data>
-  <data name="Delete this achievement?" xml:space="preserve">
-    <value>Delete this achievement?</value>
-  </data>
-  <data name="No Achievements Yet" xml:space="preserve">
-    <value>No Achievements Yet</value>
-  </data>
-  <data name="Record the first achievement to start tracking this indicator." xml:space="preserve">
-    <value>Record the first achievement to start tracking this indicator.</value>
   </data>
   <data name="Danger Zone" xml:space="preserve">
     <value>Danger Zone</value>
   </data>
-  <data name="Deleting this indicator also deletes all of its recorded achievements." xml:space="preserve">
-    <value>Deleting this indicator also deletes all of its recorded achievements.</value>
-  </data>
-  <data name="Delete this indicator and all its achievements? This cannot be undone." xml:space="preserve">
-    <value>Delete this indicator and all its achievements? This cannot be undone.</value>
-  </data>
   <data name="Delete Indicator" xml:space="preserve">
     <value>Delete Indicator</value>
-  </data>
-  <data name="Edit Achievement" xml:space="preserve">
-    <value>Edit Achievement</value>
   </data>
   <data name="Cancel" xml:space="preserve">
     <value>Cancel</value>
   </data>
   <data name="Save Changes" xml:space="preserve">
     <value>Save Changes</value>
+  </data>
+  <data name="Project" xml:space="preserve">
+    <value>Project</value>
+  </data>
+  <data name="Update Achieved Value" xml:space="preserve">
+    <value>Update Achieved Value</value>
+  </data>
+  <data name="An indicator linked to a framework impact target cannot be deleted until it is unlinked there." xml:space="preserve">
+    <value>An indicator linked to a framework impact target cannot be deleted until it is unlinked there.</value>
+  </data>
+  <data name="Delete this indicator? This cannot be undone." xml:space="preserve">
+    <value>Delete this indicator? This cannot be undone.</value>
   </data>
 </root>

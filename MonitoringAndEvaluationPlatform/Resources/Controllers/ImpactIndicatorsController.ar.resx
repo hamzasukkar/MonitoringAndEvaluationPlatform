@@ -64,34 +64,10 @@
   <data name="Impact indicator updated successfully." xml:space="preserve">
     <value>تم تحديث مؤشر الأثر بنجاح.</value>
   </data>
-  <data name="Impact indicator deleted along with its achievements." xml:space="preserve">
-    <value>تم حذف مؤشر الأثر مع كل إنجازاته.</value>
-  </data>
-  <data name="Achievement recorded." xml:space="preserve">
-    <value>تم تسجيل الإنجاز.</value>
-  </data>
-  <data name="Achievement updated." xml:space="preserve">
-    <value>تم تحديث الإنجاز.</value>
-  </data>
-  <data name="Achievement deleted." xml:space="preserve">
-    <value>تم حذف الإنجاز.</value>
-  </data>
-  <data name="{0} recorded achievement(s) fall outside the new period. Existing achievements run from {1} to {2}." xml:space="preserve">
-    <value>{0} إنجاز مسجل يقع خارج الفترة الجديدة. الإنجازات الحالية تمتد من {1} إلى {2}.</value>
-  </data>
-  <data name="Indicator dates must be within the project dates ({0} – {1})." xml:space="preserve">
-    <value>يجب أن تقع تواريخ المؤشر ضمن تواريخ المشروع ({0} – {1}).</value>
-  </data>
-  <data name="End date must be on or after start date." xml:space="preserve">
-    <value>يجب أن يكون تاريخ النهاية في أو بعد تاريخ البداية.</value>
-  </data>
-  <data name="Achievement date must be within the indicator period ({0} – {1})." xml:space="preserve">
-    <value>يجب أن يقع تاريخ الإنجاز ضمن فترة المؤشر ({0} – {1}).</value>
-  </data>
-  <data name="Please check the values you entered." xml:space="preserve">
-    <value>يرجى التحقق من القيم التي أدخلتها.</value>
-  </data>
   <data name="This indicator cannot be deleted because {0} impact target(s) depend on it: {1}. Unlink it there first." xml:space="preserve">
     <value>لا يمكن حذف هذا المؤشر لأن {0} من أهداف الأثر تعتمد عليه: {1}. ألغِ ربطه من هناك أولاً.</value>
+  </data>
+  <data name="Impact indicator deleted." xml:space="preserve">
+    <value>تم حذف مؤشر الأثر.</value>
   </data>
 </root>

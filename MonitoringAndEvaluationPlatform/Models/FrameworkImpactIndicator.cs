@@ -6,8 +6,8 @@ namespace MonitoringAndEvaluationPlatform.Models
     /// Links one <see cref="ImpactIndicator"/> to one <see cref="FrameworkImpact"/> with a weight.
     ///
     /// Note what is NOT here: the indicator's name and value. Those are read live from
-    /// <see cref="ImpactIndicator"/> at display time, so recording an achievement on the project
-    /// page immediately moves the framework's weighted rate with no recalculation step.
+    /// <see cref="ImpactIndicator"/> at display time, so editing that indicator's AchievedValue
+    /// immediately moves the framework's weighted rate with no recalculation step.
     /// The only thing this row owns is the weight.
     /// </summary>
     public class FrameworkImpactIndicator

@@ -79,22 +79,16 @@
   <data name="Without a unit the target and achieved numbers are hard to read in reports." xml:space="preserve">
     <value>بدون وحدة قياس يصعب قراءة أرقام الهدف والإنجاز في التقارير.</value>
   </data>
-  <data name="Start Date" xml:space="preserve">
-    <value>تاريخ البداية</value>
-  </data>
-  <data name="Must be on or after" xml:space="preserve">
-    <value>يجب أن يكون في أو بعد</value>
-  </data>
-  <data name="End Date" xml:space="preserve">
-    <value>تاريخ النهاية</value>
-  </data>
-  <data name="Must be on or before" xml:space="preserve">
-    <value>يجب أن يكون في أو قبل</value>
-  </data>
   <data name="Description" xml:space="preserve">
     <value>الوصف</value>
   </data>
   <data name="What this indicator measures and how it is computed" xml:space="preserve">
     <value>ما الذي يقيسه هذا المؤشر وكيف يُحتسب</value>
+  </data>
+  <data name="Achieved Value" xml:space="preserve">
+    <value>قيمة الإنجاز</value>
+  </data>
+  <data name="How much has been delivered so far. Zero means not started; exceeding the target is allowed." xml:space="preserve">
+    <value>ما تم إنجازه فعلياً حتى الآن. صفر يعني لم يبدأ، وتجاوز الهدف مسموح.</value>
   </data>
 </root>

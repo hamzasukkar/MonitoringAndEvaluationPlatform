@@ -79,22 +79,16 @@
   <data name="Without a unit the target and achieved numbers are hard to read in reports." xml:space="preserve">
     <value>Without a unit the target and achieved numbers are hard to read in reports.</value>
   </data>
-  <data name="Start Date" xml:space="preserve">
-    <value>Start Date</value>
-  </data>
-  <data name="Must be on or after" xml:space="preserve">
-    <value>Must be on or after</value>
-  </data>
-  <data name="End Date" xml:space="preserve">
-    <value>End Date</value>
-  </data>
-  <data name="Must be on or before" xml:space="preserve">
-    <value>Must be on or before</value>
-  </data>
   <data name="Description" xml:space="preserve">
     <value>Description</value>
   </data>
   <data name="What this indicator measures and how it is computed" xml:space="preserve">
     <value>What this indicator measures and how it is computed</value>
+  </data>
+  <data name="Achieved Value" xml:space="preserve">
+    <value>Achieved Value</value>
+  </data>
+  <data name="How much has been delivered so far. Zero means not started; exceeding the target is allowed." xml:space="preserve">
+    <value>How much has been delivered so far. Zero means not started; exceeding the target is allowed.</value>
   </data>
 </root>
