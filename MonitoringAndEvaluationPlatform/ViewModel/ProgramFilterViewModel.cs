@@ -7,12 +7,14 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<int> SelectedMinistries { get; set; } = new List<int>();
         public List<int> SelectedRegions { get; set; } = new List<int>();
         public List<int> SelectedDonors { get; set; } = new List<int>();
+        public List<int> SelectedProjectManagers { get; set; } = new List<int>();
         public List<int> SelectedGoals { get; set; } = new List<int>();
         public List<int> SelectedSectors { get; set; } = new List<int>();
         public List<int> SelectedPublicSectorTypes { get; set; } = new List<int>();
         public List<string> SelectedGovernorates { get; set; } = new List<string>();
         public List<Ministry> Ministries { get; set; } = new List<Ministry>();
         public List<Donor> Donors { get; set; } = new List<Donor>();
+        public List<ProjectManager> ProjectManagers { get; set; } = new List<ProjectManager>();
         public List<Project> Projects { get; set; } = new List<Project>();
         public List<Sector> Sectors { get; set; } = new List<Sector>();
         public List<PublicSectorType> PublicSectorTypes { get; set; } = new List<PublicSectorType>();

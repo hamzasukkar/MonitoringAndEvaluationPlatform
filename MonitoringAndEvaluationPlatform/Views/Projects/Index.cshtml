@@ -47,6 +47,7 @@
                 for (int i = 0; i < Model.SelectedDonors.Count; i++) exportRouteData[$"SelectedDonors[{i}]"] = Model.SelectedDonors[i].ToString();
                 for (int i = 0; i < Model.SelectedSectors.Count; i++) exportRouteData[$"SelectedSectors[{i}]"] = Model.SelectedSectors[i].ToString();
                 for (int i = 0; i < Model.SelectedGovernorates.Count; i++) exportRouteData[$"SelectedGovernorates[{i}]"] = Model.SelectedGovernorates[i];
+                for (int i = 0; i < Model.SelectedProjectManagers.Count; i++) exportRouteData[$"SelectedProjectManagers[{i}]"] = Model.SelectedProjectManagers[i].ToString();
             }
             <a asp-action="ExportExcel" asp-all-route-data="exportRouteData" class="btn btn-success">
                 <i class="fas fa-file-excel me-2"></i>@Localizer["Export to Excel"]
@@ -232,6 +233,7 @@
     for (int i = 0; i < Model.SelectedSectors.Count; i++) baseRoute[$"SelectedSectors[{i}]"] = Model.SelectedSectors[i].ToString();
     for (int i = 0; i < Model.SelectedPublicSectorTypes.Count; i++) baseRoute[$"SelectedPublicSectorTypes[{i}]"] = Model.SelectedPublicSectorTypes[i].ToString();
     for (int i = 0; i < Model.SelectedGovernorates.Count; i++) baseRoute[$"SelectedGovernorates[{i}]"] = Model.SelectedGovernorates[i];
+    for (int i = 0; i < Model.SelectedProjectManagers.Count; i++) baseRoute[$"SelectedProjectManagers[{i}]"] = Model.SelectedProjectManagers[i].ToString();
 
     // Helper: produce a route dict with a single key removed (for list filters,
     // we drop the whole list and re-add every value except the removed one).
@@ -344,6 +346,21 @@
             <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
                 <span class="chip-key">@Localizer["Donor"]</span>
                 <span class="chip-val">@d.Partner</span>
+                <i class="fas fa-times chip-x"></i>
+            </a>
+        }
+
+        @* Project Managers *@
+        @foreach (var code in Model.SelectedProjectManagers)
+        {
+            var pm = Model.ProjectManagers.FirstOrDefault(x => x.Code == code);
+            if (pm == null) { continue; }
+            var rd = new Dictionary<string, string>(routeWithout("SelectedProjectManagers", code));
+            var idx = 0;
+            foreach (var other in Model.SelectedProjectManagers.Where(c => c != code)) { rd[$"SelectedProjectManagers[{idx++}]"] = other.ToString(); }
+            <a asp-action="Index" asp-all-route-data="rd" class="filter-chip">
+                <span class="chip-key">@Localizer["Project Manager"]</span>
+                <span class="chip-val">@pm.Name</span>
                 <i class="fas fa-times chip-x"></i>
             </a>
         }
@@ -551,6 +568,24 @@
 
                         }
 
+                        <!-- Project Manager Filter -->
+                        <div class="mb-4">
+                            <h6 class="filter-section-title">@Localizer["Project Manager"]</h6>
+                            <div class="filter-options-modern">
+                                @foreach (var pm in Model.ProjectManagers)
+                                {
+                                    <div class="modern-checkbox">
+                                        <input class="modern-checkbox-input" type="checkbox" name="SelectedProjectManagers"
+                                               value="@pm.Code" id="project-manager-@pm.Code"
+                                        @(Model.SelectedProjectManagers.Contains(pm.Code) ? "checked" : "")>
+                                        <label class="modern-checkbox-label" for="project-manager-@pm.Code">
+                                            <span class="checkbox-custom"></span>
+                                            <span class="checkbox-text">@pm.Name</span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
 
                         <!-- Donor Filter -->
                         <div class="mb-4">

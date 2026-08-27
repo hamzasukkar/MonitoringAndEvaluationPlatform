@@ -148,6 +148,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Load dropdown/filter data
             filter.Ministries = await _context.Ministries.ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
+            filter.ProjectManagers = await _context.ProjectManagers.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
             filter.PublicSectorTypes = await _context.PublicSectorTypes.ToListAsync();
             filter.Governorates = await _context.Governorates.ToListAsync();
@@ -409,6 +410,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 projectQuery = projectQuery
                     .Where(p => p.Donors
                                  .Any(d => filter.SelectedDonors.Contains(d.Code)));
+            }
+
+            if (filter.SelectedProjectManagers.Any())
+            {
+                projectQuery = projectQuery
+                    .Where(p => filter.SelectedProjectManagers.Contains(p.ProjectManagerCode));
             }
 
             if (filter.SelectedGovernorates.Any())
