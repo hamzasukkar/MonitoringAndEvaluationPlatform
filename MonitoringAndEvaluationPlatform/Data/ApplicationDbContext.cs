@@ -51,6 +51,8 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<RequestCommentAttachment> RequestCommentAttachments { get; set; } = default!;
         public DbSet<RequestTest> RequestTests { get; set; } = default!;
         public DbSet<CurrencyRate> CurrencyRates { get; set; } = default!;
+        public DbSet<ImpactIndicator> ImpactIndicators { get; set; } = default!;
+        public DbSet<ImpactIndicatorYearlyValue> ImpactIndicatorYearlyValues { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -319,6 +321,27 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .HasMany(p => p.Communities)
                 .WithMany(c => c.projects)
                 .UsingEntity(j => j.ToTable("ProjectCommunities"));
+
+            // ImpactIndicator → Project (many-to-one). Cascade: an impact indicator has no
+            // meaning without its project, unlike Indicator which outlives the link.
+            modelBuilder.Entity<ImpactIndicator>()
+                .HasOne(ii => ii.Project)
+                .WithMany(p => p.ImpactIndicators)
+                .HasForeignKey(ii => ii.ProjectID)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // ImpactIndicator <-> ImpactIndicatorYearlyValue (one-to-many)
+            modelBuilder.Entity<ImpactIndicatorYearlyValue>()
+                .HasOne(v => v.ImpactIndicator)
+                .WithMany(ii => ii.YearlyValues)
+                .HasForeignKey(v => v.ImpactIndicatorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint: one value per year per impact indicator. This is what makes the
+            // controller's find-or-add save logic safe against a replayed or duplicated post.
+            modelBuilder.Entity<ImpactIndicatorYearlyValue>()
+                .HasIndex(v => new { v.ImpactIndicatorId, v.Year })
+                .IsUnique();
 
             // Framework <-> FrameworkGoal (one-to-many)
             modelBuilder.Entity<FrameworkGoal>()

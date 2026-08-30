@@ -1,0 +1,76 @@
+@model MonitoringAndEvaluationPlatform.ViewModel.ImpactIndicatorFormViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Edit Impact Indicator";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var project = ViewBag.Project as MonitoringAndEvaluationPlatform.Models.Project;
+}
+
+<div class="dashboard-header">
+    <div class="impact-breadcrumb">
+        <a href="@Url.Action("Index", "Projects")" class="breadcrumb-link">
+            <i class="fas fa-project-diagram"></i>
+            @Localizer["Projects"]
+        </a>
+        <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        @if (project != null)
+        {
+            <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="breadcrumb-link">
+                @project.ProjectName
+            </a>
+            <i class="fas fa-chevron-right breadcrumb-separator"></i>
+            <a href="@Url.Action("Index", "ImpactIndicators", new { projectId = project.ProjectID })" class="breadcrumb-link">
+                @Localizer["Impact Indicators"]
+            </a>
+            <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        }
+        <span class="current-page">@Localizer["Edit"]</span>
+    </div>
+
+    <h1 class="dashboard-title">
+        <i class="fas fa-edit me-3"></i>
+        @Localizer["Edit Impact Indicator"]
+    </h1>
+    <p class="dashboard-subtitle">@Model.Name</p>
+</div>
+
+@if (project != null)
+{
+    <div class="impact-banner">
+        <div class="impact-banner-item">
+            <div class="impact-banner-icon"><i class="fas fa-project-diagram"></i></div>
+            <div>
+                <div class="impact-banner-label">@Localizer["Project"]</div>
+                <div class="impact-banner-value">@project.ProjectName</div>
+            </div>
+        </div>
+        <div class="impact-banner-item">
+            <div class="impact-banner-icon years-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div>
+                <div class="impact-banner-label">@Localizer["Measured Years"]</div>
+                <div class="impact-banner-value">
+                    @project.StartDate.Year – @project.EndDate.Year
+                    <span class="text-muted" style="font-size:.85rem;font-weight:500">
+                        (@project.CoveredYears.Count() @Localizer["years"])
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="chart-card mb-4">
+    <div class="chart-content">
+        <partial name="_ImpactIndicatorForm" model="Model" />
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

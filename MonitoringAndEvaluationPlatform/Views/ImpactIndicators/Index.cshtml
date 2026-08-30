@@ -1,0 +1,123 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ImpactIndicator>
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@inject IAuthorizationService AuthService
+@{
+    ViewData["Title"] = "Impact Indicators";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var project = ViewBag.Project as Project;
+    var canAdd = (await AuthService.AuthorizeAsync(User, Permissions.AddIndicator)).Succeeded;
+
+    var totalTarget = Model.Sum(i => i.TargetValue);
+    var totalAchieved = Model.Sum(i => i.AchievedValue);
+}
+
+<div class="dashboard-header">
+    <div class="impact-breadcrumb">
+        <a href="@Url.Action("Index", "Projects")" class="breadcrumb-link">
+            <i class="fas fa-project-diagram"></i>
+            @Localizer["Projects"]
+        </a>
+        <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        @if (project != null)
+        {
+            <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="breadcrumb-link">
+                @project.ProjectName
+            </a>
+            <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        }
+        <span class="current-page">@Localizer["Impact Indicators"]</span>
+    </div>
+
+    <h1 class="dashboard-title">
+        <i class="fas fa-bullseye me-3"></i>
+        @Localizer["Impact Indicators"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["What this project delivers, measured year by year against a target."]
+    </p>
+
+    <div class="dashboard-actions">
+        @if (canAdd && project != null)
+        {
+            <a href="@Url.Action("Create", "ImpactIndicators", new { projectId = project.ProjectID })"
+               class="btn btn-gradient-primary me-2">
+                <i class="fas fa-plus me-1"></i>@Localizer["New Indicator"]
+            </a>
+        }
+        @if (project != null)
+        {
+            <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="btn btn-light">
+                <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to Project"]
+            </a>
+        }
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-circle-check me-1"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-triangle-exclamation me-1"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (project != null && Model.Any())
+{
+    <div class="impact-banner">
+        <div class="impact-banner-item">
+            <div class="impact-banner-icon"><i class="fas fa-list-ol"></i></div>
+            <div>
+                <div class="impact-banner-label">@Localizer["Indicators"]</div>
+                <div class="impact-banner-value">@Model.Count().ToString("N0")</div>
+            </div>
+        </div>
+        <div class="impact-banner-item">
+            <div class="impact-banner-icon years-icon"><i class="fas fa-calendar-alt"></i></div>
+            <div>
+                <div class="impact-banner-label">@Localizer["Measured Years"]</div>
+                <div class="impact-banner-value">@project.StartDate.Year – @project.EndDate.Year</div>
+            </div>
+        </div>
+        @* Totals are informational only: summing across indicators with different units is not
+           a meaningful figure, so no combined rate is shown. *@
+        <div class="impact-banner-item">
+            <div class="impact-banner-icon target-icon"><i class="fas fa-bullseye"></i></div>
+            <div>
+                <div class="impact-banner-label">@Localizer["Sum of Targets"]</div>
+                <div class="impact-banner-value">@totalTarget.ToString("N2")</div>
+            </div>
+        </div>
+        <div class="impact-banner-item">
+            <div class="impact-banner-icon achieved-icon"><i class="fas fa-check-double"></i></div>
+            <div>
+                <div class="impact-banner-label">@Localizer["Sum of Achieved"]</div>
+                <div class="impact-banner-value">@totalAchieved.ToString("N2")</div>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="chart-card mb-4">
+    <h3 class="chart-title">
+        <i class="fas fa-table me-2"></i>
+        @Localizer["All Indicators"]
+    </h3>
+    <div class="chart-content">
+        <partial name="_ImpactIndicatorsTable" model="Model" />
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}

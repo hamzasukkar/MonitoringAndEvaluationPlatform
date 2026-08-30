@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="% of Target" xml:space="preserve">
+    <value>النسبة من المستهدف</value>
+  </data>
+  <data name="Achieved" xml:space="preserve">
+    <value>المنجز</value>
+  </data>
+  <data name="Achievement Rate" xml:space="preserve">
+    <value>نسبة الإنجاز</value>
+  </data>
+  <data name="All Indicators" xml:space="preserve">
+    <value>جميع المؤشرات</value>
+  </data>
+  <data name="Back to Project" xml:space="preserve">
+    <value>العودة إلى المشروع</value>
+  </data>
+  <data name="Cumulative" xml:space="preserve">
+    <value>التراكمي</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Delete this indicator? Its yearly values will also be deleted. This cannot be undone." xml:space="preserve">
+    <value>هل تريد حذف هذا المؤشر؟ سيتم حذف قيمه السنوية أيضًا. لا يمكن التراجع عن هذا الإجراء.</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Impact Indicators" xml:space="preserve">
+    <value>مؤشرات الأثر</value>
+  </data>
+  <data name="Measured Years" xml:space="preserve">
+    <value>سنوات القياس</value>
+  </data>
+  <data name="Measured in" xml:space="preserve">
+    <value>وحدة القياس</value>
+  </data>
+  <data name="No Years to Measure" xml:space="preserve">
+    <value>لا توجد سنوات للقياس</value>
+  </data>
+  <data name="Not entered" xml:space="preserve">
+    <value>لم تُدخل</value>
+  </data>
+  <data name="Projects" xml:space="preserve">
+    <value>المشاريع</value>
+  </data>
+  <data name="Remaining to Target" xml:space="preserve">
+    <value>المتبقي للوصول إلى المستهدف</value>
+  </data>
+  <data name="Set the project's start and end dates to define the measurement years." xml:space="preserve">
+    <value>حدّد تاريخي بداية ونهاية المشروع لتحديد سنوات القياس.</value>
+  </data>
+  <data name="Some values fall outside the project's current date range." xml:space="preserve">
+    <value>بعض القيم تقع خارج النطاق الزمني الحالي للمشروع.</value>
+  </data>
+  <data name="Target Value" xml:space="preserve">
+    <value>القيمة المستهدفة</value>
+  </data>
+  <data name="These were recorded before the project's dates changed. They are still counted in the achieved total, but cannot be edited until the project covers those years again." xml:space="preserve">
+    <value>سُجّلت هذه القيم قبل تغيير تواريخ المشروع. وهي لا تزال محتسبة ضمن الإجمالي المنجز، لكن لا يمكن تعديلها حتى يشمل المشروع تلك السنوات مجددًا.</value>
+  </data>
+  <data name="This indicator has exceeded its target." xml:space="preserve">
+    <value>تجاوز هذا المؤشر قيمته المستهدفة.</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="Value" xml:space="preserve">
+    <value>القيمة</value>
+  </data>
+  <data name="Values are cumulative — each year records what was delivered that year, and together they make up the achieved total." xml:space="preserve">
+    <value>القيم تراكمية — تسجّل كل سنة ما تم إنجازه خلالها، ويشكّل مجموعها الإجمالي المنجز.</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>السنة</value>
+  </data>
+  <data name="Yearly Values" xml:space="preserve">
+    <value>القيم السنوية</value>
+  </data>
+  <data name="of" xml:space="preserve">
+    <value>من</value>
+  </data>
+</root>

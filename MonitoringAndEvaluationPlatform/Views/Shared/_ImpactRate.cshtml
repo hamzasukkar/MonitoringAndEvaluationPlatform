@@ -1,0 +1,27 @@
+@model MonitoringAndEvaluationPlatform.Models.ImpactIndicator
+@*
+    Achievement rate bar for one impact indicator: achieved ÷ target as a percentage.
+
+    The rate is uncapped so overshoot reads above 100%, but the BAR is clamped to 100%
+    so the fill never escapes its track. Requires impact-indicators.css.
+*@
+@{
+    var rate = Model.AchievementRate;
+    var barWidth = Math.Min(rate, 100);
+
+    var (fillClass, textClass) = rate > 100
+        ? ("impact-rate-over", "impact-rate-over-text")
+        : rate >= 76
+            ? ("impact-rate-high", "impact-rate-high-text")
+            : rate >= 51
+                ? ("impact-rate-mid", "impact-rate-mid-text")
+                : ("impact-rate-low", "impact-rate-low-text");
+}
+
+<div class="impact-rate" title="@Model.AchievedValue.ToString("N2") / @Model.TargetValue.ToString("N2")">
+    <div class="impact-rate-track">
+        <div class="impact-rate-fill @fillClass"
+             style="width:@barWidth.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)%"></div>
+    </div>
+    <span class="impact-rate-value @textClass">@rate.ToString("N1")%</span>
+</div>

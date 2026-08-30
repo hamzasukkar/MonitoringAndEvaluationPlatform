@@ -1,0 +1,281 @@
+/*
+ * Impact indicators — shared styling for the ImpactIndicators views and the
+ * "Impact Measurement" card on the project details page.
+ *
+ * Deliberately additive: layout chrome (.dashboard-header, .chart-card) comes from
+ * _DashboardHomeLayout, and table/empty-state chrome from project-details.css.
+ * Only what is specific to impact indicators lives here.
+ */
+
+/* ── Achievement rate bar ───────────────────────────────────────────────── */
+
+.impact-rate {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 150px;
+}
+
+.impact-rate-track {
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: #e9ecef;
+    overflow: hidden;
+}
+
+.impact-rate-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.impact-rate-value {
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    min-width: 52px;
+    text-align: end;
+}
+
+/* Same thresholds as the .progress-0-50 / 51-75 / 76-100 family in project-details.css */
+.impact-rate-low    { background: linear-gradient(90deg, #dc3545, #e4606d); }
+.impact-rate-mid    { background: linear-gradient(90deg, #ffc107, #ffcd39); }
+.impact-rate-high   { background: linear-gradient(90deg, #28a745, #34ce57); }
+.impact-rate-over   { background: linear-gradient(90deg, #17a2b8, #1fc8e3); }
+
+.impact-rate-value.impact-rate-low-text  { color: #dc3545; }
+.impact-rate-value.impact-rate-mid-text  { color: #b98900; }
+.impact-rate-value.impact-rate-high-text { color: #28a745; }
+.impact-rate-value.impact-rate-over-text { color: #17a2b8; }
+
+/* ── Page chrome for the standalone ImpactIndicators views ──────────────── */
+
+.impact-breadcrumb {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+.impact-breadcrumb .breadcrumb-link {
+    color: #6c757d;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.impact-breadcrumb .breadcrumb-link:hover { color: var(--primary-color, #667eea); }
+.impact-breadcrumb .breadcrumb-separator { color: #adb5bd; font-size: 0.7rem; }
+.impact-breadcrumb .current-page { color: #343a40; font-weight: 600; }
+
+/* Mirror the separator for RTL (Arabic is the default culture) */
+[dir="rtl"] .impact-breadcrumb .breadcrumb-separator { transform: scaleX(-1); }
+
+/* ── Summary banner (project / target / achieved) ───────────────────────── */
+
+.impact-banner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.impact-banner-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+.impact-banner-icon {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.impact-banner-icon.target-icon   { background: linear-gradient(135deg, #fd7e14, #ffa94d); }
+.impact-banner-icon.achieved-icon { background: linear-gradient(135deg, #28a745, #51cf66); }
+.impact-banner-icon.years-icon    { background: linear-gradient(135deg, #17a2b8, #4dd4e8); }
+
+.impact-banner-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: #6c757d;
+    margin-bottom: 2px;
+}
+
+.impact-banner-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #343a40;
+    word-break: break-word;
+}
+
+/* ── Form ───────────────────────────────────────────────────────────────── */
+
+.impact-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 26px;
+}
+
+.impact-form-group.full-width { grid-column: 1 / -1; }
+
+.impact-label {
+    display: block;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+    font-size: 0.92rem;
+}
+
+.impact-input {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fff;
+}
+
+.impact-input:focus {
+    outline: none;
+    border-color: var(--primary-color, #667eea);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.impact-hint {
+    font-size: 0.82rem;
+    color: #6c757d;
+    margin-top: 6px;
+}
+
+.field-error, .impact-input.input-validation-error {
+    color: #dc3545;
+    font-size: 0.85rem;
+}
+
+.impact-input.input-validation-error { border-color: #dc3545; color: inherit; }
+
+.validation-alert:not(:empty) {
+    background: #fdecea;
+    border: 1px solid #f5c6cb;
+    color: #842029;
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+}
+
+.validation-alert ul { margin: 0; padding-inline-start: 20px; }
+
+/* ── Year grid ──────────────────────────────────────────────────────────── */
+
+.impact-year-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.impact-year-table th {
+    background: #f8f9fa;
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.86rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    padding: 12px 14px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.impact-year-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid #f1f3f5;
+    vertical-align: middle;
+}
+
+.impact-year-table tbody tr:last-child td { border-bottom: none; }
+
+.impact-year-label {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #343a40;
+}
+
+.impact-year-input { max-width: 190px; }
+
+.impact-running-total {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #f8f9fa;
+    border: 1px dashed #ced4da;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-top: 16px;
+}
+
+.impact-running-total .total-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.impact-running-total .total-figures {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #343a40;
+}
+
+.impact-running-total .total-rate {
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+/* ── Out-of-range warning ───────────────────────────────────────────────── */
+
+.impact-orphan-warning {
+    background: #fff8e1;
+    border: 1px solid #ffe08a;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    color: #7a5b00;
+    font-size: 0.9rem;
+}
+
+.impact-orphan-warning strong { color: #6b4f00; }
+
+/* ── Form actions ───────────────────────────────────────────────────────── */
+
+.impact-form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid #e9ecef;
+}
+
+@media (max-width: 576px) {
+    .impact-form-actions { flex-direction: column; }
+    .impact-form-actions .btn { width: 100%; }
+}

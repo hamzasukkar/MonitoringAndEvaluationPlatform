@@ -113,6 +113,21 @@ namespace MonitoringAndEvaluationPlatform.Models
         // Indicators linked directly to this project (one-to-many, replacing the old many-to-many via ProjectIndicator)
         public virtual ICollection<Indicator> Indicators { get; set; } = new List<Indicator>();
 
+        // Impact indicators — a parallel measurement track that does not feed `performance`
+        public virtual ICollection<ImpactIndicator> ImpactIndicators { get; set; } = new List<ImpactIndicator>();
+
+        /// <summary>
+        /// The years this project spans, derived from its own date range. This is the year set
+        /// impact indicators are measured over — years are never stored on the indicator itself,
+        /// so moving the project's dates moves the grid with it.
+        ///
+        /// StartDate/EndDate are both required and already guarded by [DateRangeValidation], so
+        /// the range is always valid; Math.Max is belt-and-braces for a same-year project.
+        /// </summary>
+        [NotMapped]
+        public IEnumerable<int> CoveredYears =>
+            Enumerable.Range(StartDate.Year, Math.Max(EndDate.Year - StartDate.Year + 1, 1));
+
         [NotMapped]
         public List<IFormFile> UploadedFiles { get; set; } = new List<IFormFile>();
         public ICollection<ProjectFile> ProjectFiles { get; set; } = new List<ProjectFile>();

@@ -1,0 +1,189 @@
+@model MonitoringAndEvaluationPlatform.ViewModel.ImpactIndicatorFormViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@*
+    Shared by Create and Edit. The indicator's own fields and the whole year grid post together
+    in one form, so a single save covers both.
+
+    The year rows are server-rendered from Project.CoveredYears — there are no add/remove
+    controls, because the year set is derived from the project's dates rather than chosen here.
+*@
+@{
+    var project = ViewBag.Project as MonitoringAndEvaluationPlatform.Models.Project;
+    var isEdit = Model.Id != 0;
+    var action = isEdit ? "Edit" : "Create";
+}
+
+<form asp-action="@action" method="post" id="impactIndicatorForm">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="validation-alert"></div>
+
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ProjectID" />
+
+    <div class="impact-form-grid">
+        <div class="impact-form-group full-width">
+            <label asp-for="Name" class="impact-label">
+                <i class="fas fa-tag me-2"></i>@Localizer["Indicator Name"] *
+            </label>
+            <input asp-for="Name" class="impact-input" autofocus
+                   placeholder="@Localizer["e.g. Schools rehabilitated"]" />
+            <span asp-validation-for="Name" class="field-error"></span>
+        </div>
+
+        <div class="impact-form-group">
+            <label asp-for="TargetValue" class="impact-label">
+                <i class="fas fa-bullseye me-2"></i>@Localizer["Target Value"] *
+            </label>
+            <input asp-for="TargetValue" class="impact-input" id="targetValueInput"
+                   type="text" inputmode="decimal" autocomplete="off" />
+            <span asp-validation-for="TargetValue" class="field-error"></span>
+            <div class="impact-hint">@Localizer["The total to be delivered across the whole project."]</div>
+        </div>
+
+        <div class="impact-form-group">
+            <label asp-for="Unit" class="impact-label">
+                <i class="fas fa-ruler me-2"></i>@Localizer["Unit"]
+            </label>
+            <input asp-for="Unit" class="impact-input"
+                   placeholder="@Localizer["e.g. school, km, beneficiary"]" />
+            <span asp-validation-for="Unit" class="field-error"></span>
+            <div class="impact-hint">@Localizer["Optional, but makes the numbers readable in reports."]</div>
+        </div>
+    </div>
+
+    <h4 class="chart-title mt-2">
+        <i class="fas fa-calendar-alt me-2"></i>@Localizer["Yearly Values"]
+    </h4>
+    <p class="text-muted">
+        @Localizer["Enter what was delivered in each year. The years come from the project's start and end dates, and the yearly values add up to the achieved total."]
+    </p>
+
+    @if (!Model.YearValues.Any())
+    {
+        <div class="impact-orphan-warning">
+            <i class="fas fa-triangle-exclamation me-1"></i>
+            @Localizer["This project has no year range, so no yearly values can be entered. Set the project's start and end dates first."]
+        </div>
+    }
+    else
+    {
+        <div class="modern-table-container">
+            <table class="impact-year-table">
+                <thead>
+                    <tr>
+                        <th style="width:140px">@Localizer["Year"]</th>
+                        <th>@Localizer["Value"] @(string.IsNullOrWhiteSpace(Model.Unit) ? "" : $"({Model.Unit})")</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.YearValues.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                <span class="impact-year-label">@Model.YearValues[i].Year</span>
+                                <input type="hidden" asp-for="YearValues[i].Year" />
+                            </td>
+                            <td>
+                                @* Text input rather than [type=number] so "12,5" is accepted;
+                                   the controller normalises the separator on save. *@
+                                <input asp-for="YearValues[i].Value"
+                                       class="impact-input impact-year-input impact-year-value"
+                                       type="text" inputmode="decimal" autocomplete="off"
+                                       placeholder="@Localizer["Not entered"]" />
+                                <span asp-validation-for="YearValues[i].Value" class="field-error"></span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="impact-running-total">
+            <span class="total-label">
+                <i class="fas fa-calculator me-1"></i>@Localizer["Total entered vs target"]
+            </span>
+            <span class="total-figures">
+                <span id="runningTotal">0</span> / <span id="runningTarget">0</span>
+            </span>
+            <span class="total-rate" id="runningRate">0.0%</span>
+        </div>
+        <div class="impact-hint">
+            @Localizer["Leave a year blank if it has not been measured yet — a blank year is not counted as zero."]
+        </div>
+    }
+
+    <div class="impact-form-actions">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>
+            @(isEdit ? Localizer["Save Changes"] : Localizer["Create Indicator"])
+        </button>
+        @if (isEdit)
+        {
+            <a href="@Url.Action("Details", "ImpactIndicators", new { id = Model.Id })" class="btn btn-light">
+                <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+            </a>
+        }
+        else if (project != null)
+        {
+            <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="btn btn-light">
+                <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+            </a>
+        }
+    </div>
+</form>
+
+@* Inline rather than in @@section Scripts — sections are not supported inside a partial.
+   It runs after the inputs it queries, so no DOMContentLoaded wrapper is needed. *@
+<script>
+        // Live running total, so the cumulative rule ("years add up to the target") is visible
+        // while typing rather than only after saving. Mirrors the server's comma/period handling.
+        (function () {
+            var target = document.getElementById('targetValueInput');
+            var totalEl = document.getElementById('runningTotal');
+            var targetEl = document.getElementById('runningTarget');
+            var rateEl = document.getElementById('runningRate');
+            if (!totalEl || !targetEl || !rateEl) return;
+
+            function parse(value) {
+                if (!value) return NaN;
+                return parseFloat(String(value).replace(',', '.'));
+            }
+
+            function format(n) {
+                return n.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+            }
+
+            function recalc() {
+                var sum = 0;
+                document.querySelectorAll('.impact-year-value').forEach(function (input) {
+                    var v = parse(input.value);
+                    if (!isNaN(v)) sum += v;
+                });
+
+                var t = parse(target ? target.value : '');
+                totalEl.textContent = format(sum);
+                targetEl.textContent = isNaN(t) ? '—' : format(t);
+
+                if (isNaN(t) || t <= 0) {
+                    rateEl.textContent = '—';
+                    rateEl.style.color = '#6c757d';
+                    return;
+                }
+
+                var rate = sum / t * 100;
+                rateEl.textContent = rate.toFixed(1) + '%';
+                rateEl.style.color = rate > 100 ? '#17a2b8'
+                    : rate >= 76 ? '#28a745'
+                    : rate >= 51 ? '#b98900'
+                    : '#dc3545';
+            }
+
+            document.querySelectorAll('.impact-year-value').forEach(function (input) {
+                input.addEventListener('input', recalc);
+            });
+            if (target) target.addEventListener('input', recalc);
+
+            recalc();
+        })();
+</script>

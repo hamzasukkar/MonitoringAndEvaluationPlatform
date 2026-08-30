@@ -1,0 +1,246 @@
+@model MonitoringAndEvaluationPlatform.Models.ImpactIndicator
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@inject IAuthorizationService AuthService
+@{
+    ViewData["Title"] = "Impact Indicator";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    var project = ViewBag.Project as Project;
+
+    var canModify = (await AuthService.AuthorizeAsync(User, Permissions.ModifyIndicator)).Succeeded;
+    var canDelete = (await AuthService.AuthorizeAsync(User, Permissions.DeleteIndicator)).Succeeded;
+
+    var coveredYears = project?.CoveredYears.ToList() ?? new List<int>();
+    var orphanedValues = project != null
+        ? Model.ValuesOutsideProjectRange(coveredYears).ToList()
+        : new List<ImpactIndicatorYearlyValue>();
+
+    var unitLabel = string.IsNullOrWhiteSpace(Model.Unit) ? "" : " " + Model.Unit;
+}
+
+<div class="dashboard-header">
+    <div class="impact-breadcrumb">
+        <a href="@Url.Action("Index", "Projects")" class="breadcrumb-link">
+            <i class="fas fa-project-diagram"></i>
+            @Localizer["Projects"]
+        </a>
+        <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        @if (project != null)
+        {
+            <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="breadcrumb-link">
+                @project.ProjectName
+            </a>
+            <i class="fas fa-chevron-right breadcrumb-separator"></i>
+            <a href="@Url.Action("Index", "ImpactIndicators", new { projectId = project.ProjectID })" class="breadcrumb-link">
+                @Localizer["Impact Indicators"]
+            </a>
+            <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        }
+        <span class="current-page">@Model.Name</span>
+    </div>
+
+    <h1 class="dashboard-title">
+        <i class="fas fa-bullseye me-3"></i>
+        @Model.Name
+    </h1>
+    @if (!string.IsNullOrWhiteSpace(Model.Unit))
+    {
+        <p class="dashboard-subtitle">@Localizer["Measured in"] @Model.Unit</p>
+    }
+
+    <div class="dashboard-actions">
+        @if (canModify)
+        {
+            <a href="@Url.Action("Edit", "ImpactIndicators", new { id = Model.Id })" class="btn btn-gradient-primary me-2">
+                <i class="fas fa-edit me-1"></i>@Localizer["Edit"]
+            </a>
+        }
+        @if (project != null)
+        {
+            <a href="@Url.Action("Index", "ImpactIndicators", new { projectId = project.ProjectID })" class="btn btn-light me-2">
+                <i class="fas fa-list me-1"></i>@Localizer["All Indicators"]
+            </a>
+            <a href="@Url.Action("Details", "Projects", new { id = project.ProjectID })" class="btn btn-light me-2">
+                <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to Project"]
+            </a>
+        }
+        @if (canDelete)
+        {
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display:inline"
+                  onsubmit="return confirm('@Localizer["Delete this indicator? Its yearly values will also be deleted. This cannot be undone."]')">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="fas fa-trash-alt me-1"></i>@Localizer["Delete"]
+                </button>
+            </form>
+        }
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-circle-check me-1"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-triangle-exclamation me-1"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<div class="impact-banner">
+    <div class="impact-banner-item">
+        <div class="impact-banner-icon target-icon"><i class="fas fa-bullseye"></i></div>
+        <div>
+            <div class="impact-banner-label">@Localizer["Target Value"]</div>
+            <div class="impact-banner-value">@Model.TargetValue.ToString("N2")@unitLabel</div>
+        </div>
+    </div>
+    <div class="impact-banner-item">
+        <div class="impact-banner-icon achieved-icon"><i class="fas fa-check-double"></i></div>
+        <div>
+            <div class="impact-banner-label">@Localizer["Achieved"]</div>
+            <div class="impact-banner-value">@Model.AchievedValue.ToString("N2")@unitLabel</div>
+        </div>
+    </div>
+    <div class="impact-banner-item">
+        <div class="impact-banner-icon"><i class="fas fa-hourglass-half"></i></div>
+        <div>
+            <div class="impact-banner-label">@Localizer["Remaining to Target"]</div>
+            <div class="impact-banner-value">@Model.RemainingToTarget.ToString("N2")@unitLabel</div>
+        </div>
+    </div>
+    <div class="impact-banner-item">
+        <div class="impact-banner-icon years-icon"><i class="fas fa-calendar-alt"></i></div>
+        <div>
+            <div class="impact-banner-label">@Localizer["Measured Years"]</div>
+            <div class="impact-banner-value">
+                @if (coveredYears.Any())
+                {
+                    @($"{coveredYears.First()} – {coveredYears.Last()}")
+                }
+                else
+                {
+                    <span>—</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="chart-card mb-4">
+    <h3 class="chart-title">
+        <i class="fas fa-percent me-2"></i>
+        @Localizer["Achievement Rate"]
+    </h3>
+    <div class="chart-content">
+        <partial name="_ImpactRate" model="Model" />
+        @if (Model.AchievementRate > 100)
+        {
+            <p class="impact-hint mt-2">
+                <i class="fas fa-circle-info me-1"></i>
+                @Localizer["This indicator has exceeded its target."]
+            </p>
+        }
+    </div>
+</div>
+
+@if (orphanedValues.Any())
+{
+    <div class="impact-orphan-warning">
+        <i class="fas fa-triangle-exclamation me-1"></i>
+        <strong>@Localizer["Some values fall outside the project's current date range."]</strong>
+        <div class="mt-2">
+            @Localizer["These were recorded before the project's dates changed. They are still counted in the achieved total, but cannot be edited until the project covers those years again."]
+        </div>
+        <div class="mt-2">
+            @foreach (var orphan in orphanedValues)
+            {
+                <span class="modern-badge badge-warning me-2">
+                    @orphan.Year: @orphan.Value.ToString("N2")
+                </span>
+            }
+        </div>
+    </div>
+}
+
+<div class="chart-card mb-4">
+    <h3 class="chart-title">
+        <i class="fas fa-calendar-alt me-2"></i>
+        @Localizer["Yearly Values"]
+    </h3>
+    <div class="chart-content">
+        <p class="text-muted">
+            @Localizer["Values are cumulative — each year records what was delivered that year, and together they make up the achieved total."]
+        </p>
+
+        @if (coveredYears.Any())
+        {
+            <div class="modern-table-container">
+                <table class="modern-table">
+                    <thead class="table-header">
+                        <tr>
+                            <th>@Localizer["Year"]</th>
+                            <th class="text-center">@Localizer["Value"]</th>
+                            <th class="text-center">@Localizer["Cumulative"]</th>
+                            <th class="text-center">@Localizer["% of Target"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{ double running = 0; }
+                        @foreach (var year in coveredYears)
+                        {
+                            var entered = Model.HasValueForYear(year);
+                            var value = Model.GetValueForYear(year);
+                            running += value;
+                            var pct = Model.TargetValue > 0 ? running / Model.TargetValue * 100 : 0;
+
+                            <tr class="table-row">
+                                <td class="impact-year-label">@year</td>
+                                <td class="text-center">
+                                    @if (entered)
+                                    {
+                                        <strong>@value.ToString("N2")</strong>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">@Localizer["Not entered"]</span>
+                                    }
+                                </td>
+                                <td class="text-center">@running.ToString("N2")</td>
+                                <td class="text-center">@pct.ToString("N1")%</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th>@Localizer["Total"]</th>
+                            <th class="text-center">@Model.AchievedValue.ToString("N2")</th>
+                            <th class="text-center">@Localizer["of"] @Model.TargetValue.ToString("N2")</th>
+                            <th class="text-center">@Model.AchievementRate.ToString("N1")%</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-calendar-xmark"></i></div>
+                <h5 class="empty-title">@Localizer["No Years to Measure"]</h5>
+                <p class="empty-text">@Localizer["Set the project's start and end dates to define the measurement years."]</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}

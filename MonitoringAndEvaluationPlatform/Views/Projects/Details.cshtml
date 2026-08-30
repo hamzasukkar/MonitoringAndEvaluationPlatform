@@ -4,6 +4,8 @@
 @using Microsoft.AspNetCore.Localization
 @using System.Globalization
 @using MonitoringAndEvaluationPlatform.Helpers
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthService
 
 @{
     ViewData["Title"] = "Project Details";
@@ -505,6 +507,42 @@
         .badge-indicator  { background: #fd7e14; color: #fff; }
     </style>
 
+    <!-- ═══════════════════════ IMPACT MEASUREMENT ═══════════════════════════ -->
+    @{
+        var canAddImpact = (await AuthService.AuthorizeAsync(User, Permissions.AddIndicator)).Succeeded;
+    }
+    <div class="chart-card mb-4" id="impact-section">
+        <h3 class="chart-title">
+            <i class="fas fa-bullseye me-2"></i>
+            @Localizer["Impact Indicators"]
+        </h3>
+        <div class="chart-content">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <p class="text-muted mb-0">
+                    @Localizer["Impact indicators track what the project delivers against a target, year by year. They are measured separately from execution performance."]
+                </p>
+                <div class="d-flex gap-2">
+                    @if (Model.ImpactIndicators != null && Model.ImpactIndicators.Any())
+                    {
+                        <a href="@Url.Action("Index", "ImpactIndicators", new { projectId = Model.ProjectID })"
+                           class="btn btn-light btn-sm">
+                            <i class="fas fa-list me-1"></i>@Localizer["View All"]
+                        </a>
+                    }
+                    @if (canAddImpact)
+                    {
+                        <a href="@Url.Action("Create", "ImpactIndicators", new { projectId = Model.ProjectID })"
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-plus me-1"></i>@Localizer["New Indicator"]
+                        </a>
+                    }
+                </div>
+            </div>
+
+            <partial name="_ImpactIndicatorsTable" model="Model.ImpactIndicators" />
+        </div>
+    </div>
+
     <!-- ═══════════════════════════ PROJECT PHASES ═══════════════════════════ -->
     <div class="chart-card mb-4" id="phases-section">
         <h3 class="chart-title">
@@ -914,6 +952,7 @@
 @section Styles {
     <!-- Optimized external CSS -->
     <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
     <style>
         /* Small inline "how is this calculated?" info button next to a metric percentage */
         .metric-info-btn {

@@ -1049,6 +1049,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(pp => pp.ActionPlan)
                         .ThenInclude(ap => ap.Plans)
                 .Include(p => p.ProjectFiles)
+                // ThenInclude is required: ImpactIndicator.AchievedValue is computed from the
+                // yearly rows, so without them every indicator silently renders as 0% achieved.
+                .Include(p => p.ImpactIndicators)
+                    .ThenInclude(ii => ii.YearlyValues)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.ProjectID == id);
 
