@@ -793,8 +793,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     await ProcessProjectLocationsAsync(project, selections);
                 }
 
-                // Get form data
-                var selectedDonorCodes = Request.Form["Donors"].ToList();
+                // Get form data. Blank entries are dropped so an empty hidden option cannot pass
+                // for a donor selection.
+                var selectedDonorCodes = Request.Form["Donors"]
+                    .Where(code => !string.IsNullOrWhiteSpace(code))
+                    .Select(code => code!.Trim())
+                    .ToList();
+
+                // A project cannot start without funding: at least one donor is required.
+                if (!selectedDonorCodes.Any())
+                {
+                    ModelState.AddModelError("Donors", _localizer["Please select at least one donor."]);
+                }
+
                 var selectedLocations = string.IsNullOrEmpty(selections)
                     ? new List<LocationSelectionViewModel>()
                     : JsonConvert.DeserializeObject<List<LocationSelectionViewModel>>(selections);

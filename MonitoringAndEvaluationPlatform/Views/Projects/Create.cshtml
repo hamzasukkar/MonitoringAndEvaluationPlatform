@@ -398,8 +398,10 @@
                                 </div>
 
                                 <!-- Donor Selection -->
-                                <div class="mb-4">
-                                    <label class="form-label fw-bold">@Localizer["Available Donors"]</label>
+                                <div class="mb-4 @(HasError("Donors") ? "has-validation-error" : "")" id="donors-container">
+                                    <label class="form-label fw-bold">
+                                        @Localizer["Available Donors"] <span class="text-danger">*</span>
+                                    </label>
                                     <div class="row g-3">
                                         <div class="col-md-8">
                                             <select class="form-select form-select-lg" id="availableDonorSelect">
@@ -432,6 +434,13 @@
                                         </div>
                                     </div>
                                     <div class="form-text">@Localizer["Select donors one by one and specify their funding percentages"]</div>
+                                    @* A project cannot be created without funding, so at least one donor is required. *@
+                                    @{
+                                        var donorError = HasError("Donors")
+                                            ? ViewData.ModelState["Donors"].Errors.First().ErrorMessage
+                                            : null;
+                                    }
+                                    <div id="donors-validation-error" class="invalid-feedback d-block" style="@(donorError == null ? "display: none;" : "")">@donorError</div>
                                 </div>
 
                                 <!-- Selected Donors List (Hidden input for form submission) -->
@@ -1065,6 +1074,7 @@
         cannotExceed100: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["Cannot exceed 100%"].Value))',
         atLeastOneLocation: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one project location must be selected, or check the Entire Country option."].Value))',
         atLeastOneSector: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one sector must be selected."].Value))',
+        atLeastOneDonor: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["At least one donor must be selected."].Value))',
 projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A project manager must be selected."].Value))',
         supervisorMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A supervisor must be selected."].Value))',
         ministryMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Localizer["A ministry must be selected."].Value))',
@@ -1905,6 +1915,13 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
         selectedDonors.forEach(donor => {
             hiddenSelect.append(`<option value="${donor.value}" selected>${donor.text}</option>`);
         });
+
+        // Clear the "at least one donor" error as soon as the list stops being empty
+        if (selectedDonors.length > 0) {
+            $('#donors-validation-error').hide();
+            $('#availableDonorSelect').removeClass('is-invalid');
+            $('#donors-container').removeClass('has-validation-error');
+        }
     }
 
     // Calculate totals and update displays
@@ -2059,6 +2076,17 @@ projectManagerMustBeSelected: '@Html.Raw(System.Text.Encodings.Web.JavaScriptEnc
             $('input[name="StartDate"]').addClass('is-invalid').closest('.col-md-6').addClass('has-validation-error');
             $('input[name="EndDate"]').addClass('is-invalid').closest('.col-md-6').addClass('has-validation-error');
             isValid = false;
+        }
+
+        // A project cannot start without funding: at least one donor is required
+        if (selectedDonors.length === 0) {
+            errorMessages.push(localizedStrings.atLeastOneDonor);
+            $('#donors-validation-error').text(localizedStrings.atLeastOneDonor).show();
+            addFieldError('#availableDonorSelect', '#donors-container');
+            isValid = false;
+        } else {
+            $('#donors-validation-error').hide();
+            removeFieldError('#availableDonorSelect', '#donors-container');
         }
 
         // Check donor funding total if donors are selected (should not exceed 100%)
