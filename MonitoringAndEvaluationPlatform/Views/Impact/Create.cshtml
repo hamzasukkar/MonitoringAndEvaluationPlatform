@@ -1,0 +1,300 @@
+@model MonitoringAndEvaluationPlatform.ViewModel.ProjectOutputFormViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Add Project Output";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+}
+
+<div class="dashboard-header">
+    <div class="impact-breadcrumb">
+        <a href="@Url.Action("Index", "Impact")" class="breadcrumb-link">
+            <i class="fas fa-arrow-trend-up"></i>
+            @Localizer["Impact"]
+        </a>
+        <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        <span class="current-page">@Localizer["Add Project Output"]</span>
+    </div>
+
+    <h1 class="dashboard-title">
+        <i class="fas fa-layer-group me-3"></i>
+        @Localizer["Add Project Output"]
+    </h1>
+    <p class="dashboard-subtitle">
+        @Localizer["Group impact indicators from across projects under a single output."]
+    </p>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0">
+            <i class="fas fa-pen-to-square me-2"></i>@Localizer["Project Output Details"]
+        </h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post" id="projectOutputForm">
+            @Html.AntiForgeryToken()
+            @* "All" (not "ModelOnly") is required here: the weight-sum and per-indicator weight
+               errors are keyed to model-level / nested-collection ModelState entries
+               (IndicatorWeights[i].Weight) with no matching asp-for span anywhere on the page —
+               those inputs are pure JS-generated, not Razor tag helpers. "ModelOnly" would render
+               those errors nowhere at all, leaving a rejected submission with no visible reason. *@
+            <div asp-validation-summary="All" class="validation-alert"></div>
+
+            <input type="hidden" asp-for="Id" />
+
+            <div class="impact-form-group full-width mb-4">
+                <label asp-for="Name" class="impact-label">
+                    <i class="fas fa-tag me-2"></i>@Localizer["Project Output Name"] *
+                </label>
+                <input asp-for="Name" class="impact-input" autofocus
+                       placeholder="@Localizer["e.g. Improved access to basic education"]" />
+                <span asp-validation-for="Name" class="field-error"></span>
+            </div>
+
+            @*
+                All three pickers are plain <select multiple>. searchable-select.js is loaded by
+                the layout and enhances every select on the page automatically, so each renders as
+                a searchable checkbox panel with an "N selected" footer and a Clear button.
+                Do not hand-roll a checkbox list here and do not add Select2.
+            *@
+            <div class="impact-form-group full-width mb-4">
+                <label asp-for="SelectedMinistryCodes" class="impact-label">
+                    <i class="fas fa-landmark me-2"></i>@Localizer["Ministries"]
+                </label>
+                <select asp-for="SelectedMinistryCodes"
+                        asp-items="Model.AvailableMinistries"
+                        id="ministriesSelect"
+                        class="form-select"
+                        multiple size="6"></select>
+                <div class="impact-hint">
+                    @Localizer["Choose one or more. Selecting a ministry narrows the two lists below."]
+                </div>
+            </div>
+
+            <div class="impact-form-group full-width mb-4">
+                <label asp-for="SelectedFrameworkCodes" class="impact-label">
+                    <i class="fas fa-sitemap me-2"></i>@Localizer["Frameworks"]
+                </label>
+                <select asp-for="SelectedFrameworkCodes"
+                        asp-items="Model.AvailableFrameworks"
+                        id="frameworksSelect"
+                        class="form-select"
+                        multiple size="6"></select>
+                <div class="impact-hint">
+                    @Localizer["The strategies this project output contributes to."]
+                </div>
+            </div>
+
+            <div class="impact-form-group full-width mb-4">
+                <label asp-for="SelectedImpactIndicatorIds" class="impact-label">
+                    <i class="fas fa-bullseye me-2"></i>@Localizer["Impact Indicators"]
+                </label>
+                <select asp-for="SelectedImpactIndicatorIds"
+                        asp-items="Model.AvailableImpactIndicators"
+                        id="indicatorsSelect"
+                        class="form-select"
+                        multiple size="8"></select>
+                <div class="impact-hint">
+                    @Localizer["These indicators are linked to the project output on save. Their yearly values roll up into the Impact table."]
+                </div>
+            </div>
+
+            @*
+                Weight (%) per selected indicator. Kept in sync with the select above by JS, the
+                same "rebuild a small input list to match a select's current selection" pattern
+                FrameworkGoalsController's create form uses for its manual yearly-target inputs.
+                Values here are read server-side via IndicatorWeights[i].ImpactIndicatorId /
+                IndicatorWeights[i].Weight — the controller rejects the form unless they sum to
+                exactly 100, the same rule and tolerance as ProjectPhase.Weight.
+            *@
+            <div class="impact-form-group full-width mb-4">
+                <label class="impact-label">
+                    <i class="fas fa-weight-hanging me-2"></i>@Localizer["Indicator Weights"]
+                </label>
+                <div class="impact-hint mb-2">
+                    @Localizer["Must sum to exactly 100. A higher weight pulls the project output's combined achievement rate toward that indicator's own rate more than a lower one. Changing the selection resets these to an equal split."]
+                </div>
+                <div id="indicatorWeights" class="d-flex flex-column gap-2"></div>
+                <div id="weightTotal" class="impact-hint mt-2 fw-bold"></div>
+            </div>
+
+            <div class="impact-form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-1"></i>@Localizer["Create Project Output"]
+                </button>
+                <a href="@Url.Action("Index", "Impact")" class="btn btn-light">
+                    <i class="fas fa-times me-1"></i>@Localizer["Cancel"]
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Cascade: choosing ministries narrows the framework and indicator lists.
+        // After rewriting a select's options we must call SearchableSelect.refresh(el), otherwise
+        // the enhanced panel keeps showing the old option list.
+        (function () {
+            var ministries = document.getElementById('ministriesSelect');
+            var frameworks = document.getElementById('frameworksSelect');
+            var indicators = document.getElementById('indicatorsSelect');
+            var weightsContainer = document.getElementById('indicatorWeights');
+            if (!ministries) return;
+
+            var weightTotalEl = document.getElementById('weightTotal');
+            var noIndicatorsText = '@Localizer["Select one or more indicators above to assign their weights."]';
+            var totalLabel = '@Localizer["Total"]';
+            var mustEqual100Text = '@Localizer["must equal 100"]';
+
+            // Weights must sum to exactly 100 (same rule and 0.01 tolerance as ProjectPhase.Weight
+            // — see ProjectPhasesController.UpdateWeights). Every selection change resets all
+            // rows to an equal split rather than trying to preserve prior manual edits: with a
+            // hard sum-to-100 requirement, stale preserved values would only rarely still sum
+            // correctly after the set of indicators changes. ProjectPhase's own equivalent
+            // (RedistributeWeightsEqually) makes the same simplifying choice — reset on every
+            // add/remove, let the user fine-tune afterward. Built with createElement rather than
+            // innerHTML so an indicator/project name can never be interpreted as markup.
+            function equalSplit(n) {
+                var share = Math.round((100 / n) * 100) / 100;
+                var shares = new Array(n).fill(share);
+                var remainder = Math.round((100 - share * n) * 100) / 100;
+                shares[n - 1] = Math.round((shares[n - 1] + remainder) * 100) / 100;
+                return shares;
+            }
+
+            function updateWeightTotal() {
+                if (!weightTotalEl) return;
+                var inputs = weightsContainer.querySelectorAll('.indicator-weight-input');
+                if (inputs.length === 0) {
+                    weightTotalEl.textContent = '';
+                    return;
+                }
+
+                var sum = 0;
+                inputs.forEach(function (input) {
+                    var v = parseFloat(input.value);
+                    if (!isNaN(v)) sum += v;
+                });
+
+                var ok = Math.abs(sum - 100) < 0.01;
+                weightTotalEl.textContent = totalLabel + ': ' + sum.toFixed(2) + '%' + (ok ? ' ✓' : ' (' + mustEqual100Text + ')');
+                weightTotalEl.style.color = ok ? '#198754' : '#dc3545';
+            }
+
+            function renderWeights() {
+                if (!indicators || !weightsContainer) return;
+
+                weightsContainer.innerHTML = '';
+                var selected = Array.from(indicators.selectedOptions);
+
+                if (selected.length === 0) {
+                    var empty = document.createElement('div');
+                    empty.className = 'text-muted small';
+                    empty.textContent = noIndicatorsText;
+                    weightsContainer.appendChild(empty);
+                    updateWeightTotal();
+                    return;
+                }
+
+                var shares = equalSplit(selected.length);
+
+                selected.forEach(function (opt, i) {
+                    var id = opt.value;
+                    var row = document.createElement('div');
+                    row.className = 'd-flex align-items-center gap-2';
+
+                    var label = document.createElement('span');
+                    label.className = 'flex-grow-1 small';
+                    label.textContent = opt.textContent.trim();
+
+                    var hiddenId = document.createElement('input');
+                    hiddenId.type = 'hidden';
+                    hiddenId.name = 'IndicatorWeights[' + i + '].ImpactIndicatorId';
+                    hiddenId.value = id;
+
+                    var weightInput = document.createElement('input');
+                    weightInput.type = 'number';
+                    weightInput.className = 'impact-input indicator-weight-input';
+                    weightInput.style.maxWidth = '110px';
+                    weightInput.name = 'IndicatorWeights[' + i + '].Weight';
+                    weightInput.min = '0';
+                    weightInput.max = '100';
+                    weightInput.step = '0.1';
+                    weightInput.value = shares[i];
+                    weightInput.addEventListener('input', updateWeightTotal);
+
+                    var percentSign = document.createElement('span');
+                    percentSign.className = 'text-muted small';
+                    percentSign.textContent = '%';
+
+                    row.appendChild(label);
+                    row.appendChild(hiddenId);
+                    row.appendChild(weightInput);
+                    row.appendChild(percentSign);
+                    weightsContainer.appendChild(row);
+                });
+
+                updateWeightTotal();
+            }
+
+            function selectedMinistryCodes() {
+                return Array.from(ministries.selectedOptions).map(function (o) { return o.value; });
+            }
+
+            function query(codes) {
+                return codes.map(function (c) { return 'ministryCodes=' + encodeURIComponent(c); }).join('&');
+            }
+
+            function repopulate(select, rows) {
+                if (!select) return;
+                // Keep anything the user already ticked that is still offered.
+                var previously = new Set(Array.from(select.selectedOptions).map(function (o) { return o.value; }));
+                select.innerHTML = '';
+                rows.forEach(function (row) {
+                    var opt = document.createElement('option');
+                    opt.value = row.value;
+                    opt.textContent = row.text;
+                    if (previously.has(String(row.value))) opt.selected = true;
+                    select.appendChild(opt);
+                });
+                if (window.SearchableSelect && typeof window.SearchableSelect.refresh === 'function') {
+                    window.SearchableSelect.refresh(select);
+                }
+            }
+
+            async function reload() {
+                var codes = selectedMinistryCodes();
+                var qs = query(codes);
+
+                try {
+                    var [fwRes, indRes] = await Promise.all([
+                        fetch('@Url.Action("GetFrameworks", "Impact")' + (qs ? '?' + qs : '')),
+                        fetch('@Url.Action("GetImpactIndicators", "Impact")' + (qs ? '?' + qs : ''))
+                    ]);
+                    if (fwRes.ok) repopulate(frameworks, await fwRes.json());
+                    if (indRes.ok) repopulate(indicators, await indRes.json());
+                } catch (e) {
+                    // Leave the current lists in place — a failed refilter must not empty the form.
+                    console.error('Impact cascade refresh failed', e);
+                } finally {
+                    // The ministry cascade rewrites indicatorsSelect's <option>s directly, which
+                    // fires no native "change" event on its own — refresh the weight rows here too,
+                    // not just on a direct user toggle of the select.
+                    renderWeights();
+                }
+            }
+
+            ministries.addEventListener('change', reload);
+            if (indicators) indicators.addEventListener('change', renderWeights);
+            renderWeights();
+        })();
+    </script>
+}

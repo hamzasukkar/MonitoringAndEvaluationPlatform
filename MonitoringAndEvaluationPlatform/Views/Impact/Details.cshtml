@@ -1,0 +1,276 @@
+﻿@model MonitoringAndEvaluationPlatform.Models.ProjectOutput
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@inject IAuthorizationService AuthService
+@{
+    ViewData["Title"] = "Project Output";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var canDelete = (await AuthService.AuthorizeAsync(User, Permissions.DeleteStrategy)).Succeeded;
+    var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+    var indicators = (Model.ImpactIndicators ?? new List<ImpactIndicator>())
+        .OrderBy(i => i.Name).ToList();
+    var years = Model.CoveredYears.ToList();
+
+    // Same indicators, but with the per-link Weight in scope — needed only for the contribution
+    // table below, which shows what weight the user assigned to each one.
+    var links = (Model.IndicatorLinks ?? new List<ProjectOutputImpactIndicator>())
+        .OrderBy(l => l.ImpactIndicator.Name).ToList();
+
+    // Edit/Delete inside the shared table act on the INDICATOR, not on its link to this output.
+    // Too easy to misread as "unlink" here, so show the Details link only.
+    ViewData["ImpactTableReadOnly"] = true;
+}
+
+<div class="dashboard-header">
+    <div class="impact-breadcrumb">
+        <a href="@Url.Action("Index", "Impact")" class="breadcrumb-link">
+            <i class="fas fa-arrow-trend-up"></i>
+            @Localizer["Impact"]
+        </a>
+        <i class="fas fa-chevron-right breadcrumb-separator"></i>
+        <span class="current-page">@Model.Name</span>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-layer-group me-3"></i>
+                @Model.Name
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["The impact indicators grouped under this project output."]
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            <a href="@Url.Action("Index", "Impact")" class="btn btn-light">
+                <i class="fas fa-arrow-left me-1"></i>@Localizer["Back to Impact"]
+            </a>
+            @if (canDelete)
+            {
+                <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display:inline"
+                      onsubmit="return confirm('@Localizer["Delete this project output? The impact indicators themselves are not deleted."]')">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-danger">
+                        <i class="fas fa-trash-alt me-1"></i>@Localizer["Delete"]
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-circle-check me-1"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<!-- Summary -->
+<div class="impact-banner">
+    <div class="impact-banner-item">
+        <div class="impact-banner-icon"><i class="fas fa-bullseye"></i></div>
+        <div>
+            <div class="impact-banner-label">@Localizer["Linked Indicators"]</div>
+            <div class="impact-banner-value">@indicators.Count</div>
+        </div>
+    </div>
+    <div class="impact-banner-item">
+        <div class="impact-banner-icon target-icon"><i class="fas fa-crosshairs"></i></div>
+        <div>
+            <div class="impact-banner-label">@Localizer["Sum of Targets"]</div>
+            <div class="impact-banner-value">@Model.TotalTarget.ToString("N2")</div>
+        </div>
+    </div>
+    <div class="impact-banner-item">
+        <div class="impact-banner-icon achieved-icon"><i class="fas fa-check-double"></i></div>
+        <div>
+            <div class="impact-banner-label">@Localizer["Sum of Achieved"]</div>
+            <div class="impact-banner-value">@Model.TotalAchieved.ToString("N2")</div>
+        </div>
+    </div>
+    <div class="impact-banner-item">
+        <div class="impact-banner-icon years-icon"><i class="fas fa-calendar-alt"></i></div>
+        <div>
+            <div class="impact-banner-label">@Localizer["Years Covered"]</div>
+            <div class="impact-banner-value">
+                @(years.Any() ? $"{years.First()} – {years.Last()}" : "—")
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Ministries & Frameworks -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0"><i class="fas fa-tags me-2"></i>@Localizer["Classification"]</h6>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="impact-banner-label mb-2">@Localizer["Ministries"]</div>
+                @if (Model.Ministries != null && Model.Ministries.Any())
+                {
+                    foreach (var m in Model.Ministries)
+                    {
+                        <span class="badge bg-secondary me-1 mb-1">
+                            @(isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+                        </span>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">—</span>
+                }
+            </div>
+            <div class="col-md-6">
+                <div class="impact-banner-label mb-2">@Localizer["Frameworks"]</div>
+                @if (Model.Frameworks != null && Model.Frameworks.Any())
+                {
+                    foreach (var fw in Model.Frameworks)
+                    {
+                        <span class="badge bg-info text-dark me-1 mb-1">@fw.Name</span>
+                    }
+                }
+                else
+                {
+                    <span class="text-muted">—</span>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- The linked indicators -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header bg-light">
+        <h6 class="mb-0">
+            <i class="fas fa-bullseye me-2"></i>@Localizer["Linked Impact Indicators"]
+            <span class="badge bg-primary ms-2">@indicators.Count</span>
+        </h6>
+    </div>
+    <div class="card-body">
+        <partial name="_ImpactIndicatorsTable" model="Model.ImpactIndicators" />
+    </div>
+</div>
+
+<!-- Per-indicator contribution to each year -->
+@if (indicators.Any() && years.Any())
+{
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+            <h6 class="mb-0">
+                <i class="fas fa-table-cells me-2"></i>@Localizer["Yearly Contribution by Indicator"]
+            </h6>
+        </div>
+        <div class="card-body">
+            <p class="text-muted">
+                @Localizer["How each linked indicator contributes to the yearly totals shown on the Impact table. The Total row is what the Impact table displays."]
+            </p>
+
+            <div class="table-responsive">
+                <table class="table table-hover" id="contributionTable">
+                    <thead class="table-primary bg-opacity-25">
+                        <tr>
+                            <th class="align-middle">@Localizer["Indicator"]</th>
+                            <th class="align-middle">@Localizer["Project"]</th>
+                            <th class="align-middle text-center" title="@Localizer["The weight assigned to this indicator when it was linked to this project output. Every indicator's weight on the same output sums to 100."]">
+                                @Localizer["Weight"]
+                            </th>
+                            @foreach (var year in years)
+                            {
+                                <th class="text-center year-header">@year</th>
+                            }
+                            <th class="text-center align-middle">@Localizer["Total"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var link in links)
+                        {
+                            var ind = link.ImpactIndicator;
+                            <tr>
+                                <td>
+                                    <a href="@Url.Action("Details", "ImpactIndicators", new { id = ind.Id })"
+                                       class="fw-bold text-decoration-none">@ind.Name</a>
+                                    @if (!string.IsNullOrWhiteSpace(ind.Unit))
+                                    {
+                                        <span class="text-muted small"> (@ind.Unit)</span>
+                                    }
+                                </td>
+                                <td class="text-muted small">
+                                    @if (ind.Project != null)
+                                    {
+                                        <a href="@Url.Action("Details", "Projects", new { id = ind.ProjectID })"
+                                           class="text-decoration-none">@ind.Project.ProjectName</a>
+                                    }
+                                    else
+                                    {
+                                        <span>—</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-secondary">@link.Weight.ToString("N2")%</span>
+                                </td>
+
+                                @*
+                                    One cell per year of the OUTPUT's span. A year outside THIS
+                                    indicator's own project range renders "—" — same distinction
+                                    already applied to the output rows on Impact/Index.cshtml.
+                                    Within its own range, each cell is the CUMULATIVE percentage
+                                    (running sum ÷ TargetValue × 100), via
+                                    ImpactIndicator.GetCumulativePercentageForYear: it carries
+                                    forward for a year with no new entry rather than dashing.
+                                *@
+                                @{
+                                    var indYears = ind.Project?.CoveredYears.ToHashSet() ?? new HashSet<int>();
+                                }
+                                @foreach (var year in years)
+                                {
+                                    if (indYears.Contains(year))
+                                    {
+                                        var indPct = ind.GetCumulativePercentageForYear(year);
+                                        <td class="text-center">@indPct.ToString("N1")%</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center bg-light"><span class="text-muted">—</span></td>
+                                    }
+                                }
+
+                                @* This is the indicator's OWN rate — weight only matters when
+                                   COMBINING indicators together (the footer below), never here. *@
+                                <td class="text-center fw-bold">@ind.AchievementRate.ToString("N1")%</td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="table-secondary">
+                            <th colspan="3">@Localizer["Total"]</th>
+                            @* Weighted average across contributing indicators — same formula and
+                               same numbers as the Impact/Index year cells for this output, as the
+                               paragraph above promises. *@
+                            @foreach (var year in years)
+                            {
+                                var footerPct = Model.GetWeightedPercentageForYear(year);
+                                <th class="text-center" title="@Localizer["Weighted average across contributing indicators"]">
+                                    @footerPct.ToString("N1")%
+                                </th>
+                            }
+                            <th class="text-center">@Model.WeightedAchievementRate.ToString("N1")%</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}

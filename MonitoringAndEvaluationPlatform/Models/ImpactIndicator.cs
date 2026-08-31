@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MonitoringAndEvaluationPlatform.Models
@@ -52,6 +52,15 @@ namespace MonitoringAndEvaluationPlatform.Models
             = new List<ImpactIndicatorYearlyValue>();
 
         /// <summary>
+        /// Links to the project outputs that group this indicator on the top-level Impact page,
+        /// each carrying the weight that output assigned to this indicator. Many-to-many via an
+        /// explicit join entity (not a plain skip navigation) because the link itself has a
+        /// payload — see ProjectOutputImpactIndicator.
+        /// </summary>
+        public virtual ICollection<ProjectOutputImpactIndicator> ProjectOutputLinks { get; set; }
+            = new List<ProjectOutputImpactIndicator>();
+
+        /// <summary>
         /// Total delivered so far — the sum of every yearly value. Computed, never stored, so it
         /// can never drift out of sync with the yearly rows.
         ///
@@ -89,6 +98,20 @@ namespace MonitoringAndEvaluationPlatform.Models
         /// </summary>
         public bool HasValueForYear(int year) =>
             YearlyValues?.Any(v => v.Year == year) ?? false;
+
+        /// <summary>
+        /// This indicator's own cumulative achievement, as a percentage of its own target, as of
+        /// the given year (sum of every recorded value in years up to and including it, divided
+        /// by TargetValue). ImpactIndicatorsController.ApplyYearValues never writes a YearlyValue
+        /// row outside this indicator's own project range, so a plain Year &lt;= year filter
+        /// reproduces the same running total a year-by-year loop would build — no explicit range
+        /// gate needed here; callers still gate on Project.CoveredYears for the DISPLAY decision
+        /// (dash vs. number), since a year genuinely outside range should show neither.
+        /// </summary>
+        public double GetCumulativePercentageForYear(int year) =>
+            TargetValue > 0
+                ? (YearlyValues?.Where(v => v.Year <= year).Sum(v => v.Value) ?? 0) / TargetValue * 100
+                : 0;
 
         /// <summary>
         /// Stored values whose year falls outside the project's current date range — created when

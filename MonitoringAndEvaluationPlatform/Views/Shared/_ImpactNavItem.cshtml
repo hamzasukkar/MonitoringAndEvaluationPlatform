@@ -1,0 +1,24 @@
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@inject IAuthorizationService Auth
+@*
+    Top-nav entry for the Impact page, rendered immediately to the LEFT of
+    _MinistryStrategiesDropdown in _DashboardHomeLayout, _ResultsFrameworkLayout and _SetUpLayout.
+
+    Kept as a self-contained partial for the same reason _MinistryStrategiesDropdown is one: the
+    label then lives in a single resx pair instead of three, and the permission gate works even in
+    _SetUpLayout / _ResultsFrameworkLayout, neither of which injects IAuthorizationService.
+
+    No `active` class — the top nav has no .nav-link.active CSS (only the sidebar does), so adding
+    one here would have no visual effect.
+*@
+@if ((await Auth.AuthorizeAsync(User, Permissions.ReadStrategies)).Succeeded)
+{
+    <li class="nav-item">
+        <a class="nav-link" asp-controller="Impact" asp-action="Index">
+            <i class="fas fa-arrow-trend-up me-1"></i> @Localizer["Impact"]
+        </a>
+    </li>
+}

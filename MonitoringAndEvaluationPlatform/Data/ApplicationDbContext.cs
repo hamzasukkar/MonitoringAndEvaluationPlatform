@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Models;
 
@@ -53,6 +53,8 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<CurrencyRate> CurrencyRates { get; set; } = default!;
         public DbSet<ImpactIndicator> ImpactIndicators { get; set; } = default!;
         public DbSet<ImpactIndicatorYearlyValue> ImpactIndicatorYearlyValues { get; set; } = default!;
+        public DbSet<ProjectOutput> ProjectOutputs { get; set; } = default!;
+        public DbSet<ProjectOutputImpactIndicator> ProjectOutputImpactIndicators { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -342,6 +344,43 @@ namespace MonitoringAndEvaluationPlatform.Data
             modelBuilder.Entity<ImpactIndicatorYearlyValue>()
                 .HasIndex(v => new { v.ImpactIndicatorId, v.Year })
                 .IsUnique();
+
+            // ProjectOutput groups impact indicators for the top-level Impact page.
+            // Ministries/Frameworks are plain many-to-many skip navigations, following the
+            // ProjectMinistries pattern above. Named join tables keep them readable in the database.
+            modelBuilder.Entity<ProjectOutput>()
+                .HasMany(po => po.Ministries)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("ProjectOutputMinistries"));
+
+            modelBuilder.Entity<ProjectOutput>()
+                .HasMany(po => po.Frameworks)
+                .WithMany()
+                .UsingEntity(j => j.ToTable("ProjectOutputFrameworks"));
+
+            // ImpactIndicators is an explicit join entity, not a skip navigation, because each
+            // link carries a user-assigned Weight (ProjectOutputImpactIndicator) — same pattern as
+            // ProjectDonor for Project <-> Donor. Table name unchanged from the prior skip-nav
+            // table so the data-preserving migration can reshape it in place.
+            modelBuilder.Entity<ProjectOutputImpactIndicator>()
+                .HasOne(l => l.ProjectOutput)
+                .WithMany(po => po.IndicatorLinks)
+                .HasForeignKey(l => l.ProjectOutputId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectOutputImpactIndicator>()
+                .HasOne(l => l.ImpactIndicator)
+                .WithMany(ii => ii.ProjectOutputLinks)
+                .HasForeignKey(l => l.ImpactIndicatorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // One weight per indicator per output.
+            modelBuilder.Entity<ProjectOutputImpactIndicator>()
+                .HasIndex(l => new { l.ProjectOutputId, l.ImpactIndicatorId })
+                .IsUnique();
+
+            modelBuilder.Entity<ProjectOutputImpactIndicator>()
+                .ToTable("ProjectOutputImpactIndicators");
 
             // Framework <-> FrameworkGoal (one-to-many)
             modelBuilder.Entity<FrameworkGoal>()

@@ -5,21 +5,27 @@
 @inject IViewLocalizer Localizer
 @inject IAuthorizationService Auth
 @*
-    The impact indicators table, shared by ImpactIndicators/Index and the "Impact Measurement"
-    card on the project details page so the two never drift apart.
+    The impact indicators table, shared by ImpactIndicators/Index, the "Impact Measurement"
+    card on the project details page, and Impact/Details, so they never drift apart.
 
     Requires project-details.css (modern-table, empty-state) and impact-indicators.css
     (rate bar) — the calling view links them.
 
     NOTE: whatever query supplies this model must .Include(i => i.YearlyValues), otherwise
     every row renders 0% achieved without any error.
+
+    Set ViewData["ImpactTableReadOnly"] = true to show only the Details link. Impact/Details
+    passes this because Edit/Delete there act on the INDICATOR itself, not on its link to the
+    project output — a distinction too easy to misread as "unlink" next to a grouping.
 *@
 @{
     var indicators = (Model ?? Enumerable.Empty<ImpactIndicator>())
         .OrderBy(i => i.Name).ToList();
 
-    var canModify = (await Auth.AuthorizeAsync(User, Permissions.ModifyIndicator)).Succeeded;
-    var canDelete = (await Auth.AuthorizeAsync(User, Permissions.DeleteIndicator)).Succeeded;
+    var readOnly = ViewData["ImpactTableReadOnly"] as bool? ?? false;
+
+    var canModify = !readOnly && (await Auth.AuthorizeAsync(User, Permissions.ModifyIndicator)).Succeeded;
+    var canDelete = !readOnly && (await Auth.AuthorizeAsync(User, Permissions.DeleteIndicator)).Succeeded;
 }
 
 @if (indicators.Any())

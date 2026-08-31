@@ -1,0 +1,138 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace MonitoringAndEvaluationPlatform.Models
+{
+    /// <summary>
+    /// A named grouping of <see cref="ImpactIndicator"/>s drawn from across projects, tagged with
+    /// the ministries and frameworks it serves — the unit the top-level Impact page lists.
+    ///
+    /// This is deliberately NOT <see cref="Output"/>, which is a level of the results framework
+    /// (Framework → Outcome → Output → SubOutput → Indicator) and carries a weight that rolls up
+    /// into framework performance. A ProjectOutput sits on the parallel impact track: it groups
+    /// what projects actually delivered, and feeds nothing back into *Performance columns.
+    ///
+    /// It stores no numbers of its own. Every figure on the Impact page is rolled up live from the
+    /// linked indicators, so the grouping can never drift out of sync with the underlying data.
+    /// </summary>
+    public class ProjectOutput
+    {
+        [Key]
+        public int Id { get; set; }
+
+        [Required(ErrorMessage = "Project output name is required.")]
+        [StringLength(300, MinimumLength = 2, ErrorMessage = "Project output name must be between 2 and 300 characters.")]
+        [Display(Name = "Project Output Name")]
+        public string Name { get; set; } = string.Empty;
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        // Ministries/Frameworks are plain many-to-many skip navigations; join tables are named
+        // in ApplicationDbContext. ImpactIndicators is a link WITH A PAYLOAD (each link carries a
+        // user-assigned Weight), so it is an explicit join entity rather than a skip navigation —
+        // IndicatorLinks is the mapped source of truth; ImpactIndicators below is a read-only
+        // projection over it, kept only so every existing .Sum()/.Where()/.Any() reader and every
+        // view that expects IEnumerable<ImpactIndicator> keeps compiling unchanged. Unlike
+        // Project.Donors/ProjectDonors (two independently-mapped collections the controller must
+        // keep in sync by hand), this projection can never drift — there is nothing to sync.
+        public ICollection<Ministry> Ministries { get; set; } = new List<Ministry>();
+        public ICollection<Framework> Frameworks { get; set; } = new List<Framework>();
+        public ICollection<ProjectOutputImpactIndicator> IndicatorLinks { get; set; } = new List<ProjectOutputImpactIndicator>();
+
+        [NotMapped]
+        public IEnumerable<ImpactIndicator> ImpactIndicators =>
+            IndicatorLinks?.Select(l => l.ImpactIndicator) ?? Enumerable.Empty<ImpactIndicator>();
+
+        // ─────────────────────────── Rolled-up figures ───────────────────────────
+        // Every member below needs the query to have loaded
+        //   .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.YearlyValues)
+        //   .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.Project)
+        // A missing Include renders an empty row rather than throwing, so it fails quietly.
+
+        /// <summary>
+        /// The years this output spans — the union of the covered years of every linked
+        /// indicator's project. Empty when nothing is linked yet.
+        /// </summary>
+        [NotMapped]
+        public IEnumerable<int> CoveredYears =>
+            ImpactIndicators == null
+                ? Enumerable.Empty<int>()
+                : ImpactIndicators
+                    .Where(i => i.Project != null)
+                    .SelectMany(i => i.Project.CoveredYears)
+                    .Distinct()
+                    .OrderBy(y => y);
+
+        /// <summary>
+        /// Sum of that year's raw values across every linked indicator. Still useful for a raw
+        /// quantity figure (e.g. a tooltip), but no longer what drives the displayed percentages —
+        /// see GetWeightedPercentageForYear.
+        /// </summary>
+        public double GetValueForYear(int year) =>
+            ImpactIndicators?.Sum(i => i.GetValueForYear(year)) ?? 0;
+
+        /// <summary>
+        /// True when at least one linked indicator actually recorded that year. Lets the table
+        /// show "—" for an unmeasured year instead of a misleading 0.00.
+        /// </summary>
+        public bool HasValueForYear(int year) =>
+            ImpactIndicators?.Any(i => i.HasValueForYear(year)) ?? false;
+
+        [NotMapped]
+        public double TotalTarget => ImpactIndicators?.Sum(i => i.TargetValue) ?? 0;
+
+        [NotMapped]
+        public double TotalAchieved => ImpactIndicators?.Sum(i => i.AchievedValue) ?? 0;
+
+        /// <summary>
+        /// Ratio of raw summed quantities. Kept for reference/tooltips, but superseded by
+        /// WeightedAchievementRate for anything displayed as "the" achievement rate — summing raw
+        /// quantities across indicators with different units (wells vs. students) is not strictly
+        /// meaningful; averaging each indicator's own rate is.
+        /// </summary>
+        [NotMapped]
+        public double AchievementRate => TotalTarget > 0 ? TotalAchieved / TotalTarget * 100 : 0;
+
+        /// <summary>
+        /// Weighted average of AchievementRate across every linked indicator, using the weight the
+        /// user assigned to each link. Same formula, including its equal-weight fallback, as
+        /// PerformanceService.CalculateWeightedPerformance — this is the results-framework
+        /// hierarchy's established way of combining child rates into a parent rate, applied here
+        /// to indicators instead of SubOutputs/Outputs/Outcomes.
+        /// </summary>
+        [NotMapped]
+        public double WeightedAchievementRate
+        {
+            get
+            {
+                if (IndicatorLinks == null || !IndicatorLinks.Any()) return 0;
+
+                double totalWeight = IndicatorLinks.Sum(l => l.Weight);
+                if (totalWeight <= 0) totalWeight = IndicatorLinks.Count;
+
+                return IndicatorLinks.Sum(l => l.ImpactIndicator.AchievementRate * l.Weight) / totalWeight;
+            }
+        }
+
+        /// <summary>
+        /// Weighted average, for one year, of each CONTRIBUTING indicator's own cumulative
+        /// percentage as of that year (see ImpactIndicator.GetCumulativePercentageForYear). An
+        /// indicator whose own project does not cover the given year contributes neither its
+        /// value nor its weight that year — same range exclusion already applied to decide
+        /// whether a per-year cell shows a number or a dash.
+        /// </summary>
+        public double GetWeightedPercentageForYear(int year)
+        {
+            var contributing = IndicatorLinks?
+                .Where(l => l.ImpactIndicator.Project != null && l.ImpactIndicator.Project.CoveredYears.Contains(year))
+                .ToList();
+
+            if (contributing == null || !contributing.Any()) return 0;
+
+            double totalWeight = contributing.Sum(l => l.Weight);
+            if (totalWeight <= 0) totalWeight = contributing.Count;
+
+            return contributing.Sum(l => l.ImpactIndicator.GetCumulativePercentageForYear(year) * l.Weight) / totalWeight;
+        }
+    }
+}

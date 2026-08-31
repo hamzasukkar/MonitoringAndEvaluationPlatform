@@ -279,3 +279,112 @@
     .impact-form-actions { flex-direction: column; }
     .impact-form-actions .btn { width: 100%; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * Impact page (Views/Impact/*) — summary cards, year columns and sticky headers.
+ *
+ * Values copied from the inline <style> block in Views/FrameworkGoals/Index.cshtml
+ * so the two pages read as the same family. Kept here rather than inlined so
+ * Index and Create share one source.
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Summary cards ──────────────────────────────────────────────────────── */
+
+.summary-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-inline-start: 4px solid transparent;
+    height: 100%;
+}
+
+.summary-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.summary-card-primary { border-inline-start-color: #0d6efd; background: linear-gradient(135deg, #fff 0%, #f0f7ff 100%); }
+.summary-card-success { border-inline-start-color: #198754; background: linear-gradient(135deg, #fff 0%, #f0fff4 100%); }
+.summary-card-info    { border-inline-start-color: #0dcaf0; background: linear-gradient(135deg, #fff 0%, #f0fcff 100%); }
+.summary-card-warning { border-inline-start-color: #ffc107; background: linear-gradient(135deg, #fff 0%, #fffcf0 100%); }
+
+.summary-card-icon {
+    font-size: 2.5rem;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+.summary-card-primary .summary-card-icon { color: #0d6efd; background: rgba(13, 110, 253, 0.1); }
+.summary-card-success .summary-card-icon { color: #198754; background: rgba(25, 135, 84, 0.1); }
+.summary-card-info    .summary-card-icon { color: #0dcaf0; background: rgba(13, 202, 240, 0.1); }
+.summary-card-warning .summary-card-icon { color: #ffc107; background: rgba(255, 193, 7, 0.1); }
+
+.summary-card-content { flex: 1; }
+
+.summary-card-value {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #2c3e50;
+    line-height: 1;
+}
+
+.summary-card-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0.5rem 0 0 0;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ── Year columns + sticky header on the Impact table ───────────────────── */
+
+.year-header {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: #fff !important;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 0.75rem !important;
+    border: 2px solid #fff;
+}
+
+#impactTable {
+    white-space: nowrap;
+}
+
+#impactTable th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #cfe2ff;
+}
+
+/* The year headers keep their own gradient rather than the sticky default. */
+#impactTable th.year-header {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+}
+
+#impactTable td {
+    vertical-align: middle;
+}
+
+.output-row:hover {
+    background-color: rgba(13, 110, 253, 0.04);
+}
+
+@media (max-width: 768px) {
+    .summary-card { padding: 1rem; }
+    .summary-card-icon { width: 54px; height: 54px; font-size: 1.8rem; }
+    .summary-card-value { font-size: 1.5rem; }
+}

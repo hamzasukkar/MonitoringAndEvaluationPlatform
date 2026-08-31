@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MonitoringAndEvaluationPlatform.Data;
 
@@ -11,9 +12,11 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260830114406_AddProjectOutputs")]
+    partial class AddProjectOutputs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,6 +98,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("projectsProjectID");
 
                     b.ToTable("ProjectGovernorates", (string)null);
+                });
+
+            modelBuilder.Entity("ImpactIndicatorProjectOutput", b =>
+                {
+                    b.Property<int>("ImpactIndicatorsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProjectOutputsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ImpactIndicatorsId", "ProjectOutputsId");
+
+                    b.HasIndex("ProjectOutputsId");
+
+                    b.ToTable("ProjectOutputImpactIndicators", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -1411,33 +1429,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.ToTable("ProjectOutputs");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectOutputImpactIndicator", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ImpactIndicatorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjectOutputId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Weight")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ImpactIndicatorId");
-
-                    b.HasIndex("ProjectOutputId", "ImpactIndicatorId")
-                        .IsUnique();
-
-                    b.ToTable("ProjectOutputImpactIndicators", (string)null);
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectPhase", b =>
                 {
                     b.Property<int>("Id")
@@ -2035,6 +2026,21 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ImpactIndicatorProjectOutput", b =>
+                {
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.ImpactIndicator", null)
+                        .WithMany()
+                        .HasForeignKey("ImpactIndicatorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MonitoringAndEvaluationPlatform.Models.ProjectOutput", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectOutputsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -2393,25 +2399,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectOutputImpactIndicator", b =>
-                {
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.ImpactIndicator", "ImpactIndicator")
-                        .WithMany("ProjectOutputLinks")
-                        .HasForeignKey("ImpactIndicatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.ProjectOutput", "ProjectOutput")
-                        .WithMany("IndicatorLinks")
-                        .HasForeignKey("ProjectOutputId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ImpactIndicator");
-
-                    b.Navigation("ProjectOutput");
-                });
-
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectPhase", b =>
                 {
                     b.HasOne("MonitoringAndEvaluationPlatform.Models.Project", "Project")
@@ -2648,8 +2635,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ImpactIndicator", b =>
                 {
-                    b.Navigation("ProjectOutputLinks");
-
                     b.Navigation("YearlyValues");
                 });
 
@@ -2684,11 +2669,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Navigation("ProjectDonors");
 
                     b.Navigation("ProjectFiles");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectOutput", b =>
-                {
-                    b.Navigation("IndicatorLinks");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ProjectPhase", b =>

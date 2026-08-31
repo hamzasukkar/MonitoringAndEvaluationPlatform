@@ -1,0 +1,345 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ProjectOutput>
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Models
+@inject IViewLocalizer Localizer
+@inject IAuthorizationService AuthService
+@{
+    ViewData["Title"] = "Impact";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var canAdd = (await AuthService.AuthorizeAsync(User, Permissions.AddStrategy)).Succeeded;
+    var canDelete = (await AuthService.AuthorizeAsync(User, Permissions.DeleteStrategy)).Succeeded;
+
+    var ministries = ViewBag.Ministries as List<Ministry> ?? new List<Ministry>();
+    var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+    // The year range spanned by every project output on the page. Declared here so it stays in
+    // scope for both the header loop and the tbody loop — the same approach FrameworkGoals uses.
+    var allYears = Model.SelectMany(po => po.CoveredYears).ToList();
+    int minYear = allYears.Any() ? allYears.Min() : DateTime.Now.Year;
+    int maxYear = allYears.Any() ? allYears.Max() : DateTime.Now.Year;
+
+    int totalIndicators = Model.Sum(po => po.ImpactIndicators.Count());
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-arrow-trend-up me-3"></i>
+                @Localizer["Impact"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Project outputs and what they delivered, year by year."]
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap align-items-center">
+            @if (canAdd)
+            {
+                <a href="@Url.Action("Create", "Impact")" class="btn btn-primary btn-lg shadow-sm">
+                    <i class="fas fa-plus me-2"></i>@Localizer["Add Project Output"]
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-circle-check me-1"></i>@TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-triangle-exclamation me-1"></i>@TempData["ErrorMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+@if (Model.Any())
+{
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4 col-sm-6">
+            <div class="summary-card summary-card-primary">
+                <div class="summary-card-icon"><i class="fas fa-layer-group"></i></div>
+                <div class="summary-card-content">
+                    <h3 class="summary-card-value">@Model.Count()</h3>
+                    <p class="summary-card-label">@Localizer["Project Outputs"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="summary-card summary-card-success">
+                <div class="summary-card-icon"><i class="fas fa-bullseye"></i></div>
+                <div class="summary-card-content">
+                    <h3 class="summary-card-value">@totalIndicators</h3>
+                    <p class="summary-card-label">@Localizer["Linked Indicators"]</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 col-sm-6">
+            <div class="summary-card summary-card-info">
+                <div class="summary-card-icon"><i class="fas fa-calendar-alt"></i></div>
+                <div class="summary-card-content">
+                    <h3 class="summary-card-value">@(allYears.Any() ? $"{minYear} – {maxYear}" : "—")</h3>
+                    <p class="summary-card-label">@Localizer["Years Covered"]</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h6 class="mb-0"><i class="fas fa-filter me-2"></i>@Localizer["Filters"]</h6>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetImpactFilters()">
+                <i class="fas fa-redo me-1"></i>@Localizer["Reset"]
+            </button>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-search me-1"></i>@Localizer["Search Project Output"]
+                    </label>
+                    <input type="text" id="searchOutput" class="form-control"
+                           placeholder="@Localizer["Type to search..."]" oninput="applyImpactFilters()">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">
+                        <i class="fas fa-landmark me-1"></i>@Localizer["Ministry"]
+                    </label>
+                    <select id="ministryFilter" class="form-select" onchange="applyImpactFilters()">
+                        <option value="">@Localizer["All Ministries"]</option>
+                        @foreach (var m in ministries)
+                        {
+                            <option value="@m.Code">@(isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)</option>
+                        }
+                    </select>
+                </div>
+            </div>
+            <div class="alert alert-info mb-0 py-2 mt-3" id="impactFilterResults" style="display:none;"></div>
+        </div>
+    </div>
+}
+
+<!-- Project Outputs Table -->
+<div class="card shadow-sm">
+    <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h5 class="mb-0">@Localizer["Project Outputs"]</h5>
+    </div>
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover" id="impactTable">
+                    <thead class="table-primary bg-opacity-25">
+                        <tr>
+                            <th class="align-middle">@Localizer["Project Output"]</th>
+                            <th class="align-middle">@Localizer["Ministries"]</th>
+                            <th class="align-middle text-center">@Localizer["Indicators"]</th>
+                            @for (int year = minYear; year <= maxYear; year++)
+                            {
+                                <th class="text-center year-header">@year</th>
+                            }
+                            <th class="align-middle text-center"
+                                title="@Localizer["Average of the years that have a value — years outside this output's own range are not counted."]">
+                                @Localizer["Total"]
+                            </th>
+                            <th class="align-middle text-center">@Localizer["Actions"]</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var po in Model)
+                        {
+                            var poMinistries = po.Ministries ?? new List<Ministry>();
+                            var ministryCodes = string.Join(",", poMinistries.Select(m => m.Code));
+
+                            <tr class="output-row"
+                                data-output-id="@po.Id"
+                                data-output-name="@po.Name.ToLower()"
+                                data-ministries="@ministryCodes">
+                                <td>
+                                    <a href="@Url.Action("Details", "Impact", new { id = po.Id })"
+                                       class="fw-bold text-decoration-none">@po.Name</a>
+                                    @if (po.Frameworks != null && po.Frameworks.Any())
+                                    {
+                                        <div class="mt-1">
+                                            @foreach (var fw in po.Frameworks)
+                                            {
+                                                <span class="badge bg-info text-dark me-1">@fw.Name</span>
+                                            }
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    @if (poMinistries.Any())
+                                    {
+                                        @foreach (var m in poMinistries)
+                                        {
+                                            <span class="badge bg-secondary me-1">
+                                                @(isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+                                            </span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @* The count links through to the list of which indicators these are. *@
+                                    <a href="@Url.Action("Details", "Impact", new { id = po.Id })"
+                                       class="badge bg-primary text-decoration-none"
+                                       title="@Localizer["View linked indicators"]">
+                                        @(po.ImpactIndicators.Count())
+                                    </a>
+                                </td>
+
+                                @*
+                                    One <td> per year across the FULL (global) range, so every row
+                                    lines up with the header even when its own span is shorter.
+
+                                    A year outside THIS output's own CoveredYears (its projects
+                                    never touch that year) renders "—", so it can't be mistaken for
+                                    real progress data. Within its own range, each cell is the
+                                    WEIGHTED average, across contributing indicators, of each one's
+                                    own cumulative percentage as of that year — see
+                                    ProjectOutput.GetWeightedPercentageForYear. An indicator with a
+                                    higher assigned Weight pulls the combined figure toward its own
+                                    rate more than a lower-weighted one. By the row's own last
+                                    covered year this equals po.WeightedAchievementRate.
+                                *@
+                                @{
+                                    var poYears = po.CoveredYears.ToHashSet();
+                                    var yearPcts = new List<double>();
+                                }
+                                @for (int year = minYear; year <= maxYear; year++)
+                                {
+                                    if (poYears.Contains(year))
+                                    {
+                                        var pct = po.GetWeightedPercentageForYear(year);
+                                        yearPcts.Add(pct);
+                                        <td class="text-center fw-bold"
+                                            title="@Localizer["Weighted average across contributing indicators"]">
+                                            @pct.ToString("N1")%
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center bg-light"><span class="text-muted">—</span></td>
+                                    }
+                                }
+
+                                @* "Total" = arithmetic mean of only the populated (in-range) year
+                                   percentages above — the dashed, out-of-range cells don't count
+                                   toward it. No populated years at all (e.g. no indicators linked)
+                                   renders "—", same convention as those cells, rather than 0.0%. *@
+                                <td class="text-center fw-bold border-start">
+                                    @if (yearPcts.Any())
+                                    {
+                                        @(yearPcts.Average().ToString("N1") + "%")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+
+                                <td class="text-center">
+                                    <div class="btn-group action-buttons" role="group">
+                                        <a href="@Url.Action("Details", "Impact", new { id = po.Id })"
+                                           class="btn btn-outline-info btn-sm action-btn"
+                                           title="@Localizer["View linked indicators"]">
+                                            <i class="fas fa-circle-info"></i>
+                                        </a>
+                                        @if (canDelete)
+                                        {
+                                            <form asp-action="Delete" asp-route-id="@po.Id" method="post"
+                                                  style="display:inline"
+                                                  onsubmit="return confirm('@Localizer["Delete this project output? The impact indicators themselves are not deleted."]')">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-danger btn-sm action-btn"
+                                                        title="@Localizer["Delete"]">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <div class="empty-icon"><i class="fas fa-layer-group"></i></div>
+                <h5 class="empty-title">@Localizer["No Project Outputs Yet"]</h5>
+                <p class="empty-text">@Localizer["Add a project output to group impact indicators from across projects."]</p>
+                @if (canAdd)
+                {
+                    <a href="@Url.Action("Create", "Impact")" class="btn btn-primary mt-2">
+                        <i class="fas fa-plus me-1"></i>@Localizer["Add Project Output"]
+                    </a>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script>
+        // Client-side filtering over the data-* attributes on each row, matching the approach
+        // FrameworkGoals/Index uses.
+        function applyImpactFilters() {
+            var term = (document.getElementById('searchOutput')?.value || '').toLowerCase().trim();
+            var ministry = document.getElementById('ministryFilter')?.value || '';
+            var rows = document.querySelectorAll('#impactTable tbody tr.output-row');
+            var shown = 0;
+
+            rows.forEach(function (row) {
+                var name = row.getAttribute('data-output-name') || '';
+                var codes = (row.getAttribute('data-ministries') || '').split(',').filter(Boolean);
+
+                var matchesTerm = !term || name.indexOf(term) !== -1;
+                var matchesMinistry = !ministry || codes.indexOf(ministry) !== -1;
+                var visible = matchesTerm && matchesMinistry;
+
+                row.style.display = visible ? '' : 'none';
+                if (visible) shown++;
+            });
+
+            var banner = document.getElementById('impactFilterResults');
+            if (banner) {
+                if (term || ministry) {
+                    banner.style.display = '';
+                    banner.textContent = shown + ' / ' + rows.length;
+                } else {
+                    banner.style.display = 'none';
+                }
+            }
+        }
+
+        function resetImpactFilters() {
+            var search = document.getElementById('searchOutput');
+            var ministry = document.getElementById('ministryFilter');
+            if (search) search.value = '';
+            if (ministry) ministry.value = '';
+            applyImpactFilters();
+        }
+    </script>
+}

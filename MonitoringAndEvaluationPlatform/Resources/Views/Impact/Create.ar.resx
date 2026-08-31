@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Add Project Output" xml:space="preserve">
+    <value>إضافة مخرج مشروع</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Choose one or more. Selecting a ministry narrows the two lists below." xml:space="preserve">
+    <value>اختر واحدة أو أكثر. اختيار وزارة يضيّق القائمتين أدناه.</value>
+  </data>
+  <data name="Create Project Output" xml:space="preserve">
+    <value>إنشاء مخرج المشروع</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>الأطر</value>
+  </data>
+  <data name="Group impact indicators from across projects under a single output." xml:space="preserve">
+    <value>اجمع مؤشرات الأثر من مشاريع مختلفة تحت مخرج واحد.</value>
+  </data>
+  <data name="Impact" xml:space="preserve">
+    <value>الأثر</value>
+  </data>
+  <data name="Impact Indicators" xml:space="preserve">
+    <value>مؤشرات الأثر</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>الوزارات</value>
+  </data>
+  <data name="Project Output Details" xml:space="preserve">
+    <value>تفاصيل مخرج المشروع</value>
+  </data>
+  <data name="Project Output Name" xml:space="preserve">
+    <value>اسم مخرج المشروع</value>
+  </data>
+  <data name="The strategies this project output contributes to." xml:space="preserve">
+    <value>الاستراتيجيات التي يساهم فيها مخرج المشروع هذا.</value>
+  </data>
+  <data name="These indicators are linked to the project output on save. Their yearly values roll up into the Impact table." xml:space="preserve">
+    <value>تُربط هذه المؤشرات بمخرج المشروع عند الحفظ، وتتجمع قيمها السنوية في جدول الأثر.</value>
+  </data>
+  <data name="e.g. Improved access to basic education" xml:space="preserve">
+    <value>مثال: تحسين الوصول إلى التعليم الأساسي</value>
+  </data>
+  <data name="Indicator Weights" xml:space="preserve">
+    <value>أوزان المؤشرات</value>
+  </data>
+  <data name="A higher weight pulls the project output's combined achievement rate toward that indicator's own rate more than a lower one. Defaults to 1 (equal weight) if left as-is." xml:space="preserve">
+    <value>الوزن الأعلى يجعل نسبة إنجاز مخرج المشروع الإجمالية أقرب إلى نسبة إنجاز هذا المؤشر تحديداً. القيمة الافتراضية 1 (وزن متساوٍ) إذا لم تُغيَّر.</value>
+  </data>
+  <data name="Select one or more indicators above to assign their weights." xml:space="preserve">
+    <value>اختر مؤشراً واحداً أو أكثر أعلاه لتحديد أوزانها.</value>
+  </data>
+  <data name="Must sum to exactly 100. A higher weight pulls the project output's combined achievement rate toward that indicator's own rate more than a lower one. Changing the selection resets these to an equal split." xml:space="preserve">
+    <value>يجب أن يساوي مجموعها 100 بالضبط. الوزن الأعلى يجعل نسبة إنجاز مخرج المشروع الإجمالية أقرب إلى نسبة إنجاز هذا المؤشر تحديداً. تغيير الاختيار يعيد توزيعها بالتساوي.</value>
+  </data>
+  <data name="must equal 100" xml:space="preserve">
+    <value>يجب أن يساوي 100</value>
+  </data>
+</root>
