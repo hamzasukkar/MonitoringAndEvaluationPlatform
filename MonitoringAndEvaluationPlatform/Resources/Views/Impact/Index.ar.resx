@@ -189,4 +189,13 @@
   <data name="Weighted average across contributing indicators" xml:space="preserve">
     <value>متوسط مرجّح بين المؤشرات المساهمة</value>
   </data>
+  <data name="Actual Value" xml:space="preserve">
+    <value>القيمة الفعلية</value>
+  </data>
+  <data name="Amount of Change" xml:space="preserve">
+    <value>مقدار التغيّر</value>
+  </data>
+  <data name="((Target - Base Value) x Actual Value) / 100 — how much of the gap has been closed, in real units. This is the change from the baseline, not the current level." xml:space="preserve">
+    <value>((المستهدف − القيمة الأساس) × القيمة الفعلية) ÷ 100 — مقدار ما تم إنجازه من الفجوة، بالوحدات الحقيقية. هذا هو التغيّر عن الأساس وليس المستوى الحالي.</value>
+  </data>
 </root>

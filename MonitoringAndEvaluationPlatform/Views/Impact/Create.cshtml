@@ -1,4 +1,4 @@
-@model MonitoringAndEvaluationPlatform.ViewModel.ProjectOutputFormViewModel
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProjectOutputFormViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
@@ -50,6 +50,34 @@
                 <input asp-for="Name" class="impact-input" autofocus
                        placeholder="@Localizer["e.g. Improved access to basic education"]" />
                 <span asp-validation-for="Name" class="field-error"></span>
+            </div>
+
+            @*
+                Base Value / Target define the gap the Impact table's "Amount of Change" column
+                measures progress across: ((Target - Base) x ActualValue%) / 100. Both optional —
+                leaving them empty makes that column render a dash rather than a misleading 0.00.
+                step="any" so decimals are accepted; a Target below Base is allowed (decrease goal).
+            *@
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label asp-for="BaseValue" class="impact-label">
+                        <i class="fas fa-flag-checkered me-2"></i>@Localizer["Base Value"]
+                    </label>
+                    <input asp-for="BaseValue" class="impact-input" type="number" step="any"
+                           placeholder="@Localizer["e.g. 20"]" />
+                    <span asp-validation-for="BaseValue" class="field-error"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="TargetValue" class="impact-label">
+                        <i class="fas fa-bullseye me-2"></i>@Localizer["Target"]
+                    </label>
+                    <input asp-for="TargetValue" class="impact-input" type="number" step="any"
+                           placeholder="@Localizer["e.g. 100"]" />
+                    <span asp-validation-for="TargetValue" class="field-error"></span>
+                </div>
+                <div class="impact-hint mt-2">
+                    @Localizer["Optional. Together these drive the Amount of Change column on the Impact table; leaving them empty shows a dash there instead."]
+                </div>
             </div>
 
             @*

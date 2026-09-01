@@ -179,7 +179,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var projectOutput = new ProjectOutput
             {
                 Name = form.Name.Trim(),
-                CreatedAt = DateTime.Now
+                CreatedAt = DateTime.Now,
+                BaseValue = form.BaseValue,
+                TargetValue = form.TargetValue
             };
 
             // Load the selected entities so EF writes the join rows. Anything outside the user's

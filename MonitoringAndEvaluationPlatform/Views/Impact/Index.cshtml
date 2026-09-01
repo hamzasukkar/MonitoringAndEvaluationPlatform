@@ -1,4 +1,4 @@
-@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ProjectOutput>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.ProjectOutput>
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Mvc.Localization
 @using MonitoringAndEvaluationPlatform.Models
@@ -139,20 +139,36 @@
         {
             <div class="table-responsive">
                 <table class="table table-hover" id="impactTable">
+                    @*
+                        Two-row header: each year spans two sub-columns (Actual Value / Amount of
+                        Change), so every year <th> gets colspan="2" and every fixed column gets
+                        rowspan="2". Same layout FrameworkGoals/Index.cshtml uses for its own
+                        per-year sub-columns.
+                    *@
                     <thead class="table-primary bg-opacity-25">
                         <tr>
-                            <th class="align-middle">@Localizer["Project Output"]</th>
-                            <th class="align-middle">@Localizer["Ministries"]</th>
-                            <th class="align-middle text-center">@Localizer["Indicators"]</th>
+                            <th rowspan="2" class="align-middle">@Localizer["Project Output"]</th>
+                            <th rowspan="2" class="align-middle">@Localizer["Ministries"]</th>
+                            <th rowspan="2" class="align-middle text-center">@Localizer["Indicators"]</th>
                             @for (int year = minYear; year <= maxYear; year++)
                             {
-                                <th class="text-center year-header">@year</th>
+                                <th colspan="2" class="text-center year-header">@year</th>
                             }
-                            <th class="align-middle text-center"
+                            <th rowspan="2" class="align-middle text-center"
                                 title="@Localizer["Average of the years that have a value — years outside this output's own range are not counted."]">
                                 @Localizer["Total"]
                             </th>
-                            <th class="align-middle text-center">@Localizer["Actions"]</th>
+                            <th rowspan="2" class="align-middle text-center">@Localizer["Actions"]</th>
+                        </tr>
+                        <tr>
+                            @for (int year = minYear; year <= maxYear; year++)
+                            {
+                                <th class="text-center sub-header">@Localizer["Actual Value"]</th>
+                                <th class="text-center sub-header"
+                                    title="@Localizer["((Target - Base Value) x Actual Value) / 100 — how much of the gap has been closed, in real units. This is the change from the baseline, not the current level."]">
+                                    @Localizer["Amount of Change"]
+                                </th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
@@ -220,19 +236,37 @@
                                     var poYears = po.CoveredYears.ToHashSet();
                                     var yearPcts = new List<double>();
                                 }
+                                @* ALIGNMENT INVARIANT: every branch must emit exactly TWO <td>s
+                                   per year, matching the colspan="2" year headers. The
+                                   out-of-range branch therefore emits two dashes, not one. *@
                                 @for (int year = minYear; year <= maxYear; year++)
                                 {
                                     if (poYears.Contains(year))
                                     {
                                         var pct = po.GetWeightedPercentageForYear(year);
                                         yearPcts.Add(pct);
+                                        var change = po.GetAmountOfChangeForYear(year);
+
                                         <td class="text-center fw-bold"
                                             title="@Localizer["Weighted average across contributing indicators"]">
                                             @pct.ToString("N1")%
                                         </td>
+                                        <td class="text-center">
+                                            @if (change.HasValue)
+                                            {
+                                                @change.Value.ToString("N2")
+                                            }
+                                            else
+                                            {
+                                                @* Base/Target not set on this output — a dash, not
+                                                   a 0.00 that would look like a real measurement. *@
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
                                     }
                                     else
                                     {
+                                        <td class="text-center bg-light"><span class="text-muted">—</span></td>
                                         <td class="text-center bg-light"><span class="text-muted">—</span></td>
                                     }
                                 }

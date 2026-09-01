@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MonitoringAndEvaluationPlatform.Models
@@ -12,8 +12,10 @@ namespace MonitoringAndEvaluationPlatform.Models
     /// into framework performance. A ProjectOutput sits on the parallel impact track: it groups
     /// what projects actually delivered, and feeds nothing back into *Performance columns.
     ///
-    /// It stores no numbers of its own. Every figure on the Impact page is rolled up live from the
-    /// linked indicators, so the grouping can never drift out of sync with the underlying data.
+    /// Every PERCENTAGE on the Impact page is rolled up live from the linked indicators, so those
+    /// figures can never drift out of sync with the underlying data. The only numbers stored on
+    /// the output itself are BaseValue/TargetValue, which are inputs the user supplies rather
+    /// than derived values, and so cannot drift either.
     /// </summary>
     public class ProjectOutput
     {
@@ -26,6 +28,25 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string Name { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        /// <summary>
+        /// Starting point this output is measured from, in its own real units. Nullable: an
+        /// output created before its bounds were known has no base, and a stored 0 would make
+        /// every Amount of Change read 0.00 as if it were real data.
+        /// </summary>
+        [Display(Name = "Base Value")]
+        public double? BaseValue { get; set; }
+
+        /// <summary>
+        /// The value this output aims to reach, in its own real units.
+        ///
+        /// Deliberately NOT the same as <see cref="TotalTarget"/>, which is the computed sum of
+        /// the linked indicators' own TargetValues. This one is entered by hand for the output as
+        /// a whole and, together with <see cref="BaseValue"/>, defines the gap that
+        /// <see cref="GetAmountOfChangeForYear"/> measures progress across.
+        /// </summary>
+        [Display(Name = "Target")]
+        public double? TargetValue { get; set; }
 
         // Ministries/Frameworks are plain many-to-many skip navigations; join tables are named
         // in ApplicationDbContext. ImpactIndicators is a link WITH A PAYLOAD (each link carries a
@@ -133,6 +154,32 @@ namespace MonitoringAndEvaluationPlatform.Models
             if (totalWeight <= 0) totalWeight = contributing.Count;
 
             return contributing.Sum(l => l.ImpactIndicator.GetCumulativePercentageForYear(year) * l.Weight) / totalWeight;
+        }
+
+        /// <summary>
+        /// How much of the BaseValue-to-TargetValue gap has been closed as of this year, in the
+        /// output's own real units: ((TargetValue - BaseValue) * ActualValue%) / 100, where
+        /// ActualValue% is GetWeightedPercentageForYear.
+        ///
+        /// This is the algebraic inverse of FrameworkGoal.ProgressRate, which computes
+        /// ((Current - Base) / (Target - Base)) * 100 from the same three quantities.
+        ///
+        /// NOTE: this is the CHANGE from the baseline, not the current level. With Base 20,
+        /// Target 100 and 87.5% actual, this returns 70 (the gap closed) while the current level
+        /// would be 90 (= BaseValue + 70). Named for FrameworkGoal.cs, which already documents
+        /// this exact concept as "Amount of Change".
+        ///
+        /// A negative result is legitimate and intentional: a decrease goal (Target below Base)
+        /// is a normal case the framework goals already support.
+        ///
+        /// Null when either bound is unset, so the caller can render an em dash rather than a
+        /// misleading 0.00 - the same "no data is not zero" rule used throughout this feature.
+        /// </summary>
+        public double? GetAmountOfChangeForYear(int year)
+        {
+            if (BaseValue is null || TargetValue is null) return null;
+
+            return ((TargetValue.Value - BaseValue.Value) * GetWeightedPercentageForYear(year)) / 100;
         }
     }
 }

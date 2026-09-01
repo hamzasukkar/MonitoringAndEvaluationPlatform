@@ -174,4 +174,19 @@
   <data name="must equal 100" xml:space="preserve">
     <value>يجب أن يساوي 100</value>
   </data>
+  <data name="Base Value" xml:space="preserve">
+    <value>القيمة الأساس</value>
+  </data>
+  <data name="Target" xml:space="preserve">
+    <value>القيمة المستهدفة</value>
+  </data>
+  <data name="e.g. 20" xml:space="preserve">
+    <value>مثال: 20</value>
+  </data>
+  <data name="e.g. 100" xml:space="preserve">
+    <value>مثال: 100</value>
+  </data>
+  <data name="Optional. Together these drive the Amount of Change column on the Impact table; leaving them empty shows a dash there instead." xml:space="preserve">
+    <value>اختياري. يحدّدان معاً عمود «مقدار التغيّر» في جدول الأثر؛ تركهما فارغين يعرض شرطة بدلاً من رقم.</value>
+  </data>
 </root>

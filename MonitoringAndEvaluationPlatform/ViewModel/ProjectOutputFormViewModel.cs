@@ -20,6 +20,16 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         [Display(Name = "Project Output Name")]
         public string Name { get; set; } = string.Empty;
 
+        // Bounds for the Amount of Change column on the Impact table. Optional, like every other
+        // field on this form except Name — an output can be created before its bounds are known.
+        // A Target BELOW Base is allowed on purpose: a decrease goal is legitimate, and
+        // FrameworkGoal already supports one (IsIncreaseGoal / AnnualChangeRate handle it).
+        [Display(Name = "Base Value")]
+        public double? BaseValue { get; set; }
+
+        [Display(Name = "Target")]
+        public double? TargetValue { get; set; }
+
         // Nullable on purpose. The project has <Nullable>enable</Nullable>, so a non-nullable
         // List<int> picks up an IMPLICIT [Required] and the tag helper emits
         // data-val-required — which would make unobtrusive validation refuse to submit the form

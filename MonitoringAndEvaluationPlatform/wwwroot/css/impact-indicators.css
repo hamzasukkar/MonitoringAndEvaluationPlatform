@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Impact indicators — shared styling for the ImpactIndicators views and the
  * "Impact Measurement" card on the project details page.
  *
@@ -363,11 +363,34 @@
     white-space: nowrap;
 }
 
+/* Sub-labels under each year header (Actual Value / Amount of Change).
+   Copied from the equivalent block in Views/FrameworkGoals/Index.cshtml so the two
+   per-year tables read as one family. */
+.sub-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    font-size: 0.75rem;
+    color: #6c757d;
+    padding: 0.5rem !important;
+    border: 1px solid #dee2e6;
+}
+
 #impactTable th {
     position: sticky;
-    top: 0;
     z-index: 10;
     background: #cfe2ff;
+}
+
+/* The header is two rows, so they cannot both pin at top:0 or they overlap. Row 1 pins at the
+   top; row 2 pins directly beneath it. The 47px offset is row 1's rendered height
+   (.year-header: 0.75rem padding top+bottom + ~1.4 line-height on 0.95rem) — adjust this
+   together with .year-header's padding/font-size. */
+#impactTable thead tr:first-child th {
+    top: 0;
+}
+
+#impactTable thead tr:nth-child(2) th {
+    top: 47px;
 }
 
 /* The year headers keep their own gradient rather than the sticky default. */
