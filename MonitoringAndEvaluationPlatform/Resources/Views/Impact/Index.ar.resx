@@ -121,10 +121,10 @@
     <value>الإجراءات</value>
   </data>
   <data name="Add Project Output" xml:space="preserve">
-    <value>إضافة مخرج مشروع</value>
+    <value>إضافة مؤشر أثر تنموي</value>
   </data>
   <data name="Add a project output to group impact indicators from across projects." xml:space="preserve">
-    <value>أضف مخرج مشروع لتجميع مؤشرات الأثر من مشاريع مختلفة.</value>
+    <value>أضف مؤشر أثر تنموي لتجميع مؤشرات الأثر من مشاريع مختلفة.</value>
   </data>
   <data name="All Ministries" xml:space="preserve">
     <value>جميع الوزارات</value>
@@ -133,7 +133,7 @@
     <value>حذف</value>
   </data>
   <data name="Delete this project output? The impact indicators themselves are not deleted." xml:space="preserve">
-    <value>هل تريد حذف مخرج المشروع هذا؟ لن تُحذف مؤشرات الأثر نفسها.</value>
+    <value>هل تريد حذف مؤشر الأثر التنموي هذا؟ لن تُحذف مؤشرات الأثر نفسها.</value>
   </data>
   <data name="Filters" xml:space="preserve">
     <value>عوامل التصفية</value>
@@ -154,22 +154,22 @@
     <value>الوزارة</value>
   </data>
   <data name="No Project Outputs Yet" xml:space="preserve">
-    <value>لا توجد مخرجات مشاريع بعد</value>
+    <value>لا توجد مؤشرات أثر تنموي بعد</value>
   </data>
   <data name="Project Output" xml:space="preserve">
-    <value>مخرج المشروع</value>
+    <value>مؤشر الأثر التنموي</value>
   </data>
   <data name="Project Outputs" xml:space="preserve">
-    <value>مخرجات المشاريع</value>
+    <value>مؤشرات الأثر التنموي</value>
   </data>
   <data name="Project outputs and what they delivered, year by year." xml:space="preserve">
-    <value>مخرجات المشاريع وما حققته، سنة بسنة.</value>
+    <value>مؤشرات الأثر التنموي وما حققته، سنة بسنة.</value>
   </data>
   <data name="Reset" xml:space="preserve">
     <value>إعادة تعيين</value>
   </data>
   <data name="Search Project Output" xml:space="preserve">
-    <value>البحث عن مخرج مشروع</value>
+    <value>البحث عن مؤشر أثر تنموي</value>
   </data>
   <data name="Type to search..." xml:space="preserve">
     <value>اكتب للبحث...</value>
@@ -184,7 +184,7 @@
     <value>المجموع</value>
   </data>
   <data name="Average of the years that have a value — years outside this output's own range are not counted." xml:space="preserve">
-    <value>متوسط السنوات التي تحتوي قيمة — لا تُحتسب السنوات خارج نطاق هذا المخرج.</value>
+    <value>متوسط السنوات التي تحتوي قيمة — لا تُحتسب السنوات خارج نطاق هذا المؤشر.</value>
   </data>
   <data name="Weighted average across contributing indicators" xml:space="preserve">
     <value>متوسط مرجّح بين المؤشرات المساهمة</value>
@@ -197,5 +197,35 @@
   </data>
   <data name="((Target - Base Value) x Actual Value) / 100 — how much of the gap has been closed, in real units. This is the change from the baseline, not the current level." xml:space="preserve">
     <value>((المستهدف − القيمة الأساس) × القيمة الفعلية) ÷ 100 — مقدار ما تم إنجازه من الفجوة، بالوحدات الحقيقية. هذا هو التغيّر عن الأساس وليس المستوى الحالي.</value>
+  </data>
+  <data name="Actual Impact" xml:space="preserve">
+    <value>الأثر الفعلي</value>
+  </data>
+  <data name="Total Value" xml:space="preserve">
+    <value>القيمة الكلية</value>
+  </data>
+  <data name="Base Value" xml:space="preserve">
+    <value>القيمة الأساس</value>
+  </data>
+  <data name="Record actual impact" xml:space="preserve">
+    <value>تسجيل الأثر الفعلي</value>
+  </data>
+  <data name="Year" xml:space="preserve">
+    <value>السنة</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>حفظ</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>إلغاء</value>
+  </data>
+  <data name="Base Value + Amount of Change — the calculated level the output has reached." xml:space="preserve">
+    <value>القيمة الأساس + مقدار التغيّر — المستوى المحسوب الذي بلغه المؤشر.</value>
+  </data>
+  <data name="Recorded by hand per year, independent of the calculated figures." xml:space="preserve">
+    <value>قيمة تُدخَل يدوياً لكل سنة، مستقلة عن الأرقام المحسوبة.</value>
+  </data>
+  <data name="The output's starting value, measured at its base year (its earliest covered year)." xml:space="preserve">
+    <value>القيمة الابتدائية للمؤشر، مقيسة في سنة الأساس (أول سنة يغطيها).</value>
   </data>
 </root>

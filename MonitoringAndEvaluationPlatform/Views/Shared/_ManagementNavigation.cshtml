@@ -1,4 +1,4 @@
-@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
@@ -38,6 +38,15 @@
                                 <i class="fas fa-sitemap me-2"></i>
                                 <span class="nav-text">@Localizer["Public Sector Types"]</span>
                                 <small class="nav-subtitle d-block">@Localizer["Public Sector Sub-classification"]</small>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link @(currentController?.Equals("Units", StringComparison.OrdinalIgnoreCase) == true ? "active" : "")"
+                               href="@Url.Action("Index", "Units")"
+                               role="tab">
+                                <i class="fas fa-ruler me-2"></i>
+                                <span class="nav-text">@Localizer["Units"]</span>
+                                <small class="nav-subtitle d-block">@Localizer["Units of Measurement"]</small>
                             </a>
                         </li>
                         <li class="nav-item" role="presentation">

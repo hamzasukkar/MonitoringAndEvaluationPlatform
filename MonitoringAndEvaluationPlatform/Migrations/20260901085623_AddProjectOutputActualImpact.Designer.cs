@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MonitoringAndEvaluationPlatform.Data;
 
@@ -11,9 +12,11 @@ using MonitoringAndEvaluationPlatform.Data;
 namespace MonitoringAndEvaluationPlatform.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260901085623_AddProjectOutputActualImpact")]
+    partial class AddProjectOutputActualImpact
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -634,14 +637,13 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<int>("TargetYear")
                         .HasColumnType("int");
 
-                    b.Property<int?>("UnitCode")
-                        .HasColumnType("int");
+                    b.Property<string>("Unit")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("ID");
 
                     b.HasIndex("FrameworkCode");
-
-                    b.HasIndex("UnitCode");
 
                     b.ToTable("FrameworkGoals");
                 });
@@ -866,14 +868,13 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double>("TargetValue")
                         .HasColumnType("float");
 
-                    b.Property<int?>("UnitCode")
-                        .HasColumnType("int");
+                    b.Property<string>("Unit")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProjectID");
-
-                    b.HasIndex("UnitCode");
 
                     b.ToTable("ImpactIndicators");
                 });
@@ -1009,8 +1010,9 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.Property<double?>("Quantity")
                         .HasColumnType("float");
 
-                    b.Property<int?>("UnitCode")
-                        .HasColumnType("int");
+                    b.Property<string>("Unit")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<double>("Value")
                         .HasColumnType("float");
@@ -1018,8 +1020,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasKey("Code");
 
                     b.HasIndex("ProjectPhaseId");
-
-                    b.HasIndex("UnitCode");
 
                     b.ToTable("Measures");
                 });
@@ -1051,36 +1051,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                     b.HasIndex("MeasureCode");
 
                     b.ToTable("MeasureFiles");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.MeasurementUnit", b =>
-                {
-                    b.Property<int>("Code")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Code"));
-
-                    b.Property<string>("AR_Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("EN_Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("FR_Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Code");
-
-                    b.HasIndex("EN_Name")
-                        .IsUnique();
-
-                    b.ToTable("MeasurementUnits", (string)null);
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Ministry", b =>
@@ -2242,14 +2212,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.MeasurementUnit", "UnitRef")
-                        .WithMany("FrameworkGoals")
-                        .HasForeignKey("UnitCode")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("Framework");
-
-                    b.Navigation("UnitRef");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.FrameworkGoalFile", b =>
@@ -2304,14 +2267,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.MeasurementUnit", "UnitRef")
-                        .WithMany("ImpactIndicators")
-                        .HasForeignKey("UnitCode")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("Project");
-
-                    b.Navigation("UnitRef");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.ImpactIndicatorYearlyValue", b =>
@@ -2351,14 +2307,7 @@ namespace MonitoringAndEvaluationPlatform.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MonitoringAndEvaluationPlatform.Models.MeasurementUnit", "UnitRef")
-                        .WithMany("Measures")
-                        .HasForeignKey("UnitCode")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.Navigation("ProjectPhase");
-
-                    b.Navigation("UnitRef");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.MeasureFile", b =>
@@ -2755,15 +2704,6 @@ namespace MonitoringAndEvaluationPlatform.Migrations
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Measure", b =>
                 {
                     b.Navigation("Files");
-                });
-
-            modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.MeasurementUnit", b =>
-                {
-                    b.Navigation("FrameworkGoals");
-
-                    b.Navigation("ImpactIndicators");
-
-                    b.Navigation("Measures");
                 });
 
             modelBuilder.Entity("MonitoringAndEvaluationPlatform.Models.Outcome", b =>

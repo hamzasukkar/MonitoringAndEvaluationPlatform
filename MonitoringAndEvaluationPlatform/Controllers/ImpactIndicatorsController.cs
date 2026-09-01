@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -149,7 +149,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var indicator = new ImpactIndicator
             {
                 Name = form.Name.Trim(),
-                Unit = string.IsNullOrWhiteSpace(form.Unit) ? null : form.Unit.Trim(),
+                UnitCode = form.UnitCode,
                 TargetValue = targetValue,
                 ProjectID = form.ProjectID
             };
@@ -188,7 +188,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ProjectID = indicator.ProjectID,
                 ProjectName = project.ProjectName,
                 Name = indicator.Name,
-                Unit = indicator.Unit,
+                UnitCode = indicator.UnitCode,
                 TargetValue = indicator.TargetValue.ToString(CultureInfo.InvariantCulture),
                 YearValues = project.CoveredYears
                     .Select(year => new YearValueInput
@@ -231,7 +231,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             indicator.Name = form.Name.Trim();
-            indicator.Unit = string.IsNullOrWhiteSpace(form.Unit) ? null : form.Unit.Trim();
+            indicator.UnitCode = form.UnitCode;
             indicator.TargetValue = targetValue;
 
             ApplyYearValues(indicator, form, project);

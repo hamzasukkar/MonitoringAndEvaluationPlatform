@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -292,9 +292,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 // A quantitative goal is meaningless without a unit of measure
-                if (model.GoalType == FrameworkGoalType.Quantitative && string.IsNullOrWhiteSpace(model.Unit))
+                if (model.GoalType == FrameworkGoalType.Quantitative && model.UnitCode == null)
                 {
-                    return Json(new { success = false, message = _localizer["Please enter a unit of measure for a quantitative goal."].Value });
+                    return Json(new { success = false, message = _localizer["Please select a unit of measure for a quantitative goal."].Value });
+                }
+
+                // The unit is chosen from the Units list, so a code that is not in it is a
+                // tampered or stale form rather than a typo the user can fix.
+                if (model.UnitCode != null &&
+                    !await _context.MeasurementUnits.AnyAsync(u => u.Code == model.UnitCode))
+                {
+                    return Json(new { success = false, message = _localizer["The selected unit of measure no longer exists."].Value });
                 }
 
                 // Parse and validate manual expected targets up front, before the goal is saved,
@@ -334,7 +342,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     ManualYearlyTargets = model.ManualYearlyTargets,
                     GoalType = model.GoalType,
                     // Normalized so a qualitative goal never keeps a stale unit from a toggled form
-                    Unit = model.GoalType == FrameworkGoalType.Quantitative ? model.Unit!.Trim() : null
+                    UnitCode = model.GoalType == FrameworkGoalType.Quantitative ? model.UnitCode : null
                 };
 
                 _context.Add(frameworkGoal);
@@ -353,6 +361,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         });
                     }
                     await _context.SaveChangesAsync();
+                }
+
+                // The goal was built from a UnitCode, so its UnitRef navigation — and with it the
+                // Unit and DisplayUnit the response below reports — is still empty. Load it, or
+                // the row the page inserts for a brand new quantitative goal shows no unit until
+                // the next refresh.
+                if (frameworkGoal.UnitCode != null)
+                {
+                    await _context.Entry(frameworkGoal).Reference(g => g.UnitRef).LoadAsync();
                 }
 
                 // Return the created goal data for frontend update
@@ -1191,8 +1208,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Qualitative (default) = percentage values; Quantitative = quantities expressed in Unit
         public FrameworkGoalType GoalType { get; set; } = FrameworkGoalType.Qualitative;
 
-        // Required when GoalType is Quantitative, ignored otherwise
-        public string? Unit { get; set; }
+        // Required when GoalType is Quantitative, ignored otherwise.
+        // A MeasurementUnit.Code chosen from the Units list, not free text.
+        public int? UnitCode { get; set; }
 
         // Parallel lists for manual expected target years and their values
         public List<int> ManualTargetYears { get; set; } = new List<int>();

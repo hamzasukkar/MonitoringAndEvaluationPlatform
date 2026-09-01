@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
@@ -556,7 +556,7 @@ public class MonitoringService
     // MEASURE CRUD HELPERS
     // ─────────────────────────────────────────────────────────────────────────
 
-    public async Task AddMeasureToPhase(int phaseId, double value, string name = "", string? note = null, double? quantity = null, string? unit = null, MeasureType measureType = MeasureType.Qualitative)
+    public async Task AddMeasureToPhase(int phaseId, double value, string name = "", string? note = null, double? quantity = null, int? unitCode = null, MeasureType measureType = MeasureType.Qualitative)
     {
         var measure = new Measure
         {
@@ -566,7 +566,7 @@ public class MonitoringService
             Name = name,
             Note = note,
             Quantity = quantity,
-            Unit = unit,
+            UnitCode = unitCode,
             MeasureType = measureType
         };
 

@@ -1,0 +1,327 @@
+@model IEnumerable<MonitoringAndEvaluationPlatform.Models.MeasurementUnit>
+@using MonitoringAndEvaluationPlatform.Models
+@using MonitoringAndEvaluationPlatform.Controllers
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@{
+    ViewData["Title"] = "Units";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var usage = ViewBag.UsageCounts as Dictionary<int, UnitsController.UnitUsage>
+                ?? new Dictionary<int, UnitsController.UnitUsage>();
+    var canEdit = User.IsInRole(UserRoles.SystemAdministrator);
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="header-content">
+        <div class="page-title-section">
+            <div class="page-breadcrumb">
+                <span class="current-page">@Localizer["Units"]</span>
+            </div>
+            <h1 class="page-title">@Localizer["Units of Measurement"]</h1>
+            <p class="page-description">
+                @Localizer["Define the units used across impact indicators, framework goals and measures."]
+            </p>
+        </div>
+    </div>
+</div>
+
+@await Html.PartialAsync("_ManagementNavigation")
+
+@if (canEdit)
+{
+    <!-- Quick Add Section -->
+    <div class="chart-card mb-4">
+        <div class="chart-title">
+            <i class="fas fa-ruler"></i>
+            @Localizer["Add New Unit"]
+        </div>
+        <form id="createUnitForm" class="row g-3">
+            @Html.AntiForgeryToken()
+            <div class="col-md-3">
+                <label for="EN_Name" class="form-label fw-bold">
+                    <i class="fas fa-globe me-2"></i>@Localizer["English Name"]
+                </label>
+                <input type="text" name="EN_Name" class="form-control form-control-lg" required
+                       maxlength="100" placeholder="@Localizer["e.g. km"]" />
+            </div>
+            <div class="col-md-3">
+                <label for="AR_Name" class="form-label fw-bold">
+                    <i class="fas fa-language me-2"></i>@Localizer["Arabic Name"]
+                </label>
+                <input type="text" name="AR_Name" class="form-control form-control-lg" required
+                       maxlength="100" placeholder="@Localizer["e.g. كم"]" dir="rtl" />
+            </div>
+            <div class="col-md-3">
+                <label for="FR_Name" class="form-label fw-bold">
+                    <i class="fas fa-language me-2"></i>@Localizer["French Name"]
+                    <span class="text-muted fw-normal">(@Localizer["optional"])</span>
+                </label>
+                <input type="text" name="FR_Name" class="form-control form-control-lg"
+                       maxlength="100" placeholder="@Localizer["e.g. km"]" />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <div class="d-grid w-100">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus-circle me-2"></i>@Localizer["Create a New Entity"]
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+}
+
+<!-- Units Table -->
+<div class="chart-card">
+    <div class="chart-title">
+        <i class="fas fa-ruler"></i>
+        @Localizer["Units"] (@Model.Count())
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover modern-table">
+                <thead class="table-header">
+                    <tr>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-globe me-2"></i>@Localizer["English Name"]
+                            </div>
+                        </th>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-language me-2"></i>@Localizer["Arabic Name"]
+                            </div>
+                        </th>
+                        <th class="sortable-header">
+                            <div class="header-link">
+                                <i class="fas fa-language me-2"></i>@Localizer["French Name"]
+                            </div>
+                        </th>
+                        <th class="text-center">
+                            <div class="header-link">
+                                <i class="fas fa-link me-2"></i>@Localizer["In Use By"]
+                            </div>
+                        </th>
+                        @if (canEdit)
+                        {
+                            <th class="text-center">
+                                <div class="header-link">
+                                    <i class="fas fa-cogs me-2"></i>@Localizer["Actions"]
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody id="unitsTableBody">
+                    @foreach (var item in Model)
+                    {
+                        var used = usage.TryGetValue(item.Code, out var u) ? u : new UnitsController.UnitUsage();
+                        <tr id="unit-row-@item.Code" class="table-row" data-usage="@used.Total">
+                            <td class="sector-name-cell">
+                                <div class="d-flex align-items-center">
+                                    <div class="sector-icon me-3">
+                                        <i class="fas fa-ruler"></i>
+                                    </div>
+                                    <div>
+                                        <span id="unit-enname-@item.Code" class="sector-name-text">@item.EN_Name</span>
+                                        <input type="text" id="unit-enname-input-@item.Code"
+                                               class="form-control d-none" maxlength="100" value="@item.EN_Name" />
+                                        <small class="text-muted d-block">
+                                            <i class="fas fa-hashtag me-1"></i>ID: @item.Code
+                                        </small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="sector-arabic-cell">
+                                <div class="arabic-text">
+                                    <span id="unit-arname-@item.Code" class="sector-name-text" dir="rtl">@item.AR_Name</span>
+                                    <input type="text" id="unit-arname-input-@item.Code"
+                                           class="form-control d-none" maxlength="100" dir="rtl" value="@item.AR_Name" />
+                                </div>
+                            </td>
+                            <td>
+                                <span id="unit-frname-@item.Code" class="sector-name-text">
+                                    @(string.IsNullOrWhiteSpace(item.FR_Name) ? "—" : item.FR_Name)
+                                </span>
+                                <input type="text" id="unit-frname-input-@item.Code"
+                                       class="form-control d-none" maxlength="100" value="@item.FR_Name" />
+                            </td>
+                            <td class="text-center">
+                                @if (used.Total == 0)
+                                {
+                                    <span class="text-muted">@Localizer["Not used"]</span>
+                                }
+                                else
+                                {
+                                    @* Spelled out so it is obvious what a delete would break. *@
+                                    <span class="modern-badge badge-primary" title="@Localizer["A unit that is in use cannot be deleted."]">
+                                        @used.Total
+                                    </span>
+                                    <small class="text-muted d-block">
+                                        @if (used.ImpactIndicators > 0)
+                                        {
+                                            <span>@used.ImpactIndicators @Localizer["indicators"]</span>
+                                        }
+                                        @if (used.FrameworkGoals > 0)
+                                        {
+                                            <span>@used.FrameworkGoals @Localizer["goals"]</span>
+                                        }
+                                        @if (used.Measures > 0)
+                                        {
+                                            <span>@used.Measures @Localizer["measures"]</span>
+                                        }
+                                    </small>
+                                }
+                            </td>
+                            @if (canEdit)
+                            {
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                                id="unit-edit-btn-@item.Code"
+                                                onclick="startEdit(@item.Code)"
+                                                title="@Localizer["Edit"]">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-success btn-sm d-none"
+                                                id="unit-save-btn-@item.Code"
+                                                onclick="saveEdit(@item.Code)"
+                                                title="@Localizer["Save"]">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-secondary btn-sm d-none"
+                                                id="unit-cancel-btn-@item.Code"
+                                                onclick="cancelEdit(@item.Code)"
+                                                title="@Localizer["Cancel"]">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm"
+                                                onclick="deleteUnit(@item.Code)"
+                                                title="@Localizer["Delete"]">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center text-muted py-5">
+            <i class="fas fa-ruler fa-3x mb-3 d-block"></i>
+            @Localizer["No units are defined yet."]
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        const antiForgeryToken = () =>
+            document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+        function post(url, data) {
+            const body = new FormData();
+            Object.entries(data).forEach(([key, value]) => body.append(key, value ?? ''));
+            body.append('__RequestVerificationToken', antiForgeryToken());
+            return fetch(url, { method: 'POST', body }).then(r => r.json());
+        }
+
+        function notifyError(message) {
+            Swal.fire({
+                icon: 'error',
+                title: '@Localizer["Could not complete"]',
+                text: message || '@Localizer["Something went wrong."]'
+            });
+        }
+
+        document.getElementById('createUnitForm')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = e.target;
+            post('@Url.Action("CreateInline", "Units")', {
+                EN_Name: form.EN_Name.value.trim(),
+                AR_Name: form.AR_Name.value.trim(),
+                FR_Name: form.FR_Name.value.trim()
+            }).then(result => {
+                if (!result.success) { notifyError(result.message); return; }
+                // Reloading keeps the table sorted and the usage counts honest, which
+                // hand-patching a new row into the DOM would not.
+                location.reload();
+            }).catch(() => notifyError());
+        });
+
+        function toggleEdit(code, editing) {
+            ['enname', 'arname', 'frname'].forEach(field => {
+                document.getElementById(`unit-${field}-${code}`).classList.toggle('d-none', editing);
+                document.getElementById(`unit-${field}-input-${code}`).classList.toggle('d-none', !editing);
+            });
+            document.getElementById(`unit-edit-btn-${code}`).classList.toggle('d-none', editing);
+            document.getElementById(`unit-save-btn-${code}`).classList.toggle('d-none', !editing);
+            document.getElementById(`unit-cancel-btn-${code}`).classList.toggle('d-none', !editing);
+        }
+
+        function startEdit(code) { toggleEdit(code, true); }
+
+        function cancelEdit(code) {
+            // Restore the inputs from the still-rendered display text, so a cancelled edit
+            // leaves nothing behind.
+            ['enname', 'arname', 'frname'].forEach(field => {
+                const shown = document.getElementById(`unit-${field}-${code}`).textContent.trim();
+                document.getElementById(`unit-${field}-input-${code}`).value = shown === '—' ? '' : shown;
+            });
+            toggleEdit(code, false);
+        }
+
+        function saveEdit(code) {
+            const enName = document.getElementById(`unit-enname-input-${code}`).value.trim();
+            const arName = document.getElementById(`unit-arname-input-${code}`).value.trim();
+            const frName = document.getElementById(`unit-frname-input-${code}`).value.trim();
+
+            if (!enName || !arName) {
+                notifyError('@Localizer["English and Arabic names are required."]');
+                return;
+            }
+
+            post('@Url.Action("QuickUpdate", "Units")', { id: code, enName, arName, frName })
+                .then(result => {
+                    if (!result.success) { notifyError(result.message); return; }
+                    document.getElementById(`unit-enname-${code}`).textContent = enName;
+                    document.getElementById(`unit-arname-${code}`).textContent = arName;
+                    document.getElementById(`unit-frname-${code}`).textContent = frName || '—';
+                    toggleEdit(code, false);
+                })
+                .catch(() => notifyError());
+        }
+
+        function deleteUnit(code) {
+            const inUse = Number(document.getElementById(`unit-row-${code}`).dataset.usage || 0) > 0;
+
+            Swal.fire({
+                icon: inUse ? 'warning' : 'question',
+                title: '@Localizer["Delete this unit?"]',
+                text: inUse
+                    ? '@Localizer["This unit is in use, so it cannot be deleted."]'
+                    : '@Localizer["This cannot be undone."]',
+                showCancelButton: !inUse,
+                confirmButtonText: inUse ? '@Localizer["OK"]' : '@Localizer["Delete"]',
+                cancelButtonText: '@Localizer["Cancel"]',
+                confirmButtonColor: inUse ? '#3085d6' : '#d33'
+            }).then(choice => {
+                if (!choice.isConfirmed || inUse) return;
+
+                post('@Url.Action("InlineDelete", "Units")', { id: code })
+                    .then(result => {
+                        if (!result.success) { notifyError(result.message); return; }
+                        document.getElementById(`unit-row-${code}`).remove();
+                    })
+                    .catch(() => notifyError());
+            });
+        }
+    </script>
+}

@@ -1,5 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Http;
 using MonitoringAndEvaluationPlatform.Enums;
 
@@ -53,8 +54,18 @@ namespace MonitoringAndEvaluationPlatform.Models
         public FrameworkGoalType GoalType { get; set; } = FrameworkGoalType.Qualitative;
 
         // Unit of measure for Quantitative goals (e.g. "كم", "وحدة سكنية"). Null for Qualitative goals.
-        [StringLength(100)]
-        public string? Unit { get; set; }
+        // Chosen from the system-wide Units list; Unit below keeps the old string shape so
+        // DisplayUnit, FormatValue and the Excel/PDF exports are unaffected.
+        public int? UnitCode { get; set; }
+
+        // BindNever: MeasuresController binds a whole entity straight from the form, and a
+        // posted UnitRef would be inserted as a new unit on save.
+        [BindNever]
+        [ForeignKey(nameof(UnitCode))]
+        public virtual MeasurementUnit? UnitRef { get; set; }
+
+        [NotMapped]
+        public string? Unit => UnitRef?.DisplayName;
 
         // Collection of file attachments
         public ICollection<FrameworkGoalFile> Attachments { get; set; } = new List<FrameworkGoalFile>();

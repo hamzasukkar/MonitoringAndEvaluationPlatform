@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace MonitoringAndEvaluationPlatform.ViewModel
 {
@@ -28,9 +28,9 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         [Display(Name = "Indicator Name")]
         public string Name { get; set; } = string.Empty;
 
-        [StringLength(100)]
+        /// <summary>A MeasurementUnit.Code chosen from the Units list. Null means no unit.</summary>
         [Display(Name = "Unit")]
-        public string? Unit { get; set; }
+        public int? UnitCode { get; set; }
 
         /// <summary>
         /// Parsed and range-checked in the controller (must be greater than zero).

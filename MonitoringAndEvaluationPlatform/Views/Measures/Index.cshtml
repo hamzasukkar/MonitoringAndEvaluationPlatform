@@ -264,7 +264,11 @@
                     }
                     <div class="col-md-3" id="inlineUnitField" @(inlineIsQualitative || inlineIsFirst ? "style=display:none" : "")>
                         <label for="measureUnit" class="form-label">@Localizer["Unit"]</label>
-                        <input type="text" id="measureUnit" name="Unit" class="form-control" placeholder="@Localizer["e.g. tree, km, household"]" maxlength="100" />
+                        @await Html.PartialAsync("_UnitSelect", new MonitoringAndEvaluationPlatform.ViewModel.UnitSelectViewModel
+                        {
+                            FieldName = "UnitCode",
+                            ElementId = "measureUnit"
+                        })
                     </div>
                     <div class="col-md-6">
                         <label for="measureNote" class="form-label">@Localizer["Note"]</label>
@@ -356,7 +360,18 @@
                                     <textarea class="form-control form-control-sm measure-note-edit d-none mt-1" rows="2" maxlength="1000">@item.Note</textarea>
                                     <div class="d-none measure-quantity-unit-edit mt-1 d-flex gap-1">
                                         <input type="number" class="form-control form-control-sm measure-quantity-edit" value="@item.Quantity" step="0.01" min="0" placeholder="@Localizer["How many"]" style="max-width:90px;" />
-                                        <input type="text" class="form-control form-control-sm measure-unit-edit" value="@item.Unit" placeholder="@Localizer["Unit"]" maxlength="100" style="max-width:100px;" />
+                                        @* One control per row, so the element id has to carry the measure code. *@
+                                        <div style="max-width:170px;">
+                                            @await Html.PartialAsync("_UnitSelect", new MonitoringAndEvaluationPlatform.ViewModel.UnitSelectViewModel
+                                            {
+                                                FieldName = $"UnitCode_{item.Code}",
+                                                ElementId = $"measureUnitEdit_{item.Code}",
+                                                SelectedCode = item.UnitCode,
+                                                CssClass = "form-select form-select-sm measure-unit-edit",
+                                                // Hundreds of rows on this page — see UnitSelectViewModel.DeferOptions.
+                                                DeferOptions = true
+                                            })
+                                        </div>
                                     </div>
                                 </td>
                                 <td class="measure-date-cell">
@@ -576,6 +591,7 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/unit-select.js" asp-append-version="true"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <!-- SweetAlert2 -->
@@ -1285,7 +1301,7 @@
                     Value: editedValue,
                     Note: row.find('.measure-note-edit').val(),
                     Quantity: row.find('.measure-quantity-edit').val(),
-                    Unit: row.find('.measure-unit-edit').val(),
+                    UnitCode: row.find('.measure-unit-edit').val(),
                     __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
                 };
 
@@ -1310,7 +1326,9 @@
 
                         // Update quantity/unit display
                         const qty = formData.Quantity;
-                        const unitVal = formData.Unit;
+                        // The select posts a code; the row displays the name the user just saw.
+                        const unitSelect = row.find('.measure-unit-edit');
+                        const unitVal = unitSelect.val() ? unitSelect.find('option:selected').text() : '';
                         if (qty || unitVal) {
                             let qtyDisplay = row.find('.measure-quantity-display');
                             if (qtyDisplay.length === 0) {
@@ -1460,7 +1478,7 @@
                 formData.append('Note', $('#measureNote').val());
                 if ($('#measureQuantity').val()) formData.append('Quantity', parseFloat($('#measureQuantity').val()));
                 if (!isNaN(userEnteredTarget) && userEnteredTarget > 0) formData.append('PhaseTargetQuantity', userEnteredTarget);
-                formData.append('Unit', $('#measureUnit').val());
+                formData.append('UnitCode', $('#measureUnit').val());
                 formData.append('ProjectPhaseId', parseInt($('#phaseId').val()));
                 formData.append('__RequestVerificationToken', $('input[name="__RequestVerificationToken"]').val());
                 const fileInput = document.getElementById('measureFile');

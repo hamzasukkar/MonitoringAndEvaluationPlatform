@@ -78,7 +78,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // IndicatorLinks hop is needed because ImpactIndicators is now a computed
                 // projection over the weighted join entity, not a directly mapped collection.
                 .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.YearlyValues)
-                .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.Project);
+                .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.Project)
+                // Without this every Actual Impact cell silently reads as unrecorded.
+                .Include(po => po.ActualImpacts);
 
             if (!isAdmin)
             {
@@ -109,6 +111,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // Same two ThenIncludes as Index, plus the IndicatorLinks hop for the same reason.
                 .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.YearlyValues)
                 .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.Project)
+                .Include(po => po.ActualImpacts)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(po => po.Id == id);
 
@@ -230,6 +233,67 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = _localizer["Project output created successfully."].Value;
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: /Impact/SaveActualImpact
+        //
+        // Records the hand-observed impact for one (project output, year). Upserts: re-saving a
+        // year the user already recorded updates that row rather than inserting a second one —
+        // the unique index on (ProjectOutputId, Year) would reject a duplicate anyway, so this
+        // turns a would-be 500 into the edit the user actually meant.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> SaveActualImpact(int projectOutputId, int year, double value)
+        {
+            var projectOutput = await _context.ProjectOutputs
+                .Include(po => po.Ministries)
+                .Include(po => po.ActualImpacts)
+                // CoveredYears walks the linked indicators' projects, so both hops are needed for
+                // the year check below to see anything at all.
+                .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.Project)
+                .FirstOrDefaultAsync(po => po.Id == projectOutputId);
+
+            if (projectOutput == null) return NotFound();
+
+            // Same ministry scope check as Delete.
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            if (!isAdmin &&
+                (scopedMinistryCode is null ||
+                 !projectOutput.Ministries.Any(m => m.Code == scopedMinistryCode)))
+            {
+                return Forbid();
+            }
+
+            // Stale-form guard: only a year this output actually covers can be recorded.
+            if (!projectOutput.CoveredYears.Contains(year))
+            {
+                TempData["ErrorMessage"] = _localizer[
+                    "{0} is not one of this project output's years.", year].Value;
+                return RedirectToAction(nameof(Index));
+            }
+
+            var existing = projectOutput.ActualImpacts.FirstOrDefault(a => a.Year == year);
+            if (existing != null)
+            {
+                existing.Value = value;
+                existing.DateRecorded = DateTime.Now;
+            }
+            else
+            {
+                _context.ProjectOutputActualImpacts.Add(new ProjectOutputActualImpact
+                {
+                    ProjectOutputId = projectOutputId,
+                    Year = year,
+                    Value = value,
+                    DateRecorded = DateTime.Now
+                });
+            }
+
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = _localizer["Actual impact saved."].Value;
             return RedirectToAction(nameof(Index));
         }
 

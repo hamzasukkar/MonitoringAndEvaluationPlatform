@@ -324,6 +324,29 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     context.PublicSectorTypes.AddRange(publicSectorTypes);
                     context.SaveChanges();
                 }
+                // Starter units: the seven that used to be hardcoded in the FrameworkGoals
+                // datalist, plus the ones the Impact and Measures forms suggested as placeholder
+                // text. Admins add the rest from /Units.
+                if (!context.MeasurementUnits.Any())
+                {
+                    var measurementUnits = new List<MeasurementUnit>
+                    {
+                        new MeasurementUnit { EN_Name = "%",             AR_Name = "%" },
+                        new MeasurementUnit { EN_Name = "km",            AR_Name = "كم" },
+                        new MeasurementUnit { EN_Name = "m2",            AR_Name = "متر مربع" },
+                        new MeasurementUnit { EN_Name = "housing unit",  AR_Name = "وحدة سكنية" },
+                        new MeasurementUnit { EN_Name = "school",        AR_Name = "مدرسة" },
+                        new MeasurementUnit { EN_Name = "classroom",     AR_Name = "قاعة دراسية" },
+                        new MeasurementUnit { EN_Name = "beneficiary",   AR_Name = "مستفيد" },
+                        new MeasurementUnit { EN_Name = "household",     AR_Name = "أسرة" },
+                        new MeasurementUnit { EN_Name = "ton",           AR_Name = "طن" },
+                        new MeasurementUnit { EN_Name = "megawatt",      AR_Name = "ميغاواط" },
+                        new MeasurementUnit { EN_Name = "tree",          AR_Name = "شجرة" },
+                        new MeasurementUnit { EN_Name = "well",          AR_Name = "بئر" },
+                    };
+                    context.MeasurementUnits.AddRange(measurementUnits);
+                    context.SaveChanges();
+                }
                 if (!context.Donors.Any())
                 {
                     var donors = new List<Donor>

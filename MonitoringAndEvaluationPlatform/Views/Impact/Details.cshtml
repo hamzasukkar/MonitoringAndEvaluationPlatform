@@ -5,7 +5,7 @@
 @inject IViewLocalizer Localizer
 @inject IAuthorizationService AuthService
 @{
-    ViewData["Title"] = "Project Output";
+    ViewData["Title"] = "Development Impact Indicator";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 
     var canDelete = (await AuthService.AuthorizeAsync(User, Permissions.DeleteStrategy)).Succeeded;

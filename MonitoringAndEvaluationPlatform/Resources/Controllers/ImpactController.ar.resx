@@ -118,9 +118,15 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Project output created successfully." xml:space="preserve">
-    <value>تم إنشاء مخرج المشروع بنجاح.</value>
+    <value>تم إنشاء مؤشر الأثر التنموي بنجاح.</value>
   </data>
   <data name="Project output deleted." xml:space="preserve">
-    <value>تم حذف مخرج المشروع.</value>
+    <value>تم حذف مؤشر الأثر التنموي.</value>
+  </data>
+  <data name="Actual impact saved." xml:space="preserve">
+    <value>تم حفظ الأثر الفعلي.</value>
+  </data>
+  <data name="{0} is not one of this project output's years." xml:space="preserve">
+    <value>{0} ليست من سنوات مؤشر الأثر التنموي هذا.</value>
   </data>
 </root>

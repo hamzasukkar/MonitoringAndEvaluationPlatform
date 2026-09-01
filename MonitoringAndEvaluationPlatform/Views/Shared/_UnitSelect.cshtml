@@ -1,0 +1,111 @@
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.UnitSelectViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.EntityFrameworkCore
+@using MonitoringAndEvaluationPlatform.Data
+@inject IViewLocalizer Localizer
+@inject ApplicationDbContext _context
+@*
+    The system-wide unit dropdown. Replaces what used to be a free-text unit input on the
+    impact indicator, framework goal and measure forms.
+
+    The unit list is read here rather than passed in, so a page can drop the control in without
+    its controller populating a ViewBag — the same approach _SetUpLayout uses for its menus.
+    The lookup is loaded once per request and cached in HttpContext.Items.
+
+    Behaviour for the "add new" button lives in wwwroot/js/unit-select.js; pages that render
+    this partial must include that script.
+*@
+@{
+    // Cached for the request: the Measures table renders this control once per row, and without
+    // this that would be one SELECT per measure.
+    const string unitsCacheKey = "_UnitSelect.Units";
+
+    if (Context.Items[unitsCacheKey] is not List<MonitoringAndEvaluationPlatform.Models.MeasurementUnit> units)
+    {
+        units = _context.MeasurementUnits
+            .AsNoTracking()
+            .ToList()
+            // Ordered by the name actually shown, which depends on the culture, so this cannot
+            // be done in SQL.
+            .OrderBy(u => u.DisplayName, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+
+        Context.Items[unitsCacheKey] = units;
+    }
+
+    // The payload deferred selects fill themselves from. Emitted at most once per request.
+    const string payloadKey = "_UnitSelect.PayloadRendered";
+    var renderPayload = Context.Items[payloadKey] == null;
+    if (renderPayload)
+    {
+        Context.Items[payloadKey] = true;
+    }
+}
+
+@if (renderPayload)
+{
+    @* The default JSON encoder escapes '<', so a unit name can never close this tag early. *@
+    <script type="application/json" id="unit-select-options">
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            units.Select(u => new { code = u.Code, name = u.DisplayName })))
+    </script>
+}
+
+<div class="unit-select" data-unit-select>
+    <div class="input-group">
+        <select name="@Model.FieldName"
+                id="@Model.ElementId"
+                class="@Model.CssClass unit-select-input"
+                data-unit-select-input
+                data-unit-select-deferred="@(Model.DeferOptions ? "true" : null)"
+                @(Model.Required ? "required" : "")>
+            @if (!Model.Required)
+            {
+                <option value="">@Localizer["— No unit —"]</option>
+            }
+            else
+            {
+                <option value="">@Localizer["Select a unit..."]</option>
+            }
+            @* A deferred control renders only what it needs to show right now; unit-select.js
+               adds the rest the first time the list is opened. *@
+            @foreach (var unit in Model.DeferOptions
+                ? units.Where(u => u.Code == Model.SelectedCode)
+                : units)
+            {
+                <option value="@unit.Code" selected="@(Model.SelectedCode == unit.Code)">@unit.DisplayName</option>
+            }
+        </select>
+        @if (Model.AllowAddNew)
+        {
+            <button type="button" class="btn btn-outline-secondary unit-select-add-toggle"
+                    data-unit-select-toggle
+                    title="@Localizer["Add a unit that is not in the list"]">
+                <i class="fas fa-plus"></i>
+            </button>
+        }
+    </div>
+
+    @if (Model.AllowAddNew)
+    {
+        @* Not a nested <form>: that would be invalid inside the host form and would submit it.
+           The button posts the field with fetch instead. *@
+        <div class="unit-select-new mt-2 d-none" data-unit-select-new>
+            <div class="input-group input-group-sm">
+                <input type="text" class="form-control unit-select-new-name" maxlength="100"
+                       data-unit-select-name
+                       placeholder="@Localizer["New unit name"]" />
+                <button type="button" class="btn btn-success" data-unit-select-save>
+                    <i class="fas fa-check"></i>
+                </button>
+                <button type="button" class="btn btn-outline-secondary" data-unit-select-cancel>
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="form-text">
+                @Localizer["It is added to the system-wide Units list and selected here."]
+            </div>
+            <div class="text-danger small mt-1 d-none" data-unit-select-error></div>
+        </div>
+    }
+</div>

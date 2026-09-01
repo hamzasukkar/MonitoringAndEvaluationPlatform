@@ -1,4 +1,4 @@
-@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
+﻿@model IEnumerable<MonitoringAndEvaluationPlatform.Models.FrameworkGoal>
 
 @using MonitoringAndEvaluationPlatform.Enums
 @using MonitoringAndEvaluationPlatform.Helpers
@@ -485,17 +485,15 @@
                     </div>
                 </div>
                 <div class="col-md-6" id="unitFieldWrapper" style="display:none;">
-                    <label class="form-label">@Localizer["Unit of Measure"] <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="goalUnit" name="Unit" list="unitSuggestions" maxlength="100" placeholder="@Localizer["e.g. km, housing unit, school"]" />
-                    <datalist id="unitSuggestions">
-                        <option value="@Localizer["km"]"></option>
-                        <option value="@Localizer["m2"]"></option>
-                        <option value="@Localizer["housing unit"]"></option>
-                        <option value="@Localizer["school"]"></option>
-                        <option value="@Localizer["beneficiary"]"></option>
-                        <option value="@Localizer["ton"]"></option>
-                        <option value="@Localizer["megawatt"]"></option>
-                    </datalist>
+                    <label class="form-label" for="goalUnit">@Localizer["Unit of Measure"] <span class="text-danger">*</span></label>
+                    @* Was a free-text box with a hardcoded datalist of seven suggestions; the
+                       list now comes from the Units section, and anything missing can be added
+                       inline without leaving this form. *@
+                    @await Html.PartialAsync("_UnitSelect", new MonitoringAndEvaluationPlatform.ViewModel.UnitSelectViewModel
+                    {
+                        FieldName = "UnitCode",
+                        ElementId = "goalUnit"
+                    })
                 </div>
             </div>
             <div class="row">
@@ -1752,6 +1750,7 @@
 </div>
 
 @section Scripts {
+    <script src="~/js/unit-select.js" asp-append-version="true"></script>
     <!-- Yearly Performance Script -->
     <script>
         // Toggle year dropdown visibility when clicking on performance value
@@ -2307,10 +2306,19 @@
             updateCreateFormUnitSuffix();
         }
 
+        // The label of the selected unit, or '' when none is chosen. The select posts a code,
+        // but every suffix and preview on this page wants the name.
+        function selectedUnitName() {
+            const select = document.getElementById('goalUnit');
+            if (!select || !select.value) return '';
+            const option = select.options[select.selectedIndex];
+            return option ? option.text.trim() : '';
+        }
+
         // Keep the "%"/unit addon next to each value input in sync with the chosen unit
         function updateCreateFormUnitSuffix() {
             const isQuantitative = document.getElementById('goalTypeQuantitative').checked;
-            const unit = document.getElementById('goalUnit').value.trim();
+            const unit = selectedUnitName();
             const suffix = isQuantitative ? (unit || '—') : '%';
             document.querySelectorAll('#createGoalForm .unit-suffix').forEach(el => {
                 el.textContent = suffix;
@@ -2385,7 +2393,10 @@
         });
 
         // Live-update the unit addon next to each value input as the unit is typed
-        document.getElementById('goalUnit').addEventListener('input', updateCreateFormUnitSuffix);
+        // The unit control is a <select>, so it fires change rather than input. unit-select.js
+        // dispatches the same event after an inline "add new", which is what keeps the suffix
+        // correct for a unit that did not exist a moment ago.
+        document.getElementById('goalUnit').addEventListener('change', updateCreateFormUnitSuffix);
 
         // Handle form submission
         document.getElementById('createGoalForm').addEventListener('submit', async function(e) {
@@ -2404,7 +2415,7 @@
             const targetValue = normalizeDecimal(document.getElementById('targetValue').value);
             const manualYearlyTargets = document.getElementById('manualYearlyTargets').checked;
             const goalType = document.getElementById('goalTypeQuantitative').checked ? '1' : '0';
-            const unit = document.getElementById('goalUnit').value.trim();
+            const unitCode = document.getElementById('goalUnit').value;
 
             // Client-side validation
             if (!name || !frameworkCode || !startingYear || !baseValueStarting || !currentYear || !baseValueCurrent || !targetYear || !targetValue) {
@@ -2419,8 +2430,8 @@
             }
 
             // A quantitative goal is meaningless without a unit of measure
-            if (goalType === '1' && !unit) {
-                showErrorMessage('@Localizer["Please enter a unit of measure for a quantitative goal."]');
+            if (goalType === '1' && !unitCode) {
+                showErrorMessage('@Localizer["Please select a unit of measure for a quantitative goal."]');
                 document.getElementById('goalUnit').focus();
                 return;
             }
@@ -2438,7 +2449,7 @@
             formData.append('ManualYearlyTargets', manualYearlyTargets ? 'true' : 'false');
             formData.append('GoalType', goalType);
             if (goalType === '1') {
-                formData.append('Unit', unit);
+                formData.append('UnitCode', unitCode);
             }
             formData.append('__RequestVerificationToken', token);
 

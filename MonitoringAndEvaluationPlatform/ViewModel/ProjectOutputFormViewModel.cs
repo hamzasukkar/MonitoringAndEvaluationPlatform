@@ -17,7 +17,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
 
         [Required(ErrorMessage = "Project output name is required.")]
         [StringLength(300, MinimumLength = 2, ErrorMessage = "Project output name must be between 2 and 300 characters.")]
-        [Display(Name = "Project Output Name")]
+        [Display(Name = "Development Impact Indicator Name")]
         public string Name { get; set; } = string.Empty;
 
         // Bounds for the Amount of Change column on the Impact table. Optional, like every other

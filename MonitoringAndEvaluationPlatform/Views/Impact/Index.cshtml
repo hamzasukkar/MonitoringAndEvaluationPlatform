@@ -9,6 +9,7 @@
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 
     var canAdd = (await AuthService.AuthorizeAsync(User, Permissions.AddStrategy)).Succeeded;
+    var canModify = (await AuthService.AuthorizeAsync(User, Permissions.ModifyStrategy)).Succeeded;
     var canDelete = (await AuthService.AuthorizeAsync(User, Permissions.DeleteStrategy)).Succeeded;
 
     var ministries = ViewBag.Ministries as List<Ministry> ?? new List<Ministry>();
@@ -140,19 +141,27 @@
             <div class="table-responsive">
                 <table class="table table-hover" id="impactTable">
                     @*
-                        Two-row header: each year spans two sub-columns (Actual Value / Amount of
-                        Change), so every year <th> gets colspan="2" and every fixed column gets
-                        rowspan="2". Same layout FrameworkGoals/Index.cshtml uses for its own
-                        per-year sub-columns.
+                        Two-row header: each year spans THREE sub-columns (Amount of Change /
+                        Total Value / Actual Impact), so every year <th> gets colspan="3" and
+                        every fixed column gets rowspan="2". Same layout
+                        FrameworkGoals/Index.cshtml uses for its own per-year sub-columns.
+
+                        Base Value is a single figure for the whole output, so it is a fixed
+                        column rather than a per-year one — repeating it under every year would
+                        leave all but the base year's cell dashed.
                     *@
                     <thead class="table-primary bg-opacity-25">
                         <tr>
                             <th rowspan="2" class="align-middle">@Localizer["Project Output"]</th>
                             <th rowspan="2" class="align-middle">@Localizer["Ministries"]</th>
                             <th rowspan="2" class="align-middle text-center">@Localizer["Indicators"]</th>
+                            <th rowspan="2" class="align-middle text-center"
+                                title="@Localizer["The output's starting value, measured at its base year (its earliest covered year)."]">
+                                @Localizer["Base Value"]
+                            </th>
                             @for (int year = minYear; year <= maxYear; year++)
                             {
-                                <th colspan="2" class="text-center year-header">@year</th>
+                                <th colspan="3" class="text-center year-header">@year</th>
                             }
                             <th rowspan="2" class="align-middle text-center"
                                 title="@Localizer["Average of the years that have a value — years outside this output's own range are not counted."]">
@@ -163,10 +172,17 @@
                         <tr>
                             @for (int year = minYear; year <= maxYear; year++)
                             {
-                                <th class="text-center sub-header">@Localizer["Actual Value"]</th>
                                 <th class="text-center sub-header"
                                     title="@Localizer["((Target - Base Value) x Actual Value) / 100 — how much of the gap has been closed, in real units. This is the change from the baseline, not the current level."]">
                                     @Localizer["Amount of Change"]
+                                </th>
+                                <th class="text-center sub-header"
+                                    title="@Localizer["Base Value + Amount of Change — the calculated level the output has reached."]">
+                                    @Localizer["Total Value"]
+                                </th>
+                                <th class="text-center sub-header"
+                                    title="@Localizer["Recorded by hand per year, independent of the calculated figures."]">
+                                    @Localizer["Actual Impact"]
                                 </th>
                             }
                         </tr>
@@ -218,6 +234,24 @@
                                     </a>
                                 </td>
 
+                                @* Base Value: one figure for the whole output, shown with the base
+                                   year it is measured at (the output's earliest covered year).
+                                   Dashes when the bound is unset or nothing is linked. *@
+                                <td class="text-center">
+                                    @if (po.BaseValue.HasValue)
+                                    {
+                                        <div class="fw-bold">@po.BaseValue.Value.ToString("N2")</div>
+                                        @if (po.BaseYear.HasValue)
+                                        {
+                                            <div class="text-muted small">(@po.BaseYear.Value)</div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+
                                 @*
                                     One <td> per year across the FULL (global) range, so every row
                                     lines up with the header even when its own span is shorter.
@@ -236,21 +270,24 @@
                                     var poYears = po.CoveredYears.ToHashSet();
                                     var yearPcts = new List<double>();
                                 }
-                                @* ALIGNMENT INVARIANT: every branch must emit exactly TWO <td>s
-                                   per year, matching the colspan="2" year headers. The
-                                   out-of-range branch therefore emits two dashes, not one. *@
+                                @* ALIGNMENT INVARIANT: every branch must emit exactly THREE <td>s
+                                   per year, matching the colspan="3" year headers. The
+                                   out-of-range branch therefore emits three dashes. *@
                                 @for (int year = minYear; year <= maxYear; year++)
                                 {
                                     if (poYears.Contains(year))
                                     {
-                                        var pct = po.GetWeightedPercentageForYear(year);
-                                        yearPcts.Add(pct);
-                                        var change = po.GetAmountOfChangeForYear(year);
+                                        @* Still collected even though the percentage is no longer
+                                           shown per year — it is what the Total column averages. *@
+                                        yearPcts.Add(po.GetWeightedPercentageForYear(year));
 
-                                        <td class="text-center fw-bold"
-                                            title="@Localizer["Weighted average across contributing indicators"]">
-                                            @pct.ToString("N1")%
-                                        </td>
+                                        var change = po.GetAmountOfChangeForYear(year);
+                                        var totalValue = po.GetTotalValueForYear(year);
+                                        var actual = po.GetActualImpactForYear(year);
+
+                                        @* The three dash independently: an unset Base/Target kills
+                                           the first two, while Actual Impact is unrelated to them
+                                           and dashes only when nothing was recorded that year. *@
                                         <td class="text-center">
                                             @if (change.HasValue)
                                             {
@@ -258,14 +295,33 @@
                                             }
                                             else
                                             {
-                                                @* Base/Target not set on this output — a dash, not
-                                                   a 0.00 that would look like a real measurement. *@
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
+                                        <td class="text-center fw-bold">
+                                            @if (totalValue.HasValue)
+                                            {
+                                                @totalValue.Value.ToString("N2")
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">—</span>
+                                            }
+                                        </td>
+                                        <td class="text-center">
+                                            @if (actual.HasValue)
+                                            {
+                                                <span class="badge bg-success">@actual.Value.ToString("N2")</span>
+                                            }
+                                            else
+                                            {
                                                 <span class="text-muted">—</span>
                                             }
                                         </td>
                                     }
                                     else
                                     {
+                                        <td class="text-center bg-light"><span class="text-muted">—</span></td>
                                         <td class="text-center bg-light"><span class="text-muted">—</span></td>
                                         <td class="text-center bg-light"><span class="text-muted">—</span></td>
                                     }
@@ -293,6 +349,31 @@
                                            title="@Localizer["View linked indicators"]">
                                             <i class="fas fa-circle-info"></i>
                                         </a>
+                                        @if (canModify)
+                                        {
+                                            @* Opens the ONE shared modal at the bottom of the page,
+                                               populated from these data-* attributes — the same
+                                               approach FrameworkGoals/Index.cshtml uses, so the
+                                               page emits one modal rather than one per row.
+                                               data-impacts is a year -> value map so picking a year
+                                               can prefill what was already recorded. *@
+                                            <button type="button"
+                                                    class="btn btn-outline-success btn-sm action-btn actual-impact-btn"
+                                                    data-output-id="@po.Id"
+                                                    data-output-name="@po.Name"
+                                                    data-years="@string.Join(",", po.CoveredYears)"
+                                                    @* NOT Html.Raw: the JSON's own double quotes
+                                                       would break out of the attribute and the
+                                                       prefill would never parse. Razor's default
+                                                       encoding writes &quot;, which dataset.impacts
+                                                       decodes back to real JSON. *@
+                                                    data-impacts="@System.Text.Json.JsonSerializer.Serialize(
+                                                                      (po.ActualImpacts ?? new List<ProjectOutputActualImpact>())
+                                                                          .ToDictionary(a => a.Year.ToString(), a => a.Value))"
+                                                    title="@Localizer["Record actual impact"]">
+                                                <i class="fas fa-pen-to-square"></i>
+                                            </button>
+                                        }
                                         @if (canDelete)
                                         {
                                             <form asp-action="Delete" asp-route-id="@po.Id" method="post"
@@ -329,6 +410,69 @@
         }
     </div>
 </div>
+
+@if (canModify)
+{
+    @*
+        ONE shared modal for the whole page, populated from the clicked button's data-*
+        attributes — the same approach FrameworkGoals/Index.cshtml uses, so the page emits a
+        single modal rather than one per row.
+
+        Plain form post (not AJAX) to match the rest of this controller, which uses
+        TempData + RedirectToAction everywhere.
+    *@
+    <div class="modal fade" id="actualImpactModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <form asp-action="SaveActualImpact" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="projectOutputId" id="aiOutputId" />
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-pen-to-square me-2"></i>@Localizer["Record actual impact"]
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="@Localizer["Cancel"]"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="impact-label">@Localizer["Project Output"]</label>
+                            <div class="fw-bold" id="aiOutputName"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="aiYear" class="impact-label">@Localizer["Year"]</label>
+                            @* Options are filled from data-years when the modal opens — only the
+                               years the chosen output actually covers, matching the server-side
+                               guard in SaveActualImpact. *@
+                            <select name="year" id="aiYear" class="form-select" required></select>
+                        </div>
+
+                        <div class="mb-2">
+                            <label for="aiValue" class="impact-label">@Localizer["Actual Impact"]</label>
+                            <input type="number" step="any" name="value" id="aiValue"
+                                   class="impact-input" required />
+                            <div class="impact-hint">
+                                @Localizer["Recorded by hand per year, independent of the calculated figures."]
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                            @Localizer["Cancel"]
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>@Localizer["Save"]
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
 
 @section Styles {
     <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
@@ -375,5 +519,65 @@
             if (ministry) ministry.value = '';
             applyImpactFilters();
         }
+
+        // Actual Impact modal: one modal reused by every row, filled from the clicked button's
+        // data-* attributes. Picking a year prefills whatever was already recorded for it, so the
+        // same dialog both adds and edits — matching the server-side upsert.
+        (function () {
+            var modalEl = document.getElementById('actualImpactModal');
+            if (!modalEl) return;   // user lacks ModifyStrategy — no modal rendered
+
+            var outputIdInput = document.getElementById('aiOutputId');
+            var outputNameEl = document.getElementById('aiOutputName');
+            var yearSelect = document.getElementById('aiYear');
+            var valueInput = document.getElementById('aiValue');
+
+            var currentImpacts = {};
+
+            function prefillValue() {
+                var existing = currentImpacts[yearSelect.value];
+                // 0 is a legitimate recorded value, so test for presence rather than truthiness.
+                valueInput.value = (existing === undefined || existing === null) ? '' : existing;
+            }
+
+            document.querySelectorAll('.actual-impact-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    outputIdInput.value = btn.dataset.outputId;
+                    outputNameEl.textContent = btn.dataset.outputName || '';
+
+                    try {
+                        currentImpacts = JSON.parse(btn.dataset.impacts || '{}');
+                    } catch (e) {
+                        currentImpacts = {};
+                    }
+
+                    var years = (btn.dataset.years || '')
+                        .split(',')
+                        .map(function (y) { return y.trim(); })
+                        .filter(Boolean);
+
+                    yearSelect.innerHTML = '';
+                    years.forEach(function (y) {
+                        var opt = document.createElement('option');
+                        opt.value = y;
+                        // Mark years that already hold a value so the user can see at a glance
+                        // which ones they are about to overwrite.
+                        opt.textContent = (currentImpacts[y] === undefined) ? y : y + ' ✓';
+                        yearSelect.appendChild(opt);
+                    });
+
+                    // The searchable-select enhancer wraps this select; refresh it so its panel
+                    // shows the options we just swapped in rather than the previous row's.
+                    if (window.SearchableSelect && typeof window.SearchableSelect.refresh === 'function') {
+                        window.SearchableSelect.refresh(yearSelect);
+                    }
+
+                    prefillValue();
+                    new bootstrap.Modal(modalEl).show();
+                });
+            });
+
+            yearSelect.addEventListener('change', prefillValue);
+        })();
     </script>
 }

@@ -1,6 +1,8 @@
-@model MonitoringAndEvaluationPlatform.ViewModel.ImpactIndicatorFormViewModel
+﻿@model MonitoringAndEvaluationPlatform.ViewModel.ImpactIndicatorFormViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
+@using MonitoringAndEvaluationPlatform.Data
 @inject IViewLocalizer Localizer
+@inject ApplicationDbContext _context
 @*
     Shared by Create and Edit. The indicator's own fields and the whole year grid post together
     in one form, so a single save covers both.
@@ -12,6 +14,11 @@
     var project = ViewBag.Project as MonitoringAndEvaluationPlatform.Models.Project;
     var isEdit = Model.Id != 0;
     var action = isEdit ? "Edit" : "Create";
+
+    // Only for the "Value (unit)" column header; the dropdown itself renders from the database.
+    var selectedUnitName = Model.UnitCode == null
+        ? null
+        : _context.MeasurementUnits.FirstOrDefault(u => u.Code == Model.UnitCode)?.DisplayName;
 }
 
 <form asp-action="@action" method="post" id="impactIndicatorForm">
@@ -42,12 +49,17 @@
         </div>
 
         <div class="impact-form-group">
-            <label asp-for="Unit" class="impact-label">
+            <label asp-for="UnitCode" class="impact-label">
                 <i class="fas fa-ruler me-2"></i>@Localizer["Unit"]
             </label>
-            <input asp-for="Unit" class="impact-input"
-                   placeholder="@Localizer["e.g. school, km, beneficiary"]" />
-            <span asp-validation-for="Unit" class="field-error"></span>
+            @await Html.PartialAsync("_UnitSelect", new MonitoringAndEvaluationPlatform.ViewModel.UnitSelectViewModel
+            {
+                FieldName = "UnitCode",
+                ElementId = "UnitCode",
+                SelectedCode = Model.UnitCode,
+                CssClass = "form-select impact-input"
+            })
+            <span asp-validation-for="UnitCode" class="field-error"></span>
             <div class="impact-hint">@Localizer["Optional, but makes the numbers readable in reports."]</div>
         </div>
     </div>
@@ -73,7 +85,7 @@
                 <thead>
                     <tr>
                         <th style="width:140px">@Localizer["Year"]</th>
-                        <th>@Localizer["Value"] @(string.IsNullOrWhiteSpace(Model.Unit) ? "" : $"({Model.Unit})")</th>
+                        <th>@Localizer["Value"] <span id="unitSuffix">@(string.IsNullOrWhiteSpace(selectedUnitName) ? "" : $"({selectedUnitName})")</span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -186,4 +198,22 @@
 
             recalc();
         })();
+</script>
+
+@* Powers the "+" button on the unit dropdown. Loaded here rather than from a @@section so the
+   partial stays self-contained for both Create and Edit. *@
+<script src="~/js/unit-select.js" asp-append-version="true"></script>
+<script>
+    // Keep the "Value (unit)" column header in step with the dropdown, including right after a
+    // unit is added inline — unit-select.js fires a change event for exactly this.
+    (function () {
+        var select = document.getElementById('UnitCode');
+        var suffix = document.getElementById('unitSuffix');
+        if (!select || !suffix) return;
+
+        select.addEventListener('change', function () {
+            var label = select.options[select.selectedIndex] ? select.options[select.selectedIndex].text : '';
+            suffix.textContent = select.value ? '(' + label + ')' : '';
+        });
+    })();
 </script>

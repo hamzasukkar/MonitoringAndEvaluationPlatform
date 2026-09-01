@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace MonitoringAndEvaluationPlatform.Models
 {
@@ -31,10 +32,26 @@ namespace MonitoringAndEvaluationPlatform.Models
         /// <summary>
         /// Unit of measurement (school, km, beneficiary, %). Without it the raw target and
         /// achieved numbers are meaningless in tables and reports.
+        ///
+        /// Chosen from the system-wide Units list rather than typed; <see cref="Unit"/> keeps
+        /// the old string shape so every reader and report is unaffected by that change.
         /// </summary>
-        [StringLength(100)]
         [Display(Name = "Unit")]
-        public string? Unit { get; set; }
+        public int? UnitCode { get; set; }
+
+        // BindNever: MeasuresController binds a whole entity straight from the form, and a
+        // posted UnitRef would be inserted as a new unit on save.
+        [BindNever]
+        [ForeignKey(nameof(UnitCode))]
+        public virtual MeasurementUnit? UnitRef { get; set; }
+
+        /// <summary>
+        /// The unit's name in the current culture, or null when no unit is set. Auto-included by
+        /// the model configuration, so this never silently reads null on a loaded entity.
+        /// </summary>
+        [NotMapped]
+        [Display(Name = "Unit")]
+        public string? Unit => UnitRef?.DisplayName;
 
         [Required(ErrorMessage = "Target value is required.")]
         [Range(0.0001, double.MaxValue, ErrorMessage = "Target value must be greater than zero.")]

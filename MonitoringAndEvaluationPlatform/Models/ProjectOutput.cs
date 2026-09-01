@@ -24,7 +24,7 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         [Required(ErrorMessage = "Project output name is required.")]
         [StringLength(300, MinimumLength = 2, ErrorMessage = "Project output name must be between 2 and 300 characters.")]
-        [Display(Name = "Project Output Name")]
+        [Display(Name = "Development Impact Indicator Name")]
         public string Name { get; set; } = string.Empty;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
@@ -60,6 +60,12 @@ namespace MonitoringAndEvaluationPlatform.Models
         public ICollection<Framework> Frameworks { get; set; } = new List<Framework>();
         public ICollection<ProjectOutputImpactIndicator> IndicatorLinks { get; set; } = new List<ProjectOutputImpactIndicator>();
 
+        /// <summary>
+        /// Hand-recorded actual impact, one row per year. Independent of every computed figure
+        /// here — see ProjectOutputActualImpact.
+        /// </summary>
+        public ICollection<ProjectOutputActualImpact> ActualImpacts { get; set; } = new List<ProjectOutputActualImpact>();
+
         [NotMapped]
         public IEnumerable<ImpactIndicator> ImpactIndicators =>
             IndicatorLinks?.Select(l => l.ImpactIndicator) ?? Enumerable.Empty<ImpactIndicator>();
@@ -83,6 +89,17 @@ namespace MonitoringAndEvaluationPlatform.Models
                     .SelectMany(i => i.Project.CoveredYears)
                     .Distinct()
                     .OrderBy(y => y);
+
+        /// <summary>
+        /// The year BaseValue is measured at: the first year this output covers. Derived rather
+        /// than stored — CoveredYears is already ordered ascending. Null when nothing is linked
+        /// yet, in which case there is no base year to speak of.
+        ///
+        /// Being derived, this moves if the underlying projects' dates move. That is the
+        /// trade-off the user chose over entering a base year by hand.
+        /// </summary>
+        [NotMapped]
+        public int? BaseYear => CoveredYears.Any() ? CoveredYears.First() : null;
 
         /// <summary>
         /// Sum of that year's raw values across every linked indicator. Still useful for a raw
@@ -181,5 +198,29 @@ namespace MonitoringAndEvaluationPlatform.Models
 
             return ((TargetValue.Value - BaseValue.Value) * GetWeightedPercentageForYear(year)) / 100;
         }
+
+        /// <summary>
+        /// BaseValue + GetAmountOfChangeForYear(year) — the level this output has reached as of
+        /// that year, in its own real units. Labelled "Total Value" on the Impact table.
+        ///
+        /// Null when either bound is unset, so the caller renders a dash. Returning a bare
+        /// BaseValue in that case would look like real progress had been measured when none has.
+        /// </summary>
+        public double? GetTotalValueForYear(int year)
+        {
+            var change = GetAmountOfChangeForYear(year);
+            if (change is null || BaseValue is null) return null;
+
+            return BaseValue.Value + change.Value;
+        }
+
+        /// <summary>
+        /// The impact actually recorded by hand for this year, or null when none was entered.
+        /// Null is meaningfully different from a recorded 0, so callers must not coalesce it.
+        ///
+        /// Needs .Include(po => po.ActualImpacts) on the query, or every year reads as unrecorded.
+        /// </summary>
+        public double? GetActualImpactForYear(int year) =>
+            ActualImpacts?.FirstOrDefault(a => a.Year == year)?.Value;
     }
 }

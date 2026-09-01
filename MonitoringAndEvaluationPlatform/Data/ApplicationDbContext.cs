@@ -20,6 +20,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<ProjectPhase> ProjectPhases { get; set; } = default!;
         public DbSet<Sector> Sectors { get; set; } = default!;
         public DbSet<PublicSectorType> PublicSectorTypes { get; set; } = default!;
+        public DbSet<MeasurementUnit> MeasurementUnits { get; set; } = default!;
         public DbSet<Donor> Donors { get; set; } = default!;
         public DbSet<Measure> Measures { get; set; } = default!;
         public DbSet<MeasureFile> MeasureFiles { get; set; } = default!;
@@ -55,6 +56,7 @@ namespace MonitoringAndEvaluationPlatform.Data
         public DbSet<ImpactIndicatorYearlyValue> ImpactIndicatorYearlyValues { get; set; } = default!;
         public DbSet<ProjectOutput> ProjectOutputs { get; set; } = default!;
         public DbSet<ProjectOutputImpactIndicator> ProjectOutputImpactIndicators { get; set; } = default!;
+        public DbSet<ProjectOutputActualImpact> ProjectOutputActualImpacts { get; set; } = default!;
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -381,6 +383,74 @@ namespace MonitoringAndEvaluationPlatform.Data
 
             modelBuilder.Entity<ProjectOutputImpactIndicator>()
                 .ToTable("ProjectOutputImpactIndicators");
+
+            // Hand-recorded actual impact, one row per (output, year). Cascade: the record has no
+            // meaning without its output. Same shape and unique-index guard as
+            // ImpactIndicatorYearlyValue, which is also what makes the controller's find-or-add
+            // save safe against a double submit.
+            modelBuilder.Entity<ProjectOutputActualImpact>()
+                .HasOne(a => a.ProjectOutput)
+                .WithMany(po => po.ActualImpacts)
+                .HasForeignKey(a => a.ProjectOutputId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProjectOutputActualImpact>()
+                .HasIndex(a => new { a.ProjectOutputId, a.Year })
+                .IsUnique();
+
+            // ─────────────────────────────────────────────────────────────────────
+            // Units of measurement
+            // ─────────────────────────────────────────────────────────────────────
+            // One shared lookup replaces what used to be a free-text Unit column on each of
+            // these three entities. Restrict, not SetNull: silently blanking the unit on every
+            // affected record would corrupt the numbers it labels, so a unit that is in use
+            // cannot be deleted and UnitsController explains why instead.
+            //
+            // AutoInclude is what makes the [NotMapped] Unit shim on each entity safe — the old
+            // string property is now computed from UnitRef, and any query that forgot an
+            // .Include would otherwise read it as null instead of failing. The table is tiny, so
+            // always joining it costs nothing.
+            modelBuilder.Entity<MeasurementUnit>()
+                .ToTable("MeasurementUnits");
+
+            // Case-insensitive by default under the database's collation, so this also stops
+            // "km" and "KM" being created as two units.
+            modelBuilder.Entity<MeasurementUnit>()
+                .HasIndex(u => u.EN_Name)
+                .IsUnique();
+
+            modelBuilder.Entity<ImpactIndicator>()
+                .HasOne(i => i.UnitRef)
+                .WithMany(u => u.ImpactIndicators)
+                .HasForeignKey(i => i.UnitCode)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ImpactIndicator>()
+                .Navigation(i => i.UnitRef)
+                .AutoInclude();
+
+            modelBuilder.Entity<FrameworkGoal>()
+                .HasOne(g => g.UnitRef)
+                .WithMany(u => u.FrameworkGoals)
+                .HasForeignKey(g => g.UnitCode)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FrameworkGoal>()
+                .Navigation(g => g.UnitRef)
+                .AutoInclude();
+
+            modelBuilder.Entity<Measure>()
+                .HasOne(m => m.UnitRef)
+                .WithMany(u => u.Measures)
+                .HasForeignKey(m => m.UnitCode)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Measure>()
+                .Navigation(m => m.UnitRef)
+                .AutoInclude();
 
             // Framework <-> FrameworkGoal (one-to-many)
             modelBuilder.Entity<FrameworkGoal>()

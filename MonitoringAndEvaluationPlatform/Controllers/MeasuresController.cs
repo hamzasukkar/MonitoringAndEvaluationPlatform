@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -68,7 +68,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (existingTotal + dto.Value > 100)
                 return BadRequest(_localizer["Total measures value for this phase cannot exceed 100%."]);
 
-            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note, dto.Quantity, dto.Unit, measureType);
+            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note, dto.Quantity, dto.UnitCode, measureType);
             return Ok(_localizer["Measure added and Phase Performance updated"]);
         }
 
@@ -86,7 +86,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     name = m.Name,
                     note = m.Note,
                     quantity = m.Quantity,
-                    unit = m.Unit
+                    unitCode = m.UnitCode,
+                    unit = m.UnitRef != null ? m.UnitRef.EN_Name : null
                 })
                 .ToListAsync();
 
@@ -101,7 +102,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             public string Name { get; set; } = string.Empty;
             public string? Note { get; set; }
             public double? Quantity { get; set; }
-            public string? Unit { get; set; }
+            /// <summary>A MeasurementUnit.Code chosen from the Units list.</summary>
+            public int? UnitCode { get; set; }
         }
 
         // GET: Measures
@@ -270,7 +272,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Measures/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Date,Value,Note,Quantity,Unit,ProjectPhaseId")] Measure measure)
+        public async Task<IActionResult> Create([Bind("Code,Name,Date,Value,Note,Quantity,UnitCode,ProjectPhaseId")] Measure measure)
         {
             ModelState.Remove(nameof(measure.ProjectPhase));
 
@@ -367,7 +369,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 existingMeasure.Name = measure.Name;
                 existingMeasure.Note = measure.Note;
                 existingMeasure.Quantity = measure.Quantity;
-                existingMeasure.Unit = measure.Unit;
+                existingMeasure.UnitCode = measure.UnitCode;
 
                 var newType = measure.Quantity.HasValue ? MeasureType.Quantitative : MeasureType.Qualitative;
 

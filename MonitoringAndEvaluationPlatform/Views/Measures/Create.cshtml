@@ -239,13 +239,19 @@
                         </div>
                     </div>
                     <div class="form-group" id="unitField" @(isQualitative || isFirstMeasure ? "style=display:none" : "")>
-                        <label asp-for="Unit" class="modern-label">
+                        <label asp-for="UnitCode" class="modern-label">
                             <i class="fas fa-ruler"></i>
                             @Localizer["Unit"]
                         </label>
-                        <input asp-for="Unit" type="text" class="modern-input" placeholder="@Localizer["e.g. tree, km, household"]" maxlength="100" />
-                        <span asp-validation-for="Unit" class="field-error"></span>
-                        <div class="field-info">@Localizer["Unit of measurement (e.g. tree, km, household)"]</div>
+                        @await Html.PartialAsync("_UnitSelect", new MonitoringAndEvaluationPlatform.ViewModel.UnitSelectViewModel
+                        {
+                            FieldName = "UnitCode",
+                            ElementId = "UnitCode",
+                            SelectedCode = Model?.UnitCode,
+                            CssClass = "form-select modern-input"
+                        })
+                        <span asp-validation-for="UnitCode" class="field-error"></span>
+                        <div class="field-info">@Localizer["Chosen from the system-wide Units list."]</div>
                     </div>
 
                     <!-- Note (optional) -->
@@ -866,5 +872,6 @@
 </script>
 
 @section Scripts {
+    <script src="~/js/unit-select.js" asp-append-version="true"></script>
     <partial name="_ValidationScriptsPartial" />
 }

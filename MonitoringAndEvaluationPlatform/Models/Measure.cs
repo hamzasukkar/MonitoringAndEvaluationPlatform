@@ -1,4 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using MonitoringAndEvaluationPlatform.Enums;
 
 namespace MonitoringAndEvaluationPlatform.Models
@@ -22,8 +24,17 @@ namespace MonitoringAndEvaluationPlatform.Models
 
         public double? Quantity { get; set; }
 
-        [StringLength(100)]
-        public string? Unit { get; set; }
+        // Chosen from the system-wide Units list; Unit below keeps the old string shape.
+        public int? UnitCode { get; set; }
+
+        // BindNever: MeasuresController binds a whole entity straight from the form, and a
+        // posted UnitRef would be inserted as a new unit on save.
+        [BindNever]
+        [ForeignKey(nameof(UnitCode))]
+        public virtual MeasurementUnit? UnitRef { get; set; }
+
+        [NotMapped]
+        public string? Unit => UnitRef?.DisplayName;
 
         /// <summary>
         /// Qualitative: Value entered directly by the user.
