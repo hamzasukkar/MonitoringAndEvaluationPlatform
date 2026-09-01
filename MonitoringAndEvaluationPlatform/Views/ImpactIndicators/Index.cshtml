@@ -5,7 +5,7 @@
 @inject IViewLocalizer Localizer
 @inject IAuthorizationService AuthService
 @{
-    ViewData["Title"] = "Impact Indicators";
+    ViewData["Title"] = "Project Output Indicators";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var project = ViewBag.Project as Project;
     var canAdd = (await AuthService.AuthorizeAsync(User, Permissions.AddIndicator)).Succeeded;

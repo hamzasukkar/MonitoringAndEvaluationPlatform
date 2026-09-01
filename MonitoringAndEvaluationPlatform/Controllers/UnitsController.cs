@@ -316,7 +316,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             public string Describe()
             {
                 var parts = new List<string>();
-                if (ImpactIndicators > 0) parts.Add($"{ImpactIndicators} impact indicator(s)");
+                if (ImpactIndicators > 0) parts.Add($"{ImpactIndicators} project output indicator(s)");
                 if (FrameworkGoals > 0) parts.Add($"{FrameworkGoals} framework goal(s)");
                 if (Measures > 0) parts.Add($"{Measures} measure(s)");
                 return $"This unit is in use by {string.Join(", ", parts)} and cannot be deleted.";

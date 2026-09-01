@@ -40,7 +40,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         [Display(Name = "Frameworks")]
         public List<int>? SelectedFrameworkCodes { get; set; } = new();
 
-        [Display(Name = "Impact Indicators")]
+        [Display(Name = "Project Output Indicators")]
         public List<int>? SelectedImpactIndicatorIds { get; set; } = new();
 
         // Parallel to SelectedImpactIndicatorIds: the weight (0-100) assigned to each selected
