@@ -228,4 +228,10 @@
   <data name="The output's starting value, measured at its base year (its earliest covered year)." xml:space="preserve">
     <value>القيمة الابتدائية للمؤشر، مقيسة في سنة الأساس (أول سنة يغطيها).</value>
   </data>
+  <data name="Target" xml:space="preserve">
+    <value>الهدف</value>
+  </data>
+  <data name="The value this output aims to reach, in its own real units. Together with the Base Value it defines the gap the Amount of Change measures." xml:space="preserve">
+    <value>القيمة التي يسعى هذا المؤشر للوصول إليها بوحداته الحقيقية. تحدّد مع القيمة الأساس الفجوة التي يقيسها مقدار التغيّر.</value>
+  </data>
 </root>

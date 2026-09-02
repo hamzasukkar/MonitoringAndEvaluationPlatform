@@ -362,11 +362,19 @@
                                                 @if (ViewBag.DonorList != null)
                                                 {
                                                     var donorSelectList = ViewBag.DonorList as MultiSelectList;
+                                                    var investmentCodes = ViewBag.InvestmentBudgetDonorCodes as List<string> ?? new List<string>();
                                                     if (donorSelectList != null)
                                                     {
                                                         @foreach (var item in donorSelectList)
                                                         {
-                                                            <option value="@item.Value">@item.Text</option>
+                                                            if (investmentCodes.Contains(item.Value))
+                                                            {
+                                                                <option value="@item.Value" data-investment-budget="true">@item.Text</option>
+                                                            }
+                                                            else
+                                                            {
+                                                                <option value="@item.Value">@item.Text</option>
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -522,9 +530,12 @@
 </div>
 
 <!-- Project Phases Management -->
-@if (Model.Phases != null && Model.Phases.Any())
+@* Rendered for every project, including ones with no phases yet, and revealed by
+   updatePhaseSelectionForDonors() when a "موازنة أستثمارية" donor is selected. Gating this
+   server-side on Phases.Any() left projects with no phases unable to ever gain any. *@
+@if (Model.Phases != null)
 {
-    <div class="container-fluid mt-4">
+    <div class="container-fluid mt-4" id="phaseSelectionSection" style="display:none">
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm">
@@ -635,15 +646,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        document.getElementById('selectAllPhasesEdit')?.addEventListener('click', function () {
-            document.querySelectorAll('.phase-checkbox-edit').forEach(cb => cb.checked = true);
-        });
-        document.getElementById('deselectAllPhasesEdit')?.addEventListener('click', function () {
-            document.querySelectorAll('.phase-checkbox-edit').forEach(cb => cb.checked = false);
-        });
-    </script>
 }
 
 
@@ -1588,6 +1590,7 @@
         @if (ViewBag.DonorList != null)
         {
             var donorList = ViewBag.DonorList as MultiSelectList;
+            var initInvestmentCodes = ViewBag.InvestmentBudgetDonorCodes as List<string> ?? new List<string>();
             if (donorList != null && donorList.Count() > 0)
             {
                 <text>
@@ -1596,7 +1599,7 @@
                     {
                         if (item.Selected)
                         {
-                            <text>{ value: '@item.Value', text: '@Html.Raw(HttpUtility.JavaScriptStringEncode(item.Text))' },</text>
+                            <text>{ value: '@item.Value', text: '@Html.Raw(HttpUtility.JavaScriptStringEncode(item.Text))', isInvestmentBudget: @(initInvestmentCodes.Contains(item.Value) ? "true" : "false") },</text>
                         }
                     }
                 ];
@@ -1626,15 +1629,36 @@
 
                 updateDonorFundingSection();
                 updateSelectedDonorsInput();
+                updatePhaseSelectionForDonors();
                 </text>
             }
         }
     }
 
+    // Show the الفقرات picker only while a "موازنة أستثمارية" donor is selected.
+    //
+    // Unlike Create, this deliberately does NOT clear the checkboxes when hiding: they mirror
+    // phases already saved against the project, and the picker posts separately to
+    // ProjectPhases/SyncPhases. Clearing them would misreport the stored state the moment the
+    // user toggled the donor back.
+    function updatePhaseSelectionForDonors() {
+        const hasInvestmentBudget = selectedDonors.some(d => !!d.isInvestmentBudget);
+        $('#phaseSelectionSection').toggle(hasInvestmentBudget);
+    }
+
+    $('#selectAllPhasesEdit').click(function () {
+        $('.phase-checkbox-edit').prop('checked', true);
+    });
+    $('#deselectAllPhasesEdit').click(function () {
+        $('.phase-checkbox-edit').prop('checked', false);
+    });
+
     // Add donor button click handler
     $('#addDonorBtn').click(function() {
+        const $selectedOption = $('#availableDonorSelect option:selected');
         const donorValue = $('#availableDonorSelect').val();
-        const donorText = $('#availableDonorSelect option:selected').text();
+        const donorText = $selectedOption.text();
+        const isInvestmentBudget = !!$selectedOption.data('investment-budget');
 
         if (!donorValue || donorValue === '') {
             alert(localizedStrings.pleaseSelectDonorFirst);
@@ -1650,7 +1674,8 @@
         // Add donor to selected list
         selectedDonors.push({
             value: donorValue,
-            text: donorText
+            text: donorText,
+            isInvestmentBudget: isInvestmentBudget
         });
 
         // Initialize percentage
@@ -1659,6 +1684,7 @@
         // Update UI
         updateDonorFundingSection();
         updateSelectedDonorsInput();
+        updatePhaseSelectionForDonors();
 
         // Reset dropdown
         $('#availableDonorSelect').val('');
@@ -1748,6 +1774,7 @@
         // Update UI
         updateDonorFundingSection();
         updateSelectedDonorsInput();
+        updatePhaseSelectionForDonors();
     });
 
     // Update the hidden select input for form submission

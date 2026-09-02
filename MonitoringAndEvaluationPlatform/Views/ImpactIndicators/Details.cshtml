@@ -102,6 +102,22 @@
             <div class="impact-banner-value">@Model.TargetValue.ToString("N2")@unitLabel</div>
         </div>
     </div>
+    @if (Model.BaselineValue.HasValue)
+    {
+        <div class="impact-banner-item">
+            <div class="impact-banner-icon"><i class="fas fa-flag-checkered"></i></div>
+            <div>
+                <div class="impact-banner-label">@Localizer["Baseline Value"]</div>
+                <div class="impact-banner-value">
+                    @Model.BaselineValue.Value.ToString("N2")@unitLabel
+                    @if (Model.BaselineYear.HasValue)
+                    {
+                        <span class="text-muted">(@Model.BaselineYear.Value)</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
     <div class="impact-banner-item">
         <div class="impact-banner-icon achieved-icon"><i class="fas fa-check-double"></i></div>
         <div>

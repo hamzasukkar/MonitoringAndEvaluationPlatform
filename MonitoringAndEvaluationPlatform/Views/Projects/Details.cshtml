@@ -41,6 +41,11 @@
 </div>
 
 <div class="container-fluid">
+    @* ProjectPhases actions redirect back here with TempData messages — the phase delete
+       confirmation, and the refusal to delete a project's last phase. Nothing on this page
+       or its layout rendered them before, so both arrived silently. *@
+    <partial name="_Notifications" />
+
     <!-- Project Information -->
     <div class="chart-card mb-4">
         <h3 class="chart-title">

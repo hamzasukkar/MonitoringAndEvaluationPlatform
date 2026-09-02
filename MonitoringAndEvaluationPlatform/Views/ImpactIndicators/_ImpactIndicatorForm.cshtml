@@ -62,6 +62,29 @@
             <span asp-validation-for="UnitCode" class="field-error"></span>
             <div class="impact-hint">@Localizer["Optional, but makes the numbers readable in reports."]</div>
         </div>
+
+        @* Reference fields: they record the starting point but are deliberately left out of the
+           running total below and out of AchievementRate. *@
+        <div class="impact-form-group">
+            <label asp-for="BaselineValue" class="impact-label">
+                <i class="fas fa-flag-checkered me-2"></i>@Localizer["Baseline Value"]
+            </label>
+            <input asp-for="BaselineValue" class="impact-input"
+                   type="text" inputmode="decimal" autocomplete="off" />
+            <span asp-validation-for="BaselineValue" class="field-error"></span>
+            <div class="impact-hint">@Localizer["The value measured before the project started. Reference only — it does not change the achievement rate."]</div>
+        </div>
+
+        <div class="impact-form-group">
+            <label asp-for="BaselineYear" class="impact-label">
+                <i class="fas fa-calendar-day me-2"></i>@Localizer["Baseline Year"]
+            </label>
+            <input asp-for="BaselineYear" class="impact-input"
+                   type="text" inputmode="numeric" autocomplete="off"
+                   placeholder="@Localizer["e.g. 2023"]" />
+            <span asp-validation-for="BaselineYear" class="field-error"></span>
+            <div class="impact-hint">@Localizer["The year the baseline value was measured."]</div>
+        </div>
     </div>
 
     <h4 class="chart-title mt-2">

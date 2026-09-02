@@ -39,6 +39,19 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         [Display(Name = "Target Value")]
         public string? TargetValue { get; set; }
 
+        /// <summary>
+        /// Optional. Parsed in the controller; must not be negative. Blank means "no baseline".
+        /// </summary>
+        [Display(Name = "Baseline Value")]
+        public string? BaselineValue { get; set; }
+
+        /// <summary>
+        /// Optional. Parsed and range-checked in the controller. A string like the other numeric
+        /// fields so a bad entry gets a localized error instead of the default binding message.
+        /// </summary>
+        [Display(Name = "Baseline Year")]
+        public string? BaselineYear { get; set; }
+
         public List<YearValueInput> YearValues { get; set; } = new();
     }
 

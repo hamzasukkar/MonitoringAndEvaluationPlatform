@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
@@ -186,6 +186,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (phase == null) return NotFound();
 
             int projectId = phase.ProjectID;
+
+            // A project with zero phases cannot be repaired from the Projects/Edit screen — the
+            // الفقرات picker there only offers to sync, and SyncPhases itself refuses an empty
+            // selection. Refuse the same way here rather than letting Delete create that state.
+            var remainingPhases = await _context.ProjectPhases.CountAsync(p => p.ProjectID == projectId);
+            if (remainingPhases <= 1)
+            {
+                var error = _localizer["Cannot delete the last phase. A project must keep at least one phase."].Value;
+                // Only Projects/Edit renders PhaseError; Details relies on _Notifications, which
+                // reads ErrorMessage — the same split the success path below uses.
+                if (returnTo == "edit") TempData["PhaseError"] = error;
+                else TempData["ErrorMessage"] = error;
+                return RedirectBackToCaller(returnTo, projectId);
+            }
 
             _context.ProjectPhases.Remove(phase);
             await _context.SaveChangesAsync();

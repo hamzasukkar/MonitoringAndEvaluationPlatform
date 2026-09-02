@@ -37,7 +37,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         [Display(Name = "Ministries")]
         public List<int>? SelectedMinistryCodes { get; set; } = new();
 
-        [Display(Name = "Frameworks")]
+        [Display(Name = "Strategic Goals")]
         public List<int>? SelectedFrameworkCodes { get; set; } = new();
 
         [Display(Name = "Project Output Indicators")]

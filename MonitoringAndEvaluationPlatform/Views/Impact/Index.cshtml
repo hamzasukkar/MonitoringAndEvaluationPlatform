@@ -146,9 +146,9 @@
                         every fixed column gets rowspan="2". Same layout
                         FrameworkGoals/Index.cshtml uses for its own per-year sub-columns.
 
-                        Base Value is a single figure for the whole output, so it is a fixed
-                        column rather than a per-year one — repeating it under every year would
-                        leave all but the base year's cell dashed.
+                        Base Value and Target are single figures for the whole output, so they
+                        are fixed columns rather than per-year ones — repeating them under every
+                        year would leave all but the base year's cell dashed.
                     *@
                     <thead class="table-primary bg-opacity-25">
                         <tr>
@@ -158,6 +158,10 @@
                             <th rowspan="2" class="align-middle text-center"
                                 title="@Localizer["The output's starting value, measured at its base year (its earliest covered year)."]">
                                 @Localizer["Base Value"]
+                            </th>
+                            <th rowspan="2" class="align-middle text-center"
+                                title="@Localizer["The value this output aims to reach, in its own real units. Together with the Base Value it defines the gap the Amount of Change measures."]">
+                                @Localizer["Target"]
                             </th>
                             @for (int year = minYear; year <= maxYear; year++)
                             {
@@ -245,6 +249,21 @@
                                         {
                                             <div class="text-muted small">(@po.BaseYear.Value)</div>
                                         }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+
+                                @* Target: the output's own end goal, entered by hand on the form —
+                                   deliberately NOT the sum of the linked indicators' targets (that
+                                   is TotalTarget). Sits beside Base Value because the two together
+                                   define the gap Amount of Change measures. *@
+                                <td class="text-center">
+                                    @if (po.TargetValue.HasValue)
+                                    {
+                                        <div class="fw-bold">@po.TargetValue.Value.ToString("N2")</div>
                                     }
                                     else
                                     {

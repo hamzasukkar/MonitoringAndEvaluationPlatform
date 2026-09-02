@@ -117,6 +117,12 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Baseline Value" xml:space="preserve">
+    <value>قيمة الأساس</value>
+  </data>
+  <data name="Baseline Year" xml:space="preserve">
+    <value>سنة الأساس</value>
+  </data>
   <data name="Cancel" xml:space="preserve">
     <value>إلغاء</value>
   </data>
@@ -147,6 +153,12 @@
   <data name="The total to be delivered across the whole project." xml:space="preserve">
     <value>الإجمالي المطلوب إنجازه على مدى المشروع بالكامل.</value>
   </data>
+  <data name="The value measured before the project started. Reference only — it does not change the achievement rate." xml:space="preserve">
+    <value>القيمة المقاسة قبل بدء المشروع. للمرجعية فقط — لا تؤثر على نسبة الإنجاز.</value>
+  </data>
+  <data name="The year the baseline value was measured." xml:space="preserve">
+    <value>السنة التي قيست فيها قيمة الأساس.</value>
+  </data>
   <data name="This project has no year range, so no yearly values can be entered. Set the project's start and end dates first." xml:space="preserve">
     <value>لا يوجد نطاق سنوات لهذا المشروع، لذا لا يمكن إدخال قيم سنوية. حدّد تاريخي بداية ونهاية المشروع أولًا.</value>
   </data>
@@ -164,6 +176,9 @@
   </data>
   <data name="Yearly Values" xml:space="preserve">
     <value>القيم السنوية</value>
+  </data>
+  <data name="e.g. 2023" xml:space="preserve">
+    <value>مثال: 2023</value>
   </data>
   <data name="e.g. Schools rehabilitated" xml:space="preserve">
     <value>مثال: مدارس مُعاد تأهيلها</value>

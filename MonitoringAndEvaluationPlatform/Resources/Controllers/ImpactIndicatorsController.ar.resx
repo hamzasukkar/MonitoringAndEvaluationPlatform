@@ -135,4 +135,10 @@
   <data name="Target value must be greater than zero." xml:space="preserve">
     <value>يجب أن تكون القيمة المستهدفة أكبر من صفر.</value>
   </data>
+  <data name="Baseline value cannot be negative." xml:space="preserve">
+    <value>لا يمكن أن تكون قيمة الأساس سالبة.</value>
+  </data>
+  <data name="Baseline year must be between {0} and {1}." xml:space="preserve">
+    <value>يجب أن تكون سنة الأساس بين {0} و {1}.</value>
+  </data>
 </root>

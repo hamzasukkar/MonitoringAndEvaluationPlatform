@@ -58,6 +58,21 @@ namespace MonitoringAndEvaluationPlatform.Models
         [Display(Name = "Target Value")]
         public double TargetValue { get; set; }
 
+        /// <summary>
+        /// The value measured before the project started. Reference only: <see cref="AchievementRate"/>
+        /// stays AchievedValue / TargetValue, exactly as it was before this field existed — a
+        /// baseline records where things stood, it does not redefine what counts as achieved.
+        /// </summary>
+        [Display(Name = "Baseline Value")]
+        public double? BaselineValue { get; set; }
+
+        /// <summary>
+        /// The year the baseline value was measured. Free-form, and deliberately not tied to
+        /// <see cref="Project.CoveredYears"/> — a baseline usually predates the project.
+        /// </summary>
+        [Display(Name = "Baseline Year")]
+        public int? BaselineYear { get; set; }
+
         public int ProjectID { get; set; }
         public virtual Project Project { get; set; } = null!;
 

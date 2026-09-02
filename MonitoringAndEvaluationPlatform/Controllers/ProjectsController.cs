@@ -1181,12 +1181,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                         .ToList();
 
             // When you construct the MultiSelectList, pass in that "selected" list:
+            // Investment-budget donors first, matching the order Create uses.
             ViewBag.DonorList = new MultiSelectList(
-                allDonors,
+                allDonors
+                    .OrderBy(d => d.IsInvestmentBudget ? 0 : 1)
+                    .ThenBy(d => d.Partner),
                 "Code",      // value field
                 "Partner",      // text field
                 selectedDonorCodes  // whichever codes should be pre‐checked
             );
+
+            // Drives the phase-selection section on Edit: the view marks these options with
+            // data-investment-budget so the client can show the الفقرات picker for them. Without it
+            // the section stays hidden no matter which donor is chosen.
+            ViewBag.InvestmentBudgetDonorCodes = allDonors
+                .Where(d => d.IsInvestmentBudget)
+                .Select(d => d.Code.ToString())
+                .ToList();
 
             // Pass existing donor funding percentages to the view
             var donorFundingData = project.ProjectDonors.ToDictionary(
@@ -1618,11 +1629,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var allDonors = await _context.Donors.ToListAsync();
             ViewBag.DonorList = new MultiSelectList(
-                allDonors,
+                allDonors
+                    .OrderBy(d => d.IsInvestmentBudget ? 0 : 1)
+                    .ThenBy(d => d.Partner),
                 "Code",
                 "Partner",
                 SelectedDonorCodes
             );
+
+            // Must mirror the Edit GET action: a validation failure re-renders through here, and
+            // omitting this would hide the phase picker on the redisplayed form.
+            ViewBag.InvestmentBudgetDonorCodes = allDonors
+                .Where(d => d.IsInvestmentBudget)
+                .Select(d => d.Code.ToString())
+                .ToList();
 
             var allMinistries = await _context.Ministries.ToListAsync();
 
@@ -2242,8 +2262,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // ─────────────────────────────────────────────────────────────────────
         // Auto-create default implementation-tracking phases for a new project.
-        // When singlePhaseMode is true (i.e. donor is "موازنة أستثمارية"), only
-        // one phase spanning the full project duration is created.
+        // singlePhaseMode is set for donors that are NOT "موازنة أستثمارية": those projects get one
+        // phase spanning the full duration, confusingly named "موازنة أستثمارية" itself.
+        // Investment-budget projects instead get the categories the user picked from
+        // DefaultCategoryNames — see the call site in Create.
         // ─────────────────────────────────────────────────────────────────────
         private async Task CreateDefaultProjectPhasesAsync(Project project, List<string>? selectedPhaseNames = null, bool singlePhaseMode = false)
         {

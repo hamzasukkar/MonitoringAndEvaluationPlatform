@@ -139,6 +139,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!await ProjectBelongsToScopeAsync(form.ProjectID)) return Forbid();
 
             var targetValue = ValidateTargetValue(form);
+            var baseline = ValidateBaseline(form);
             ValidateYearValues(form, project);
 
             if (!ModelState.IsValid)
@@ -151,6 +152,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Name = form.Name.Trim(),
                 UnitCode = form.UnitCode,
                 TargetValue = targetValue,
+                BaselineValue = baseline.Value,
+                BaselineYear = baseline.Year,
                 ProjectID = form.ProjectID
             };
 
@@ -190,6 +193,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Name = indicator.Name,
                 UnitCode = indicator.UnitCode,
                 TargetValue = indicator.TargetValue.ToString(CultureInfo.InvariantCulture),
+                BaselineValue = indicator.BaselineValue?.ToString(CultureInfo.InvariantCulture),
+                BaselineYear = indicator.BaselineYear?.ToString(CultureInfo.InvariantCulture),
                 YearValues = project.CoveredYears
                     .Select(year => new YearValueInput
                     {
@@ -223,6 +228,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var project = indicator.Project;
 
             var targetValue = ValidateTargetValue(form);
+            var baseline = ValidateBaseline(form);
             ValidateYearValues(form, project);
 
             if (!ModelState.IsValid)
@@ -233,6 +239,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             indicator.Name = form.Name.Trim();
             indicator.UnitCode = form.UnitCode;
             indicator.TargetValue = targetValue;
+            // Clearing either field posts blank, which parses to null — so a baseline can be removed.
+            indicator.BaselineValue = baseline.Value;
+            indicator.BaselineYear = baseline.Year;
 
             ApplyYearValues(indicator, form, project);
             await _context.SaveChangesAsync();
@@ -262,6 +271,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // ─────────────────────────────── Helpers ────────────────────────────────
+
+        // A baseline usually predates the project, so it is not gated on Project.CoveredYears;
+        // this range only rules out obvious typos like a 3-digit or 5-digit year.
+        private const int MinBaselineYear = 1900;
+        private const int MaxBaselineYear = 2100;
 
         /// <summary>
         /// Accepts "12.5" and "12,5" alike — Arabic-locale users type the comma. Mirrors
@@ -304,6 +318,60 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             return parsed;
+        }
+
+        /// <summary>
+        /// Parses the two optional baseline fields. Leaving them blank is not an error, but a
+        /// value that was typed and does not parse — or a year outside the plausible range — is
+        /// rejected rather than silently dropped, which would look like a successful save.
+        /// </summary>
+        private (double? Value, int? Year) ValidateBaseline(ImpactIndicatorFormViewModel form)
+        {
+            double? value = null;
+            if (!string.IsNullOrWhiteSpace(form.BaselineValue))
+            {
+                if (!TryParseDecimal(form.BaselineValue, out var parsed))
+                {
+                    ModelState.AddModelError(
+                        nameof(form.BaselineValue),
+                        _localizer["'{0}' is not a valid number.", form.BaselineValue].Value);
+                }
+                else if (parsed < 0)
+                {
+                    ModelState.AddModelError(
+                        nameof(form.BaselineValue),
+                        _localizer["Baseline value cannot be negative."].Value);
+                }
+                else
+                {
+                    value = parsed;
+                }
+            }
+
+            int? year = null;
+            if (!string.IsNullOrWhiteSpace(form.BaselineYear))
+            {
+                if (!int.TryParse(form.BaselineYear.Trim(), NumberStyles.Integer,
+                                  CultureInfo.InvariantCulture, out var parsedYear))
+                {
+                    ModelState.AddModelError(
+                        nameof(form.BaselineYear),
+                        _localizer["'{0}' is not a valid number.", form.BaselineYear].Value);
+                }
+                else if (parsedYear < MinBaselineYear || parsedYear > MaxBaselineYear)
+                {
+                    ModelState.AddModelError(
+                        nameof(form.BaselineYear),
+                        _localizer["Baseline year must be between {0} and {1}.",
+                                   MinBaselineYear, MaxBaselineYear].Value);
+                }
+                else
+                {
+                    year = parsedYear;
+                }
+            }
+
+            return (value, year);
         }
 
         /// <summary>
