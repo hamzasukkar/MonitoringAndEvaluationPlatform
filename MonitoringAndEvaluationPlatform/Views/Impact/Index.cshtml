@@ -368,6 +368,32 @@
                                            title="@Localizer["View linked indicators"]">
                                             <i class="fas fa-circle-info"></i>
                                         </a>
+
+                                        @* Explains this row's calculated columns. Opens the ONE
+                                           shared modal at the bottom of the page, populated from
+                                           these data-* attributes — the same single-modal approach
+                                           as the Actual Impact button below. Deliberately NOT behind
+                                           a permission check: it explains figures, never changes
+                                           them. *@
+                                        <button type="button"
+                                                class="btn btn-outline-secondary btn-sm action-btn calc-help-btn"
+                                                data-output-name="@po.Name"
+                                                data-base="@(po.BaseValue.HasValue ? po.BaseValue.Value.ToString("N2") : "")"
+                                                data-target="@(po.TargetValue.HasValue ? po.TargetValue.Value.ToString("N2") : "")"
+                                                @* NOT Html.Raw: the JSON's own double quotes would
+                                                   break out of the attribute — Razor's encoding
+                                                   writes &quot;, which dataset decodes back. *@
+                                                data-rows="@System.Text.Json.JsonSerializer.Serialize(
+                                                               po.CoveredYears.Select(y => new {
+                                                                   year   = y,
+                                                                   pct    = po.GetWeightedPercentageForYear(y),
+                                                                   change = po.GetAmountOfChangeForYear(y),
+                                                                   total  = po.GetTotalValueForYear(y),
+                                                                   actual = po.GetActualImpactForYear(y)
+                                                               }))"
+                                                title="@Localizer["How these figures are calculated"]">
+                                            <i class="fas fa-calculator"></i>
+                                        </button>
                                         @if (canModify)
                                         {
                                             @* Opens the ONE shared modal at the bottom of the page,
@@ -493,6 +519,83 @@
     </div>
 }
 
+@*
+    ONE shared "how is this calculated" modal for the whole page, populated from the clicked row's
+    data-* attributes — the same single-modal approach as the Actual Impact modal above. Rendered
+    for every user because it only explains the figures.
+
+    The formulas mirror ProjectOutput.GetWeightedPercentageForYear / GetAmountOfChangeForYear /
+    GetTotalValueForYear; the worked table substitutes the row's own numbers into them so a
+    displayed figure can be traced back to its inputs.
+*@
+<div class="modal fade" id="calcHelpModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calculator me-2"></i>@Localizer["How these figures are calculated"]
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="@Localizer["Close"]"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="fw-bold mb-3" id="calcOutputName"></div>
+
+                <div class="mb-3">
+                    <div class="impact-banner-label">@Localizer["Inputs"]</div>
+                    <span class="text-muted">@Localizer["Base Value"]:</span>
+                    <span class="fw-bold" id="calcBase"></span>
+                    <span class="text-muted ms-3">@Localizer["Target"]:</span>
+                    <span class="fw-bold" id="calcTarget"></span>
+                </div>
+
+                <dl class="row mb-3">
+                    <dt class="col-sm-4">@Localizer["Actual Value"]</dt>
+                    <dd class="col-sm-8">@Localizer["Weighted average of the achievement rates of the linked indicators whose project covers that year: sum(indicator rate x weight) / sum(weights)."]</dd>
+
+                    <dt class="col-sm-4">@Localizer["Amount of Change"]</dt>
+                    <dd class="col-sm-8"><code>@Localizer["((Target - Base Value) x Actual Value) / 100"]</code></dd>
+
+                    <dt class="col-sm-4">@Localizer["Total Value"]</dt>
+                    <dd class="col-sm-8"><code>@Localizer["Base Value + Amount of Change"]</code></dd>
+
+                    <dt class="col-sm-4">@Localizer["Actual Impact"]</dt>
+                    <dd class="col-sm-8">@Localizer["Entered by hand for each year. It does not feed any of the calculations above."]</dd>
+
+                    <dt class="col-sm-4">@Localizer["Total"]</dt>
+                    <dd class="col-sm-8">@Localizer["Average of the yearly Actual Value percentages, for years that have a value."]</dd>
+                </dl>
+
+                <div class="impact-banner-label">@Localizer["Worked example"]</div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-bordered align-middle mb-0" id="calcExampleTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th>@Localizer["Year"]</th>
+                                <th class="text-center">@Localizer["Actual Value"]</th>
+                                <th class="text-center">@Localizer["Amount of Change"]</th>
+                                <th class="text-center">@Localizer["Total Value"]</th>
+                                <th class="text-center">@Localizer["Actual Impact"]</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="text-muted small mt-2 d-none" id="calcNoYears">
+                    @Localizer["No calculated years yet."]
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    @Localizer["Close"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Styles {
     <link rel="stylesheet" href="~/css/project-details.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/impact-indicators.css" asp-append-version="true" />
@@ -597,6 +700,77 @@
             });
 
             yearSelect.addEventListener('change', prefillValue);
+        })();
+
+        // "How is this calculated" modal: one modal reused by every row, filled from the clicked
+        // button's data-* attributes. Read-only — it renders the row's own numbers substituted into
+        // the same formulas the server applied, so a figure can be traced back to its inputs.
+        (function () {
+            var modalEl = document.getElementById('calcHelpModal');
+            if (!modalEl) return;
+
+            var nameEl   = document.getElementById('calcOutputName');
+            var baseEl   = document.getElementById('calcBase');
+            var targetEl = document.getElementById('calcTarget');
+            var tbody    = document.querySelector('#calcExampleTable tbody');
+            var noYears  = document.getElementById('calcNoYears');
+            var notSet   = '@Localizer["Not set"]';
+            var dash     = '\u2014';
+
+            function fmt(v, digits) {
+                if (v === null || v === undefined) return null;
+                return Number(v).toLocaleString(undefined, {
+                    minimumFractionDigits: digits, maximumFractionDigits: digits
+                });
+            }
+
+            document.querySelectorAll('.calc-help-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    var baseRaw   = btn.dataset.base || '';
+                    var targetRaw = btn.dataset.target || '';
+
+                    nameEl.textContent   = btn.dataset.outputName || '';
+                    baseEl.textContent   = baseRaw || notSet;
+                    targetEl.textContent = targetRaw || notSet;
+
+                    var rows = [];
+                    try { rows = JSON.parse(btn.dataset.rows || '[]'); } catch (e) { rows = []; }
+
+                    tbody.innerHTML = '';
+                    rows.forEach(function (r) {
+                        var pct    = fmt(r.pct, 1);
+                        var change = fmt(r.change, 2);
+                        var total  = fmt(r.total, 2);
+                        var actual = fmt(r.actual, 2);
+
+                        // Amount of Change and Total Value show the substituted arithmetic; both
+                        // dash whenever Base or Target is unset, exactly as the table cells do.
+                        var changeCell = (change === null)
+                            ? dash
+                            : '((' + targetRaw + ' \u2212 ' + baseRaw + ') \u00d7 ' + pct + '%) \u00f7 100 = ' + change;
+                        var totalCell = (total === null)
+                            ? dash
+                            : baseRaw + ' + ' + change + ' = ' + total;
+
+                        var tr = document.createElement('tr');
+                        [String(r.year),
+                         (pct === null ? dash : pct + '%'),
+                         changeCell,
+                         totalCell,
+                         (actual === null ? dash : actual)
+                        ].forEach(function (text, i) {
+                            var td = document.createElement('td');
+                            td.textContent = text;
+                            if (i > 0) td.className = 'text-center';
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+
+                    noYears.classList.toggle('d-none', rows.length > 0);
+                    new bootstrap.Modal(modalEl).show();
+                });
+            });
         })();
     </script>
 }

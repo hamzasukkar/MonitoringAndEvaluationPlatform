@@ -229,9 +229,42 @@
     <value>القيمة الابتدائية للمؤشر، مقيسة في سنة الأساس (أول سنة يغطيها).</value>
   </data>
   <data name="Target" xml:space="preserve">
-    <value>الهدف</value>
+    <value>القيمة المستهدفة</value>
   </data>
   <data name="The value this output aims to reach, in its own real units. Together with the Base Value it defines the gap the Amount of Change measures." xml:space="preserve">
     <value>القيمة التي يسعى هذا المؤشر للوصول إليها بوحداته الحقيقية. تحدّد مع القيمة الأساس الفجوة التي يقيسها مقدار التغيّر.</value>
+  </data>
+  <data name="How these figures are calculated" xml:space="preserve">
+    <value>كيف تُحسب هذه الأرقام</value>
+  </data>
+  <data name="Not set" xml:space="preserve">
+    <value>غير محدّد</value>
+  </data>
+  <data name="Weighted average of the achievement rates of the linked indicators whose project covers that year: sum(indicator rate x weight) / sum(weights)." xml:space="preserve">
+    <value>متوسط مرجّح لنسب إنجاز المؤشرات المرتبطة التي يغطي مشروعها تلك السنة: مجموع(نسبة إنجاز المؤشر × وزنه) ÷ مجموع الأوزان.</value>
+  </data>
+  <data name="((Target - Base Value) x Actual Value) / 100" xml:space="preserve">
+    <value>((القيمة المستهدفة − القيمة الأساس) × القيمة الفعلية) ÷ 100</value>
+  </data>
+  <data name="Base Value + Amount of Change" xml:space="preserve">
+    <value>القيمة الأساس + مقدار التغيّر</value>
+  </data>
+  <data name="Entered by hand for each year. It does not feed any of the calculations above." xml:space="preserve">
+    <value>قيمة تُدخل يدوياً لكل سنة، ولا تدخل في أي من الحسابات أعلاه.</value>
+  </data>
+  <data name="Average of the yearly Actual Value percentages, for years that have a value." xml:space="preserve">
+    <value>متوسط النسب الفعلية السنوية، للسنوات التي تحتوي قيمة.</value>
+  </data>
+  <data name="Inputs" xml:space="preserve">
+    <value>المدخلات</value>
+  </data>
+  <data name="Worked example" xml:space="preserve">
+    <value>مثال محسوب</value>
+  </data>
+  <data name="No calculated years yet." xml:space="preserve">
+    <value>لا توجد سنوات محسوبة بعد.</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>إغلاق</value>
   </data>
 </root>
