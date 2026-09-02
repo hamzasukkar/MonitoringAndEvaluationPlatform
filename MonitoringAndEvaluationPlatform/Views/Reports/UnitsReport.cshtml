@@ -1,0 +1,346 @@
+@model MonitoringAndEvaluationPlatform.ViewModel.UnitsReportViewModel
+@using MonitoringAndEvaluationPlatform.ViewModel
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+
+@{
+    var requestCultureFeature = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>();
+    var culture = requestCultureFeature?.RequestCulture?.Culture?.Name ?? "ar";
+    var isRtl = culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+
+    ViewData["Title"] = isRtl ? "تقرير وحدات القياس" : "Units Report";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var showMinistryFilter = Model.MinistryOptions.Count > 0;
+    string DateValue(DateTime? d) => d?.ToString("yyyy-MM-dd") ?? "";
+}
+
+@section Styles {
+    <style>
+        .stat-card { border-radius: 12px; transition: transform .2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .unit-accordion .accordion-item { border-radius: 10px !important; overflow: hidden; }
+        .unit-accordion .accordion-button { background: #fff; }
+        .unit-accordion .accordion-button:not(.collapsed) { background: #f8f9fa; box-shadow: none; }
+        .unit-accordion .accordion-button:focus { box-shadow: none; }
+        .filter-bar { border-radius: 12px; }
+        .unit-group.d-none { display: none !important; }
+        @@media print {
+            .no-print, .accordion-button::after { display: none !important; }
+            .accordion-collapse { display: block !important; }
+        }
+    </style>
+}
+
+<!-- Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-ruler-combined me-3"></i>
+                @(isRtl ? "تقرير وحدات القياس" : "Units Report")
+            </h1>
+            <p class="dashboard-subtitle">
+                @(isRtl
+                    ? "ما تم إنجازه حسب وحدة القياس، موزعاً على المشاريع وتواريخها"
+                    : "Delivery by unit of measurement, broken down by project and project dates")
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap no-print">
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print me-2"></i>@(isRtl ? "طباعة" : "Print")
+            </button>
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>@(isRtl ? "العودة للتقارير" : "Back to Reports")
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pb-4">
+
+    <!-- ── Filters ── -->
+    <form method="get" asp-action="UnitsReport" class="card border-0 shadow-sm filter-bar mb-4 no-print">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-2 col-md-4 col-sm-6">
+                    <label class="form-label small fw-semibold mb-1">
+                        <i class="fas fa-ruler-combined me-1 text-muted"></i>@(isRtl ? "وحدة القياس" : "Unit")
+                    </label>
+                    <select name="unitCode" class="form-select form-select-sm">
+                        <option value="">@(isRtl ? "كل الوحدات" : "All units")</option>
+                        @foreach (var opt in Model.UnitOptions)
+                        {
+                            <option value="@opt.Value" selected="@opt.Selected">@opt.Text</option>
+                        }
+                    </select>
+                </div>
+
+                @if (showMinistryFilter)
+                {
+                    <div class="col-lg-2 col-md-4 col-sm-6">
+                        <label class="form-label small fw-semibold mb-1">
+                            <i class="fas fa-landmark me-1 text-muted"></i>@(isRtl ? "الوزارة" : "Ministry")
+                        </label>
+                        <select name="ministryCode" class="form-select form-select-sm">
+                            <option value="">@(isRtl ? "كل الوزارات" : "All ministries")</option>
+                            @foreach (var opt in Model.MinistryOptions)
+                            {
+                                <option value="@opt.Value" selected="@opt.Selected">@opt.Text</option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <label class="form-label small fw-semibold mb-1">
+                        <i class="fas fa-folder-open me-1 text-muted"></i>@(isRtl ? "المشروع" : "Project")
+                    </label>
+                    <select name="projectId" class="form-select form-select-sm">
+                        <option value="">@(isRtl ? "كل المشاريع" : "All projects")</option>
+                        @foreach (var opt in Model.ProjectOptions)
+                        {
+                            <option value="@opt.Value" selected="@opt.Selected">@opt.Text</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-lg-2 col-md-3 col-sm-6">
+                    <label class="form-label small fw-semibold mb-1">
+                        <i class="fas fa-calendar-day me-1 text-muted"></i>@(isRtl ? "من تاريخ" : "From date")
+                    </label>
+                    <input type="date" name="fromDate" class="form-control form-control-sm" value="@DateValue(Model.Filter.FromDate)" />
+                </div>
+
+                <div class="col-lg-2 col-md-3 col-sm-6">
+                    <label class="form-label small fw-semibold mb-1">
+                        <i class="fas fa-calendar-day me-1 text-muted"></i>@(isRtl ? "إلى تاريخ" : "To date")
+                    </label>
+                    <input type="date" name="toDate" class="form-control form-control-sm" value="@DateValue(Model.Filter.ToDate)" />
+                </div>
+
+                <div class="col-lg-1 col-md-2 col-sm-6 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    @if (Model.Filter.IsActive)
+                    {
+                        <a asp-action="UnitsReport" class="btn btn-outline-secondary btn-sm"
+                           title="@(isRtl ? "مسح الفلاتر" : "Clear filters")">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="text-muted small mt-2">
+                <i class="fas fa-info-circle me-1"></i>
+                @(isRtl
+                    ? "نطاق التواريخ يشمل كل مشروع كان قائماً خلال الفترة المحددة، حتى لو بدأ قبلها أو انتهى بعدها."
+                    : "The date range includes every project that was running at any point in the period, even if it started before or ends after it.")
+            </div>
+        </div>
+    </form>
+
+    <!-- ── Summary Cards ── -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-primary text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-ruler-combined fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@Model.UnitCount</div>
+                    <div class="small opacity-75">@(isRtl ? "وحدات قياس مستخدمة" : "Units in use")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-info text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-folder-open fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@Model.ProjectCount</div>
+                    <div class="small opacity-75">@(isRtl ? "مشاريع مشمولة" : "Projects covered")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-secondary text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-list-ol fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@(Model.ImpactRowCount + Model.MeasureRowCount)</div>
+                    <div class="small opacity-75">
+                        @(isRtl
+                            ? $"بند مُقاس ({Model.ImpactRowCount} مؤشر أثر · {Model.MeasureRowCount} مرحلة)"
+                            : $"measured items ({Model.ImpactRowCount} impact · {Model.MeasureRowCount} phases)")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            @{
+                var avg = Model.AverageAchievement;
+                var avgColor = avg >= 100 ? "success" : avg >= 60 ? "info" : avg >= 30 ? "warning" : "danger";
+            }
+            <div class="card stat-card shadow-sm h-100 border-0 bg-@avgColor text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-percentage fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@avg%</div>
+                    <div class="small opacity-75">@(isRtl ? "متوسط نسبة الإنجاز" : "Average achievement")</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.HasAnyData)
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center text-muted py-5">
+                <i class="fas fa-ruler-combined fa-3x mb-3 opacity-25"></i>
+                <h5>@(isRtl ? "لا توجد بيانات" : "No data")</h5>
+                <p class="mb-0">
+                    @(isRtl
+                        ? "لم يُعثر على مؤشرات أثر أو قياسات مطابقة للفلاتر المحددة."
+                        : "No impact indicators or measures match the selected filters.")
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- ── Achievement by unit chart ── -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-bold mb-0">
+                    <i class="fas fa-chart-bar me-2 text-primary"></i>
+                    @(isRtl ? "نسبة الإنجاز حسب وحدة القياس" : "Achievement rate by unit")
+                </h6>
+                <div class="text-muted small mt-1">
+                    @(isRtl
+                        ? "النسب فقط قابلة للمقارنة بين الوحدات — الكميات لا تُجمع عبر وحدات مختلفة."
+                        : "Only rates are comparable across units — quantities are never summed across different units.")
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="unitsChart" height="110"></canvas>
+            </div>
+        </div>
+
+        <!-- ── Tabs ── -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <ul class="nav nav-tabs card-header-tabs border-0" id="unitsTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-impact" type="button" role="tab">
+                            <i class="fas fa-bullseye me-2"></i>@(isRtl ? "مؤشرات الأثر" : "Impact Indicators")
+                            <span class="badge bg-secondary ms-1">@Model.ImpactRowCount</span>
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-measures" type="button" role="tab">
+                            <i class="fas fa-ruler me-2"></i>@(isRtl ? "القياسات" : "Measures")
+                            <span class="badge bg-secondary ms-1">@Model.MeasureRowCount</span>
+                        </button>
+                    </li>
+                </ul>
+                <input type="text" id="rowSearch" class="form-control form-control-sm no-print" style="width:220px"
+                       placeholder="@(isRtl ? "بحث في المشاريع والبنود..." : "Search projects and items...")" />
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="tab-impact" role="tabpanel">
+                        @await Html.PartialAsync("_UnitReportGroups", Model.ImpactGroups, new ViewDataDictionary(ViewData)
+                        {
+                            ["IdPrefix"] = "impact",
+                            ["ShowRecorded"] = false,
+                            ["ItemHeader"] = isRtl ? "مؤشر الأثر" : "Impact Indicator"
+                        })
+                    </div>
+                    <div class="tab-pane fade" id="tab-measures" role="tabpanel">
+                        <div class="alert alert-light border small d-flex align-items-start gap-2">
+                            <i class="fas fa-info-circle mt-1 text-primary"></i>
+                            <span>
+                                @(isRtl
+                                    ? "لكل مرحلة سطر واحد يعتمد على آخر قياس مسجَّل لها، لأن كمية القياس تراكمية وجمع كل القياسات يُكرِّر نفس الإنجاز."
+                                    : "One row per phase, taken from its most recent measure — measure quantities are cumulative, so summing every measure would count the same delivery twice.")
+                            </span>
+                        </div>
+                        @await Html.PartialAsync("_UnitReportGroups", Model.MeasureGroups, new ViewDataDictionary(ViewData)
+                        {
+                            ["IdPrefix"] = "measure",
+                            ["ShowRecorded"] = true,
+                            ["ItemHeader"] = isRtl ? "المرحلة" : "Phase"
+                        })
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            const isRtl = @(isRtl ? "true" : "false");
+
+            // ── Achievement by unit chart ──
+            const chartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.AllGroups
+                    .Where(g => g.TotalTarget > 0)
+                    .GroupBy(g => g.UnitName)
+                    // A unit can appear on both tracks; combine them so the chart shows one bar per unit.
+                    .Select(g => new
+                    {
+                        unit = g.Key,
+                        rate = Math.Round(g.Sum(x => x.TotalAchieved) / g.Sum(x => x.TotalTarget) * 100, 1)
+                    })
+                    .OrderByDescending(g => g.rate)
+                    .Take(15)
+            ));
+
+            const canvas = document.getElementById('unitsChart');
+            if (canvas && chartData.length) {
+                const barColor = r => r >= 100 ? '#198754' : r >= 60 ? '#0dcaf0' : r >= 30 ? '#ffc107' : '#dc3545';
+                new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.map(d => d.unit),
+                        datasets: [{
+                            label: isRtl ? 'نسبة الإنجاز %' : 'Achievement %',
+                            data: chartData.map(d => d.rate),
+                            backgroundColor: chartData.map(d => barColor(d.rate)),
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: v => v + '%' } }
+                        }
+                    }
+                });
+            } else if (canvas) {
+                canvas.closest('.card').classList.add('d-none');
+            }
+
+            // ── Text search: filter detail rows, then hide groups left with none ──
+            const search = document.getElementById('rowSearch');
+            if (search) {
+                search.addEventListener('input', function () {
+                    const q = this.value.trim().toLowerCase();
+                    document.querySelectorAll('.unit-group').forEach(group => {
+                        let visible = 0;
+                        group.querySelectorAll('tr.unit-row').forEach(row => {
+                            const match = !q || row.textContent.toLowerCase().includes(q);
+                            row.classList.toggle('d-none', !match);
+                            if (match) visible++;
+                        });
+                        // A unit whose own name matches stays visible even when no row text does.
+                        const unitMatch = !q || (group.dataset.unit || '').toLowerCase().includes(q);
+                        group.classList.toggle('d-none', visible === 0 && !unitMatch);
+                    });
+                });
+            }
+        })();
+    </script>
+}

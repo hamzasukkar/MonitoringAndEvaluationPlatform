@@ -1,6 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
@@ -567,6 +568,252 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             };
 
             return View(vm);
+        }
+
+        // Units report — everything measured in a unit of measurement, grouped by that unit and
+        // broken down by project and project date range.
+        //
+        // Two tracks feed it: impact indicators (target vs. summed yearly values) and phase
+        // measures (phase target quantity vs. the latest measure recorded for the phase). Measure
+        // quantities are cumulative-to-date rather than increments — see MeasuresController, which
+        // derives Value as Quantity ÷ TargetQuantity — so summing every measure in a phase would
+        // count the same delivery repeatedly. Only the newest one per phase is taken.
+        [Permission(Permissions.ViewControlPanel)]
+        public async Task<IActionResult> UnitsReport(
+            int? unitCode, int? ministryCode, int? projectId, DateTime? fromDate, DateTime? toDate)
+        {
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            var filter = new UnitsReportFilterViewModel
+            {
+                UnitCode     = unitCode,
+                MinistryCode = ministryCode,
+                ProjectId    = projectId,
+                FromDate     = fromDate,
+                ToDate       = toDate
+            };
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
+            // Ministry scope first, then the user's own filters, so a MinistriesUser can never
+            // widen past their own ministry by passing a ministryCode in the query string.
+            var projectsQuery = _context.Projects.AsQueryable();
+            if (!isAdmin)
+            {
+                projectsQuery = scopedMinistryCode is null
+                    ? projectsQuery.Where(_ => false)
+                    : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+            }
+            else if (filter.MinistryCode is int chosenMinistry)
+            {
+                projectsQuery = projectsQuery.Where(p =>
+                    p.MinistryCode == chosenMinistry || p.Ministries.Any(m => m.Code == chosenMinistry));
+            }
+
+            if (filter.ProjectId is int chosenProject)
+            {
+                projectsQuery = projectsQuery.Where(p => p.ProjectID == chosenProject);
+            }
+
+            // Overlap, not containment: a project counts as being "in the period" if it was
+            // running at any point during it. A 2023–2027 project appears for a 2025 range.
+            if (filter.FromDate is DateTime from)
+            {
+                projectsQuery = projectsQuery.Where(p => p.EndDate >= from);
+            }
+            if (filter.ToDate is DateTime to)
+            {
+                projectsQuery = projectsQuery.Where(p => p.StartDate <= to);
+            }
+
+            var projectIds = await projectsQuery.Select(p => p.ProjectID).ToListAsync();
+
+            // MeasurementUnit.DisplayName is [NotMapped] and culture-dependent, so unit names are
+            // resolved here rather than inside a query EF would have to translate.
+            var units = await _context.MeasurementUnits.AsNoTracking().ToListAsync();
+            var unitNames = units.ToDictionary(u => u.Code, u => u.DisplayName);
+
+            var unspecifiedLabel = isArabic ? "بدون وحدة" : "Unspecified unit";
+            string UnitName(int key) =>
+                unitNames.TryGetValue(key, out var name) ? name : unspecifiedLabel;
+            int UnitKey(int? code) =>
+                code is int c && unitNames.ContainsKey(c) ? c : UnitReportGroup.UnspecifiedUnitKey;
+
+            bool UnitMatches(int? code) =>
+                filter.UnitCode is not int wanted || UnitKey(code) == wanted;
+
+            // ── Track 1: impact indicators ──
+            var impactRows = await _context.ImpactIndicators
+                .AsNoTracking()
+                .Where(i => projectIds.Contains(i.ProjectID))
+                .Select(i => new
+                {
+                    i.UnitCode,
+                    i.ProjectID,
+                    i.Project.ProjectName,
+                    MinistryName = (i.Project.Ministry != null
+                        ? (isArabic
+                            ? i.Project.Ministry.MinistryDisplayName_AR
+                            : i.Project.Ministry.MinistryDisplayName_EN)
+                        : i.Project.Ministries.Select(m => isArabic
+                            ? m.MinistryDisplayName_AR
+                            : m.MinistryDisplayName_EN).FirstOrDefault()) ?? "",
+                    ItemName = i.Name,
+                    Target   = i.TargetValue,
+                    Achieved = i.YearlyValues.Sum(v => v.Value),
+                    i.Project.StartDate,
+                    i.Project.EndDate
+                })
+                .ToListAsync();
+
+            var impactGroups = impactRows
+                .Where(r => UnitMatches(r.UnitCode))
+                .GroupBy(r => UnitKey(r.UnitCode))
+                .Select(g => new UnitReportGroup
+                {
+                    UnitKey  = g.Key,
+                    UnitName = UnitName(g.Key),
+                    Rows = g.Select(r => new UnitReportRow
+                    {
+                        ProjectId    = r.ProjectID,
+                        ProjectName  = r.ProjectName,
+                        MinistryName = r.MinistryName,
+                        ItemName     = r.ItemName,
+                        Target       = r.Target,
+                        Achieved     = r.Achieved,
+                        ProjectStart = r.StartDate,
+                        ProjectEnd   = r.EndDate
+                    })
+                    .OrderByDescending(r => r.Target)
+                    .ToList()
+                })
+                .ToList();
+
+            // ── Track 2: phase measures, one row per phase built from its newest measure ──
+            var measureRows = await _context.Measures
+                .AsNoTracking()
+                .Where(m => m.Quantity != null && projectIds.Contains(m.ProjectPhase.ProjectID))
+                .Select(m => new
+                {
+                    m.UnitCode,
+                    m.ProjectPhase.ProjectID,
+                    PhaseId   = m.ProjectPhaseId,
+                    PhaseName = m.ProjectPhase.Name,
+                    m.ProjectPhase.Project.ProjectName,
+                    MinistryName = (m.ProjectPhase.Project.Ministry != null
+                        ? (isArabic
+                            ? m.ProjectPhase.Project.Ministry.MinistryDisplayName_AR
+                            : m.ProjectPhase.Project.Ministry.MinistryDisplayName_EN)
+                        : m.ProjectPhase.Project.Ministries.Select(mi => isArabic
+                            ? mi.MinistryDisplayName_AR
+                            : mi.MinistryDisplayName_EN).FirstOrDefault()) ?? "",
+                    Target      = m.ProjectPhase.TargetQuantity,
+                    Quantity    = m.Quantity,
+                    MeasureDate = m.Date,
+                    m.Code,
+                    m.ProjectPhase.Project.StartDate,
+                    m.ProjectPhase.Project.EndDate
+                })
+                .ToListAsync();
+
+            var latestPerPhase = measureRows
+                // Code breaks ties so two measures saved on the same date resolve to the one
+                // entered last rather than to whichever the sort happened to surface.
+                .GroupBy(m => m.PhaseId)
+                .Select(g => g.OrderByDescending(m => m.MeasureDate).ThenByDescending(m => m.Code).First())
+                .ToList();
+
+            var measureGroups = latestPerPhase
+                .Where(r => UnitMatches(r.UnitCode))
+                .GroupBy(r => UnitKey(r.UnitCode))
+                .Select(g => new UnitReportGroup
+                {
+                    UnitKey  = g.Key,
+                    UnitName = UnitName(g.Key),
+                    Rows = g.Select(r => new UnitReportRow
+                    {
+                        ProjectId    = r.ProjectID,
+                        ProjectName  = r.ProjectName,
+                        MinistryName = r.MinistryName,
+                        ItemName     = r.PhaseName,
+                        Target       = r.Target ?? 0,
+                        Achieved     = r.Quantity ?? 0,
+                        ProjectStart = r.StartDate,
+                        ProjectEnd   = r.EndDate,
+                        LastRecorded = r.MeasureDate
+                    })
+                    .OrderByDescending(r => r.Achieved)
+                    .ToList()
+                })
+                .ToList();
+
+            // Unspecified sorts last wherever it appears; the rest go by size, so the units the
+            // portfolio actually leans on sit at the top.
+            static List<UnitReportGroup> Ordered(IEnumerable<UnitReportGroup> groups) => groups
+                .OrderBy(g => g.IsUnspecified)
+                .ThenByDescending(g => g.Rows.Count)
+                .ThenBy(g => g.UnitName)
+                .ToList();
+
+            var viewModel = new UnitsReportViewModel
+            {
+                Filter        = filter,
+                ImpactGroups  = Ordered(impactGroups),
+                MeasureGroups = Ordered(measureGroups)
+            };
+
+            // ── Filter option lists ──
+            viewModel.UnitOptions = units
+                .OrderBy(u => u.DisplayName)
+                .Select(u => new SelectListItem(u.DisplayName, u.Code.ToString(), u.Code == filter.UnitCode))
+                .ToList();
+            viewModel.UnitOptions.Add(new SelectListItem(
+                unspecifiedLabel,
+                UnitReportGroup.UnspecifiedUnitKey.ToString(),
+                filter.UnitCode == UnitReportGroup.UnspecifiedUnitKey));
+
+            // Only offered to admins; a scoped user has exactly one ministry and the control is hidden.
+            viewModel.MinistryOptions = isAdmin
+                ? await _context.Ministries
+                    .AsNoTracking()
+                    .OrderBy(m => isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+                    .Select(m => new SelectListItem(
+                        isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN,
+                        m.Code.ToString(),
+                        m.Code == filter.MinistryCode))
+                    .ToListAsync()
+                : new List<SelectListItem>();
+
+            // Built from the ministry/date scope but NOT from the project filter itself, so the
+            // dropdown still lists the alternatives once a project has been picked.
+            var projectOptionsQuery = _context.Projects.AsQueryable();
+            if (!isAdmin)
+            {
+                projectOptionsQuery = scopedMinistryCode is null
+                    ? projectOptionsQuery.Where(_ => false)
+                    : projectOptionsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
+            }
+            else if (filter.MinistryCode is int optionMinistry)
+            {
+                projectOptionsQuery = projectOptionsQuery.Where(p =>
+                    p.MinistryCode == optionMinistry || p.Ministries.Any(m => m.Code == optionMinistry));
+            }
+            if (filter.FromDate is DateTime optionFrom)
+            {
+                projectOptionsQuery = projectOptionsQuery.Where(p => p.EndDate >= optionFrom);
+            }
+            if (filter.ToDate is DateTime optionTo)
+            {
+                projectOptionsQuery = projectOptionsQuery.Where(p => p.StartDate <= optionTo);
+            }
+
+            viewModel.ProjectOptions = await projectOptionsQuery
+                .AsNoTracking()
+                .OrderBy(p => p.ProjectName)
+                .Select(p => new SelectListItem(p.ProjectName, p.ProjectID.ToString(), p.ProjectID == filter.ProjectId))
+                .ToListAsync();
+
+            return View(viewModel);
         }
 
         // Governorate Map report — Syria map with cascading Strategy/Ministry/Project filters.
