@@ -1,0 +1,618 @@
+@using MonitoringAndEvaluationPlatform.Helpers;
+@using Microsoft.AspNetCore.Razor.TagHelpers;
+@model MonitoringAndEvaluationPlatform.ViewModel.MinistryMonitoringViewModel
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer Localizer
+@using Microsoft.AspNetCore.Localization
+@using System.Globalization
+@{
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+    ViewData["HelpFeature"] = "MONITORING";
+
+    var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+}
+
+@section Styles {
+    @* Shared with the framework cards on Index; the file header explains why it lives there
+       rather than as an eighth inline copy. *@
+    <link rel="stylesheet" href="~/css/monitoring-cards.css" asp-append-version="true" />
+}
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-landmark me-3"></i>
+                @Localizer["Ministry Monitoring"]
+            </h1>
+            <p class="dashboard-subtitle">
+                @Localizer["Comprehensive ministry monitoring with real-time performance analytics and progress tracking"]
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            @await Html.PartialAsync("_HelpButton")
+        </div>
+    </div>
+</div>
+
+<!-- Quick Filters Section -->
+<div class="container-fluid">
+    <div class="quick-filters-container">
+        <div class="filters-row">
+            <!-- Search Box -->
+            <div class="filter-search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="frameworkSearch" class="form-control search-input" placeholder="@Localizer["Search ministries..."]">
+            </div>
+
+            <!-- Performance Level Filters -->
+            <div class="filter-group">
+                <label class="filter-label">@Localizer["Performance Level"]:</label>
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter active" data-filter="all">
+                        <i class="fas fa-th me-1"></i> @Localizer["All"]
+                    </button>
+                    <button type="button" class="btn btn-filter" data-filter="high">
+                        <i class="fas fa-arrow-up me-1"></i> @Localizer["High"] (&ge;80%)
+                    </button>
+                    <button type="button" class="btn btn-filter" data-filter="medium">
+                        <i class="fas fa-minus me-1"></i> @Localizer["Medium"] (60-79%)
+                    </button>
+                    <button type="button" class="btn btn-filter" data-filter="low">
+                        <i class="fas fa-arrow-down me-1"></i> @Localizer["Low"] (&lt;60%)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Sort Options -->
+            <div class="filter-group">
+                <label class="filter-label">@Localizer["Sort By"]:</label>
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter active" data-sort="name">
+                        <i class="fas fa-sort-alpha-down me-1"></i> @Localizer["Name"]
+                    </button>
+                    <button type="button" class="btn btn-filter" data-sort="performance">
+                        <i class="fas fa-chart-line me-1"></i> @Localizer["Performance"]
+                    </button>
+                    <button type="button" class="btn btn-filter" data-sort="projects">
+                        <i class="fas fa-project-diagram me-1"></i> @Localizer["Projects"]
+                    </button>
+                </div>
+            </div>
+
+            <!-- View Mode Toggle -->
+            <div class="filter-group">
+                <label class="filter-label">@Localizer["View"]:</label>
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter active" data-view="grid">
+                        <i class="fas fa-th-large me-1"></i> @Localizer["Grid"]
+                    </button>
+                    <button type="button" class="btn btn-filter" data-view="list">
+                        <i class="fas fa-list me-1"></i> @Localizer["List"]
+                    </button>
+                </div>
+            </div>
+
+            <!-- Collapse/Expand All Controls -->
+            <div class="filter-group ms-auto">
+                <div class="btn-group filter-buttons" role="group">
+                    <button type="button" class="btn btn-filter" id="expandAllBtn">
+                        <i class="fas fa-expand-alt me-1"></i> @Localizer["Expand All"]
+                    </button>
+                    <button type="button" class="btn btn-filter" id="collapseAllBtn">
+                        <i class="fas fa-compress-alt me-1"></i> @Localizer["Collapse All"]
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Count -->
+        <div class="filter-results-info">
+            <span id="resultsCount" class="results-count"></span>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    @if (!Model.Cards.Any())
+    {
+        <div class="alert alert-light border text-center py-5">
+            <i class="fas fa-landmark fa-3x mb-3 opacity-25"></i>
+            <h5 class="mb-0">@Localizer["No ministries to show"]</h5>
+        </div>
+    }
+
+    @* Container and card class names are shared with the framework cards on Index because the
+       script below scrapes them out of the DOM. Renaming one without also fixing the script throws
+       a TypeError that takes search, sort, filter and collapse down together. *@
+    <div class="frameworks-analytics-container" id="frameworksContainer">
+        @foreach (var card in Model.Cards)
+        {
+            var stats = card.Stats;
+            var name = stats.DisplayName(isArabic);
+
+            @* The figure shown here is the STRATEGY roll-up, not the stored project average: this
+               card sits directly above the framework cards, so its number has to be the mean of the
+               numbers printed on them. Null when the ministry owns no strategies — an em dash says
+               "nothing to roll up", where 0% would read as failure. *@
+            var metrics = new[]
+            {
+                new { Value = card.IndicatorsPerformance, Label = @Localizer["Indicators Performance"], Icon = "fas fa-bullseye" },
+                new { Value = card.DisbursementPerformance, Label = @Localizer["Disbursement Performance"], Icon = "fas fa-money-bill-wave" }
+            };
+
+            <div class="modern-framework-card" data-ministry-code="@stats.Code"
+                 data-performance="@card.PerformanceValue.ToString("0.##", CultureInfo.InvariantCulture)">
+                <div class="framework-card-header">
+                    <div class="framework-title-section">
+                        <h3 class="framework-title">
+                            <span class="ministry-logo">@(string.IsNullOrWhiteSpace(stats.Logo) ? "🏛️" : stats.Logo)</span>
+                            @name
+                        </h3>
+                        <div class="framework-status-badge">
+                            <i class="fas fa-sitemap me-1"></i>
+                            @Localizer["Strategies"]: @stats.StrategyCount
+                        </div>
+                    </div>
+                    <button class="framework-collapse-btn" title="@Localizer["Collapse/Expand"]">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                </div>
+
+                <div class="framework-card-body">
+                    <!-- Performance Metrics Section -->
+                    <div class="performance-metrics-grid">
+                        @foreach (var metric in metrics)
+                        {
+                            var value = metric.Value ?? 0;
+                            var performanceLevel = value >= 80 ? "excellent" : value >= 60 ? "good" : "critical";
+
+                            <div class="performance-metric-card @performanceLevel">
+                                <div class="metric-icon-container">
+                                    <i class="@metric.Icon metric-icon"></i>
+                                </div>
+                                <div class="metric-content">
+                                    @if (metric.Value.HasValue)
+                                    {
+                                        <div class="metric-value">@Math.Round(metric.Value.Value)%</div>
+                                    }
+                                    else
+                                    {
+                                        <div class="metric-value metric-value-empty"
+                                             title="@Localizer["This ministry owns no strategies"]">&mdash;</div>
+                                    }
+                                    <div class="metric-label">@metric.Label</div>
+                                    <div class="metric-progress-bar">
+                                        <div class="progress-fill" style="width: @(Math.Round(value).ToString(CultureInfo.InvariantCulture))%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Navigation Statistics -->
+                    @* Every count is computed on the same predicate its link uses, so the number on
+                       a card equals the number of rows you land on when you click it. *@
+                    <div class="framework-navigation-section">
+                        <h5 class="navigation-title">
+                            <i class="fas fa-compass me-2"></i>
+                            @Localizer["Ministry Navigation"]
+                        </h5>
+                        <div class="navigation-grid">
+                            <a asp-controller="Monitoring" asp-action="Index" asp-route-ministryCode="@stats.Code" class="nav-stat-card strategies-card">
+                                <div class="nav-stat-icon">
+                                    <i class="fas fa-sitemap"></i>
+                                </div>
+                                <div class="nav-stat-content">
+                                    <div class="nav-stat-value">@stats.StrategyCount</div>
+                                    <div class="nav-stat-label">@Localizer["Strategies"]</div>
+                                </div>
+                                <div class="nav-stat-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+
+                            <a asp-controller="Monitoring" asp-action="Outcome" asp-route-ministryCode="@stats.Code" class="nav-stat-card outcomes-card">
+                                <div class="nav-stat-icon">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <div class="nav-stat-content">
+                                    <div class="nav-stat-value">@card.OutcomeCount</div>
+                                    <div class="nav-stat-label">@Localizer["Outcomes"]</div>
+                                </div>
+                                <div class="nav-stat-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+
+                            <a asp-controller="Monitoring" asp-action="Outputs" asp-route-ministryCode="@stats.Code" class="nav-stat-card outputs-card">
+                                <div class="nav-stat-icon">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <div class="nav-stat-content">
+                                    <div class="nav-stat-value">@card.OutputCount</div>
+                                    <div class="nav-stat-label">@Localizer["Outputs"]</div>
+                                </div>
+                                <div class="nav-stat-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+
+                            <a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-ministryCode="@stats.Code" class="nav-stat-card suboutputs-card">
+                                <div class="nav-stat-icon">
+                                    <i class="fas fa-list-ul"></i>
+                                </div>
+                                <div class="nav-stat-content">
+                                    <div class="nav-stat-value">@card.SubOutputCount</div>
+                                    <div class="nav-stat-label">@Localizer["Sub-outputs"]</div>
+                                </div>
+                                <div class="nav-stat-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+
+                            <a asp-controller="Monitoring" asp-action="Indicators" asp-route-ministryCode="@stats.Code" class="nav-stat-card indicators-card">
+                                <div class="nav-stat-icon">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <div class="nav-stat-content">
+                                    <div class="nav-stat-value">@stats.IndicatorCount</div>
+                                    <div class="nav-stat-label">@Localizer["Indicators"]</div>
+                                </div>
+                                <div class="nav-stat-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+
+                            @* projects-card is load-bearing: the script reads
+                               '.projects-card .nav-stat-value' and throws if it is missing. *@
+                            <a asp-controller="Monitoring" asp-action="Projects" asp-route-ministryCode="@stats.Code" class="nav-stat-card projects-card">
+                                <div class="nav-stat-icon">
+                                    <i class="fas fa-project-diagram"></i>
+                                </div>
+                                <div class="nav-stat-content">
+                                    <div class="nav-stat-value">@stats.ProjectCount</div>
+                                    <div class="nav-stat-label">@Localizer["Projects"]</div>
+                                </div>
+                                <div class="nav-stat-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+
+                            <a asp-controller="Monitoring" asp-action="Phase" asp-route-ministryCode="@stats.Code" class="nav-stat-card phases-card">
+                                <div class="nav-stat-icon">
+                                    <i class="fas fa-layer-group"></i>
+                                </div>
+                                <div class="nav-stat-content">
+                                    <div class="nav-stat-value">@card.PhaseCount</div>
+                                    <div class="nav-stat-label">@Localizer["Project Phases"]</div>
+                                </div>
+                                <div class="nav-stat-arrow">
+                                    <i class="fas fa-chevron-right"></i>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate progress circles on load
+        const progressCircles = document.querySelectorAll('.progress-ring-circle');
+        progressCircles.forEach((circle, index) => {
+            setTimeout(() => {
+                const dashoffset = circle.style.strokeDashoffset;
+                circle.style.strokeDashoffset = '157';
+                setTimeout(() => {
+                    circle.style.strokeDashoffset = dashoffset;
+                }, 100);
+            }, index * 200);
+        });
+
+        // Animate progress bars on load
+        const progressBars = document.querySelectorAll('.progress-fill');
+        progressBars.forEach((bar, index) => {
+            const width = bar.style.width;
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 500 + (index * 100));
+        });
+
+        // Add hover effects for navigation cards
+        const navCards = document.querySelectorAll('.nav-stat-card');
+        navCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-3px) translateX(3px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) translateX(0)';
+            });
+        });
+
+        // Add ripple effect to performance metric cards
+        const metricCards = document.querySelectorAll('.performance-metric-card');
+        metricCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.height, rect.width);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.5);
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // Add CSS for ripple animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @@keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // ========== QUICK FILTERS FUNCTIONALITY ==========
+
+        const frameworksContainer = document.getElementById('frameworksContainer');
+        const allFrameworks = Array.from(document.querySelectorAll('.modern-framework-card'));
+        const searchInput = document.getElementById('frameworkSearch');
+        const resultsCount = document.getElementById('resultsCount');
+
+        // Store framework data for filtering and sorting
+        const frameworksData = allFrameworks.map(card => {
+            const performanceCard = card.querySelector('.performance-metric-card.excellent, .performance-metric-card.good, .performance-metric-card.critical');
+            const performance = parseFloat(card.dataset.performance) || 0;
+            const name = card.querySelector('.framework-title').textContent.trim();
+            const projectsCount = parseInt(card.querySelector('.projects-card .nav-stat-value').textContent) || 0;
+
+            return {
+                element: card,
+                name: name.toLowerCase(),
+                performance: performance,
+                projectsCount: projectsCount,
+                displayName: name
+            };
+        });
+
+        let currentFilter = 'all';
+        let currentSort = 'name';
+        let currentView = 'grid';
+        let searchTerm = '';
+
+        // Performance filter buttons
+        document.querySelectorAll('[data-filter]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-filter]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                applyFiltersAndSort();
+            });
+        });
+
+        // Sort buttons
+        document.querySelectorAll('[data-sort]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-sort]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentSort = this.dataset.sort;
+                applyFiltersAndSort();
+            });
+        });
+
+        // View mode buttons
+        document.querySelectorAll('[data-view]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('[data-view]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentView = this.dataset.view;
+                applyView();
+            });
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', function() {
+            searchTerm = this.value.toLowerCase();
+            applyFiltersAndSort();
+        });
+
+        function applyFiltersAndSort() {
+            // Filter frameworks
+            let filtered = frameworksData.filter(fw => {
+                // Search filter
+                const matchesSearch = searchTerm === '' || fw.name.includes(searchTerm);
+
+                // Performance filter
+                let matchesPerformance = true;
+                if (currentFilter === 'high') {
+                    matchesPerformance = fw.performance >= 80;
+                } else if (currentFilter === 'medium') {
+                    matchesPerformance = fw.performance >= 60 && fw.performance < 80;
+                } else if (currentFilter === 'low') {
+                    matchesPerformance = fw.performance < 60;
+                }
+
+                return matchesSearch && matchesPerformance;
+            });
+
+            // Sort frameworks
+            filtered.sort((a, b) => {
+                if (currentSort === 'name') {
+                    return a.name.localeCompare(b.name);
+                } else if (currentSort === 'performance') {
+                    return b.performance - a.performance; // Descending
+                } else if (currentSort === 'projects') {
+                    return b.projectsCount - a.projectsCount; // Descending
+                }
+                return 0;
+            });
+
+            // Update DOM
+            allFrameworks.forEach(card => card.classList.add('hidden'));
+
+            filtered.forEach((fw, index) => {
+                fw.element.classList.remove('hidden');
+                fw.element.style.order = index;
+            });
+
+            // Update results count
+            updateResultsCount(filtered.length, allFrameworks.length);
+        }
+
+        function applyView() {
+            if (currentView === 'list') {
+                frameworksContainer.classList.add('list-view');
+                allFrameworks.forEach(card => card.classList.add('list-view'));
+            } else {
+                frameworksContainer.classList.remove('list-view');
+                allFrameworks.forEach(card => card.classList.remove('list-view'));
+            }
+        }
+
+        function updateResultsCount(shown, total) {
+            if (shown === total) {
+                resultsCount.innerHTML = `@Localizer["Showing"] <strong>${shown}</strong> @Localizer["ministry(ies)"]`;
+            } else {
+                resultsCount.innerHTML = `@Localizer["Showing"] <strong>${shown}</strong> @Localizer["of"] <strong>${total}</strong> @Localizer["ministry(ies)"]`;
+            }
+        }
+
+        // Initial count
+        updateResultsCount(allFrameworks.length, allFrameworks.length);
+
+        // ========== FRAMEWORK CARD COLLAPSE/EXPAND FUNCTIONALITY ==========
+
+        // Get all collapse buttons
+        const collapseButtons = document.querySelectorAll('.framework-collapse-btn');
+
+        // Load saved collapse states from localStorage
+        const loadCollapseStates = () => {
+            try {
+                const savedStates = localStorage.getItem('ministryCollapseStates');
+                if (savedStates) {
+                    const states = JSON.parse(savedStates);
+                    Object.keys(states).forEach(ministryCode => {
+                        if (states[ministryCode] === true) {
+                            const card = document.querySelector(`[data-ministry-code="${ministryCode}"]`);
+                            if (card) {
+                                card.classList.add('collapsed');
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading collapse states:', error);
+            }
+        };
+
+        // Save collapse states to localStorage
+        const saveCollapseStates = () => {
+            try {
+                const states = {};
+                allFrameworks.forEach(card => {
+                    const ministryCode = card.getAttribute('data-ministry-code');
+                    if (ministryCode) {
+                        states[ministryCode] = card.classList.contains('collapsed');
+                    }
+                });
+                localStorage.setItem('ministryCollapseStates', JSON.stringify(states));
+            } catch (error) {
+                console.error('Error saving collapse states:', error);
+            }
+        };
+
+        // Add click event to each collapse button
+        collapseButtons.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const card = this.closest('.modern-framework-card');
+                card.classList.toggle('collapsed');
+
+                // Save state to localStorage
+                saveCollapseStates();
+
+                // Add ripple effect
+                const ripple = document.createElement('span');
+                ripple.style.cssText = `
+                    position: absolute;
+                    border-radius: 50%;
+                    background: rgba(255,255,255,0.6);
+                    width: 20px;
+                    height: 20px;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    animation: ripple 0.6s ease-out;
+                    pointer-events: none;
+                `;
+                this.style.position = 'relative';
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Load saved states on page load
+        loadCollapseStates();
+
+        // ========== EXPAND ALL / COLLAPSE ALL FUNCTIONALITY ==========
+
+        const expandAllBtn = document.getElementById('expandAllBtn');
+        const collapseAllBtn = document.getElementById('collapseAllBtn');
+
+        // Expand All button
+        expandAllBtn.addEventListener('click', function() {
+            allFrameworks.forEach(card => {
+                card.classList.remove('collapsed');
+            });
+            saveCollapseStates();
+
+            // Visual feedback
+            this.classList.add('active');
+            setTimeout(() => this.classList.remove('active'), 300);
+        });
+
+        // Collapse All button
+        collapseAllBtn.addEventListener('click', function() {
+            allFrameworks.forEach(card => {
+                card.classList.add('collapsed');
+            });
+            saveCollapseStates();
+
+            // Visual feedback
+            this.classList.add('active');
+            setTimeout(() => this.classList.remove('active'), 300);
+        });
+    });
+
+</script>
+
+@await Html.PartialAsync("_HelpModal")

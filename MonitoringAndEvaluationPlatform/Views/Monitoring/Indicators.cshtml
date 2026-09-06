@@ -5,6 +5,12 @@
 @using Microsoft.AspNetCore.Localization
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Indicator>
 @{
+    // Forwarded to every Monitoring link below so a drill-down that started at a ministry
+    // keeps narrowing instead of widening back out at the next hop.
+    var ministryCode = ViewData["MinistryCode"] as int?;
+}
+
+@{
     ViewData["Title"] = "Indicators Monitoring";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
@@ -90,7 +96,7 @@
                         @Localizer["Indicator Navigation"]
                     </h5>
                     <div class="navigation-grid">
-                        <a asp-controller="Monitoring" asp-action="Projects" asp-route-indicatorCode="@item.IndicatorCode" class="nav-stat-card projects-card">
+                        <a asp-controller="Monitoring" asp-action="Projects" asp-route-ministryCode="@ministryCode" asp-route-indicatorCode="@item.IndicatorCode" class="nav-stat-card projects-card">
                             <div class="nav-stat-icon">
                                 <i class="fas fa-project-diagram"></i>
                             </div>
@@ -103,7 +109,7 @@
                             </div>
                         </a>
 
-                        <a asp-controller="Monitoring" asp-action="Phase" asp-route-indicatorCode="@item.IndicatorCode" class="nav-stat-card phases-card">
+                        <a asp-controller="Monitoring" asp-action="Phase" asp-route-ministryCode="@ministryCode" asp-route-indicatorCode="@item.IndicatorCode" class="nav-stat-card phases-card">
                             <div class="nav-stat-icon">
                                 <i class="fas fa-layer-group"></i>
                             </div>

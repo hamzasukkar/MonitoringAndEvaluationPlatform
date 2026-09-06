@@ -5,6 +5,12 @@
 @using Microsoft.AspNetCore.Localization
 @model IEnumerable<MonitoringAndEvaluationPlatform.Models.Outcome>
 @{
+    // Forwarded to every Monitoring link below so a drill-down that started at a ministry
+    // keeps narrowing instead of widening back out at the next hop.
+    var ministryCode = ViewData["MinistryCode"] as int?;
+}
+
+@{
 	Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
@@ -109,7 +115,7 @@
                             @Localizer["Navigate Components"]
                         </h5>
                         <div class="outcome-nav-grid">
-                            <a asp-controller="Monitoring" asp-action="Outputs" asp-route-outcomeCode="@item.Code" class="outcome-nav-card outputs">
+                            <a asp-controller="Monitoring" asp-action="Outputs" asp-route-ministryCode="@ministryCode" asp-route-outcomeCode="@item.Code" class="outcome-nav-card outputs">
                                 <div class="nav-card-content">
                                     <div class="nav-card-icon">
                                         <i class="fas fa-layer-group"></i>
@@ -125,7 +131,7 @@
                                 </div>
                             </a>
 
-                            <a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-outcomeCode="@item.Code" class="outcome-nav-card suboutputs">
+                            <a asp-controller="Monitoring" asp-action="SubOutputs" asp-route-ministryCode="@ministryCode" asp-route-outcomeCode="@item.Code" class="outcome-nav-card suboutputs">
                                 <div class="nav-card-content">
                                     <div class="nav-card-icon">
                                         <i class="fas fa-list-ul"></i>
@@ -141,7 +147,7 @@
                                 </div>
                             </a>
 
-                            <a asp-controller="Monitoring" asp-action="Indicators" asp-route-outcomeCode="@item.Code" class="outcome-nav-card indicators">
+                            <a asp-controller="Monitoring" asp-action="Indicators" asp-route-ministryCode="@ministryCode" asp-route-outcomeCode="@item.Code" class="outcome-nav-card indicators">
                                 <div class="nav-card-content">
                                     <div class="nav-card-icon">
                                         <i class="fas fa-chart-bar"></i>
@@ -157,7 +163,7 @@
                                 </div>
                             </a>
 
-                            <a asp-controller="Monitoring" asp-action="Projects" asp-route-outcomeCode="@item.Code" class="outcome-nav-card projects">
+                            <a asp-controller="Monitoring" asp-action="Projects" asp-route-ministryCode="@ministryCode" asp-route-outcomeCode="@item.Code" class="outcome-nav-card projects">
                                 <div class="nav-card-content">
                                     <div class="nav-card-icon">
                                         <i class="fas fa-project-diagram"></i>
@@ -173,7 +179,7 @@
                                 </div>
                             </a>
 
-                            <a asp-controller="Monitoring" asp-action="Phase" asp-route-outcomeCode="@item.Code" class="outcome-nav-card phases">
+                            <a asp-controller="Monitoring" asp-action="Phase" asp-route-ministryCode="@ministryCode" asp-route-outcomeCode="@item.Code" class="outcome-nav-card phases">
                                 <div class="nav-card-content">
                                     <div class="nav-card-icon">
                                         <i class="fas fa-layer-group"></i>
