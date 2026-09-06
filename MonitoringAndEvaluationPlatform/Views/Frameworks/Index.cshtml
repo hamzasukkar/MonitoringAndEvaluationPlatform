@@ -375,6 +375,14 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
+                                    @* stopPropagation: the row itself navigates to the strategy
+                                       list, so without it both navigations fire and race. *@
+                                    <a href="@Url.Action("Index2", "Tree", new { SelectedMinistries = group.Ministry.Code })"
+                                       class="btn btn-outline-success btn-sm action-btn me-2"
+                                       onclick="event.stopPropagation();"
+                                       title="@Localizer["Strategy Tree"]">
+                                        <i class="fas fa-sitemap"></i>
+                                    </a>
                                     <i class="fas @(isArabic ? "fa-chevron-left" : "fa-chevron-right") text-muted"></i>
                                 </td>
                             </tr>

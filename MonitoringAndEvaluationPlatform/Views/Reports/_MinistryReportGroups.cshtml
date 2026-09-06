@@ -1,0 +1,257 @@
+@model List<MonitoringAndEvaluationPlatform.ViewModel.MinistryReportGroup>
+@using MonitoringAndEvaluationPlatform.ViewModel
+@using MonitoringAndEvaluationPlatform.Services
+@using Microsoft.AspNetCore.Localization
+@using System.Globalization
+
+@{
+    var culture = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>()?.RequestCulture?.Culture?.Name ?? "ar";
+    var isRtl = culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+    var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+    var prefix = ViewData["IdPrefix"] as string ?? "ministry";
+
+    string RateColor(double rate) => rate >= 80 ? "success"
+                                   : rate >= 60 ? "info"
+                                   : rate >= 40 ? "warning" : "danger";
+
+    // A null roll-up means the ministry owns no strategies, and a null impact rate means it has
+    // no impact outputs. Both are genuinely different from 0%, which reads as failure.
+    string Pct(double? value) => value.HasValue ? $"{value.Value:0.##}%" : "—";
+
+    string Money(double? value) => value.HasValue
+        ? value.Value.ToString("N0", CultureInfo.InvariantCulture)
+        : "—";
+}
+
+@if (Model.Count == 0)
+{
+    <div class="text-center text-muted py-5">
+        <i class="fas fa-landmark fa-3x mb-3 opacity-25"></i>
+        <div>@(isRtl ? "لا توجد بيانات مطابقة للفلاتر المحددة" : "No data matches the selected filters")</div>
+    </div>
+}
+else
+{
+    <div class="accordion ministry-accordion" id="@(prefix)Accordion">
+        @foreach (var group in Model)
+        {
+            var stats = group.Stats;
+            var groupId = $"{prefix}-{stats.Code}";
+            var name = stats.DisplayName(isArabic);
+            var color = RateColor(stats.ProjectAverageIndicators);
+
+            <div class="accordion-item ministry-group border-0 mb-2 shadow-sm" data-ministry="@name">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed py-3" type="button"
+                            data-bs-toggle="collapse" data-bs-target="#body-@groupId"
+                            aria-expanded="false" aria-controls="body-@groupId">
+                        <div class="d-flex align-items-center gap-3 flex-wrap w-100 pe-3">
+                            <span class="badge bg-@color bg-opacity-10 text-@color border border-@color fs-6 px-3 py-2">
+                                <span class="me-1">@(string.IsNullOrWhiteSpace(stats.Logo) ? "🏛️" : stats.Logo)</span>
+                                @name
+                            </span>
+
+                            <span class="text-muted small">
+                                <i class="fas fa-sitemap me-1"></i>
+                                @stats.StrategyCount @(isRtl ? "هدف استراتيجي" : "strategies")
+                                <span class="mx-1">·</span>
+                                <i class="fas fa-folder-open me-1"></i>
+                                @stats.ProjectCount @(isRtl ? "مشروع" : "projects")
+                            </span>
+
+                            <span class="text-muted small">
+                                <i class="fas fa-coins me-1"></i>
+                                @await Html.PartialAsync("_SypTotal", stats.Budget)
+                            </span>
+
+                            <div class="ms-auto d-flex align-items-center gap-3 flex-wrap">
+                                @* The two performance definitions, side by side and labelled.
+                                   They measure different things and legitimately differ. *@
+                                <span class="text-center">
+                                    <div class="small text-muted">@(isRtl ? "متوسط المشاريع" : "Project average")</div>
+                                    <div class="fw-bold text-@color">@Pct(stats.ProjectAverageIndicators)</div>
+                                </span>
+                                <span class="text-center">
+                                    <div class="small text-muted">@(isRtl ? "تجميع الأهداف" : "Strategy roll-up")</div>
+                                    <div class="fw-bold">@Pct(stats.StrategyRollupIndicators)</div>
+                                </span>
+                            </div>
+                        </div>
+                    </button>
+                </h2>
+
+                <div id="body-@groupId" class="accordion-collapse collapse" data-bs-parent="#@(prefix)Accordion">
+                    <div class="accordion-body pt-2">
+
+                        <!-- ── The four metric groups ── -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body py-3">
+                                        <div class="metric-group-title">@(isRtl ? "الأداء" : "Performance")</div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span class="text-muted">@(isRtl ? "متوسط المشاريع" : "Project average")</span>
+                                            <span class="fw-bold">@Pct(stats.ProjectAverageIndicators)</span>
+                                        </div>
+                                        <div class="progress my-1" style="height:8px;">
+                                            <div class="progress-bar bg-@RateColor(stats.ProjectAverageIndicators)"
+                                                 style="width:@(Math.Min(stats.ProjectAverageIndicators, 100))%"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span class="text-muted">@(isRtl ? "تجميع الأهداف الاستراتيجية" : "Strategy roll-up")</span>
+                                            <span class="fw-bold">@Pct(stats.StrategyRollupIndicators)</span>
+                                        </div>
+                                        @if (stats.StrategyRollupIndicators.HasValue)
+                                        {
+                                            <div class="progress my-1" style="height:8px;">
+                                                <div class="progress-bar bg-@RateColor(stats.StrategyRollupIndicators.Value)"
+                                                     style="width:@(Math.Min(stats.StrategyRollupIndicators.Value, 100))%"></div>
+                                            </div>
+                                        }
+                                        <div class="d-flex justify-content-between small mt-2">
+                                            <span class="text-muted">@(isRtl ? "الإنفاق" : "Disbursement")</span>
+                                            <span class="fw-bold">@Pct(stats.ProjectAverageDisbursement)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body py-3">
+                                        <div class="metric-group-title">@(isRtl ? "المالية" : "Financial")</div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">@(isRtl ? "الموازنة" : "Budget")</span>
+                                            <span class="fw-bold">@await Html.PartialAsync("_SypTotal", stats.Budget)</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">@(isRtl ? "المنصرف" : "Disbursed")</span>
+                                            <span class="fw-bold">@await Html.PartialAsync("_SypTotal", stats.Disbursed)</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span class="text-muted">@(isRtl ? "نسبة الإنفاق" : "Spend rate")</span>
+                                            <span class="fw-bold">@Pct(stats.SpendRate)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body py-3">
+                                        <div class="metric-group-title">@(isRtl ? "الأعداد" : "Counts")</div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">@(isRtl ? "الأهداف الاستراتيجية" : "Strategies")</span>
+                                            <span class="fw-bold">@stats.StrategyCount</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">@(isRtl ? "المؤشرات" : "Indicators")</span>
+                                            <span class="fw-bold">@stats.IndicatorCount</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">@(isRtl ? "المشاريع" : "Projects")</span>
+                                            <span class="fw-bold">@stats.ProjectCount</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span class="text-muted">@(isRtl ? "قيد التنفيذ / منجزة" : "Active / completed")</span>
+                                            <span class="fw-bold">@stats.ActiveProjectCount / @stats.CompletedProjectCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-xl-3 col-md-6">
+                                <div class="card border-0 bg-light h-100">
+                                    <div class="card-body py-3">
+                                        <div class="metric-group-title">@(isRtl ? "الأثر التنموي" : "Development impact")</div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">@(isRtl ? "تحقيق الأثر" : "Impact achievement")</span>
+                                            <span class="fw-bold">@Pct(stats.ImpactWeightedAchievement)</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small mb-1">
+                                            <span class="text-muted">@(isRtl ? "مخرجات الأثر" : "Impact outputs")</span>
+                                            <span class="fw-bold">@stats.ImpactOutputCount</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span class="text-muted">@(isRtl ? "مؤشرات الأثر" : "Impact indicators")</span>
+                                            <span class="fw-bold">@stats.ImpactIndicatorCount</span>
+                                        </div>
+                                        <div class="text-muted mt-2" style="font-size:.72rem;">
+                                            @(isRtl
+                                                ? "مسار مستقل لا يغذّي أرقام الأداء أعلاه."
+                                                : "A parallel track — it feeds none of the performance figures above.")
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (stats.LinkageMismatchCount > 0)
+                        {
+                            <div class="alert alert-warning small d-flex align-items-start gap-2 py-2">
+                                <i class="fas fa-triangle-exclamation mt-1"></i>
+                                <span>
+                                    @(isRtl
+                                        ? $"{stats.LinkageMismatchCount} مشروع مرتبط بهذه الوزارة من جهة واحدة فقط (حقل الوزارة أو جدول الربط)، وهو ما قد يجعل هذه الأرقام تختلف عن صفحات أخرى."
+                                        : $"{stats.LinkageMismatchCount} project(s) are attached to this ministry by only one of the two links (the ministry field or the join table), which can make these figures differ from other pages.")
+                                </span>
+                            </div>
+                        }
+
+                        <!-- ── Projects behind the numbers ── -->
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>@(isRtl ? "المشروع" : "Project")</th>
+                                        <th>@(isRtl ? "القطاع" : "Sector")</th>
+                                        <th class="text-end">@(isRtl ? "الموازنة (ل.س)" : "Budget (SYP)")</th>
+                                        <th class="text-end">@(isRtl ? "المنصرف (ل.س)" : "Disbursed (SYP)")</th>
+                                        <th class="text-end">@(isRtl ? "نسبة الإنفاق" : "Spend rate")</th>
+                                        <th class="text-end">@(isRtl ? "الأداء" : "Performance")</th>
+                                        <th>@(isRtl ? "من" : "Start")</th>
+                                        <th>@(isRtl ? "إلى" : "End")</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var row in group.Rows)
+                                    {
+                                        <tr class="ministry-row">
+                                            <td>
+                                                <a asp-controller="Projects" asp-action="Details" asp-route-id="@row.ProjectId"
+                                                   class="text-decoration-none">@row.ProjectName</a>
+                                                @if (row.LinkageMismatch)
+                                                {
+                                                    <i class="fas fa-triangle-exclamation text-warning ms-1"
+                                                       title="@(isRtl ? "مرتبط من جهة واحدة فقط" : "Attached by only one of the two ministry links")"></i>
+                                                }
+                                            </td>
+                                            <td class="text-muted small">@row.SectorName</td>
+                                            <td class="text-end">@Money(row.BudgetSyp)</td>
+                                            <td class="text-end">@Money(row.DisbursedSyp)</td>
+                                            <td class="text-end">@(row.BudgetSyp is > 0 ? $"{row.SpendRate:0.#}%" : "—")</td>
+                                            <td class="text-end">
+                                                <span class="badge bg-@RateColor(row.Performance) bg-opacity-10 text-@RateColor(row.Performance)">
+                                                    @row.Performance.ToString("0.##")%
+                                                </span>
+                                            </td>
+                                            <td class="small text-muted">@row.StartDate.ToString("yyyy-MM-dd")</td>
+                                            <td class="small text-muted">
+                                                @row.EndDate.ToString("yyyy-MM-dd")
+                                                @if (row.IsCompleted)
+                                                {
+                                                    <span class="badge bg-secondary ms-1">@(isRtl ? "منجز" : "done")</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

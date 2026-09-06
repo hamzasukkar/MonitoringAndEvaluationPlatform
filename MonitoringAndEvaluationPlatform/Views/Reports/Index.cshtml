@@ -34,6 +34,12 @@
                     New
                 </span>
             </a>
+            <a asp-action="MinistryReport" class="btn btn-outline-primary position-relative">
+                <i class="fas fa-landmark me-2"></i>@(isRtl ? "تقرير الوزارات" : "Ministry Report")
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.65rem">
+                    New
+                </span>
+            </a>
             <a asp-action="UnitsReport" class="btn btn-outline-info position-relative">
                 <i class="fas fa-ruler-combined me-2"></i>@(isRtl ? "تقرير وحدات القياس" : "Units Report")
                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.65rem">
@@ -67,6 +73,22 @@
         <h6 class="text-muted fw-bold mb-2">
             <i class="fas fa-folder-open me-2"></i>@(isRtl ? "التقارير التخصصية" : "Specialized Reports")
         </h6>
+    </div>
+    <div class="col-lg-3 col-md-6">
+        <a asp-action="MinistryReport" class="text-decoration-none">
+            <div class="card border-0 shadow-sm h-100 position-relative overflow-hidden" style="border-right:4px solid #667eea !important; transition:transform .2s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+                <span class="position-absolute top-0 end-0 badge bg-danger m-2" style="font-size:.65rem">New</span>
+                <div class="card-body d-flex align-items-center gap-3 py-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-primary bg-opacity-15 text-primary" style="width:48px;height:48px;flex-shrink:0">
+                        <i class="fas fa-landmark fs-5"></i>
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">@(isRtl ? "تقرير الوزارات" : "Ministry Report")</div>
+                        <div class="text-muted small">@(isRtl ? "بطاقة أداء لكل وزارة: الأداء والمالية والأثر" : "A scorecard per ministry: performance, money, impact")</div>
+                    </div>
+                </div>
+            </div>
+        </a>
     </div>
     <div class="col-lg-3 col-md-6">
         <a asp-action="FinancialAnalysis" class="text-decoration-none">

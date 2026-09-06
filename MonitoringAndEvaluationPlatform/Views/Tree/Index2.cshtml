@@ -28,7 +28,18 @@
                 @Localizer["Framework Hierarchy Tree"]
             </h1>
             <p class="dashboard-subtitle">
-                @Localizer["Visual representation of the complete framework hierarchy with performance metrics"]
+                @if (ViewData["TreeSubject"] is string treeSubject && !string.IsNullOrEmpty(treeSubject))
+                {
+                    @* Ministry mode: name the ministry whose strategies are on screen. *@
+                    <i class="fas fa-landmark me-1"></i>
+                    <strong>@treeSubject</strong>
+                    <span class="mx-1">—</span>
+                    @Localizer["All strategies of this ministry with performance metrics"]
+                }
+                else
+                {
+                    @Localizer["Visual representation of the complete framework hierarchy with performance metrics"]
+                }
             </p>
         </div>
         <div class="tree-controls">
@@ -82,6 +93,14 @@
 <!-- Node Count Statistics Bar -->
 <div class="stats-strip mb-4" id="statsStrip" style="display:none;">
     <div class="stats-strip-inner">
+        @if (ViewData["TreeSubject"] is string)
+        {
+            <span class="stats-item">
+                <span class="stats-dot" style="background:#6f42c1;"></span>
+                <span id="statFrameworks">0</span> @Localizer["Strategies"]
+            </span>
+            <span class="stats-sep">·</span>
+        }
         <span class="stats-item">
             <span class="stats-dot" style="background:#dc3545;"></span>
             <span id="statOutcomes">0</span> @Localizer["Outcomes"]
@@ -200,6 +219,13 @@
             <i class="fas fa-layer-group me-1"></i>
             @Localizer["Show Levels"]
         </span>
+        @* Only worth filtering in ministry mode, where the root has many strategies. *@
+        @if (ViewData["TreeSubject"] is string)
+        {
+            <button class="btn btn-sm type-filter-btn active" data-ntype="Framework" style="--type-color:#6f42c1;">
+                <span class="type-filter-dot"></span>@Localizer["Framework"]
+            </button>
+        }
         <button class="btn btn-sm type-filter-btn active" data-ntype="Outcome" style="--type-color:#dc3545;">
             <span class="type-filter-dot"></span>@Localizer["Outcome"]
         </button>
@@ -1542,7 +1568,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const frameworkCode = @ViewData["FrameworkCode"];
+    // Two modes: a single strategy (frameworkCode set) or a whole ministry
+    // (ministryCodes non-empty). Emitted null-safe — an unguarded null here would be a
+    // bare `const x = ;` and would take down every control on the page.
+    const frameworkCode = @(ViewData["FrameworkCode"] ?? "null");
+    const ministryCodes = @Html.Raw(ViewData["MinistryCodesJson"] ?? "[]");
     const expandAllBtn = document.getElementById('expandAll');
     const collapseAllBtn = document.getElementById('collapseAll');
     const exportBtn = document.getElementById('exportChart');
@@ -1603,6 +1633,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function getNodeUrl(node) {
         const code = parseInt(node.id.replace(/\D/g, ''));
         switch (node.type) {
+            case 'Ministry':   return `/Frameworks?SelectedMinistries=${code}`;
             case 'Framework':  return `/Outcomes?frameworkCode=${code}`;
             case 'Outcome':    return `/Outputs?outcomeCode=${code}`;
             case 'Output':     return `/SubOutputs?outputCode=${code}`;
@@ -1666,8 +1697,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return out;
     }
 
+    // Repeated SelectedMinistries keys bind straight to List<int> on the action.
+    function hierarchyUrl(includePhases) {
+        const p = new URLSearchParams();
+        if (frameworkCode !== null) p.append('id', frameworkCode);
+        ministryCodes.forEach(c => p.append('SelectedMinistries', c));
+        p.append('includePhases', includePhases);
+        return `/Tree/GetFrameworkHierarchy?${p}`;
+    }
+
     function loadHierarchyData(includePhases) {
-        fetch(`/Tree/GetFrameworkHierarchy/${frameworkCode}?includePhases=${includePhases}`)
+        fetch(hierarchyUrl(includePhases))
             .then(response => {
                 if (!response.ok) throw new Error('Network response was not ok');
                 return response.json();
@@ -2461,8 +2501,9 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (nodeDiv.classList.contains('suboutput')) type = 'SubOutput';
             else if (nodeDiv.classList.contains('indicator')) type = 'Indicator';
             else if (nodeDiv.classList.contains('phase'))     type = 'Phase';
+            else if (nodeDiv.classList.contains('framework')) type = 'Framework';
 
-            if (!type) return; // Framework — never filtered
+            if (!type) return; // Ministry root — never filtered
 
             container.classList.toggle('type-hidden', hiddenTypes.has(type));
         });
@@ -2852,8 +2893,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 b.classList.toggle('active', b.dataset.tmode === thresholdMode));
         }
         if (Array.isArray(p.hiddenTypes)) {
+            // Prefs are shared by both modes, but the Framework toggle only exists in
+            // ministry mode. Restoring a hidden type with no button on this page would
+            // leave those nodes hidden with no way to bring them back — so ignore it.
+            const toggleable = new Set(
+                Array.from(document.querySelectorAll('.type-filter-btn')).map(b => b.dataset.ntype));
             hiddenTypes.clear();
-            p.hiddenTypes.forEach(t => hiddenTypes.add(t));
+            p.hiddenTypes.filter(t => toggleable.has(t)).forEach(t => hiddenTypes.add(t));
             document.querySelectorAll('.type-filter-btn').forEach(b =>
                 b.classList.toggle('active', !hiddenTypes.has(b.dataset.ntype)));
         }
@@ -2887,8 +2933,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // ────────────────────────────────────────────────────────────────────────
 
     function updateStatsStrip(flatData) {
-        const counts = { Outcome: 0, Output: 0, SubOutput: 0, Indicator: 0 };
+        const counts = { Framework: 0, Outcome: 0, Output: 0, SubOutput: 0, Indicator: 0 };
         flatData.forEach(n => { if (counts[n.type] !== undefined) counts[n.type]++; });
+        // Only rendered in ministry mode.
+        const statFrameworks = document.getElementById('statFrameworks');
+        if (statFrameworks) statFrameworks.textContent = counts.Framework;
         document.getElementById('statOutcomes').textContent   = counts.Outcome;
         document.getElementById('statOutputs').textContent    = counts.Output;
         document.getElementById('statSubOutputs').textContent = counts.SubOutput;

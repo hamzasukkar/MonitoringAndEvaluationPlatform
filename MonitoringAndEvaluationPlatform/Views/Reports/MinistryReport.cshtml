@@ -1,0 +1,334 @@
+@model MonitoringAndEvaluationPlatform.ViewModel.MinistryReportViewModel
+@using MonitoringAndEvaluationPlatform.ViewModel
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@using System.Globalization
+
+@{
+    var requestCultureFeature = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>();
+    var culture = requestCultureFeature?.RequestCulture?.Culture?.Name ?? "ar";
+    var isRtl = culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+    var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+    ViewData["Title"] = isRtl ? "تقرير الوزارات" : "Ministry Report";
+    Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
+
+    var showMinistryFilter = Model.MinistryOptions.Count > 0;
+    string DateValue(DateTime? d) => d?.ToString("yyyy-MM-dd") ?? "";
+}
+
+@section Styles {
+    <style>
+        .stat-card { border-radius: 12px; transition: transform .2s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .ministry-accordion .accordion-item { border-radius: 10px !important; overflow: hidden; }
+        .ministry-accordion .accordion-button { background: #fff; }
+        .ministry-accordion .accordion-button:not(.collapsed) { background: #f8f9fa; box-shadow: none; }
+        .ministry-accordion .accordion-button:focus { box-shadow: none; }
+        .filter-bar { border-radius: 12px; }
+        .ministry-group.d-none { display: none !important; }
+        .metric-group-title {
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .04em;
+            color: #8a94a6;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+        @@media print {
+            .no-print, .accordion-button::after { display: none !important; }
+            .accordion-collapse { display: block !important; }
+        }
+    </style>
+}
+
+<!-- Header -->
+<div class="dashboard-header">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h1 class="dashboard-title">
+                <i class="fas fa-landmark me-3"></i>
+                @(isRtl ? "تقرير الوزارات" : "Ministry Report")
+            </h1>
+            <p class="dashboard-subtitle">
+                @(isRtl
+                    ? "بطاقة أداء لكل وزارة: الأداء والمالية والأعداد والأثر التنموي"
+                    : "A scorecard per ministry: performance, financials, counts and development impact")
+            </p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap no-print">
+            <a asp-action="ExportMinistryReportExcel"
+               asp-route-ministryCode="@Model.Filter.MinistryCode"
+               asp-route-fromDate="@DateValue(Model.Filter.FromDate)"
+               asp-route-toDate="@DateValue(Model.Filter.ToDate)"
+               class="btn btn-success" title="@(isRtl ? "تصدير إلى Excel" : "Export to Excel")">
+                <i class="fas fa-file-excel me-2"></i>Excel
+            </a>
+            <a asp-action="ExportMinistryReportPdf"
+               asp-route-ministryCode="@Model.Filter.MinistryCode"
+               asp-route-fromDate="@DateValue(Model.Filter.FromDate)"
+               asp-route-toDate="@DateValue(Model.Filter.ToDate)"
+               class="btn btn-danger" title="@(isRtl ? "تصدير إلى PDF" : "Export to PDF")">
+                <i class="fas fa-file-pdf me-2"></i>PDF
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-secondary">
+                <i class="fas fa-print me-2"></i>@(isRtl ? "طباعة" : "Print")
+            </button>
+            <a asp-action="Index" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>@(isRtl ? "العودة للتقارير" : "Back to Reports")
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid pb-4">
+
+    <!-- ── Filters ── -->
+    <form method="get" asp-action="MinistryReport" class="card border-0 shadow-sm filter-bar mb-4 no-print">
+        <div class="card-body">
+            <div class="row g-3 align-items-end">
+                @if (showMinistryFilter)
+                {
+                    <div class="col-lg-4 col-md-6">
+                        <label class="form-label small fw-semibold mb-1">
+                            <i class="fas fa-landmark me-1 text-muted"></i>@(isRtl ? "الوزارة" : "Ministry")
+                        </label>
+                        <select name="ministryCode" class="form-select form-select-sm">
+                            <option value="">@(isRtl ? "كل الوزارات" : "All ministries")</option>
+                            @foreach (var opt in Model.MinistryOptions)
+                            {
+                                <option value="@opt.Value" selected="@opt.Selected">@opt.Text</option>
+                            }
+                        </select>
+                    </div>
+                }
+
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <label class="form-label small fw-semibold mb-1">
+                        <i class="fas fa-calendar-day me-1 text-muted"></i>@(isRtl ? "من تاريخ" : "From date")
+                    </label>
+                    <input type="date" name="fromDate" class="form-control form-control-sm" value="@DateValue(Model.Filter.FromDate)" />
+                </div>
+
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <label class="form-label small fw-semibold mb-1">
+                        <i class="fas fa-calendar-day me-1 text-muted"></i>@(isRtl ? "إلى تاريخ" : "To date")
+                    </label>
+                    <input type="date" name="toDate" class="form-control form-control-sm" value="@DateValue(Model.Filter.ToDate)" />
+                </div>
+
+                <div class="col-lg-2 col-md-4 col-sm-6 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                    @if (Model.Filter.IsActive)
+                    {
+                        <a asp-action="MinistryReport" class="btn btn-outline-secondary btn-sm"
+                           title="@(isRtl ? "مسح الفلاتر" : "Clear filters")">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+            <div class="text-muted small mt-2">
+                <i class="fas fa-info-circle me-1"></i>
+                @(isRtl
+                    ? "نطاق التواريخ يشمل كل مشروع كان قائماً خلال الفترة المحددة. الأهداف الاستراتيجية ومؤشرات الأثر لا تحمل تواريخ خاصة بها، لذلك لا يطبَّق عليها الفلتر."
+                    : "The date range includes every project running at any point in the period. Strategies and impact indicators carry no dates of their own, so the filter does not apply to them.")
+            </div>
+        </div>
+    </form>
+
+    <!-- ── Summary Cards ── -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-primary text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-landmark fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@Model.MinistryCount</div>
+                    <div class="small opacity-75">@(isRtl ? "وزارات" : "Ministries")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-info text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-folder-open fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@Model.ProjectCount</div>
+                    <div class="small opacity-75">
+                        @(isRtl
+                            ? $"مشروع · {Model.StrategyCount} هدف استراتيجي"
+                            : $"projects · {Model.StrategyCount} strategies")
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card stat-card shadow-sm h-100 border-0 bg-secondary text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-coins fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-4 fw-bold">@await Html.PartialAsync("_SypTotal", Model.TotalBudget)</div>
+                    <div class="small opacity-75">@(isRtl ? "إجمالي الموازنات" : "Total budget")</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            @{
+                var avg = Model.AverageProjectPerformance;
+                var avgColor = avg >= 80 ? "success" : avg >= 60 ? "info" : avg >= 40 ? "warning" : "danger";
+            }
+            <div class="card stat-card shadow-sm h-100 border-0 bg-@avgColor text-white">
+                <div class="card-body text-center py-4">
+                    <i class="fas fa-percentage fa-2x mb-2 opacity-75"></i>
+                    <div class="fs-1 fw-bold">@avg%</div>
+                    <div class="small opacity-75">
+                        @(isRtl ? "متوسط المشاريع" : "Project average")
+                        <span class="mx-1">·</span>
+                        @(Model.AverageStrategyPerformance.HasValue
+                            ? $"{Model.AverageStrategyPerformance.Value:0.#}% {(isRtl ? "تجميع الأهداف" : "strategy roll-up")}"
+                            : (isRtl ? "لا أهداف" : "no strategies"))
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (!Model.HasAnyData)
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center text-muted py-5">
+                <i class="fas fa-landmark fa-3x mb-3 opacity-25"></i>
+                <h5>@(isRtl ? "لا توجد بيانات" : "No data")</h5>
+                <p class="mb-0">
+                    @(isRtl
+                        ? "لم يُعثر على وزارات مطابقة للفلاتر المحددة."
+                        : "No ministries match the selected filters.")
+                </p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- ── The two performance definitions, compared ── -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white border-0 pt-3 pb-0">
+                <h6 class="fw-bold mb-0">
+                    <i class="fas fa-chart-bar me-2 text-primary"></i>
+                    @(isRtl ? "الأداء حسب الوزارة" : "Performance by ministry")
+                </h6>
+                <div class="text-muted small mt-1">
+                    @(isRtl
+                        ? "رقمان مختلفان عن قصد: متوسط أداء مشاريع الوزارة، مقابل متوسط أداء الأهداف الاستراتيجية التي تملكها. يختلفان عندما تملك الوزارة أهدافاً تقيس مشاريع وزارات أخرى، أو مشاريع لا يغطيها أي هدف لها."
+                        : "Two deliberately different numbers: the average performance of the ministry's projects, against the average of the strategies it owns. They diverge when a ministry owns strategies measuring other ministries' projects, or projects no strategy of theirs covers.")
+                </div>
+            </div>
+            <div class="card-body">
+                <canvas id="ministryPerformanceChart" height="110"></canvas>
+            </div>
+        </div>
+
+        @if (Model.MinistriesWithLinkageMismatch > 0)
+        {
+            <div class="alert alert-warning small d-flex align-items-start gap-2">
+                <i class="fas fa-triangle-exclamation mt-1"></i>
+                <span>
+                    @(isRtl
+                        ? $"{Model.MinistriesWithLinkageMismatch} وزارة لديها مشاريع مرتبطة من جهة واحدة فقط. التفاصيل داخل كل وزارة."
+                        : $"{Model.MinistriesWithLinkageMismatch} ministry/ministries have projects attached by only one of the two ministry links. Details inside each ministry.")
+                </span>
+            </div>
+        }
+
+        <!-- ── Per-ministry detail ── -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h6 class="fw-bold mb-0">
+                    <i class="fas fa-list me-2 text-primary"></i>
+                    @(isRtl ? "التفاصيل حسب الوزارة" : "Detail by ministry")
+                </h6>
+                <input type="text" id="rowSearch" class="form-control form-control-sm no-print" style="width:220px"
+                       placeholder="@(isRtl ? "بحث في الوزارات والمشاريع..." : "Search ministries and projects...")" />
+            </div>
+            <div class="card-body">
+                @await Html.PartialAsync("_MinistryReportGroups", Model.Groups, new ViewDataDictionary(ViewData)
+                {
+                    ["IdPrefix"] = "ministry"
+                })
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            const isRtl = @(isRtl ? "true" : "false");
+
+            const chartData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.Groups
+                    .Select(g => new
+                    {
+                        ministry = g.Stats.DisplayName(isArabic),
+                        projectAverage = g.Stats.ProjectAverageIndicators,
+                        // null renders as a gap in the bar chart rather than a misleading zero
+                        strategyRollup = g.Stats.StrategyRollupIndicators
+                    })
+                    .Take(20)
+            ));
+
+            const canvas = document.getElementById('ministryPerformanceChart');
+            if (canvas && chartData.length) {
+                new Chart(canvas, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.map(d => d.ministry),
+                        datasets: [
+                            {
+                                label: isRtl ? 'متوسط المشاريع %' : 'Project average %',
+                                data: chartData.map(d => d.projectAverage),
+                                backgroundColor: '#667eea',
+                                borderRadius: 4
+                            },
+                            {
+                                label: isRtl ? 'تجميع الأهداف الاستراتيجية %' : 'Strategy roll-up %',
+                                data: chartData.map(d => d.strategyRollup),
+                                backgroundColor: '#00c853',
+                                borderRadius: 4
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top' } },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { callback: v => v + '%' } }
+                        }
+                    }
+                });
+            } else if (canvas) {
+                canvas.closest('.card').classList.add('d-none');
+            }
+
+            // ── Text search: filter project rows, then hide ministries left with none ──
+            const search = document.getElementById('rowSearch');
+            if (search) {
+                search.addEventListener('input', function () {
+                    const q = this.value.trim().toLowerCase();
+                    document.querySelectorAll('.ministry-group').forEach(group => {
+                        let visible = 0;
+                        group.querySelectorAll('tr.ministry-row').forEach(row => {
+                            const match = !q || row.textContent.toLowerCase().includes(q);
+                            row.classList.toggle('d-none', !match);
+                            if (match) visible++;
+                        });
+                        // A ministry whose own name matches stays visible even when no row does.
+                        const nameMatch = !q || (group.dataset.ministry || '').toLowerCase().includes(q);
+                        group.classList.toggle('d-none', visible === 0 && !nameMatch);
+                    });
+                });
+            }
+        })();
+    </script>
+}

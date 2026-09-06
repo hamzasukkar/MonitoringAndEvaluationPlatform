@@ -267,4 +267,25 @@
   <data name="Close" xml:space="preserve">
     <value>Close</value>
   </data>
+  <data name="Direction" xml:space="preserve">
+    <value>Direction</value>
+  </data>
+  <data name="Increase" xml:space="preserve">
+    <value>Increase</value>
+  </data>
+  <data name="Decrease" xml:space="preserve">
+    <value>Decrease</value>
+  </data>
+  <data name="Value should increase" xml:space="preserve">
+    <value>Value should increase</value>
+  </data>
+  <data name="Value should decrease" xml:space="preserve">
+    <value>Value should decrease</value>
+  </data>
+  <data name="((Base Value - Target) x Actual Value) / 100" xml:space="preserve">
+    <value>((Base Value - Target) x Actual Value) / 100</value>
+  </data>
+  <data name="Base Value - Amount of Change" xml:space="preserve">
+    <value>Base Value - Amount of Change</value>
+  </data>
 </root>

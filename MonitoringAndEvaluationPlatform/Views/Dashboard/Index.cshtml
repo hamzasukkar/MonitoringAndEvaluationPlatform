@@ -24,6 +24,9 @@
 		<button class="section-tab active" data-section="filtersSection">
 			<i class="fas fa-filter me-2"></i>@Localizer["Filters"]
 		</button>
+		<button class="section-tab active" data-section="ministriesSection">
+			<i class="fas fa-landmark me-2"></i>@Localizer["Ministries"]
+		</button>
 		<button class="section-tab active" data-section="performanceSection">
 			<i class="fas fa-chart-pie me-2"></i>@Localizer["Performance"]
 		</button>
@@ -57,6 +60,9 @@
 					</div>
 					<div class="stat-number" id="totalFrameworks">@Model.TotalFrameworks</div>
 					<div class="stat-label">@Localizer["Total Frameworks"]</div>
+					@* The indicator count used to be rendered on the Ministries card, under the
+					   label "Total Ministries". It belongs with the strategies it hangs off. *@
+					<div class="stat-sublabel text-muted">@Localizer["Indicators"]: @Model.TotalIndicators</div>
 					<div class="stat-filter">
 						<select id="frameworkFilter" class="modern-select-filter">
 							<option disabled selected value="">@Localizer["Select Framework"]</option>
@@ -187,6 +193,30 @@
 					</button>
 				</div>
 			</div>
+		</div>
+	</div>
+
+	<!-- Ministry Tier Section -->
+	<!-- Ministry is the root of the hierarchy (Ministry → Strategy → Outcome → … → Project),
+		 so it sits above the framework gauges. Clicking a card drives the existing ministry
+		 filter rather than filtering here, so the whole cascade below stays in one place. -->
+	<div class="dashboard-section" id="ministriesSection">
+		<div class="section-header" data-target="ministriesSection">
+			<h3 class="section-title">
+				<i class="fas fa-landmark"></i>
+				@Localizer["Ministry Overview"]
+			</h3>
+			<button class="section-toggle-btn" aria-label="Toggle section">
+				<i class="fas fa-chevron-up"></i>
+			</button>
+		</div>
+		<div class="section-body">
+			<div class="ministry-tier-hint text-muted mb-3">
+				<i class="fas fa-hand-pointer me-2"></i>@Localizer["Click a ministry to filter the dashboard"]
+				<span class="mx-2">·</span>
+				<i class="fas fa-info-circle me-1"></i>@Localizer["Ministry figures cover the whole portfolio and do not narrow with the geographic filters"]
+			</div>
+			<div id="ministryTierContainer" class="ministry-tier-grid"></div>
 		</div>
 	</div>
 
@@ -346,6 +376,12 @@
 		letter-spacing: 0.5px;
 	}
 
+	.stat-sublabel {
+		font-size: 0.78rem;
+		margin-top: -0.75rem;
+		margin-bottom: 0.75rem;
+	}
+
 	.stat-filter {
 		margin-top: auto;
 	}
@@ -479,6 +515,109 @@
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
 		gap: 1.5rem;
+	}
+
+	/* Ministry tier */
+	.ministry-tier-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+		gap: 1.5rem;
+	}
+
+	.ministry-card {
+		background: #fff;
+		border: 1px solid #e9ecef;
+		border-left: 4px solid #667eea;
+		border-radius: 0.75rem;
+		padding: 1.25rem;
+		cursor: pointer;
+		transition: transform 0.15s ease, box-shadow 0.15s ease;
+	}
+
+		.ministry-card:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 0.5rem 1.25rem rgba(102, 126, 234, 0.18);
+		}
+
+		.ministry-card.selected {
+			border-left-color: #00c853;
+			box-shadow: 0 0.5rem 1.25rem rgba(0, 200, 83, 0.18);
+		}
+
+	.ministry-card-header {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		margin-bottom: 1rem;
+	}
+
+	.ministry-card-logo {
+		font-size: 1.6rem;
+		line-height: 1;
+	}
+
+	.ministry-card-name {
+		font-weight: 700;
+		font-size: 1.05rem;
+		color: #2d3748;
+	}
+
+	/* Metric group heading — the four groups a ministry is measured on */
+	.ministry-metric-group {
+		margin-bottom: 0.9rem;
+	}
+
+	.ministry-metric-label {
+		font-size: 0.72rem;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		color: #8a94a6;
+		font-weight: 700;
+		margin-bottom: 0.35rem;
+	}
+
+	.ministry-bar-row {
+		margin-bottom: 0.5rem;
+	}
+
+	.ministry-bar-caption {
+		display: flex;
+		justify-content: space-between;
+		font-size: 0.8rem;
+		color: #4a5568;
+	}
+
+	.ministry-counts {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 0.5rem;
+		text-align: center;
+	}
+
+	.ministry-count-value {
+		font-weight: 700;
+		font-size: 1.1rem;
+		color: #2d3748;
+	}
+
+	.ministry-count-label {
+		font-size: 0.72rem;
+		color: #8a94a6;
+	}
+
+	.ministry-warning {
+		font-size: 0.78rem;
+		color: #b7791f;
+	}
+
+	.ministry-tier-hint {
+		font-size: 0.85rem;
+	}
+
+	@@media (max-width: 768px) {
+		.ministry-tier-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 
 	/* Responsive Design */
@@ -1296,6 +1435,205 @@ $(document).ready(function() {
 
 		// Update performance distribution charts
 		updateDistributionCharts(frameworks);
+
+		// Refresh the ministry tier from THIS call's own arguments rather than getFilters():
+		// loadGauges is invoked from eight places, several of which pass fewer arguments than
+		// the dropdowns currently hold, so reading the DOM here would show a different filter
+		// than the gauges below were built with.
+		loadMinistryTier(ministryCode);
+	}
+
+	// One Chart.js instance per ministry card, destroyed before re-render. loadGauges clears
+	// #gaugesContainer with innerHTML and leaks its charts; that is pre-existing, but there is
+	// no reason to repeat it here.
+	const ministryCharts = new Map();
+
+	async function loadMinistryTier(ministryCode = '') {
+		const container = document.getElementById('ministryTierContainer');
+		if (!container) return;
+
+		const urlParams = new URLSearchParams();
+		if (ministryCode) urlParams.append('ministryCode', ministryCode);
+
+		let ministries = [];
+		try {
+			const response = await fetch(`/Dashboard/MinistriesGauge?${urlParams.toString()}`);
+			ministries = await response.json();
+		} catch (e) {
+			ministries = [];
+		}
+
+		ministryCharts.forEach(chart => chart.destroy());
+		ministryCharts.clear();
+		container.innerHTML = '';
+
+		if (!ministries.length) {
+			container.innerHTML = `<div class="text-muted">@Localizer["No ministry data"]</div>`;
+			return;
+		}
+
+		const barClass = value => value >= 80 ? 'bg-success' : value >= 50 ? 'bg-warning' : 'bg-danger';
+		const money = value => Number(value || 0).toLocaleString();
+		// A null roll-up means the ministry owns no strategies — showing 0% would read as failure.
+		const pct = value => value === null || value === undefined ? '—' : `${value}%`;
+
+		ministries.forEach(ministry => {
+			const chartId = `ministryGauge_${ministry.code}`;
+			const card = document.createElement('div');
+			card.className = 'ministry-card';
+			card.dataset.ministryCode = ministry.code;
+
+			const strategyBar = ministry.strategyRollupIndicators === null || ministry.strategyRollupIndicators === undefined
+				? ''
+				: `<div class="progress" style="height: 10px; border-radius: 0.25rem;">
+						<div class="progress-bar ${barClass(ministry.strategyRollupIndicators)}" role="progressbar"
+							 style="width: ${ministry.strategyRollupIndicators}%"></div>
+				   </div>`;
+
+			card.innerHTML = `
+				<div class="ministry-card-header">
+					<span class="ministry-card-logo">${ministry.logo || '🏛️'}</span>
+					<span class="ministry-card-name">${ministry.name}</span>
+				</div>
+				<div class="row align-items-center mb-2">
+					<div class="col-5 text-center">
+						<canvas id="${chartId}" height="110"></canvas>
+					</div>
+					<div class="col-7">
+						<div class="ministry-metric-group">
+							<div class="ministry-metric-label">@Localizer["Performance"]</div>
+							<div class="ministry-bar-row">
+								<div class="ministry-bar-caption">
+									<span>@Localizer["Project Average"]</span>
+									<span class="fw-bold">${ministry.projectAverageIndicators}%</span>
+								</div>
+								<div class="progress" style="height: 10px; border-radius: 0.25rem;">
+									<div class="progress-bar ${barClass(ministry.projectAverageIndicators)}" role="progressbar"
+										 style="width: ${ministry.projectAverageIndicators}%"></div>
+								</div>
+							</div>
+							<div class="ministry-bar-row">
+								<div class="ministry-bar-caption">
+									<span>@Localizer["Strategy Roll-up"]</span>
+									<span class="fw-bold">${pct(ministry.strategyRollupIndicators)}</span>
+								</div>
+								${strategyBar}
+							</div>
+							<div class="ministry-bar-row">
+								<div class="ministry-bar-caption">
+									<span>@Localizer["Disbursement"]</span>
+									<span class="fw-bold">${ministry.projectAverageDisbursement}%</span>
+								</div>
+								<div class="progress" style="height: 10px; border-radius: 0.25rem;">
+									<div class="progress-bar ${barClass(ministry.projectAverageDisbursement)}" role="progressbar"
+										 style="width: ${ministry.projectAverageDisbursement}%"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="ministry-metric-group">
+					<div class="ministry-metric-label">@Localizer["Financial"]</div>
+					<div class="ministry-bar-caption">
+						<span>@Localizer["Budget (SYP)"]</span>
+						<span class="fw-bold">${money(ministry.budget)}</span>
+					</div>
+					<div class="ministry-bar-caption">
+						<span>@Localizer["Disbursed"]</span>
+						<span class="fw-bold">${money(ministry.disbursed)}</span>
+					</div>
+					<div class="ministry-bar-caption">
+						<span>@Localizer["Spend Rate"]</span>
+						<span class="fw-bold">${ministry.spendRate}%</span>
+					</div>
+					${ministry.unconvertedCount > 0
+						? `<div class="ministry-warning mt-1"><i class="fas fa-exclamation-triangle me-1"></i>${ministry.unconvertedCount} @Localizer["projects excluded (no exchange rate)"]</div>`
+						: ''}
+				</div>
+				<div class="ministry-metric-group">
+					<div class="ministry-metric-label">@Localizer["Counts"]</div>
+					<div class="ministry-counts">
+						<div>
+							<div class="ministry-count-value">${ministry.strategyCount}</div>
+							<div class="ministry-count-label">@Localizer["Strategies"]</div>
+						</div>
+						<div>
+							<div class="ministry-count-value">${ministry.indicatorCount}</div>
+							<div class="ministry-count-label">@Localizer["Indicators"]</div>
+						</div>
+						<div>
+							<div class="ministry-count-value">${ministry.projectCount}</div>
+							<div class="ministry-count-label">@Localizer["Projects"]</div>
+						</div>
+					</div>
+					<div class="ministry-bar-caption mt-1">
+						<span>@Localizer["Active"]: ${ministry.activeProjectCount}</span>
+						<span>@Localizer["Completed"]: ${ministry.completedProjectCount}</span>
+					</div>
+				</div>
+				<div class="ministry-metric-group mb-0">
+					<div class="ministry-metric-label">@Localizer["Development Impact"]</div>
+					<div class="ministry-bar-caption">
+						<span>@Localizer["Impact Achievement"]</span>
+						<span class="fw-bold">${pct(ministry.impactWeightedAchievement)}</span>
+					</div>
+					<div class="ministry-bar-caption">
+						<span>@Localizer["Impact Outputs"]</span>
+						<span class="fw-bold">${ministry.impactOutputCount}</span>
+					</div>
+				</div>
+			`;
+
+			container.appendChild(card);
+
+			const ctx = document.getElementById(chartId).getContext('2d');
+			ministryCharts.set(ministry.code, new Chart(ctx, {
+				type: 'doughnut',
+				data: {
+					datasets: [{
+						data: [ministry.projectAverageIndicators, Math.max(100 - ministry.projectAverageIndicators, 0)],
+						backgroundColor: ['#667eea', '#e0e0e0'],
+						borderWidth: 0,
+						cutout: '75%'
+					}]
+				},
+				options: {
+					responsive: true,
+					plugins: { legend: { display: false } }
+				}
+			}));
+		});
+
+		markSelectedMinistryCard();
+	}
+
+	// Clicking a card drives the existing ministry dropdown instead of filtering here, so the
+	// whole cascade (gauges, projects, frameworks, governorates) keeps running from one place.
+	document.getElementById('ministryTierContainer')?.addEventListener('click', function (event) {
+		const card = event.target.closest('.ministry-card');
+		if (!card) return;
+
+		const ministryFilter = document.getElementById('ministryFilter');
+		if (!ministryFilter || ministryFilter.disabled) return;
+
+		// Clicking the already-selected card clears the filter. The dropdown's own handler
+		// returns early on an empty value and leaves the sibling lists emptied, so take the
+		// same escape hatch the Clear Filters button uses.
+		if (ministryFilter.value === String(card.dataset.ministryCode)) {
+			location.reload();
+			return;
+		}
+
+		ministryFilter.value = card.dataset.ministryCode;
+		ministryFilter.dispatchEvent(new Event('change'));
+		markSelectedMinistryCard();
+	});
+
+	function markSelectedMinistryCard() {
+		const selected = document.getElementById('ministryFilter')?.value;
+		document.querySelectorAll('#ministryTierContainer .ministry-card').forEach(card => {
+			card.classList.toggle('selected', String(card.dataset.ministryCode) === String(selected));
+		});
 	}
 
 	function updateNotificationBadges(frameworks) {

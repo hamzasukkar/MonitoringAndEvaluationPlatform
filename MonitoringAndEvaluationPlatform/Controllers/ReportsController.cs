@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using ClosedXML.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,6 +9,9 @@ using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using QuestPDF.Fluent;
+using QuestPDF.Helpers;
+using QuestPDF.Infrastructure;
 using System.Globalization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
@@ -18,12 +22,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICurrencyConversionService _currencyConversion;
+        private readonly IMinistryStatisticsService _ministryStatistics;
 
-        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ICurrencyConversionService currencyConversion)
+        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ICurrencyConversionService currencyConversion, IMinistryStatisticsService ministryStatistics)
         {
             _context = context;
             _userManager = userManager;
             _currencyConversion = currencyConversion;
+            _ministryStatistics = ministryStatistics;
         }
 
         /// <summary>
@@ -814,6 +820,327 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToListAsync();
 
             return View(viewModel);
+        }
+
+        // ─────────────────────────── Ministry report ───────────────────────────
+        // Ministry became a level of the hierarchy (Ministry → Strategy → … → Project), so it
+        // gets its own scorecard. Every figure comes from IMinistryStatisticsService, which the
+        // dashboard's ministry tier also reads — the two surfaces cannot disagree.
+
+        [Permission(Permissions.ViewControlPanel)]
+        public async Task<IActionResult> MinistryReport(int? ministryCode, DateTime? fromDate, DateTime? toDate)
+        {
+            return View(await BuildMinistryReportAsync(ministryCode, fromDate, toDate));
+        }
+
+        /// <summary>
+        /// Builds the ministry report. Shared by the page and both exports so a downloaded file
+        /// can never disagree with the screen it was downloaded from.
+        /// </summary>
+        private async Task<MinistryReportViewModel> BuildMinistryReportAsync(
+            int? ministryCode, DateTime? fromDate, DateTime? toDate)
+        {
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            var filter = new MinistryReportFilterViewModel
+            {
+                MinistryCode = ministryCode,
+                FromDate = fromDate,
+                ToDate = toDate
+            };
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
+            // Scope first, then the user's own filter: a MinistriesUser passing someone else's
+            // ministryCode in the query string must still get only their own.
+            if (!isAdmin && scopedMinistryCode is null)
+            {
+                return new MinistryReportViewModel { Filter = filter };
+            }
+
+            var effectiveMinistryCode = isAdmin ? filter.MinistryCode : scopedMinistryCode;
+
+            var stats = await _ministryStatistics.GetAsync(
+                effectiveMinistryCode, filter.FromDate, filter.ToDate);
+
+            var converter = await _currencyConversion.GetConverterAsync();
+
+            var projectsByMinistry = await _ministryStatistics.GetProjectsByMinistryAsync(
+                stats.Select(m => m.Code), filter.FromDate, filter.ToDate);
+
+            var groups = new List<MinistryReportGroup>();
+            foreach (var ministry in stats)
+            {
+                var projects = projectsByMinistry.TryGetValue(ministry.Code, out var found)
+                    ? found
+                    : (IReadOnlyList<Project>)Array.Empty<Project>();
+
+                groups.Add(new MinistryReportGroup
+                {
+                    Stats = ministry,
+                    Rows = projects.Select(p =>
+                    {
+                        var factor = converter.FactorFor(p.Currency, p.ExchangeRate);
+                        return new MinistryReportRow
+                        {
+                            ProjectId = p.ProjectID,
+                            ProjectName = p.ProjectName,
+                            SectorName = p.Sector == null
+                                ? string.Empty
+                                : (isArabic ? p.Sector.AR_Name : p.Sector.EN_Name) ?? string.Empty,
+                            // Null rather than 0 when the currency cannot be converted, so the
+                            // view shows a gap instead of an amount that reads as real.
+                            BudgetSyp = factor is null ? null : p.EstimatedBudget * factor.Value,
+                            DisbursedSyp = factor is null
+                                ? null
+                                : MinistryStatisticsService.RealisedOf(p) * factor.Value,
+                            Performance = Math.Round(p.performance, 2),
+                            DisbursementPerformance = Math.Round(p.DisbursementPerformance, 2),
+                            StartDate = p.StartDate,
+                            EndDate = p.EndDate,
+                            LinkageMismatch = (p.MinistryCode == ministry.Code)
+                                != p.Ministries.Any(m => m.Code == ministry.Code)
+                        };
+                    }).ToList()
+                });
+            }
+
+            var viewModel = new MinistryReportViewModel
+            {
+                Filter = filter,
+                Groups = groups
+                    .OrderByDescending(g => g.Stats.ProjectAverageIndicators)
+                    .ThenBy(g => g.Stats.DisplayName(isArabic))
+                    .ToList(),
+                // Only offered to admins; a scoped user has exactly one ministry and the control
+                // is hidden, matching the Units report.
+                MinistryOptions = isAdmin
+                    ? await _context.Ministries
+                        .AsNoTracking()
+                        .OrderBy(m => isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+                        .Select(m => new SelectListItem(
+                            isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN,
+                            m.Code.ToString(),
+                            m.Code == filter.MinistryCode))
+                        .ToListAsync()
+                    : new List<SelectListItem>()
+            };
+
+            return viewModel;
+        }
+
+        // Qualified export names: ReportsController had no server-side exports, and a bare
+        // ExportExcel would collide the moment a second report needs one.
+        [HttpGet]
+        [Permission(Permissions.ViewControlPanel)]
+        public async Task<IActionResult> ExportMinistryReportExcel(int? ministryCode, DateTime? fromDate, DateTime? toDate)
+        {
+            var model = await BuildMinistryReportAsync(ministryCode, fromDate, toDate);
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            using var workbook = new XLWorkbook();
+            var worksheet = workbook.Worksheets.Add(isArabic ? "الوزارات" : "Ministries");
+
+            if (isArabic)
+            {
+                worksheet.RightToLeft = true;
+            }
+
+            string[] headers =
+            {
+                isArabic ? "الوزارة" : "Ministry",
+                isArabic ? "متوسط المشاريع (%)" : "Project Average (%)",
+                isArabic ? "تجميع الأهداف الاستراتيجية (%)" : "Strategy Roll-up (%)",
+                isArabic ? "الإنفاق (%)" : "Disbursement (%)",
+                isArabic ? "الموازنة (ل.س)" : "Budget (SYP)",
+                isArabic ? "المنصرف (ل.س)" : "Disbursed (SYP)",
+                isArabic ? "نسبة الإنفاق (%)" : "Spend Rate (%)",
+                isArabic ? "الأهداف الاستراتيجية" : "Strategies",
+                isArabic ? "المؤشرات" : "Indicators",
+                isArabic ? "المشاريع" : "Projects",
+                isArabic ? "قيد التنفيذ" : "Active",
+                isArabic ? "منجزة" : "Completed",
+                isArabic ? "تحقيق الأثر (%)" : "Impact Achievement (%)",
+                isArabic ? "مخرجات الأثر" : "Impact Outputs",
+                isArabic ? "مشاريع غير محوَّلة" : "Unconverted Projects"
+            };
+
+            for (var i = 0; i < headers.Length; i++)
+            {
+                worksheet.Cell(1, i + 1).Value = headers[i];
+            }
+
+            var headerRange = worksheet.Range(1, 1, 1, headers.Length);
+            headerRange.Style.Font.Bold = true;
+            headerRange.Style.Fill.BackgroundColor = XLColor.FromHtml("#4472C4");
+            headerRange.Style.Font.FontColor = XLColor.White;
+            headerRange.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+
+            var row = 2;
+            foreach (var group in model.Groups)
+            {
+                var stats = group.Stats;
+                worksheet.Cell(row, 1).Value = stats.DisplayName(isArabic);
+                worksheet.Cell(row, 2).Value = stats.ProjectAverageIndicators;
+                // Blank, not zero: a ministry that owns no strategy has no roll-up to report.
+                if (stats.StrategyRollupIndicators.HasValue)
+                {
+                    worksheet.Cell(row, 3).Value = stats.StrategyRollupIndicators.Value;
+                }
+                worksheet.Cell(row, 4).Value = stats.ProjectAverageDisbursement;
+                worksheet.Cell(row, 5).Value = stats.Budget.Syp;
+                worksheet.Cell(row, 6).Value = stats.Disbursed.Syp;
+                worksheet.Cell(row, 7).Value = stats.SpendRate;
+                worksheet.Cell(row, 8).Value = stats.StrategyCount;
+                worksheet.Cell(row, 9).Value = stats.IndicatorCount;
+                worksheet.Cell(row, 10).Value = stats.ProjectCount;
+                worksheet.Cell(row, 11).Value = stats.ActiveProjectCount;
+                worksheet.Cell(row, 12).Value = stats.CompletedProjectCount;
+                if (stats.ImpactWeightedAchievement.HasValue)
+                {
+                    worksheet.Cell(row, 13).Value = stats.ImpactWeightedAchievement.Value;
+                }
+                worksheet.Cell(row, 14).Value = stats.ImpactOutputCount;
+                worksheet.Cell(row, 15).Value = stats.Budget.UnconvertedCount;
+                row++;
+            }
+
+            worksheet.Columns().AdjustToContents();
+
+            var dataRange = worksheet.Range(1, 1, Math.Max(row - 1, 1), headers.Length);
+            dataRange.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+            dataRange.Style.Border.InsideBorder = XLBorderStyleValues.Thin;
+
+            using var stream = new MemoryStream();
+            workbook.SaveAs(stream);
+
+            var filePrefix = isArabic ? "تقرير_الوزارات" : "MinistryReport";
+            return File(
+                stream.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx");
+        }
+
+        [HttpGet]
+        [Permission(Permissions.ViewControlPanel)]
+        public async Task<IActionResult> ExportMinistryReportPdf(int? ministryCode, DateTime? fromDate, DateTime? toDate)
+        {
+            var model = await BuildMinistryReportAsync(ministryCode, fromDate, toDate);
+            var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            string Pct(double? value) => value.HasValue ? $"{Math.Round(value.Value, 2)}%" : "—";
+
+            var document = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(25);
+                    page.DefaultTextStyle(x => x.FontSize(9));
+                    if (isArabic)
+                    {
+                        page.ContentFromRightToLeft();
+                    }
+
+                    page.Header()
+                        .PaddingBottom(10)
+                        .BorderBottom(1)
+                        .BorderColor(Colors.Grey.Medium)
+                        .Column(col =>
+                        {
+                            col.Item().Text(isArabic ? "تقرير الوزارات" : "Ministry Report")
+                                .FontSize(18).Bold().FontColor(Colors.Blue.Darken2);
+                            col.Item().Text($"{(isArabic ? "تاريخ الإصدار" : "Generated on")}: {DateTime.Now:yyyy-MM-dd HH:mm}")
+                                .FontSize(9).FontColor(Colors.Grey.Darken1);
+                        });
+
+                    page.Content()
+                        .PaddingVertical(10)
+                        .Table(table =>
+                        {
+                            table.ColumnsDefinition(columns =>
+                            {
+                                columns.RelativeColumn(3);  // Ministry
+                                columns.RelativeColumn(2);  // Project average
+                                columns.RelativeColumn(2);  // Strategy roll-up
+                                columns.RelativeColumn(2);  // Budget
+                                columns.RelativeColumn(2);  // Disbursed
+                                columns.RelativeColumn(2);  // Counts
+                                columns.RelativeColumn(2);  // Impact
+                            });
+
+                            table.Header(header =>
+                            {
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(6)
+                                    .Text(isArabic ? "الوزارة" : "Ministry").FontColor(Colors.White).Bold();
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(6)
+                                    .Text(isArabic ? "متوسط المشاريع" : "Project avg.").FontColor(Colors.White).Bold();
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(6)
+                                    .Text(isArabic ? "تجميع الأهداف" : "Strategy roll-up").FontColor(Colors.White).Bold();
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(6)
+                                    .Text(isArabic ? "الموازنة (ل.س)" : "Budget (SYP)").FontColor(Colors.White).Bold();
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(6)
+                                    .Text(isArabic ? "المنصرف (ل.س)" : "Disbursed (SYP)").FontColor(Colors.White).Bold();
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(6)
+                                    .Text(isArabic ? "أهداف/مؤشرات/مشاريع" : "Strat./Ind./Proj.").FontColor(Colors.White).Bold();
+                                header.Cell().Background(Colors.Blue.Darken2).Padding(6)
+                                    .Text(isArabic ? "الأثر" : "Impact").FontColor(Colors.White).Bold();
+                            });
+
+                            foreach (var group in model.Groups)
+                            {
+                                var stats = group.Stats;
+
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                    .Text(stats.DisplayName(isArabic));
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                    .Text(Pct(stats.ProjectAverageIndicators))
+                                    .FontColor(stats.ProjectAverageIndicators >= 80 ? Colors.Green.Darken2
+                                        : stats.ProjectAverageIndicators >= 50 ? Colors.Orange.Darken2
+                                        : Colors.Red.Darken2);
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                    .Text(Pct(stats.StrategyRollupIndicators));
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                    .Text(stats.Budget.Syp.ToString("N0", CultureInfo.InvariantCulture)
+                                          + (stats.Budget.IsComplete ? "" : " *"));
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                    .Text(stats.Disbursed.Syp.ToString("N0", CultureInfo.InvariantCulture));
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                    .Text($"{stats.StrategyCount} / {stats.IndicatorCount} / {stats.ProjectCount}");
+                                table.Cell().BorderBottom(1).BorderColor(Colors.Grey.Lighten2).Padding(5)
+                                    .Text($"{Pct(stats.ImpactWeightedAchievement)} ({stats.ImpactOutputCount})");
+                            }
+                        });
+
+                    page.Footer()
+                        .Column(col =>
+                        {
+                            // The asterisk on a budget marks a ministry with projects whose
+                            // currency could not be converted — the same gap the screen flags.
+                            if (model.Groups.Any(g => !g.Stats.Budget.IsComplete))
+                            {
+                                col.Item().Text(isArabic
+                                        ? "* الموازنة لا تشمل مشاريع بعملة بلا سعر صرف."
+                                        : "* Budget excludes projects in a currency with no exchange rate.")
+                                    .FontSize(8).FontColor(Colors.Grey.Darken1);
+                            }
+
+                            col.Item().AlignCenter().Text(text =>
+                            {
+                                text.Span((isArabic ? "صفحة" : "Page") + " ");
+                                text.CurrentPageNumber();
+                                text.Span(" / ");
+                                text.TotalPages();
+                            });
+                        });
+                });
+            });
+
+            var filePrefix = isArabic ? "تقرير_الوزارات" : "MinistryReport";
+            return File(
+                document.GeneratePdf(),
+                "application/pdf",
+                $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf");
         }
 
         // Governorate Map report — Syria map with cascading Strategy/Ministry/Project filters.

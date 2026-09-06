@@ -8,6 +8,13 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<Framework> Frameworks { get; set; }
         public List<FrameworkPerformanceViewModel> FrameworksPerformance { get; set; } = new();
         public int TotlalMinistries { get; set; }
+
+        /// <summary>
+        /// Results-framework indicators in scope. Split out because TotlalMinistries used to be
+        /// bound to this count, which made the "Total Ministries" card report indicators.
+        /// </summary>
+        public int TotalIndicators { get; set; }
+
         public List<Ministry> Ministries { get; set; }
         public bool IsMinistryUser { get; set; }
         public int? UserMinistryCode { get; set; }

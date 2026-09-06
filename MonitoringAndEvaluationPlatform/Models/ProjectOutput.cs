@@ -102,6 +102,24 @@ namespace MonitoringAndEvaluationPlatform.Models
         public int? BaseYear => CoveredYears.Any() ? CoveredYears.First() : null;
 
         /// <summary>
+        /// Direction of this output's goal, derived from its bounds exactly as
+        /// FrameworkGoal.IsIncreaseGoal is, rather than stored as a column.
+        ///
+        /// Tri-state on purpose. Null means "no direction to speak of": either bound unset, OR
+        /// Target equal to Base — a flat goal is neither a rise nor a reduction. FrameworkGoal
+        /// labels that last case "Decrease", which is wrong, so it is deliberately not copied.
+        ///
+        /// PRESENTATION ONLY. GetAmountOfChangeForYear already handles both directions through the
+        /// signed (Target - Base) factor; nothing here feeds the arithmetic, and applying Math.Abs
+        /// to that method would double-apply the direction and break the reduction case.
+        /// </summary>
+        [NotMapped]
+        public bool? IsIncreaseGoal =>
+            BaseValue is null || TargetValue is null || TargetValue.Value == BaseValue.Value
+                ? null
+                : TargetValue.Value > BaseValue.Value;
+
+        /// <summary>
         /// Sum of that year's raw values across every linked indicator. Still useful for a raw
         /// quantity figure (e.g. a tooltip), but no longer what drives the displayed percentages —
         /// see GetWeightedPercentageForYear.

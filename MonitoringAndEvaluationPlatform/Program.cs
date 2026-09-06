@@ -103,6 +103,9 @@ builder.Services.AddScoped<IGuideService, GuideService>();
 // because nearly every page that shows a total needs it.
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ICurrencyConversionService, CurrencyConversionService>();
+// One roll-up shared by the dashboard's ministry tier and the ministry report, so the two
+// surfaces cannot show different numbers for the same ministry.
+builder.Services.AddScoped<IMinistryStatisticsService, MinistryStatisticsService>();
 // Lets the guide editor send the anti-forgery token on JSON POSTs via header.
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
 builder.Services.AddScoped<MonitoringAndEvaluationPlatform.Helpers.INavigationHelper, MonitoringAndEvaluationPlatform.Helpers.NavigationHelper>();

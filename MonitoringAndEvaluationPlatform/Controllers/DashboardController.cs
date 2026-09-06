@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Models;
 using ClosedXML.Excel;
+using MonitoringAndEvaluationPlatform.Services;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -22,11 +23,16 @@ public class DashboardController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IMinistryStatisticsService _ministryStatistics;
 
-    public DashboardController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+    public DashboardController(
+        ApplicationDbContext context,
+        UserManager<ApplicationUser> userManager,
+        IMinistryStatisticsService ministryStatistics)
     {
         _context = context;
         _userManager = userManager;
+        _ministryStatistics = ministryStatistics;
     }
 
     private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
@@ -529,15 +535,18 @@ public class DashboardController : Controller
                 ? _context.Indicators.Where(_ => false)
                 : _context.Indicators.Where(i => i.SubOutput.Output.Outcome.Framework.MinistryCode == scopedMinistryCode));
 
+        var ministries = isAdmin
+            ? await _context.Ministries.ToListAsync()
+            : await _context.Ministries.Where(m => m.Code == scopedMinistryCode).ToListAsync();
+
         var model = new DashboardSummaryViewModel
         {
             TotalFrameworks = await frameworksQ.CountAsync(),
             Frameworks = await frameworksQ.ToListAsync(),
 
-            TotlalMinistries = await indicatorsQ.CountAsync(),
-            Ministries = isAdmin
-                ? await _context.Ministries.ToListAsync()
-                : await _context.Ministries.Where(m => m.Code == scopedMinistryCode).ToListAsync(),
+            TotlalMinistries = ministries.Count,
+            TotalIndicators = await indicatorsQ.CountAsync(),
+            Ministries = ministries,
             IsMinistryUser = !isAdmin,
             UserMinistryCode = scopedMinistryCode,
 
@@ -766,9 +775,14 @@ public class DashboardController : Controller
         }
 
         // APPLY MINISTRY AND PROJECT FILTER
+        // A strategy counts as the ministry's when the ministry OWNS it (Framework.MinistryCode,
+        // added when Ministry became a level of the hierarchy) or when it merely contains one of
+        // that ministry's projects, which is all this filter used to consider. Hedging is purely
+        // additive, so nothing that matched before stops matching.
         if (ministryCode.HasValue)
         {
             frameworkQuery = frameworkQuery.Where(f =>
+                f.MinistryCode == ministryCode.Value ||
                 f.Outcomes.Any(o =>
                     o.Outputs.Any(op =>
                         op.SubOutputs.Any(so =>
@@ -835,6 +849,63 @@ public class DashboardController : Controller
                 }).ToList()
             };
         });
+
+        return Json(result);
+    }
+
+    /// <summary>
+    /// The ministry tier that sits above the framework gauges — one row per ministry, carrying
+    /// the same figures the ministry report shows, because both read
+    /// <see cref="IMinistryStatisticsService"/>.
+    ///
+    /// A non-admin is pinned to their own ministry and gets nothing when they have none, matching
+    /// <see cref="ApplyProjectScope"/>; the ministryCode argument is only honoured for an admin,
+    /// so hand-editing the query string cannot widen the caller's scope.
+    /// </summary>
+    [HttpGet]
+    public async Task<IActionResult> MinistriesGauge(int? ministryCode = null, CancellationToken cancellationToken = default)
+    {
+        var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
+        if (!isAdmin && scopedMinistryCode is null)
+        {
+            return Json(Array.Empty<object>());
+        }
+
+        var requested = isAdmin ? ministryCode : scopedMinistryCode;
+        var stats = await _ministryStatistics.GetAsync(requested, cancellationToken: cancellationToken);
+
+        var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+        var result = stats
+            .OrderByDescending(m => m.ProjectAverageIndicators)
+            .ThenBy(m => m.DisplayName(isArabic))
+            .Select(m => new
+            {
+                code = m.Code,
+                name = m.DisplayName(isArabic),
+                logo = m.Logo,
+
+                projectAverageIndicators = m.ProjectAverageIndicators,
+                projectAverageDisbursement = m.ProjectAverageDisbursement,
+                strategyRollupIndicators = m.StrategyRollupIndicators,
+                strategyRollupDisbursement = m.StrategyRollupDisbursement,
+
+                budget = m.Budget.Syp,
+                disbursed = m.Disbursed.Syp,
+                spendRate = m.SpendRate,
+                unconvertedCount = m.Budget.UnconvertedCount,
+
+                strategyCount = m.StrategyCount,
+                indicatorCount = m.IndicatorCount,
+                projectCount = m.ProjectCount,
+                activeProjectCount = m.ActiveProjectCount,
+                completedProjectCount = m.CompletedProjectCount,
+
+                impactOutputCount = m.ImpactOutputCount,
+                impactIndicatorCount = m.ImpactIndicatorCount,
+                impactWeightedAchievement = m.ImpactWeightedAchievement
+            });
 
         return Json(result);
     }

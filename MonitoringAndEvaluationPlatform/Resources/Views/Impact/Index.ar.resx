@@ -267,4 +267,25 @@
   <data name="Close" xml:space="preserve">
     <value>إغلاق</value>
   </data>
+  <data name="Direction" xml:space="preserve">
+    <value>الاتجاه</value>
+  </data>
+  <data name="Increase" xml:space="preserve">
+    <value>تصاعدي</value>
+  </data>
+  <data name="Decrease" xml:space="preserve">
+    <value>تخفيضي</value>
+  </data>
+  <data name="Value should increase" xml:space="preserve">
+    <value>القيمة يجب أن تزيد</value>
+  </data>
+  <data name="Value should decrease" xml:space="preserve">
+    <value>القيمة يجب أن تنخفض</value>
+  </data>
+  <data name="((Base Value - Target) x Actual Value) / 100" xml:space="preserve">
+    <value>((القيمة الأساس − القيمة المستهدفة) × القيمة الفعلية) ÷ 100</value>
+  </data>
+  <data name="Base Value - Amount of Change" xml:space="preserve">
+    <value>القيمة الأساس − مقدار التغيّر</value>
+  </data>
 </root>

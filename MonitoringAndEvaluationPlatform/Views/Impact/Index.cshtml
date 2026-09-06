@@ -264,6 +264,22 @@
                                     @if (po.TargetValue.HasValue)
                                     {
                                         <div class="fw-bold">@po.TargetValue.Value.ToString("N2")</div>
+                                        @* Direction badge, from the model rather than re-deriving
+                                           Target > Base here — FrameworkGoals rewrites that
+                                           comparison in six views and we are not copying that. A
+                                           flat goal (IsIncreaseGoal null) gets no badge. *@
+                                        @if (po.IsIncreaseGoal == true)
+                                        {
+                                            <span class="badge bg-success mt-1">
+                                                <i class="fas fa-arrow-up me-1"></i>@Localizer["Increase"]
+                                            </span>
+                                        }
+                                        else if (po.IsIncreaseGoal == false)
+                                        {
+                                            <span class="badge bg-warning text-dark mt-1">
+                                                <i class="fas fa-arrow-down me-1"></i>@Localizer["Decrease"]
+                                            </span>
+                                        }
                                     }
                                     else
                                     {
@@ -307,10 +323,25 @@
                                         @* The three dash independently: an unset Base/Target kills
                                            the first two, while Actual Impact is unrelated to them
                                            and dashes only when nothing was recorded that year. *@
+                                        @* Shown as a MAGNITUDE with a direction arrow: a reduction
+                                           goal reads "40.00 ▼" rather than "-40.00". The model keeps
+                                           the signed value (it is what Total Value adds); flipping
+                                           the sign for display only is the same idiom as
+                                           FrameworkGoal.AmountOfReduction. No good/bad colouring —
+                                           the driving percentage is never negative, so the change
+                                           can never move against the goal. *@
                                         <td class="text-center">
                                             @if (change.HasValue)
                                             {
-                                                @change.Value.ToString("N2")
+                                                @Math.Abs(change.Value).ToString("N2")
+                                                @if (po.IsIncreaseGoal == true)
+                                                {
+                                                    <i class="fas fa-arrow-up text-success ms-1"></i>
+                                                }
+                                                else if (po.IsIncreaseGoal == false)
+                                                {
+                                                    <i class="fas fa-arrow-down text-warning ms-1"></i>
+                                                }
                                             }
                                             else
                                             {
@@ -380,6 +411,7 @@
                                                 data-output-name="@po.Name"
                                                 data-base="@(po.BaseValue.HasValue ? po.BaseValue.Value.ToString("N2") : "")"
                                                 data-target="@(po.TargetValue.HasValue ? po.TargetValue.Value.ToString("N2") : "")"
+                                                data-direction="@(po.IsIncreaseGoal == true ? "up" : po.IsIncreaseGoal == false ? "down" : "none")"
                                                 @* NOT Html.Raw: the JSON's own double quotes would
                                                    break out of the attribute — Razor's encoding
                                                    writes &quot;, which dataset decodes back. *@
@@ -550,15 +582,32 @@
                     <span class="fw-bold" id="calcTarget"></span>
                 </div>
 
+                @* Direction is announced before the formulas, because it decides which of the
+                   two formula forms below applies. Hidden entirely for a flat/unset goal. *@
+                <div class="mb-3 d-none" id="calcDirectionWrap">
+                    <div class="impact-banner-label">@Localizer["Direction"]</div>
+                    <span class="badge" id="calcDirectionBadge"></span>
+                    <span class="ms-2" id="calcDirectionText"></span>
+                </div>
+
                 <dl class="row mb-3">
                     <dt class="col-sm-4">@Localizer["Actual Value"]</dt>
                     <dd class="col-sm-8">@Localizer["Weighted average of the achievement rates of the linked indicators whose project covers that year: sum(indicator rate x weight) / sum(weights)."]</dd>
 
+                    @* Two forms of the same formula. The subtraction order is swapped for a
+                       reduction goal so the number shown is positive — the same presentation trick
+                       FrameworkGoals' explainer modal uses. The arithmetic is identical either way. *@
                     <dt class="col-sm-4">@Localizer["Amount of Change"]</dt>
-                    <dd class="col-sm-8"><code>@Localizer["((Target - Base Value) x Actual Value) / 100"]</code></dd>
+                    <dd class="col-sm-8">
+                        <code id="calcChangeFormulaUp">@Localizer["((Target - Base Value) x Actual Value) / 100"]</code>
+                        <code id="calcChangeFormulaDown" class="d-none">@Localizer["((Base Value - Target) x Actual Value) / 100"]</code>
+                    </dd>
 
                     <dt class="col-sm-4">@Localizer["Total Value"]</dt>
-                    <dd class="col-sm-8"><code>@Localizer["Base Value + Amount of Change"]</code></dd>
+                    <dd class="col-sm-8">
+                        <code id="calcTotalFormulaUp">@Localizer["Base Value + Amount of Change"]</code>
+                        <code id="calcTotalFormulaDown" class="d-none">@Localizer["Base Value - Amount of Change"]</code>
+                    </dd>
 
                     <dt class="col-sm-4">@Localizer["Actual Impact"]</dt>
                     <dd class="col-sm-8">@Localizer["Entered by hand for each year. It does not feed any of the calculations above."]</dd>
@@ -714,8 +763,21 @@
             var targetEl = document.getElementById('calcTarget');
             var tbody    = document.querySelector('#calcExampleTable tbody');
             var noYears  = document.getElementById('calcNoYears');
+            var dirWrap  = document.getElementById('calcDirectionWrap');
+            var dirBadge = document.getElementById('calcDirectionBadge');
+            var dirText  = document.getElementById('calcDirectionText');
+            var changeUp   = document.getElementById('calcChangeFormulaUp');
+            var changeDown = document.getElementById('calcChangeFormulaDown');
+            var totalUp    = document.getElementById('calcTotalFormulaUp');
+            var totalDown  = document.getElementById('calcTotalFormulaDown');
+
             var notSet   = '@Localizer["Not set"]';
             var dash     = '\u2014';
+
+            var txtIncrease       = '@Localizer["Increase"]';
+            var txtDecrease       = '@Localizer["Decrease"]';
+            var txtShouldIncrease = '@Localizer["Value should increase"]';
+            var txtShouldDecrease = '@Localizer["Value should decrease"]';
 
             function fmt(v, digits) {
                 if (v === null || v === undefined) return null;
@@ -733,6 +795,22 @@
                     baseEl.textContent   = baseRaw || notSet;
                     targetEl.textContent = targetRaw || notSet;
 
+                    // Direction decides which formula form is shown and which way the worked
+                    // arithmetic is written; 'none' covers both an unset bound and a flat goal.
+                    var dir = btn.dataset.direction || 'none';
+                    var isDown = (dir === 'down');
+
+                    dirWrap.classList.toggle('d-none', dir === 'none');
+                    if (dir !== 'none') {
+                        dirBadge.textContent = isDown ? txtDecrease : txtIncrease;
+                        dirBadge.className = 'badge ' + (isDown ? 'bg-warning text-dark' : 'bg-success');
+                        dirText.textContent = isDown ? txtShouldDecrease : txtShouldIncrease;
+                    }
+                    changeUp.classList.toggle('d-none', isDown);
+                    changeDown.classList.toggle('d-none', !isDown);
+                    totalUp.classList.toggle('d-none', isDown);
+                    totalDown.classList.toggle('d-none', !isDown);
+
                     var rows = [];
                     try { rows = JSON.parse(btn.dataset.rows || '[]'); } catch (e) { rows = []; }
 
@@ -745,12 +823,19 @@
 
                         // Amount of Change and Total Value show the substituted arithmetic; both
                         // dash whenever Base or Target is unset, exactly as the table cells do.
-                        var changeCell = (change === null)
+                        // For a reduction goal the operands are swapped so every figure printed is
+                        // positive and matches the magnitude shown in the table cell.
+                        var changeMag = (change === null) ? null : fmt(Math.abs(r.change), 2);
+                        var changeCell = (changeMag === null)
                             ? dash
-                            : '((' + targetRaw + ' \u2212 ' + baseRaw + ') \u00d7 ' + pct + '%) \u00f7 100 = ' + change;
+                            : isDown
+                                ? '((' + baseRaw + ' \u2212 ' + targetRaw + ') \u00d7 ' + pct + '%) \u00f7 100 = ' + changeMag
+                                : '((' + targetRaw + ' \u2212 ' + baseRaw + ') \u00d7 ' + pct + '%) \u00f7 100 = ' + changeMag;
                         var totalCell = (total === null)
                             ? dash
-                            : baseRaw + ' + ' + change + ' = ' + total;
+                            : isDown
+                                ? baseRaw + ' \u2212 ' + changeMag + ' = ' + total
+                                : baseRaw + ' + ' + changeMag + ' = ' + total;
 
                         var tr = document.createElement('tr');
                         [String(r.year),
