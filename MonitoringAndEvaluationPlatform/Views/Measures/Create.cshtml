@@ -9,10 +9,7 @@
     var targetDate = DateTime.Today.ToString("yyyy-MM-dd");
     var selectedPhase = ViewBag.SelectedPhase as MonitoringAndEvaluationPlatform.Models.ProjectPhase;
     var preSelectedPhaseId = ViewBag.PreSelectedPhaseId as int?;
-    var existingPhaseType = ViewBag.ExistingPhaseType as MeasureType?;
-    bool isQuantitative = existingPhaseType == MeasureType.Quantitative;
-    bool isQualitative  = existingPhaseType == MeasureType.Qualitative;
-    bool isFirstMeasure = existingPhaseType == null;
+    bool needsPhaseTarget = selectedPhase != null && !selectedPhase.TargetQuantity.HasValue;
 }
 
 <!-- Dashboard Header -->
@@ -146,40 +143,6 @@
                         }
                     </div>
 
-                    @if (isFirstMeasure)
-                    {
-                        <!-- First measure: user picks type via radio buttons -->
-                        <div class="form-group full-width">
-                            <label class="modern-label">
-                                <i class="fas fa-sliders-h"></i>
-                                @Localizer["Achievement Type"] *
-                            </label>
-                            <div class="d-flex gap-3 mt-1">
-                                <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                                    <input type="radio" name="MeasureType" id="typeQualitative" value="0"
-                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" checked />
-                                    <span><strong>@Localizer["Qualitative"]</strong> — @Localizer["enter value directly"]</span>
-                                </label>
-                                <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                                    <input type="radio" name="MeasureType" id="typeQuantitative" value="1"
-                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" />
-                                    <span><strong>@Localizer["Quantitative"]</strong> — @Localizer["enter quantity, value auto-calculated"]</span>
-                                </label>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <!-- Subsequent measures: type locked, show badge -->
-                        <div class="form-group full-width">
-                            <span class="modern-badge @(isQuantitative ? "badge-primary" : "badge-info")">
-                                <i class="fas @(isQuantitative ? "fa-hashtag" : "fa-comment-alt") me-1"></i>
-                                @(isQuantitative ? Localizer["Quantitative"] : Localizer["Qualitative"])
-                            </span>
-                            <span class="text-muted small ms-2">@Localizer["Type is set by the first measure of this phase"]</span>
-                        </div>
-                    }
-
                     <!-- Date -->
                     <div class="form-group">
                         <label asp-for="Date" class="modern-label">
@@ -191,54 +154,37 @@
                         <div class="field-info">@Localizer["Date when this progress was achieved"]</div>
                     </div>
 
-                    <!-- Value: shown for Qualitative or first measure (toggled by JS when first) -->
-                    <div class="form-group" id="valueField" @(isQuantitative ? "style=display:none" : "")>
-                        <label asp-for="Value" class="modern-label">
-                            <i class="fas fa-chart-line"></i>
-                            @Localizer["Achievement Value"] *
-                        </label>
-                        <div class="input-with-icon">
-                            @if (isQuantitative)
-                            {
-                                <input asp-for="Value" type="number" step="0.01" min="0" max="100" class="modern-input" placeholder="0–100" id="valueInput" />
-                            }
-                            else
-                            {
-                                <input asp-for="Value" type="number" step="0.01" min="0" max="100" class="modern-input" placeholder="0–100" id="valueInput" required />
-                            }
-                            <div class="input-icon"><i class="fas fa-trophy"></i></div>
-                        </div>
-                        <span asp-validation-for="Value" class="field-error"></span>
-                        <div class="field-info">@Localizer["Enter the achieved percentage (0–100%)"]</div>
-                    </div>
-
-                    <!-- Quantity: hidden by default on first measure (Qualitative is default radio) -->
-                    <div class="form-group" id="quantityField" @(isQualitative || isFirstMeasure ? "style=display:none" : "")>
+                    <!-- Quantity: the achievement is always entered as a quantity; Value is computed server-side -->
+                    <div class="form-group" id="quantityField">
                         <label asp-for="Quantity" class="modern-label">
                             <i class="fas fa-hashtag"></i>
-                            @Localizer["Quantity"] @(isQuantitative ? "*" : "")
+                            @Localizer["Quantity"] *
                         </label>
-                        @if (isQuantitative)
-                        {
-                            <input asp-for="Quantity" type="number" step="0.01" min="0" class="modern-input" placeholder="@Localizer["How many"]" id="quantityInput" required />
-                        }
-                        else
-                        {
-                            <input asp-for="Quantity" type="number" step="0.01" min="0" class="modern-input" placeholder="@Localizer["How many"]" id="quantityInput" />
-                        }
+                        <input asp-for="Quantity" type="number" step="0.01" min="0" class="modern-input" placeholder="@Localizer["How many"]" id="quantityInput" required />
                         <span asp-validation-for="Quantity" class="field-error"></span>
                         <div class="field-info">
                             @if (selectedPhase?.TargetQuantity.HasValue == true)
                             {
                                 <span class="text-info"><i class="fas fa-magic me-1"></i>@Localizer["Achieved quantity"] — @Localizer["Auto-calculated from Quantity ÷"] @selectedPhase.TargetQuantity.Value.ToString("G")</span>
                             }
-                            else
-                            {
-                                <span class="text-warning"><i class="fas fa-info-circle me-1"></i>@Localizer["No target set — quantity is used directly as achievement % (0–100)"]</span>
-                            }
                         </div>
                     </div>
-                    <div class="form-group" id="unitField" @(isQualitative || isFirstMeasure ? "style=display:none" : "")>
+
+                    @if (needsPhaseTarget)
+                    {
+                        <!-- Phase Target: required before any quantity can be turned into a percentage -->
+                        <div class="form-group" id="targetQtyField">
+                            <label for="measureTargetQty" class="modern-label">
+                                <i class="fas fa-bullseye"></i>
+                                @Localizer["Phase Target"] *
+                            </label>
+                            <input type="number" id="measureTargetQty" name="PhaseTargetQuantity" step="0.01" min="0.01"
+                                   class="modern-input" placeholder="@Localizer["e.g. 1000"]" required />
+                            <div class="field-info">@Localizer["Total goal for this phase"]</div>
+                        </div>
+                    }
+
+                    <div class="form-group" id="unitField">
                         <label asp-for="UnitCode" class="modern-label">
                             <i class="fas fa-ruler"></i>
                             @Localizer["Unit"]
@@ -824,23 +770,6 @@
 <!-- Custom JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        @if (isFirstMeasure)
-        {
-            <text>
-        // Radio toggle for first measure
-        function applyTypeMode(isQuant) {
-            document.getElementById('valueField').style.display    = isQuant ? 'none' : '';
-            document.getElementById('quantityField').style.display = isQuant ? '' : 'none';
-            document.getElementById('unitField').style.display     = isQuant ? '' : 'none';
-            document.getElementById('valueInput').required         = !isQuant;
-            document.getElementById('quantityInput').required      = isQuant;
-        }
-        document.querySelectorAll('input[name="MeasureType"]').forEach(function(r) {
-            r.addEventListener('change', function() { applyTypeMode(this.value === '1'); });
-        });
-            </text>
-        }
-
         // Form validation feedback
         const form = document.getElementById('measureForm');
         const submitBtn = document.getElementById('submitBtn');

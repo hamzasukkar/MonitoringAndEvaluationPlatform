@@ -9,10 +9,7 @@
     ViewData["HelpFeature"] = "MEASURES";
     var selectedPhase = ViewBag.SelectedPhase as MonitoringAndEvaluationPlatform.Models.ProjectPhase;
     var selectedProject = ViewBag.SelectedProject as MonitoringAndEvaluationPlatform.Models.Project;
-    var existingPhaseType = ViewBag.ExistingPhaseType as MeasureType?;
-    bool inlineIsQuantitative = existingPhaseType == MeasureType.Quantitative;
-    bool inlineIsQualitative  = existingPhaseType == MeasureType.Qualitative;
-    bool inlineIsFirst        = existingPhaseType == null;
+    bool inlineNeedsTarget = selectedPhase != null && !selectedPhase.TargetQuantity.HasValue;
 }
 
 <!-- Dashboard Header -->
@@ -188,36 +185,6 @@
                 <form id="inlineMeasureForm" class="row g-3"
                       data-target-quantity="@(selectedPhase?.TargetQuantity?.ToString("G", System.Globalization.CultureInfo.InvariantCulture) ?? "")">
                     @Html.AntiForgeryToken()
-                    @if (inlineIsFirst)
-                    {
-                        <!-- First measure: radio buttons -->
-                        <div class="col-12">
-                            <label class="form-label fw-semibold">@Localizer["Achievement Type"] *</label>
-                            <div class="d-flex gap-3">
-                                <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                                    <input type="radio" name="inlineMeasureType" id="inlineTypeQualitative" value="0"
-                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" />
-                                    <span><strong>@Localizer["Qualitative"]</strong></span>
-                                </label>
-                                <label class="d-flex align-items-center gap-2" style="cursor:pointer;">
-                                    <input type="radio" name="inlineMeasureType" id="inlineTypeQuantitative" value="1"
-                                           class="form-check-input flex-shrink-0" style="width:1.1em;height:1.1em;cursor:pointer;" checked />
-                                    <span><strong>@Localizer["Quantitative"]</strong></span>
-                                </label>
-                            </div>
-                        </div>
-                    }
-                    else
-                    {
-                        <!-- Subsequent measures: type badge -->
-                        <div class="col-12">
-                            <span class="modern-badge @(inlineIsQuantitative ? "badge-primary" : "badge-info")">
-                                <i class="fas @(inlineIsQuantitative ? "fa-hashtag" : "fa-comment-alt") me-1"></i>
-                                @(inlineIsQuantitative ? Localizer["Quantitative"] : Localizer["Qualitative"])
-                            </span>
-                            <span class="text-muted small ms-2">@Localizer["Type is set by the first measure of this phase"]</span>
-                        </div>
-                    }
                     <div class="col-md-4">
                         <label for="measureName" class="form-label">@Localizer["Name"] *</label>
                         <input type="text" id="measureName" name="Name" class="form-control" placeholder="@Localizer["Measure name"]" required />
@@ -226,43 +193,31 @@
                         <label for="measureDate" class="form-label">@Localizer["Date"] *</label>
                         <input type="date" id="measureDate" name="Date" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
                     </div>
-                    <!-- Value field -->
-                    <div class="col-md-4" id="inlineValueField" @(inlineIsQuantitative ? "style=display:none" : "")>
-                        <label for="measureValue" class="form-label">@Localizer["Achievement Value"] *</label>
-                        <input type="number" id="measureValue" name="Value" step="0.01" min="0" max="100"
-                               class="form-control" placeholder="0–100" @(inlineIsQuantitative ? "" : "required") />
-                    </div>
-                    <!-- Quantity field -->
-                    <div class="col-md-3" id="inlineQuantityField" @(inlineIsQualitative || inlineIsFirst ? "style=display:none" : "")>
-                        <label for="measureQuantity" class="form-label">@Localizer["Quantity"] @(inlineIsQuantitative ? "*" : "")</label>
+                    <!-- Quantity field: the achievement is always a quantity; the % is computed server-side -->
+                    <div class="col-md-3" id="inlineQuantityField">
+                        <label for="measureQuantity" class="form-label">@Localizer["Quantity"] *</label>
                         <input type="number" id="measureQuantity" name="Quantity" step="0.01" min="0"
-                               class="form-control" placeholder="@Localizer["How many"]" @(inlineIsQuantitative ? "required" : "") />
+                               class="form-control" placeholder="@Localizer["How many"]" required />
                         @if (selectedPhase?.TargetQuantity.HasValue == true)
                         {
                             <div class="form-text text-info">
                                 <i class="fas fa-magic me-1"></i>@Localizer["Achieved quantity"] — @Localizer["Auto-calculated from Quantity ÷"] @selectedPhase.TargetQuantity.Value.ToString("G")
                             </div>
                         }
-                        else
-                        {
-                            <div class="form-text text-warning">
-                                <i class="fas fa-info-circle me-1"></i>@Localizer["No target set — quantity is used directly as achievement % (0–100)"]
-                            </div>
-                        }
                     </div>
-                    @if (inlineIsFirst)
+                    @if (inlineNeedsTarget)
                     {
-                        <!-- Phase Target field: only when setting type for the first time -->
-                        <div class="col-md-3" id="inlineTargetQtyField" style="display:none">
-                            <label for="measureTargetQty" class="form-label">@Localizer["Phase Target"]</label>
+                        <!-- Phase Target field: shown until the phase has a target, whichever measure sets it -->
+                        <div class="col-md-3" id="inlineTargetQtyField">
+                            <label for="measureTargetQty" class="form-label">@Localizer["Phase Target"] *</label>
                             <input type="number" id="measureTargetQty" name="PhaseTargetQuantity" step="0.01" min="0.01"
-                                   class="form-control" placeholder="@Localizer["e.g. 1000"]" />
+                                   class="form-control" placeholder="@Localizer["e.g. 1000"]" required />
                             <div class="form-text text-muted">
                                 <i class="fas fa-bullseye me-1"></i>@Localizer["Total goal for this phase"]
                             </div>
                         </div>
                     }
-                    <div class="col-md-3" id="inlineUnitField" @(inlineIsQualitative || inlineIsFirst ? "style=display:none" : "")>
+                    <div class="col-md-3" id="inlineUnitField">
                         <label for="measureUnit" class="form-label">@Localizer["Unit"]</label>
                         @await Html.PartialAsync("_UnitSelect", new MonitoringAndEvaluationPlatform.ViewModel.UnitSelectViewModel
                         {
@@ -330,9 +285,6 @@
                                 <th class="text-center">
                                     <i class="fas fa-ruler me-2"></i>@Localizer["Unit"]
                                 </th>
-                                <th class="text-center">
-                                    <i class="fas fa-sliders-h me-2"></i>@Localizer["Type"]
-                                </th>
                                 @if (ViewBag.SelectedPhaseId == null)
                                 {
                                     <th>
@@ -384,38 +336,14 @@
                                     </div>
                                 </td>
                                 <td class="text-center">
-                                    @if (item.MeasureType == MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative && item.Quantity.HasValue)
-                                    {
-                                        <span class="modern-badge badge-success measure-value-display" data-value="@item.Value">@item.Quantity.Value.ToString("#,##0.##")</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="modern-badge badge-success measure-value-display" data-value="@item.Value">@item.Value.ToString("0.##")</span>
-                                    }
+                                    <span class="modern-badge badge-success measure-value-display" data-value="@item.Value">@(item.Quantity?.ToString("#,##0.##") ?? "—")</span>
                                     <input type="number" class="form-control form-control-sm measure-value-edit d-none" value="@item.Value" step="0.01" min="0" max="100" />
                                 </td>
                                 <td class="text-center">
-                                    @if (item.MeasureType == MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative)
-                                    {
-                                        <span class="modern-badge badge-warning measure-percentage-display">@item.Value.ToString("0.##")%</span>
-                                    }
+                                    <span class="modern-badge badge-warning measure-percentage-display">@item.Value.ToString("0.##")%</span>
                                 </td>
                                 <td class="text-center">
                                     <span class="text-muted small">@item.Unit</span>
-                                </td>
-                                <td class="text-center">
-                                    @if (item.MeasureType == MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative)
-                                    {
-                                        <span class="modern-badge badge-primary">
-                                            <i class="fas fa-hashtag me-1"></i>@Localizer["Quantitative"]
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="modern-badge badge-info">
-                                            <i class="fas fa-comment-alt me-1"></i>@Localizer["Qualitative"]
-                                        </span>
-                                    }
                                 </td>
                                 @if (ViewBag.SelectedPhaseId == null)
                                 {
@@ -454,7 +382,6 @@
                                                 data-quantity="@item.Quantity"
                                                 data-unit="@item.Unit"
                                                 data-phase-name="@item.ProjectPhase?.Name"
-                                                data-measure-type="@((int)item.MeasureType)"
                                                 title="@Localizer["View Details"]">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -536,12 +463,6 @@
                         <i class="fas fa-chart-bar me-2"></i>@Localizer["Achievement Value"]
                     </div>
                     <div class="detail-value" id="modal-value"></div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">
-                        <i class="fas fa-sliders-h me-2"></i>@Localizer["Type"]
-                    </div>
-                    <div class="detail-value" id="modal-measure-type"></div>
                 </div>
                 <div class="detail-item">
                     <div class="detail-label">
@@ -1079,17 +1000,11 @@
                 const quantity = btn.data('quantity');
                 const unit = btn.data('unit');
                 const phaseName = btn.data('phase-name');
-                const measureType = btn.data('measure-type');
 
                 // Populate modal
                 $('#modal-name').text(name);
                 $('#modal-date').text(date);
                 $('#modal-value').html('<span class="modern-badge badge-success">' + value + '</span>');
-                if (measureType == 1) {
-                    $('#modal-measure-type').html('<span class="modern-badge badge-primary"><i class="fas fa-hashtag me-1"></i>@Localizer["Quantitative"]</span>');
-                } else {
-                    $('#modal-measure-type').html('<span class="modern-badge badge-info"><i class="fas fa-comment-alt me-1"></i>@Localizer["Qualitative"]</span>');
-                }
                 $('#modal-indicator-name').text(phaseName);
                 if (quantity !== '' && quantity !== undefined && quantity !== null) {
                     $('#modal-quantity').text(quantity + (unit ? ' ' + unit : ''));
@@ -1271,27 +1186,25 @@
                 const rowTargetQty = parseFloat(row.data('target-quantity'));
                 const hasTargetQty = !isNaN(rowTargetQty) && rowTargetQty > 0;
 
-                let editedValue;
-                if (hasTargetQty) {
-                    const qty = parseFloat(row.find('.measure-quantity-edit').val());
-                    if (isNaN(qty) || qty < 0) {
-                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Quantity is required when a target is set."]', confirmButtonColor: 'var(--danger-color)' });
-                        return;
-                    }
-                    editedValue = Math.min((qty / rowTargetQty) * 100, 100);
-                    row.find('.measure-value-edit').val(editedValue.toFixed(2));
-                } else {
-                    editedValue = parseFloat(row.find('.measure-value-edit').val());
-                    if (editedValue < 0 || editedValue > 100) {
-                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Value must be between 0 and 100."]', confirmButtonColor: 'var(--danger-color)' });
-                        return;
-                    }
+                // The achievement value is always derived from the quantity and the phase target.
+                if (!hasTargetQty) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Phase target is required for Quantitative measures."]', confirmButtonColor: 'var(--danger-color)' });
+                    return;
+                }
 
-                    const otherTotal = getMeasureTotal(measureCode);
-                    if (otherTotal + editedValue > 100) {
-                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Other measures total"]: ' + otherTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - otherTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
-                        return;
-                    }
+                const qty = parseFloat(row.find('.measure-quantity-edit').val());
+                if (isNaN(qty) || qty < 0) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Quantity is required when a target is set."]', confirmButtonColor: 'var(--danger-color)' });
+                    return;
+                }
+
+                const editedValue = Math.min((qty / rowTargetQty) * 100, 100);
+                row.find('.measure-value-edit').val(editedValue.toFixed(2));
+
+                const otherTotal = getMeasureTotal(measureCode);
+                if (otherTotal + editedValue > 100) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Other measures total"]: ' + otherTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - otherTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
+                    return;
                 }
 
                 const formData = {
@@ -1401,41 +1314,6 @@
                 });
             });
 
-            @if (inlineIsFirst)
-            {
-                <text>
-            // Radio toggle for first measure (inline form)
-            function applyInlineTypeMode(isQuant) {
-                $('#inlineValueField').toggle(!isQuant);
-                $('#inlineQuantityField').toggle(isQuant);
-                $('#inlineTargetQtyField').toggle(isQuant);
-                $('#inlineUnitField').toggle(isQuant);
-                $('#measureValue').prop('required', !isQuant);
-                $('#measureQuantity').prop('required', isQuant);
-                $('#measureTargetQty').prop('required', isQuant);
-            }
-            $('input[name="inlineMeasureType"]').on('change', function() {
-                applyInlineTypeMode($(this).val() === '1');
-            });
-            // Sync initial field visibility with the default-checked type (Quantitative)
-            applyInlineTypeMode($('input[name="inlineMeasureType"]:checked').val() === '1');
-                </text>
-            }
-
-            // Auto-calculate value from quantity when TargetQuantity is set
-            const phaseTargetQty = parseFloat($('#inlineMeasureForm').data('target-quantity'));
-            if (!isNaN(phaseTargetQty) && phaseTargetQty > 0) {
-                $('#measureQuantity').on('input', function() {
-                    const qty = parseFloat($(this).val());
-                    if (!isNaN(qty) && qty >= 0) {
-                        const autoValue = Math.min((qty / phaseTargetQty) * 100, 100);
-                        $('#measureValue').val(autoValue.toFixed(2));
-                    } else {
-                        $('#measureValue').val('');
-                    }
-                });
-            }
-
             // Handle inline measure form submission
             $('#inlineMeasureForm').on('submit', function(e) {
                 e.preventDefault();
@@ -1444,31 +1322,25 @@
                 const userEnteredTarget = parseFloat($('#measureTargetQty').val());
                 const effectiveTarget = (!isNaN(phaseTargetFromData) && phaseTargetFromData > 0)
                     ? phaseTargetFromData
-                    : ((!isNaN(userEnteredTarget) && userEnteredTarget > 0) ? userEnteredTarget : NaN);
-                const hasTargetQty = !isNaN(effectiveTarget) && effectiveTarget > 0;
+                    : userEnteredTarget;
 
-                let rawValue;
-                const isQuantMode = $('#inlineQuantityField').is(':visible');
+                if (isNaN(effectiveTarget) || effectiveTarget <= 0) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Phase target is required for Quantitative measures."]', confirmButtonColor: 'var(--danger-color)' });
+                    return;
+                }
 
-                if (isQuantMode) {
-                    const qty = parseFloat($('#measureQuantity').val());
-                    if (isNaN(qty) || qty < 0) {
-                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Please enter a valid quantity."]', confirmButtonColor: 'var(--danger-color)' });
-                        return;
-                    }
-                    rawValue = hasTargetQty ? Math.min((qty / effectiveTarget) * 100, 100) : Math.min(qty, 100);
-                } else {
-                    rawValue = parseFloat($('#measureValue').val());
-                    if (isNaN(rawValue) || rawValue < 0 || rawValue > 100) {
-                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Value must be between 0 and 100."]', confirmButtonColor: 'var(--danger-color)' });
-                        return;
-                    }
+                const qty = parseFloat($('#measureQuantity').val());
+                if (isNaN(qty) || qty < 0) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Please enter a valid quantity."]', confirmButtonColor: 'var(--danger-color)' });
+                    return;
+                }
 
-                    const currentTotal = getMeasureTotal(null);
-                    if (currentTotal + rawValue > 100) {
-                        Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Current total"]: ' + currentTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - currentTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
-                        return;
-                    }
+                const rawValue = Math.min((qty / effectiveTarget) * 100, 100);
+
+                const currentTotal = getMeasureTotal(null);
+                if (currentTotal + rawValue > 100) {
+                    Swal.fire({ icon: 'error', title: '@Localizer["Invalid Value"]', text: '@Localizer["Total measures value for this indicator cannot exceed 100%."]' + ' (@Localizer["Current total"]: ' + currentTotal.toFixed(2) + '%, @Localizer["Remaining"]: ' + (100 - currentTotal).toFixed(2) + '%)', confirmButtonColor: 'var(--danger-color)' });
+                    return;
                 }
 
                 const formData = new FormData();
@@ -1514,7 +1386,6 @@
 
                         // Reset form
                         $('#measureName').val('');
-                        $('#measureValue').val('');
                         $('#measureNote').val('');
                         $('#measureQuantity').val('');
                         $('#measureUnit').val('');

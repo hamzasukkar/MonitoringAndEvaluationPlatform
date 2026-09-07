@@ -292,16 +292,22 @@ namespace MonitoringAndEvaluationPlatform.Services
                             double phaseTarget = 30 + (rng.NextDouble() * 65);
                             var values = DistributeAscending(config.MeasuresPerPhase, phaseTarget, rng);
 
+                            // Measures are quantitative only, so a phase needs a target before its
+                            // quantities mean anything. 100 makes each value double as its quantity.
+                            phase.TargetQuantity ??= 100;
+
                             for (int m = 0; m < config.MeasuresPerPhase; m++)
                             {
+                                // Column is constrained to 0-100.
+                                var value = Math.Clamp(values[m], 0, 100);
                                 measures.Add(new Measure
                                 {
                                     Name = $"{prefix}Measure {m + 1}",
                                     ProjectPhaseId = phase.Id,
                                     Date = phase.StartDate.AddDays(span * (m + 1) / (config.MeasuresPerPhase + 1)),
-                                    // Column is constrained to 0-100.
-                                    Value = Math.Clamp(values[m], 0, 100),
-                                    MeasureType = MeasureType.Qualitative
+                                    Value = value,
+                                    Quantity = value * phase.TargetQuantity.Value / 100.0,
+                                    MeasureType = MeasureType.Quantitative
                                 });
                             }
                         }

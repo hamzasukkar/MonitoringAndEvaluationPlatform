@@ -106,8 +106,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
 
             // ── 5. Two project phases ─────────────────────────────────────────
-            var phase1 = new ProjectPhase { Name = "Phase 1 – Planning", ProjectID = project.ProjectID, Weight = 50 };
-            var phase2 = new ProjectPhase { Name = "Phase 2 – Execution", ProjectID = project.ProjectID, Weight = 50 };
+            // Measures are quantitative only, so a phase needs a target. 100 makes each measure's
+            // percentage double as its quantity.
+            var phase1 = new ProjectPhase { Name = "Phase 1 – Planning", ProjectID = project.ProjectID, Weight = 50, TargetQuantity = 100 };
+            var phase2 = new ProjectPhase { Name = "Phase 2 – Execution", ProjectID = project.ProjectID, Weight = 50, TargetQuantity = 100 };
             _context.ProjectPhases.AddRange(phase1, phase2);
             await _context.SaveChangesAsync();
 
@@ -125,7 +127,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Name = $"Phase 1 – Month {i + 1}",
                     Date = DateTime.Today.AddMonths(-12 + i),
                     Value = phase1Values[i],
-                    MeasureType = MonitoringAndEvaluationPlatform.Enums.MeasureType.Qualitative,
+                    Quantity = phase1Values[i],
+                    MeasureType = MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative,
                     ProjectPhaseId = phase1.Id
                 });
                 measures.Add(new Measure
@@ -133,7 +136,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Name = $"Phase 2 – Month {i + 1}",
                     Date = DateTime.Today.AddMonths(-6 + i),
                     Value = phase2Values[i],
-                    MeasureType = MonitoringAndEvaluationPlatform.Enums.MeasureType.Qualitative,
+                    Quantity = phase2Values[i],
+                    MeasureType = MonitoringAndEvaluationPlatform.Enums.MeasureType.Quantitative,
                     ProjectPhaseId = phase2.Id
                 });
             }

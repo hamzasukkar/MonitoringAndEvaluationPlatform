@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
@@ -2281,5 +2281,26 @@
   </data>
   <data name="New" xml:space="preserve">
     <value>جديد</value>
+  </data>
+  <data name="Measures record the actual achievement for a project phase against a specific indicator. Every measure is quantitative: you enter a quantity, and the system calculates the achievement percentage against the phase target." xml:space="preserve">
+    <value>تسجّل القياسات الإنجاز الفعلي لفقرة المشروع مقارنةً بمؤشر محدد. جميع القياسات كمية: تُدخل الكمية المنجزة ويحسب النظام نسبة الإنجاز بالنسبة إلى الهدف الكلي للفقرة.</value>
+  </data>
+  <data name="Quantity" xml:space="preserve">
+    <value>الكمية</value>
+  </data>
+  <data name="Phase Target" xml:space="preserve">
+    <value>الهدف الإجمالي للفقرة</value>
+  </data>
+  <data name="The total goal for the phase, in the same unit as the quantities. It is entered once, on the first measure recorded for the phase, and every later percentage is calculated against it." xml:space="preserve">
+    <value>الهدف الكلي للفقرة بالوحدة نفسها المستخدمة في الكميات. يُدخل مرة واحدة عند أول قياس يُسجَّل في الفقرة، وتُحسب كل نسبة لاحقة بالنسبة إليه.</value>
+  </data>
+  <data name="7.6.1 Recording a Measure" xml:space="preserve">
+    <value>7.6.1 تسجيل قياس</value>
+  </data>
+  <data name="On the first measure for a phase, enter the total target quantity (e.g., 1000 beneficiaries). This target is stored at the phase level and used to calculate all future measure percentages automatically. Choose carefully — it cannot easily be changed once measures are recorded." xml:space="preserve">
+    <value>عند أول قياس للفقرة، أدخل الكمية الإجمالية المستهدفة (مثال: 1000 مستفيد). يُخزَّن هذا الهدف على مستوى الفقرة ويُستخدم لحساب نسب جميع القياسات اللاحقة تلقائياً. اختر بعناية — لا يمكن تغييره بسهولة بعد تسجيل القياسات.</value>
+  </data>
+  <data name="Performance recalculates automatically. The Measures list shows the Quantity and Achievement % separately. The phase total accumulates across all measure entries, capped at 100%." xml:space="preserve">
+    <value>يُعاد احتساب الأداء تلقائياً. تعرض قائمة القياسات الكمية ونسبة الإنجاز بشكل منفصل. ويتراكم إجمالي الفقرة عبر جميع الإدخالات بحد أقصى 100%.</value>
   </data>
 </root>

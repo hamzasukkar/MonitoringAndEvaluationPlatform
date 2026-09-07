@@ -37,10 +37,12 @@ namespace MonitoringAndEvaluationPlatform.Models
         public string? Unit => UnitRef?.DisplayName;
 
         /// <summary>
-        /// Qualitative: Value entered directly by the user.
-        /// Quantitative: Value auto-calculated from Quantity ÷ TargetQuantity.
+        /// Always <see cref="MeasureType.Quantitative"/> — Value is auto-calculated from
+        /// Quantity ÷ ProjectPhase.TargetQuantity. Qualitative measures (Value typed directly)
+        /// were retired by the MakeAllMeasuresQuantitative migration; the enum is kept only so
+        /// the column and its history remain readable.
         /// </summary>
-        public MeasureType MeasureType { get; set; } = MeasureType.Qualitative;
+        public MeasureType MeasureType { get; set; } = MeasureType.Quantitative;
 
         public int ProjectPhaseId { get; set; }
         public virtual ProjectPhase ProjectPhase { get; set; } = null!;

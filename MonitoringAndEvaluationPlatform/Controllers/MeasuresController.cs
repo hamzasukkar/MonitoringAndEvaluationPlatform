@@ -35,28 +35,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var phase = await _context.ProjectPhases.FindAsync(dto.PhaseId);
             if (phase == null) return NotFound();
 
-            // Auto-calculate Value from Quantity if phase has a TargetQuantity
-            if (dto.Quantity.HasValue)
-            {
-                if (!phase.TargetQuantity.HasValue || phase.TargetQuantity.Value <= 0)
-                    return BadRequest(_localizer["Phase target is required for Quantitative measures."]);
-                dto.Value = Math.Min((dto.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
-            }
-            else if (dto.Value <= 0 || dto.Value > 100)
-            {
-                return BadRequest(_localizer["Value must be between 0 and 100."]);
-            }
+            // Value is always derived from Quantity ÷ the phase target.
+            if (!dto.Quantity.HasValue)
+                return BadRequest(_localizer["Quantity is required."]);
 
-            var measureType = dto.Quantity.HasValue ? MeasureType.Quantitative : MeasureType.Qualitative;
+            if (!phase.TargetQuantity.HasValue || phase.TargetQuantity.Value <= 0)
+                return BadRequest(_localizer["Phase target is required for Quantitative measures."]);
 
-            // Enforce: all measures in a phase must share the same type
-            var existingType = await _context.Measures
-                .Where(m => m.ProjectPhaseId == dto.PhaseId)
-                .Select(m => (MeasureType?)m.MeasureType)
-                .FirstOrDefaultAsync();
-
-            if (existingType.HasValue && existingType.Value != measureType)
-                return BadRequest(_localizer["A phase cannot mix Qualitative and Quantitative measures."]);
+            dto.Value = Math.Min((dto.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
 
             var existingTotal = await _context.Measures
                 .Where(m => m.ProjectPhaseId == dto.PhaseId)
@@ -68,7 +54,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (existingTotal + dto.Value > 100)
                 return BadRequest(_localizer["Total measures value for this phase cannot exceed 100%."]);
 
-            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note, dto.Quantity, dto.UnitCode, measureType);
+            await _monitoringService.AddMeasureToPhase(dto.PhaseId, dto.Value, dto.Name, dto.Note, dto.Quantity, dto.UnitCode, MeasureType.Quantitative);
             return Ok(_localizer["Measure added and Phase Performance updated"]);
         }
 
@@ -127,13 +113,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.SelectedPhaseId = phaseId.Value;
                 ViewBag.SelectedProject = phase?.Project;
                 ViewBag.SelectedProjectId = phase?.ProjectID;
-
-                // Pass the type locked by the first existing measure (null = no measures yet)
-                ViewBag.ExistingPhaseType = await _context.Measures
-                    .Where(m => m.ProjectPhaseId == phaseId.Value)
-                    .OrderBy(m => m.Date)
-                    .Select(m => (MeasureType?)m.MeasureType)
-                    .FirstOrDefaultAsync();
             }
 
             ViewData["PhaseId"] = new SelectList(
@@ -165,31 +144,27 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ModelState.Remove(nameof(measure.ProjectPhase));
 
-            // Derive MeasureType from Quantity
-            measure.MeasureType = measure.Quantity.HasValue ? MeasureType.Quantitative : MeasureType.Qualitative;
+            measure.MeasureType = MeasureType.Quantitative;
 
-            // Auto-calculate Value from Quantity if phase has a TargetQuantity
             var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
 
-            // Save user-supplied target quantity to the phase (first Quantitative measure)
+            // Save user-supplied target quantity to the phase (any measure, as long as no target is set yet)
             if (PhaseTargetQuantity.HasValue && PhaseTargetQuantity.Value > 0 && phase != null && !phase.TargetQuantity.HasValue)
             {
                 phase.TargetQuantity = PhaseTargetQuantity.Value;
                 _context.Update(phase);
             }
 
-            if (measure.Quantity.HasValue)
-            {
-                var effectiveTarget = phase?.TargetQuantity.HasValue == true ? phase.TargetQuantity.Value : PhaseTargetQuantity;
-                if (!effectiveTarget.HasValue || effectiveTarget.Value <= 0)
-                    return BadRequest(new { message = _localizer["Phase target is required for Quantitative measures."].Value });
-                measure.Value = Math.Min((measure.Quantity.Value / effectiveTarget.Value) * 100.0, 100.0);
-                ModelState.Remove(nameof(measure.Value));
-            }
-            else if (measure.Value <= 0 || measure.Value > 100)
-            {
-                return BadRequest(new { message = _localizer["Value must be between 0 and 100."].Value });
-            }
+            // Value is always derived from Quantity ÷ the phase target.
+            if (!measure.Quantity.HasValue)
+                return BadRequest(new { message = _localizer["Quantity is required."].Value });
+
+            var effectiveTarget = phase?.TargetQuantity.HasValue == true ? phase.TargetQuantity.Value : PhaseTargetQuantity;
+            if (!effectiveTarget.HasValue || effectiveTarget.Value <= 0)
+                return BadRequest(new { message = _localizer["Phase target is required for Quantitative measures."].Value });
+
+            measure.Value = Math.Min((measure.Quantity.Value / effectiveTarget.Value) * 100.0, 100.0);
+            ModelState.Remove(nameof(measure.Value));
 
             var existingTotal = await _context.Measures
                 .Where(m => m.ProjectPhaseId == measure.ProjectPhaseId)
@@ -248,13 +223,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.SelectedProject = phase?.Project;
                 ViewBag.SelectedProjectId = phase?.ProjectID;
 
-                // Pass the type locked by the first existing measure (null = no measures yet)
-                ViewBag.ExistingPhaseType = await _context.Measures
-                    .Where(m => m.ProjectPhaseId == phaseId.Value)
-                    .OrderBy(m => m.Date)
-                    .Select(m => (MeasureType?)m.MeasureType)
-                    .FirstOrDefaultAsync();
-
                 ViewData["Phases"] = new SelectList(
                     _context.ProjectPhases.Include(pp => pp.Project),
                     "Id", "Name", phaseId.Value);
@@ -272,45 +240,41 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Measures/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Code,Name,Date,Value,Note,Quantity,UnitCode,ProjectPhaseId")] Measure measure)
+        public async Task<IActionResult> Create([Bind("Code,Name,Date,Value,Note,Quantity,UnitCode,ProjectPhaseId")] Measure measure, double? PhaseTargetQuantity)
         {
             ModelState.Remove(nameof(measure.ProjectPhase));
 
-            // Auto-calculate Value from Quantity if phase has a TargetQuantity
+            measure.MeasureType = MeasureType.Quantitative;
+
             var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
-            if (measure.Quantity.HasValue)
+
+            // Save user-supplied target quantity to the phase (any measure, as long as no target is set yet)
+            if (PhaseTargetQuantity.HasValue && PhaseTargetQuantity.Value > 0 && phase != null && !phase.TargetQuantity.HasValue)
             {
-                if (phase == null || !phase.TargetQuantity.HasValue || phase.TargetQuantity.Value <= 0)
-                {
-                    ModelState.AddModelError("Quantity", _localizer["Phase target is required for Quantitative measures."]);
-                    ViewData["Phases"] = new SelectList(_context.ProjectPhases.Include(pp => pp.Project), "Id", "Name", measure.ProjectPhaseId);
-                    return View(measure);
-                }
-                measure.Value = Math.Min((measure.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
-                ModelState.Remove(nameof(measure.Value));
+                phase.TargetQuantity = PhaseTargetQuantity.Value;
+                _context.Update(phase);
             }
 
-            // Derive MeasureType from Quantity if not explicitly set
-            if (measure.MeasureType == MeasureType.Qualitative && measure.Quantity.HasValue)
-                measure.MeasureType = MeasureType.Quantitative;
+            // Value is always derived from Quantity ÷ the phase target.
+            if (!measure.Quantity.HasValue)
+            {
+                ModelState.AddModelError("Quantity", _localizer["Quantity is required."]);
+                ViewData["Phases"] = new SelectList(_context.ProjectPhases.Include(pp => pp.Project), "Id", "Name", measure.ProjectPhaseId);
+                return View(measure);
+            }
+
+            if (phase == null || !phase.TargetQuantity.HasValue || phase.TargetQuantity.Value <= 0)
+            {
+                ModelState.AddModelError("Quantity", _localizer["Phase target is required for Quantitative measures."]);
+                ViewData["Phases"] = new SelectList(_context.ProjectPhases.Include(pp => pp.Project), "Id", "Name", measure.ProjectPhaseId);
+                return View(measure);
+            }
+
+            measure.Value = Math.Min((measure.Quantity.Value / phase.TargetQuantity.Value) * 100.0, 100.0);
+            ModelState.Remove(nameof(measure.Value));
 
             if (ModelState.IsValid)
             {
-                // Enforce: all measures in a phase must share the same type
-                var existingType = await _context.Measures
-                    .Where(m => m.ProjectPhaseId == measure.ProjectPhaseId)
-                    .Select(m => (MeasureType?)m.MeasureType)
-                    .FirstOrDefaultAsync();
-
-                if (existingType.HasValue && existingType.Value != measure.MeasureType)
-                {
-                    ModelState.AddModelError("MeasureType", _localizer["A phase cannot mix Qualitative and Quantitative measures."]);
-                    ViewData["Phases"] = new SelectList(
-                        _context.ProjectPhases.Include(pp => pp.Project),
-                        "Id", "Name", measure.ProjectPhaseId);
-                    return View(measure);
-                }
-
                 var existingTotal = await _context.Measures
                     .Where(m => m.ProjectPhaseId == measure.ProjectPhaseId)
                     .SumAsync(m => m.Value);
@@ -370,31 +334,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 existingMeasure.Note = measure.Note;
                 existingMeasure.Quantity = measure.Quantity;
                 existingMeasure.UnitCode = measure.UnitCode;
+                existingMeasure.MeasureType = MeasureType.Quantitative;
 
-                var newType = measure.Quantity.HasValue ? MeasureType.Quantitative : MeasureType.Qualitative;
+                // Value is always derived from Quantity ÷ the phase target.
+                if (!measure.Quantity.HasValue)
+                    return BadRequest(new { message = _localizer["Quantity is required."].Value });
 
-                // Enforce: all other measures in this phase must share the same type
-                var conflictingType = await _context.Measures
-                    .Where(m => m.ProjectPhaseId == existingMeasure.ProjectPhaseId && m.Code != id)
-                    .Select(m => (MeasureType?)m.MeasureType)
-                    .FirstOrDefaultAsync();
-
-                if (conflictingType.HasValue && conflictingType.Value != newType)
-                    return BadRequest(new { message = _localizer["A phase cannot mix Qualitative and Quantitative measures."].Value });
-
-                existingMeasure.MeasureType = newType;
-
-                // Auto-calculate Value from Quantity if phase has a TargetQuantity
-                double computedValue;
                 var phaseForEdit = await _context.ProjectPhases.FindAsync(existingMeasure.ProjectPhaseId);
-                if (measure.Quantity.HasValue && phaseForEdit?.TargetQuantity.HasValue == true && phaseForEdit.TargetQuantity.Value > 0)
-                {
-                    computedValue = Math.Min((measure.Quantity.Value / phaseForEdit.TargetQuantity.Value) * 100.0, 100.0);
-                }
-                else
-                {
-                    computedValue = Math.Max(0, Math.Min(100, measure.Value));
-                }
+                var editTarget = phaseForEdit?.TargetQuantity ?? 0;
+                if (editTarget <= 0)
+                    return BadRequest(new { message = _localizer["Phase target is required for Quantitative measures."].Value });
+
+                var computedValue = Math.Min((measure.Quantity.Value / editTarget) * 100.0, 100.0);
 
                 var otherTotal = await _context.Measures
                     .Where(m => m.ProjectPhaseId == existingMeasure.ProjectPhaseId && m.Code != id)
@@ -425,6 +376,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (id != measure.Code) return NotFound();
 
             ModelState.Remove(nameof(measure.ProjectPhase));
+            measure.MeasureType = MeasureType.Quantitative;
 
             if (ModelState.IsValid)
             {
