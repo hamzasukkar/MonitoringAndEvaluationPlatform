@@ -1209,7 +1209,7 @@
                     @* One entry for both admin levels: the map page toggles governorate/district in place. *@
                     <a href="/Reports/GovernorateMap" class="sidebar-link @(Context.Request.Path.Value.Contains("GovernorateMap") || Context.Request.Path.Value.Contains("DistrictMap") ? "active" : "")">
                         <i class="fas fa-map-marked-alt"></i>
-                        <span>@Localizer["Projects Map"]</span>
+                        <span>@Localizer["Geographic Map Systems"]</span>
                     </a>
                 </li>
                 @if (User.IsInRole("SystemAdministrator"))
