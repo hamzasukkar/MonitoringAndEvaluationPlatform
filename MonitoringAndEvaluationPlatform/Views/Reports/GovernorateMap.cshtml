@@ -48,15 +48,27 @@
     .map-loading { text-align: center; color: #6c757d; }
     .map-loading i { color: #2196F3; }
     .syria-map { width: 100%; height: auto; max-height: 500px; }
-    .governorate { fill: #e3f2fd; stroke: #1976d2; stroke-width: 1.5; cursor: pointer; transition: all 0.3s ease; }
-    .governorate:hover { fill: #4caf50 !important; stroke: #2e7d32; stroke-width: 3; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); }
-    .governorate.active { fill: #1976d2 !important; stroke: #0d47a1; stroke-width: 3; }
+    /* Boundary stroke is a dark neutral, NOT the blue it used to be: #1976d2 is also the top of
+       the choropleth ramp (.has-projects-very-high), so a governorate at the top of the scale drew
+       its own outline in its own fill colour and vanished into its neighbours. That is why the
+       whole country reads as one blob once country-wide projects are counted into every governorate.
+       This colour has to stay clear of every fill from #e3f2fd through #1976d2.
+       Widths: resting is heavy enough to read; hover/active/highlight sit above it. */
+    .governorate { fill: #e3f2fd; stroke: #0f172a; stroke-width: 2.5; cursor: pointer; transition: all 0.3s ease; }
+    .governorate:hover { fill: #4caf50 !important; stroke: #2e7d32; stroke-width: 4; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); }
+    /* Same colour as .highlight below, on purpose: clicking a governorate on the map and having a
+       selected project point at one are both "this is the governorate you're looking at" - one
+       visual language for both, rather than a third colour. (The old value, #1976d2, was
+       byte-identical to .has-projects-very-high's fill, so clicking a governorate already at the
+       top of the ramp changed nothing - any colour distinct from the ramp fixes that; this one
+       also matches the "Selected projects" legend swatch.) */
+    .governorate.active { fill: #ff9800 !important; stroke: #e65100; stroke-width: 4; filter: drop-shadow(0 3px 6px rgba(230,81,0,.4)); }
     .governorate.has-projects-low { fill: #cfe8ff; }
     .governorate.has-projects-medium { fill: #90caf9; }
     .governorate.has-projects-high { fill: #42a5f5; }
     .governorate.has-projects-very-high { fill: #1976d2; }
     /* Project highlight wins over the colour/active classes */
-    .governorate.highlight { fill: #ff9800 !important; stroke: #e65100; stroke-width: 3; filter: drop-shadow(0 3px 6px rgba(230,81,0,.4)); }
+    .governorate.highlight { fill: #ff9800 !important; stroke: #e65100; stroke-width: 4; filter: drop-shadow(0 3px 6px rgba(230,81,0,.4)); }
     .map-tooltip { position: absolute; background: rgba(0,0,0,0.85); color: #fff; padding: 10px 15px; border-radius: 8px; font-size: .9rem; pointer-events: none; opacity: 0; transition: opacity .2s ease; z-index: 1000; max-width: 250px; }
     .map-tooltip.visible { opacity: 1; }
     .map-tooltip .tooltip-title { font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,.3); padding-bottom: 5px; }

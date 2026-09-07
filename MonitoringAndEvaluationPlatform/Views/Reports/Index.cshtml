@@ -3235,10 +3235,14 @@
             max-height: 450px;
         }
 
+        /* Matches the map page's stroke weights (Views/Reports/GovernorateMap.cshtml) — this is
+           the same SVG rendered twice, so the two must stay in step. */
         .governorate {
             fill: #e3f2fd;
-            stroke: #1976d2;
-            stroke-width: 1.5;
+            /* Dark neutral, not blue: #1976d2 is also the darkest choropleth fill, so a blue
+               outline disappeared on the governorates that needed it most. */
+            stroke: #0f172a;
+            stroke-width: 2.5;
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -3246,16 +3250,23 @@
         .governorate:hover {
             fill: #4caf50 !important;
             stroke: #2e7d32;
-            stroke-width: 3;
+            stroke-width: 4;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35));
             transform: scale(1.02);
             transform-origin: center;
         }
 
+        /* Same colour as the map page's .highlight rule (Views/Reports/GovernorateMap.cshtml):
+           clicking a governorate here and a selected project pointing at one are both "this is the
+           governorate you're looking at" - one visual language for both. (The old fill, #1976d2,
+           was byte-identical to .has-projects-very-high, so clicking an already-"Highest"
+           governorate produced no visible change at all - this also matches the
+           "Selected projects" legend swatch used on the map page.) */
         .governorate.active {
-            fill: #1976d2 !important;
-            stroke: #0d47a1;
-            stroke-width: 3;
+            fill: #ff9800 !important;
+            stroke: #e65100;
+            stroke-width: 4;
+            filter: drop-shadow(0 3px 6px rgba(230,81,0,.4));
         }
 
         .governorate.active:hover {
