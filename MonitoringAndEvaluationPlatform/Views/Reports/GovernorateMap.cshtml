@@ -1,4 +1,5 @@
 @model MonitoringAndEvaluationPlatform.ViewModel.GovernorateMapViewModel
+@using MonitoringAndEvaluationPlatform.ViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
@@ -7,11 +8,41 @@
     var requestCultureFeature = ViewContext.HttpContext.Features.Get<IRequestCultureFeature>();
     var culture = requestCultureFeature?.RequestCulture?.Culture?.Name ?? "ar";
     var isRtl = culture.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
-    ViewData["Title"] = isRtl ? "خريطة المشاريع حسب المحافظة" : "Projects by Governorate Map";
+    ViewData["Title"] = isRtl ? "خريطة المشاريع" : "Projects Map";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
+@section Styles {
+    @* Only the district level uses Leaflet, but the stylesheet is tiny and loading it up front
+       avoids a flash of unstyled map on the first switch. *@
+    <link rel="stylesheet" href="~/lib/leaflet/leaflet.css" />
+}
+
 <style>
+    /* ---- Shared shell ---- */
+    .chart-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.06); padding: 1.25rem; }
+    .chart-title { font-weight: 700; font-size: 1.05rem; margin-bottom: .75rem; color: #1f2937; }
+    .filter-bar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
+    /* Keep the filter card above the map so its dropdowns are never covered */
+    .filter-card { position: relative; z-index: 1050; }
+    .filter-dropdown .dropdown-menu { min-width: 300px; max-width: 360px; border: 1px solid #cbd5e1; box-shadow: 0 8px 24px rgba(0,0,0,.18); border-radius: 10px; background-color: #ffffff !important; opacity: 1 !important; z-index: 2000; }
+    .filter-dropdown .dropdown-menu.show { display: block; }
+    .filter-list { max-height: 260px; overflow-y: auto; min-height: 40px; }
+    .filter-item { display: flex; align-items: center; gap: .55rem; padding: .4rem .55rem; border-radius: 6px; cursor: pointer; margin: 0; font-size: .9rem; color: #1f2937; }
+    .filter-item:hover { background: #eff6ff; }
+    .filter-item input { flex-shrink: 0; width: 1.05em; height: 1.05em; cursor: pointer; }
+    .filter-item span { flex: 1; line-height: 1.3; word-break: break-word; }
+    .filter-item .filter-count { flex: 0 0 auto; background: #e0e7ff; color: #3730a3; border-radius: 999px; font-size: .75rem; font-weight: 600; padding: .05rem .5rem; min-width: 1.6em; text-align: center; }
+    .filter-empty { color: #94a3b8; font-size: .85rem; padding: .75rem; text-align: center; }
+    .year-select { width: auto; min-width: 5.2rem; }
+    .gov-select { width: auto; min-width: 10rem; }
+    /* RTL fix: the LTR Bootstrap build gives the switch input a negative margin-left,
+       which overlaps the label under dir="rtl" — neutralize it and space via flex gap */
+    [dir="rtl"] .filter-bar .form-switch { padding-left: 0; gap: .5rem; }
+    [dir="rtl"] .filter-bar .form-switch .form-check-input { margin-left: 0; }
+    [dir="rtl"] .filter-bar .form-switch .form-check-label { margin-left: 0 !important; }
+
+    /* ---- Governorate level: stylised SVG ---- */
     .syria-map-container { position: relative; width: 100%; padding: 1rem; }
     .syria-map-wrapper { width: 100%; min-height: 400px; display: flex; align-items: center; justify-content: center; }
     .map-loading { text-align: center; color: #6c757d; }
@@ -31,36 +62,37 @@
     .map-tooltip .tooltip-title { font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,.3); padding-bottom: 5px; }
     /* Fullscreen toggle (inside .syria-map-container so it stays clickable in fullscreen) */
     .map-fullscreen-btn { position: absolute; top: .75rem; inset-inline-end: .75rem; z-index: 10; background: #fff; }
-    /* Colour legend (inside .syria-map-container so it stays visible in fullscreen) */
-    .map-legend { position: absolute; bottom: .75rem; inset-inline-start: .75rem; z-index: 10; background: rgba(255,255,255,.95); border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.12); padding: .6rem .75rem; font-size: .78rem; color: #1f2937; line-height: 1.5; }
-    .map-legend .legend-title { font-weight: 700; margin-bottom: .3rem; }
-    .map-legend .legend-row { display: flex; align-items: center; gap: .45rem; }
-    .map-legend .legend-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); flex-shrink: 0; }
-    .map-legend .legend-note { color: #6b7280; font-size: .7rem; margin-top: .3rem; max-width: 200px; }
     .syria-map-container:fullscreen { background: #fff; display: flex; align-items: center; justify-content: center; }
     .syria-map-container:fullscreen .syria-map { max-height: 96vh; height: 96vh; width: auto; }
     .syria-map-container:-webkit-full-screen { background: #fff; display: flex; align-items: center; justify-content: center; }
     .syria-map-container:-webkit-full-screen .syria-map { max-height: 96vh; height: 96vh; width: auto; }
-    .chart-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,.06); padding: 1.25rem; }
-    .chart-title { font-weight: 700; font-size: 1.05rem; margin-bottom: .75rem; color: #1f2937; }
-    .filter-bar { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; }
-    /* Keep the filter card above the map so its dropdowns are never covered */
-    .filter-card { position: relative; z-index: 1050; }
-    .filter-dropdown .dropdown-menu { min-width: 300px; max-width: 360px; border: 1px solid #cbd5e1; box-shadow: 0 8px 24px rgba(0,0,0,.18); border-radius: 10px; background-color: #ffffff !important; opacity: 1 !important; z-index: 2000; }
-    .filter-dropdown .dropdown-menu.show { display: block; }
-    .filter-list { max-height: 260px; overflow-y: auto; min-height: 40px; }
-    .filter-item { display: flex; align-items: center; gap: .55rem; padding: .4rem .55rem; border-radius: 6px; cursor: pointer; margin: 0; font-size: .9rem; color: #1f2937; }
-    .filter-item:hover { background: #eff6ff; }
-    .filter-item input { flex-shrink: 0; width: 1.05em; height: 1.05em; cursor: pointer; }
-    .filter-item span { flex: 1; line-height: 1.3; word-break: break-word; }
-    .filter-item .filter-count { flex: 0 0 auto; background: #e0e7ff; color: #3730a3; border-radius: 999px; font-size: .75rem; font-weight: 600; padding: .05rem .5rem; min-width: 1.6em; text-align: center; }
-    .filter-empty { color: #94a3b8; font-size: .85rem; padding: .75rem; text-align: center; }
-    .year-select { width: auto; min-width: 5.2rem; }
-    /* RTL fix: the LTR Bootstrap build gives the switch input a negative margin-left,
-       which overlaps the label under dir="rtl" — neutralize it and space via flex gap */
-    [dir="rtl"] .filter-bar .form-switch { padding-left: 0; gap: .5rem; }
-    [dir="rtl"] .filter-bar .form-switch .form-check-input { margin-left: 0; }
-    [dir="rtl"] .filter-bar .form-switch .form-check-label { margin-left: 0 !important; }
+
+    /* ---- District level: Leaflet ---- */
+    .district-map-container { position: relative; width: 100%; padding: 1rem; }
+    #districtMap { width: 100%; height: 560px; border-radius: 10px; background: #fff; }
+    /* Leaflet tooltip styled like the governorate map's custom tooltip */
+    .district-tooltip { background: rgba(0,0,0,0.85); color: #fff; border: none; border-radius: 8px; padding: 10px 15px; font-size: .9rem; max-width: 250px; }
+    .district-tooltip .tooltip-title { font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,.3); padding-bottom: 5px; }
+    .district-tooltip::before { display: none; }
+    /* Fullscreen toggle control (rendered inside the map so it stays visible in fullscreen) */
+    .fullscreen-btn { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: #fff; color: #333; cursor: pointer; }
+    .fullscreen-btn:hover { background: #f4f4f4; color: #111; }
+    #districtMap:fullscreen { height: 100vh !important; }
+    #districtMap:-webkit-full-screen { height: 100vh !important; }
+
+    /* ---- Legend ----
+       Shared look, but positioned only inside the SVG container: at district level the legend is a
+       Leaflet control, which Leaflet positions itself — absolutely positioning it here would tear
+       it out of its corner. */
+    .map-legend { background: rgba(255,255,255,.95); border: 1px solid #cbd5e1; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.12); padding: .6rem .75rem; font-size: .78rem; color: #1f2937; line-height: 1.5; }
+    .map-legend .legend-title { font-weight: 700; margin-bottom: .3rem; }
+    .map-legend .legend-row { display: flex; align-items: center; gap: .45rem; }
+    .map-legend .legend-swatch { width: 14px; height: 14px; border-radius: 3px; border: 1px solid rgba(0,0,0,.15); flex-shrink: 0; }
+    .map-legend .legend-note { color: #6b7280; font-size: .7rem; margin-top: .3rem; max-width: 200px; }
+    .syria-map-container .map-legend { position: absolute; bottom: .75rem; inset-inline-start: .75rem; z-index: 10; }
+
+    /* ---- Level toggle ---- */
+    .level-toggle .btn { font-weight: 600; }
 </style>
 
 <!-- Header -->
@@ -69,11 +101,11 @@
         <div>
             <h1 class="dashboard-title">
                 <i class="fas fa-map-marked-alt me-3"></i>
-                @(isRtl ? "خريطة المشاريع حسب المحافظة" : "Projects by Governorate Map")
+                @(isRtl ? "خريطة المشاريع" : "Projects Map")
             </h1>
             <p class="dashboard-subtitle">
-                @(isRtl ? "صفِّ حسب الهدف الاستراتيجي والوزارة والمشروع، أو اضغط على محافظة لعرض مشاريعها"
-                        : "Filter by strategy, ministry and project, or click a governorate to view its projects")
+                @(isRtl ? "صفِّ حسب الهدف الاستراتيجي والوزارة والمشروع، أو اضغط على منطقة لعرض مشاريعها"
+                        : "Filter by strategy, ministry and project, or click an area to view its projects")
             </p>
         </div>
         <div class="d-flex gap-2 flex-wrap">
@@ -91,6 +123,17 @@
     <!-- Filter bar -->
     <div class="chart-card filter-card mb-3">
         <div class="filter-bar">
+            @* Level toggle. Both levels are already in the payload, so switching is client-side
+               only — no reload, and the filter selections survive the switch. *@
+            <div class="btn-group level-toggle" role="group" id="levelToggle">
+                <button type="button" class="btn btn-outline-dark @(Model.IsDistrictLevel ? "" : "active")" data-level="governorate">
+                    <i class="fas fa-map me-1"></i>@(isRtl ? "المحافظات" : "Governorates")
+                </button>
+                <button type="button" class="btn btn-outline-dark @(Model.IsDistrictLevel ? "active" : "")" data-level="district">
+                    <i class="fas fa-draw-polygon me-1"></i>@(isRtl ? "المناطق" : "Districts")
+                </button>
+            </div>
+
             <!-- Strategies -->
             <div class="dropdown filter-dropdown">
                 <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
@@ -125,6 +168,13 @@
                 </div>
             </div>
 
+            @* Governorate zoom filter — district level only (it dims other governorates' districts
+               and zooms in, which has no meaning when the governorates themselves are the shapes). *@
+            <div class="d-flex align-items-center gap-1 ms-2" id="govFilterWrap">
+                <i class="fas fa-search-location text-muted me-1"></i>
+                <select id="govFilter" class="form-select form-select-sm gov-select"></select>
+            </div>
+
             <!-- Year range (projects active within the period) -->
             <div class="d-flex align-items-center gap-1 ms-2 year-range">
                 <i class="far fa-calendar-alt text-muted me-1"></i>
@@ -150,12 +200,14 @@
     <!-- Map -->
     <div class="chart-card mb-4">
         <div class="chart-title d-flex justify-content-between align-items-center">
-            <div><i class="fas fa-map me-2"></i>@(isRtl ? "خريطة سوريا" : "Syria Map")</div>
+            <div><i class="fas fa-map me-2"></i><span id="mapTitle">@(isRtl ? "خريطة سوريا" : "Syria Map")</span></div>
             <button class="btn btn-sm btn-outline-secondary" id="resetMapBtn" style="display:none;">
                 <i class="fas fa-undo me-1"></i>@(isRtl ? "إلغاء التحديد" : "Clear selection")
             </button>
         </div>
-        <div class="syria-map-container">
+
+        <!-- Governorate level -->
+        <div class="syria-map-container" id="governoratePane">
             <button id="fullscreenBtn" type="button" class="btn btn-sm btn-outline-secondary map-fullscreen-btn"
                     title="@(isRtl ? "ملء الشاشة" : "Full screen")">
                 <i class="fas fa-expand"></i>
@@ -179,6 +231,11 @@
                 <div class="legend-note">@(isRtl ? "التدرج نسبي: مقارنةً بالمحافظة الأعلى ضمن الفلاتر الحالية" : "Relative scale: compared to the busiest governorate under current filters")</div>
             </div>
         </div>
+
+        <!-- District level -->
+        <div class="district-map-container" id="districtPane">
+            <div id="districtMap"></div>
+        </div>
     </div>
 
     <!-- Projects table -->
@@ -190,31 +247,45 @@
         <div id="projectsTableWrapper">
             <div class="text-center text-muted py-5">
                 <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
-                <p>@(isRtl ? "اختر محافظة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع" : "Select a governorate from the map, or a project from the filters, to view projects")</p>
+                <p id="tablePlaceholderText"></p>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script src="~/lib/leaflet/leaflet.js"></script>
     <script>
         const isRtlLang = @(isRtl ? "true" : "false");
 
         // ---- Server data ----
         const governoratesData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Governorates));
+        const districtsData    = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Districts));
         const allProjects      = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Projects));
         const strategiesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Strategies));
         const ministriesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Ministries));
 
-        // ---- Selection state ----
+        const districtByCode = Object.fromEntries(districtsData.map(d => [d.Code, d]));
+
+        // ---- Selection state (shared across both levels) ----
         const selectedStrategies = new Set();
         const selectedMinistries = new Set();
         const selectedProjects   = new Set();
-        let activeGovCode = null; // last clicked governorate
-        let includeNational = true; // toggle: show/hide country-wide projects
-        let yearFrom = null, yearTo = null; // year-range filter (null = unbounded)
+        let activeGeoCode = null;        // last clicked area, in the ACTIVE level's code space
+        let selectedGovernorate = null;  // district level only: zoom/dim filter
+        let includeNational = true;      // toggle: show/hide country-wide projects
+        let yearFrom = null, yearTo = null;
 
-        // Maps SVG path IDs -> governorate names (same layout as the existing report map)
+        // ============================================================================
+        // Level adapters
+        // ----------------------------------------------------------------------------
+        // Everything below this block is level-agnostic and talks to `L()`. Each adapter owns
+        // exactly what differs between the two maps: which project field holds its codes, how an
+        // area is named, and how its renderer paints, highlights and resets.
+        // ============================================================================
+
+        // ---- Governorate level: stylised SVG loaded from /images/syria-map.svg ----
+        // Maps SVG path IDs -> governorate names (the SVG has no codes of its own)
         const governorateMapping = {
             'path1':  { nameEn: 'Damascus',     nameAr: 'دمشق' },
             'path2':  { nameEn: 'Aleppo',       nameAr: 'حلب' },
@@ -232,12 +303,191 @@
             'path14': { nameEn: 'Quneitra',     nameAr: 'القنيطرة' }
         };
 
-        // ---- Lookup helpers ----
         function govByNameAr(nameAr) { return governoratesData.find(g => g.NameAr === nameAr); }
         function govCodeFromNameAr(nameAr) { const g = govByNameAr(nameAr); return g ? g.Code : null; }
-        function nameArFromGovCode(code) { const g = governoratesData.find(x => x.Code === code); return g ? g.NameAr : null; }
 
-        // ---- Filter predicates ----
+        let svgLoaded = false;
+
+        const governorateLevel = {
+            key: 'governorate',
+            pane: () => document.getElementById('governoratePane'),
+            codesOf: p => p.GovernorateCodes || [],
+            mapTitle: () => isRtlLang ? 'خريطة سوريا — المحافظات' : 'Syria Map — Governorates',
+            placeholder: () => isRtlLang
+                ? 'اختر محافظة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع'
+                : 'Select a governorate from the map, or a project from the filters, to view projects',
+            nameOf(code) {
+                const g = governoratesData.find(x => x.Code === code);
+                if (!g) return code;
+                return isRtlLang ? g.NameAr : (g.NameEn || g.NameAr);
+            },
+            titleFor(code) {
+                return (isRtlLang ? 'مشاريع محافظة ' : 'Projects in ') + this.nameOf(code);
+            },
+
+            colorize() {
+                const counts = governoratesData.map(g => projectsInGeo(g.Code).length);
+                const max = Math.max(...counts, 1);
+                document.querySelectorAll('.governorate').forEach(path => {
+                    const code = govCodeFromNameAr(path.dataset.nameAr);
+                    const n = code ? projectsInGeo(code).length : 0;
+                    path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
+                    if (n === 0) return;
+                    const ratio = n / max;
+                    if (ratio > 0.75) path.classList.add('has-projects-very-high');
+                    else if (ratio > 0.5) path.classList.add('has-projects-high');
+                    else if (ratio > 0.25) path.classList.add('has-projects-medium');
+                    else path.classList.add('has-projects-low');
+                });
+            },
+
+            clearHighlight() {
+                document.querySelectorAll('.governorate').forEach(p => p.classList.remove('highlight'));
+            },
+
+            highlight(codes, anyNational) {
+                document.querySelectorAll('.governorate').forEach(path => {
+                    const code = govCodeFromNameAr(path.dataset.nameAr);
+                    if (anyNational || (code && codes.has(code))) path.classList.add('highlight');
+                });
+            },
+
+            clearActive() {
+                document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
+            },
+
+            resetView() { /* the SVG has no zoom to reset */ },
+
+            activate() {
+                this.pane().style.display = '';
+                if (!svgLoaded) loadSvgMap();
+            },
+
+            deactivate() { this.pane().style.display = 'none'; }
+        };
+
+        // ---- District level: Leaflet over wwwroot/geo/syr_admin2.json (ADM2) ----
+        let map = null, geoLayer = null, fullscreenControl = null;
+        let highlightedDistricts = new Set();
+        let highlightAllNational = false;
+
+        function districtName(code) {
+            const d = districtByCode[code];
+            if (!d) return code;
+            return isRtlLang ? d.NameAr : (d.NameEn || d.NameAr);
+        }
+        function govNameOfDistrict(code) {
+            const d = districtByCode[code];
+            if (!d) return '';
+            const g = governoratesData.find(x => x.Code === d.GovernorateCode);
+            if (!g) return '';
+            return isRtlLang ? g.NameAr : (g.NameEn || g.NameAr);
+        }
+        function featureCode(layer) { return layer.feature.properties.adm2_pcode; }
+
+        // Choropleth ramp by project count (same palette as the governorate map)
+        function rampColor(n, max) {
+            if (n === 0) return '#e3f2fd';
+            const ratio = n / max;
+            if (ratio > 0.75) return '#1976d2';
+            if (ratio > 0.5) return '#42a5f5';
+            if (ratio > 0.25) return '#90caf9';
+            return '#cfe8ff';
+        }
+
+        // Single source of truth for a district polygon's style, from all current state
+        function styleFor(layer, countByCode, max) {
+            const code = featureCode(layer);
+            const d = districtByCode[code];
+            const highlighted = highlightAllNational || highlightedDistricts.has(code);
+            const active = code === activeGeoCode;
+            const dimmed = selectedGovernorate && d && d.GovernorateCode !== selectedGovernorate;
+
+            if (highlighted) {
+                return { fillColor: '#ff9800', color: '#e65100', weight: 2.5, fillOpacity: dimmed ? 0.35 : 0.9 };
+            }
+            const n = countByCode[code] || 0;
+            return {
+                fillColor: active ? '#0d47a1' : rampColor(n, max),
+                color: active ? '#0d47a1' : '#1976d2',
+                weight: active ? 3 : 1,
+                fillOpacity: dimmed ? 0.15 : 0.8
+            };
+        }
+
+        function fitToGovernorate(govCode) {
+            if (!geoLayer) return;
+            if (!govCode) { map.fitBounds(geoLayer.getBounds()); return; }
+            let bounds = null;
+            geoLayer.eachLayer(l => {
+                const d = districtByCode[featureCode(l)];
+                if (d && d.GovernorateCode === govCode) {
+                    bounds = bounds ? bounds.extend(l.getBounds()) : L.latLngBounds(l.getBounds().getSouthWest(), l.getBounds().getNorthEast());
+                }
+            });
+            if (bounds) map.fitBounds(bounds, { padding: [20, 20] });
+        }
+
+        const districtLevel = {
+            key: 'district',
+            pane: () => document.getElementById('districtPane'),
+            codesOf: p => p.DistrictCodes || [],
+            mapTitle: () => isRtlLang ? 'خريطة سوريا — المناطق' : 'Syria Map — Districts',
+            placeholder: () => isRtlLang
+                ? 'اختر منطقة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع'
+                : 'Select a district from the map, or a project from the filters, to view projects',
+            nameOf(code) { return districtName(code); },
+            titleFor(code) {
+                const gov = govNameOfDistrict(code);
+                return (isRtlLang ? 'مشاريع منطقة ' : 'Projects in ') + districtName(code) + (gov ? ` (${gov})` : '');
+            },
+
+            colorize() {
+                if (!geoLayer) return;
+                const countByCode = {};
+                let max = 1;
+                districtsData.forEach(d => {
+                    const n = projectsInGeo(d.Code).length;
+                    countByCode[d.Code] = n;
+                    if (n > max) max = n;
+                });
+                geoLayer.eachLayer(l => l.setStyle(styleFor(l, countByCode, max)));
+            },
+
+            clearHighlight() {
+                highlightedDistricts = new Set();
+                highlightAllNational = false;
+            },
+
+            highlight(codes, anyNational) {
+                highlightedDistricts = new Set(codes);
+                highlightAllNational = anyNational;
+            },
+
+            clearActive() {
+                highlightedDistricts = new Set();
+                highlightAllNational = false;
+                this.colorize();
+            },
+
+            resetView() { fitToGovernorate(selectedGovernorate); },
+
+            activate() {
+                this.pane().style.display = '';
+                if (!map) initLeaflet();
+                // Leaflet measures the container on creation; if it was display:none it measured
+                // 0x0, so re-measure once the browser has laid the pane out.
+                setTimeout(() => { map.invalidateSize(); fitToGovernorate(selectedGovernorate); }, 60);
+            },
+
+            deactivate() { this.pane().style.display = 'none'; }
+        };
+
+        const levels = { governorate: governorateLevel, district: districtLevel };
+        let currentLevel = '@Model.Level';
+        function L_() { return levels[currentLevel]; }
+
+        // ---- Filter predicates (level-agnostic) ----
         function matchesStrategy(p) {
             return selectedStrategies.size === 0 || p.FrameworkCodes.some(c => selectedStrategies.has(c));
         }
@@ -270,10 +520,10 @@
                 (exceptFacet === 'ministry' || matchesMinistry(p)) &&
                 (exceptFacet === 'project'  || matchesProjectPick(p)));
         }
-        // Projects passing all active filters (incl. selected projects) that belong to a governorate
+        // Projects passing all active filters that belong to an area at the CURRENT level
         // (national counted everywhere)
-        function projectsInGov(govCode) {
-            return projectsMatching().filter(p => p.IsNational || p.GovernorateCodes.includes(govCode));
+        function projectsInGeo(code) {
+            return projectsMatching().filter(p => p.IsNational || L_().codesOf(p).includes(code));
         }
 
         // ---- Money / badges ----
@@ -448,59 +698,41 @@
             document.getElementById('projectsTableWrapper').innerHTML = `
                 <div class="text-center text-muted py-5">
                     <i class="fas fa-mouse-pointer fa-3x mb-3"></i>
-                    <p>${isRtlLang ? 'اختر محافظة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع' : 'Select a governorate from the map, or a project from the filters, to view projects'}</p>
+                    <p>${L_().placeholder()}</p>
                 </div>`;
         }
 
-        // ---- Map colouring ----
-        function colorizeMap() {
-            const counts = governoratesData.map(g => projectsInGov(g.Code).length);
-            const max = Math.max(...counts, 1);
-            document.querySelectorAll('.governorate').forEach(path => {
-                const code = govCodeFromNameAr(path.dataset.nameAr);
-                const n = code ? projectsInGov(code).length : 0;
-                path.classList.remove('has-projects-low', 'has-projects-medium', 'has-projects-high', 'has-projects-very-high');
-                if (n === 0) return;
-                const ratio = n / max;
-                if (ratio > 0.75) path.classList.add('has-projects-very-high');
-                else if (ratio > 0.5) path.classList.add('has-projects-high');
-                else if (ratio > 0.25) path.classList.add('has-projects-medium');
-                else path.classList.add('has-projects-low');
-            });
-        }
+        function colorizeMap() { L_().colorize(); }
 
         // ---- Project-selection highlight + table ----
         function applyProjectSelection() {
-            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('highlight'));
+            L_().clearHighlight();
 
             if (selectedProjects.size === 0) {
-                // Fall back to the active governorate (if any), else placeholder
-                if (activeGovCode) {
-                    const nameAr = nameArFromGovCode(activeGovCode);
-                    const name = isRtlLang ? nameAr : (governoratesData.find(g => g.Code === activeGovCode)?.NameEn || nameAr);
-                    renderProjectTable((isRtlLang ? 'مشاريع محافظة ' : 'Projects in ') + name, projectsInGov(activeGovCode));
+                // Fall back to the active area (if any), else placeholder
+                if (activeGeoCode) {
+                    renderProjectTable(L_().titleFor(activeGeoCode), projectsInGeo(activeGeoCode));
                 } else {
                     resetTablePlaceholder();
                 }
-                document.getElementById('resetMapBtn').style.display = activeGovCode ? 'inline-block' : 'none';
+                document.getElementById('resetMapBtn').style.display = activeGeoCode ? 'inline-block' : 'none';
+                colorizeMap();
                 return;
             }
 
             const chosen = allProjects.filter(p => selectedProjects.has(p.ProjectID));
-            const govCodes = new Set();
+            const codes = new Set();
             let anyNational = false;
             chosen.forEach(p => {
                 if (p.IsNational) anyNational = true;
-                p.GovernorateCodes.forEach(c => govCodes.add(c));
+                L_().codesOf(p).forEach(c => codes.add(c));
             });
 
-            document.querySelectorAll('.governorate').forEach(path => {
-                const code = govCodeFromNameAr(path.dataset.nameAr);
-                if (anyNational || (code && govCodes.has(code))) path.classList.add('highlight');
-            });
+            L_().highlight(codes, anyNational);
 
             renderProjectTable(isRtlLang ? 'المشاريع المختارة' : 'Selected projects', chosen);
             document.getElementById('resetMapBtn').style.display = 'inline-block';
+            colorizeMap();
         }
 
         // ---- Filter UI rendering ----
@@ -619,6 +851,23 @@
             inp.addEventListener('click', e => e.stopPropagation());
         });
 
+        // ---- Governorate zoom filter (district level only) ----
+        function initGovFilter() {
+            const sel = document.getElementById('govFilter');
+            const opts = `<option value="">${isRtlLang ? 'كل المحافظات' : 'All governorates'}</option>` +
+                governoratesData
+                    .slice()
+                    .sort((a, b) => (isRtlLang ? a.NameAr : a.NameEn || '').localeCompare(isRtlLang ? b.NameAr : b.NameEn || ''))
+                    .map(g => `<option value="${g.Code}">${isRtlLang ? g.NameAr : (g.NameEn || g.NameAr)}</option>`)
+                    .join('');
+            sel.innerHTML = opts;
+            sel.addEventListener('change', e => {
+                selectedGovernorate = e.target.value || null;
+                colorizeMap();
+                fitToGovernorate(selectedGovernorate);
+            });
+        }
+
         // ---- Year-range filter ----
         function initYearFilter() {
             const years = new Set();
@@ -661,37 +910,40 @@
             selectedStrategies.clear();
             selectedMinistries.clear();
             selectedProjects.clear();
-            activeGovCode = null;
+            activeGeoCode = null;
+            selectedGovernorate = null;
+            document.getElementById('govFilter').value = '';
             includeNational = true;
             document.getElementById('nationalToggle').checked = true;
             yearFrom = null;
             yearTo = null;
             document.getElementById('yearFrom').value = '';
             document.getElementById('yearTo').value = '';
-            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
+            L_().clearActive();
             rebuildStrategyOptions();
             rebuildMinistryOptions();
             rebuildProjectOptions();
             ['stratList', 'minList', 'projList'].forEach(applySearch);
             colorizeMap();
+            L_().resetView();
             resetTablePlaceholder();
             document.getElementById('resetMapBtn').style.display = 'none';
         });
 
         document.getElementById('resetMapBtn').addEventListener('click', function () {
-            activeGovCode = null;
+            activeGeoCode = null;
             selectedProjects.clear();
             updateBadge('projCount', 0);
             rebuildStrategyOptions();
             rebuildMinistryOptions();
             rebuildProjectOptions();
+            L_().clearActive();
             colorizeMap();
-            document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active', 'highlight'));
             this.style.display = 'none';
             resetTablePlaceholder();
         });
 
-        // ---- Fullscreen toggle ----
+        // ---- Governorate map: fullscreen toggle ----
         // The button sits inside .syria-map-container so it stays visible/clickable in fullscreen
         const fullscreenBtn = document.getElementById('fullscreenBtn');
         fullscreenBtn.addEventListener('click', () => {
@@ -706,20 +958,24 @@
         ['fullscreenchange', 'webkitfullscreenchange'].forEach(ev =>
             document.addEventListener(ev, () => {
                 const fs = document.fullscreenElement || document.webkitFullscreenElement;
-                fullscreenBtn.innerHTML = fs ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
-                fullscreenBtn.title = fs
+                const label = fs
                     ? (isRtlLang ? 'إنهاء ملء الشاشة' : 'Exit full screen')
                     : (isRtlLang ? 'ملء الشاشة' : 'Full screen');
+                fullscreenBtn.innerHTML = fs ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
+                fullscreenBtn.title = label;
+                if (fullscreenControl && fullscreenControl._btn) {
+                    fullscreenControl._btn.innerHTML = fullscreenBtn.innerHTML;
+                    fullscreenControl._btn.title = label;
+                }
+                // Let the browser finish resizing before Leaflet measures, then refit so the
+                // polygons fill the new size (keeps any governorate zoom)
+                if (map) {
+                    setTimeout(() => { map.invalidateSize(); fitToGovernorate(selectedGovernorate); }, 150);
+                }
             }));
 
-        // Initial filter lists
-        initYearFilter();
-        rebuildStrategyOptions();
-        rebuildMinistryOptions();
-        rebuildProjectOptions();
-
-        // ---- Map ----
-        function initializeMap() {
+        // ---- Governorate map: load the SVG ----
+        function initializeSvgMap() {
             colorizeMap();
             const mapTooltip = document.getElementById('mapTooltip');
 
@@ -727,7 +983,7 @@
                 path.addEventListener('mouseenter', function () {
                     const name = isRtlLang ? this.dataset.nameAr : this.dataset.nameEn;
                     const code = govCodeFromNameAr(this.dataset.nameAr);
-                    const n = code ? projectsInGov(code).length : 0;
+                    const n = code ? projectsInGeo(code).length : 0;
                     mapTooltip.innerHTML = `<div class="tooltip-title">${name}</div>
                         <div>${isRtlLang ? 'المشاريع' : 'Projects'}: <strong>${n}</strong></div>`;
                     mapTooltip.classList.add('visible');
@@ -743,45 +999,193 @@
                     document.querySelectorAll('.governorate').forEach(p => p.classList.remove('active'));
                     this.classList.add('active');
                     const code = govCodeFromNameAr(this.dataset.nameAr);
-                    activeGovCode = code;
-                    const name = isRtlLang ? this.dataset.nameAr : this.dataset.nameEn;
-                    renderProjectTable((isRtlLang ? 'مشاريع محافظة ' : 'Projects in ') + name, projectsInGov(code));
+                    activeGeoCode = code;
+                    renderProjectTable(governorateLevel.titleFor(code), projectsInGeo(code));
                     document.getElementById('resetMapBtn').style.display = 'inline-block';
                 });
             });
         }
 
-        fetch('/images/syria-map.svg')
-            .then(r => r.text())
-            .then(svgContent => {
-                const container = document.getElementById('syriaMapContainer');
-                container.innerHTML = svgContent;
-                const svg = container.querySelector('svg');
-                if (!svg) return;
-                svg.classList.add('syria-map');
-                svg.setAttribute('id', 'syriaMap');
-                Object.keys(governorateMapping).forEach(pathId => {
-                    const p = svg.querySelector('#' + pathId);
-                    if (p) {
-                        const info = governorateMapping[pathId];
-                        p.classList.add('governorate');
-                        p.dataset.nameEn = info.nameEn;
-                        p.dataset.nameAr = info.nameAr;
-                        // The SVG ships inline style="fill:#e6e6e6;stroke:..." which beats the CSS
-                        // classes, so the choropleth colours never showed — strip it and let CSS rule
-                        p.style.fill = '';
-                        p.style.stroke = '';
-                        p.style.strokeWidth = '';
-                    }
+        function loadSvgMap() {
+            svgLoaded = true; // guard against a second fetch while this one is in flight
+            fetch('/images/syria-map.svg')
+                .then(r => r.text())
+                .then(svgContent => {
+                    const container = document.getElementById('syriaMapContainer');
+                    container.innerHTML = svgContent;
+                    const svg = container.querySelector('svg');
+                    if (!svg) return;
+                    svg.classList.add('syria-map');
+                    svg.setAttribute('id', 'syriaMap');
+                    Object.keys(governorateMapping).forEach(pathId => {
+                        const p = svg.querySelector('#' + pathId);
+                        if (p) {
+                            const info = governorateMapping[pathId];
+                            p.classList.add('governorate');
+                            p.dataset.nameEn = info.nameEn;
+                            p.dataset.nameAr = info.nameAr;
+                            // The SVG ships inline style="fill:#e6e6e6;stroke:..." which beats the CSS
+                            // classes, so the choropleth colours never showed — strip it and let CSS rule
+                            p.style.fill = '';
+                            p.style.stroke = '';
+                            p.style.strokeWidth = '';
+                        }
+                    });
+                    const path1 = svg.querySelector('#path1');
+                    if (path1 && path1.parentNode) path1.parentNode.appendChild(path1);
+                    initializeSvgMap();
+                })
+                .catch(err => {
+                    svgLoaded = false; // let a later switch retry
+                    console.error('Error loading map:', err);
+                    document.getElementById('syriaMapContainer').innerHTML =
+                        '<p class="text-danger text-center">@(isRtl ? "خطأ في تحميل الخريطة" : "Error loading map")</p>';
                 });
-                const path1 = svg.querySelector('#path1');
-                if (path1 && path1.parentNode) path1.parentNode.appendChild(path1);
-                initializeMap();
-            })
-            .catch(err => {
-                console.error('Error loading map:', err);
-                document.getElementById('syriaMapContainer').innerHTML =
-                    '<p class="text-danger text-center">@(isRtl ? "خطأ في تحميل الخريطة" : "Error loading map")</p>';
+        }
+
+        // ---- District map: Leaflet ----
+        // Plain polygons on a blank background (no tile layer) so the page works fully offline.
+        function initLeaflet() {
+            map = L.map('districtMap', { attributionControl: false, zoomSnap: 0.25 });
+
+            const FullscreenControl = L.Control.extend({
+                options: { position: 'topright' },
+                onAdd() {
+                    const btn = L.DomUtil.create('a', 'leaflet-bar fullscreen-btn');
+                    btn.innerHTML = '<i class="fas fa-expand"></i>';
+                    btn.href = '#';
+                    btn.title = isRtlLang ? 'ملء الشاشة' : 'Full screen';
+                    L.DomEvent.on(btn, 'click', e => {
+                        L.DomEvent.stop(e);
+                        const el = document.getElementById('districtMap');
+                        const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
+                        if (fsElement) {
+                            (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+                        } else {
+                            (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+                        }
+                    });
+                    this._btn = btn;
+                    return btn;
+                }
             });
+            fullscreenControl = new FullscreenControl();
+            fullscreenControl.addTo(map);
+
+            // Colour legend: choropleth is relative to the busiest district under the current filters
+            const LegendControl = L.Control.extend({
+                options: { position: isRtlLang ? 'bottomright' : 'bottomleft' },
+                onAdd() {
+                    const div = L.DomUtil.create('div', 'map-legend');
+                    const rows = [
+                        { c: '#e3f2fd', ar: 'لا مشاريع',     en: 'No projects' },
+                        { c: '#cfe8ff', ar: 'قليل',          en: 'Low' },
+                        { c: '#90caf9', ar: 'متوسط',         en: 'Medium' },
+                        { c: '#42a5f5', ar: 'مرتفع',         en: 'High' },
+                        { c: '#1976d2', ar: 'الأعلى',        en: 'Highest' },
+                        { c: '#ff9800', ar: 'مشاريع مختارة', en: 'Selected projects' }
+                    ];
+                    div.innerHTML =
+                        `<div class="legend-title">${isRtlLang ? 'عدد المشاريع' : 'Project count'}</div>` +
+                        rows.map(r => `<div class="legend-row"><span class="legend-swatch" style="background:${r.c}"></span><span>${isRtlLang ? r.ar : r.en}</span></div>`).join('') +
+                        `<div class="legend-note">${isRtlLang ? 'التدرج نسبي: مقارنةً بالمنطقة الأعلى ضمن الفلاتر الحالية' : 'Relative scale: compared to the busiest district under current filters'}</div>`;
+                    return div;
+                }
+            });
+            new LegendControl().addTo(map);
+
+            fetch('/geo/syr_admin2.json')
+                .then(r => r.json())
+                .then(geojson => {
+                    geoLayer = L.geoJSON(geojson, {
+                        style: { fillColor: '#e3f2fd', color: '#1976d2', weight: 1, fillOpacity: 0.8 },
+                        onEachFeature: onEachFeature
+                    }).addTo(map);
+                    map.fitBounds(geoLayer.getBounds());
+                    // Dev aid: surface any pcode not present in the database
+                    geojson.features.forEach(f => {
+                        if (!districtByCode[f.properties.adm2_pcode]) {
+                            console.warn('No DB district for GeoJSON pcode', f.properties.adm2_pcode);
+                        }
+                    });
+                    colorizeMap();
+                })
+                .catch(err => {
+                    console.error('Error loading district boundaries:', err);
+                    document.getElementById('districtMap').innerHTML =
+                        '<p class="text-danger text-center pt-5">@(isRtl ? "خطأ في تحميل الخريطة" : "Error loading map")</p>';
+                });
+        }
+
+        function onEachFeature(feature, layer) {
+            const code = feature.properties.adm2_pcode;
+
+            layer.bindTooltip(() => {
+                const name = districtByCode[code]
+                    ? districtName(code)
+                    : (isRtlLang ? feature.properties.adm2_name1 : feature.properties.adm2_name);
+                const gov = govNameOfDistrict(code);
+                const n = projectsInGeo(code).length;
+                return `<div class="tooltip-title">${name}${gov ? ` — ${gov}` : ''}</div>
+                    <div>${isRtlLang ? 'المشاريع' : 'Projects'}: <strong>${n}</strong></div>`;
+            }, { sticky: true, className: 'district-tooltip', direction: 'top' });
+
+            layer.on('mouseover', function () { this.setStyle({ weight: 3, color: '#2e7d32', fillColor: '#4caf50' }); });
+            layer.on('mouseout', function () { colorizeMap(); });
+            layer.on('click', function () {
+                activeGeoCode = code;
+                renderProjectTable(districtLevel.titleFor(code), projectsInGeo(code));
+                document.getElementById('resetMapBtn').style.display = 'inline-block';
+                colorizeMap();
+            });
+        }
+
+        // ---- Level switching ----
+        // The area codes are per-level, so a governorate selection means nothing as a district and
+        // vice versa: the active area and the table are reset on switch. The strategy/ministry/
+        // project/year filters are level-agnostic and deliberately survive.
+        function setLevel(next, isInitial) {
+            if (!levels[next]) return;
+
+            if (!isInitial) {
+                L_().clearActive();
+                activeGeoCode = null;
+                L_().deactivate();
+            } else {
+                Object.values(levels).forEach(l => { if (l.key !== next) l.deactivate(); });
+            }
+
+            currentLevel = next;
+
+            document.querySelectorAll('#levelToggle .btn').forEach(b =>
+                b.classList.toggle('active', b.dataset.level === next));
+            document.getElementById('mapTitle').textContent = L_().mapTitle();
+            // The governorate zoom filter only means something when districts are the shapes
+            document.getElementById('govFilterWrap').style.display = next === 'district' ? '' : 'none';
+
+            L_().activate();
+            colorizeMap();
+            applyProjectSelection();
+
+            // Keep the URL honest so a refresh or a shared link reopens the same level
+            const url = new URL(window.location.href);
+            url.searchParams.set('level', next);
+            history.replaceState(null, '', url);
+        }
+
+        document.getElementById('levelToggle').addEventListener('click', e => {
+            const btn = e.target.closest('[data-level]');
+            if (!btn || btn.dataset.level === currentLevel) return;
+            setLevel(btn.dataset.level, false);
+        });
+
+        // ---- Init ----
+        initGovFilter();
+        initYearFilter();
+        rebuildStrategyOptions();
+        rebuildMinistryOptions();
+        rebuildProjectOptions();
+        setLevel(currentLevel, true);
+        resetTablePlaceholder();
     </script>
 }

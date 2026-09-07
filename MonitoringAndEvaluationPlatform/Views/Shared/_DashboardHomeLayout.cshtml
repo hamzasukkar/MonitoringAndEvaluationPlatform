@@ -1206,15 +1206,10 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/Reports/GovernorateMap" class="sidebar-link @(Context.Request.Path.Value.Contains("GovernorateMap") ? "active" : "")">
+                    @* One entry for both admin levels: the map page toggles governorate/district in place. *@
+                    <a href="/Reports/GovernorateMap" class="sidebar-link @(Context.Request.Path.Value.Contains("GovernorateMap") || Context.Request.Path.Value.Contains("DistrictMap") ? "active" : "")">
                         <i class="fas fa-map-marked-alt"></i>
-                        <span>@Localizer["Governorate Map"]</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="/Reports/DistrictMap" class="sidebar-link @(Context.Request.Path.Value.Contains("DistrictMap") ? "active" : "")">
-                        <i class="fas fa-map"></i>
-                        <span>@Localizer["District Map"]</span>
+                        <span>@Localizer["Projects Map"]</span>
                     </a>
                 </li>
                 @if (User.IsInRole("SystemAdministrator"))
