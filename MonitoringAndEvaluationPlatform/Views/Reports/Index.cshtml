@@ -3247,6 +3247,15 @@
             transition: all 0.3s ease;
         }
 
+        /* Clicking a governorate focuses its <path>, and the browser paints its default focus ring
+           around the element's BOUNDING BOX - on an SVG shape that is an axis-aligned rectangle
+           with no relation to the actual outline, so it reads as a stray box over the map. The
+           .active fill already shows the selection. */
+        .governorate:focus,
+        .governorate:focus-visible {
+            outline: none;
+        }
+
         .governorate:hover {
             fill: #4caf50 !important;
             stroke: #2e7d32;

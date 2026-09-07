@@ -55,6 +55,9 @@
        This colour has to stay clear of every fill from #e3f2fd through #1976d2.
        Widths: resting is heavy enough to read; hover/active/highlight sit above it. */
     .governorate { fill: #e3f2fd; stroke: #0f172a; stroke-width: 2.5; cursor: pointer; transition: all 0.3s ease; }
+    /* Same reason as the district paths below: a focused SVG shape gets a focus ring drawn around
+       its bounding box, which shows up as a rectangle unrelated to the governorate's shape. */
+    .governorate:focus, .governorate:focus-visible { outline: none; }
     .governorate:hover { fill: #4caf50 !important; stroke: #2e7d32; stroke-width: 4; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.35)); }
     /* Same colour as .highlight below, on purpose: clicking a governorate on the map and having a
        selected project point at one are both "this is the governorate you're looking at" - one
@@ -82,6 +85,13 @@
     /* ---- District level: Leaflet ---- */
     .district-map-container { position: relative; width: 100%; padding: 1rem; }
     #districtMap { width: 100%; height: 560px; border-radius: 10px; background: #fff; }
+    /* Clicking a district focuses its <path>, and the browser then paints its default focus ring
+       around the element's BOUNDING BOX. On an SVG shape that ring is an axis-aligned rectangle
+       with no relation to the district's actual outline, so it reads as a stray black box floating
+       over the map. The orange fill already shows which district is selected, and these paths are
+       not in the tab order, so nothing is lost by removing the ring. */
+    #districtMap path.leaflet-interactive:focus,
+    #districtMap path.leaflet-interactive:focus-visible { outline: none; }
     /* Leaflet tooltip styled like the governorate map's custom tooltip */
     .district-tooltip { background: rgba(0,0,0,0.85); color: #fff; border: none; border-radius: 8px; padding: 10px 15px; font-size: .9rem; max-width: 250px; }
     .district-tooltip .tooltip-title { font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,.3); padding-bottom: 5px; }
@@ -415,14 +425,17 @@
             const active = code === activeGeoCode;
             const dimmed = selectedGovernorate && d && d.GovernorateCode !== selectedGovernorate;
 
-            if (highlighted) {
+            // Clicking a district on the map and having a selected project point at one are both
+            // "this is the district you're looking at" - same orange as the governorate map's
+            // .active/.highlight rules, rather than the dark navy this used to be on its own.
+            if (highlighted || active) {
                 return { fillColor: '#ff9800', color: '#e65100', weight: 2.5, fillOpacity: dimmed ? 0.35 : 0.9 };
             }
             const n = countByCode[code] || 0;
             return {
-                fillColor: active ? '#0d47a1' : rampColor(n, max),
-                color: active ? '#0d47a1' : '#1976d2',
-                weight: active ? 3 : 1,
+                fillColor: rampColor(n, max),
+                color: '#1976d2',
+                weight: 1,
                 fillOpacity: dimmed ? 0.15 : 0.8
             };
         }
