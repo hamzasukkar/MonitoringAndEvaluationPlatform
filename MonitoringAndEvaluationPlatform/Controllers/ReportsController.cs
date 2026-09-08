@@ -23,13 +23,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ICurrencyConversionService _currencyConversion;
         private readonly IMinistryStatisticsService _ministryStatistics;
+        private readonly IWebHostEnvironment _env;
 
-        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ICurrencyConversionService currencyConversion, IMinistryStatisticsService ministryStatistics)
+        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ICurrencyConversionService currencyConversion, IMinistryStatisticsService ministryStatistics, IWebHostEnvironment env)
         {
             _context = context;
             _userManager = userManager;
             _currencyConversion = currencyConversion;
             _ministryStatistics = ministryStatistics;
+            _env = env;
         }
 
         /// <summary>
@@ -1172,10 +1174,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Ministry)
                 .Include(p => p.Governorates)
                 .Include(p => p.Districts)
+                .Include(p => p.SubDistricts)
                 .Include(p => p.Communities)
                 .Include(p => p.Phases)
                     .ThenInclude(pp => pp.ActionPlan)
                         .ThenInclude(ap => ap.Plans)
+                // Four collection includes plus the phases chain cartesian-explode as one join;
+                // split them into separate round trips instead.
+                .AsSplitQuery()
                 .ToListAsync();
 
             // Build projectId -> set of strategy (framework) codes via the indicators hierarchy.
@@ -1209,11 +1215,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var governorates = await _context.Governorates.ToListAsync();
             var districts = await _context.Districts.ToListAsync();
+            var subDistricts = await _context.SubDistricts.ToListAsync();
             var ministries = await _context.Ministries.ToListAsync();
+
+            // SubDistrict only carries DistrictCode, but the cascading governorate -> district
+            // filter needs a governorate on every sub-district. Resolved from the districts already
+            // loaded above rather than an .Include(s => s.District), which would re-query per row.
+            var governorateByDistrict = districts.ToDictionary(d => d.Code, d => d.GovernorateCode);
 
             var viewModel = new GovernorateMapViewModel
             {
                 Level = MapLevels.Normalize(level),
+                // Checked server-side so the sub-district level can explain itself without
+                // firing a request that is known to 404.
+                HasSubDistrictBoundaries = System.IO.File.Exists(
+                    Path.Combine(_env.WebRootPath ?? string.Empty, "geo", "syr_admin3.json")),
                 TotalProjects = projects.Count,
                 Governorates = governorates
                     .Select(g => new GovernorateRef { Code = g.Code, NameEn = g.EN_Name, NameAr = g.AR_Name })
@@ -1225,6 +1241,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         NameEn = d.EN_Name,
                         NameAr = d.AR_Name,
                         GovernorateCode = d.GovernorateCode
+                    })
+                    .ToList(),
+                SubDistricts = subDistricts
+                    .Select(s => new SubDistrictRef
+                    {
+                        Code = s.Code,
+                        NameEn = s.EN_Name,
+                        NameAr = s.AR_Name,
+                        DistrictCode = s.DistrictCode,
+                        GovernorateCode = governorateByDistrict.TryGetValue(s.DistrictCode, out var gc)
+                            ? gc
+                            : string.Empty
                     })
                     .ToList(),
                 Strategies = frameworks
@@ -1264,6 +1292,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             : new List<int>(),
                         GovernorateCodes = p.Governorates.Select(g => g.Code).ToList(),
                         DistrictCodes = p.Districts.Select(d => d.Code).ToList(),
+                        SubDistrictCodes = p.SubDistricts.Select(s => s.Code).ToList(),
                         Communities = p.Communities
                             .Select(c => isArabic ? c.AR_Name : c.EN_Name)
                             .ToList()

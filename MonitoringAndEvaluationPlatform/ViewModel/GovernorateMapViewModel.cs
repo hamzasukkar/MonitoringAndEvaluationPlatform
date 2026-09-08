@@ -18,31 +18,46 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
     {
         public List<GovernorateRef> Governorates { get; set; } = new();
         public List<DistrictRef> Districts { get; set; } = new();
+        public List<SubDistrictRef> SubDistricts { get; set; } = new();
         public List<GeoProjectItem> Projects { get; set; } = new();
         public List<StrategyRef> Strategies { get; set; } = new();
         public List<MinistryRef> Ministries { get; set; } = new();
         public int TotalProjects { get; set; }
 
         /// <summary>
-        /// Which level the map opens on: <c>governorate</c> (default) or <c>district</c>.
-        /// /Reports/DistrictMap redirects here with this set, so old links still land correctly.
+        /// Which level the map opens on: <c>governorate</c> (default), <c>district</c> or
+        /// <c>subdistrict</c>. /Reports/DistrictMap redirects here with this set, so old links
+        /// still land correctly.
         /// </summary>
         public string Level { get; set; } = MapLevels.Governorate;
 
-        public bool IsDistrictLevel =>
-            string.Equals(Level, MapLevels.District, StringComparison.OrdinalIgnoreCase);
+        /// <summary>
+        /// Whether wwwroot/geo/syr_admin3.json is deployed. Checked server-side so the sub-district
+        /// level renders an explanation instead of firing a fetch that is known to fail.
+        /// </summary>
+        public bool HasSubDistrictBoundaries { get; set; }
+
+        /// <summary>True when <see cref="Level"/> is the given level - used per toggle button.</summary>
+        public bool IsLevel(string level) =>
+            string.Equals(Level, level, StringComparison.OrdinalIgnoreCase);
     }
 
     public static class MapLevels
     {
         public const string Governorate = "governorate";
         public const string District = "district";
+        public const string SubDistrict = "subdistrict";
 
         /// <summary>Anything unrecognised falls back to governorate rather than erroring.</summary>
-        public static string Normalize(string? level) =>
-            string.Equals(level, District, StringComparison.OrdinalIgnoreCase)
-                ? District
-                : Governorate;
+        public static string Normalize(string? level)
+        {
+            if (string.Equals(level, District, StringComparison.OrdinalIgnoreCase)) return District;
+            // Accept the hyphenated spelling too - it is the natural thing to hand-type, and
+            // silently falling back to governorate for it reads as the link being broken.
+            if (string.Equals(level, SubDistrict, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(level, "sub-district", StringComparison.OrdinalIgnoreCase)) return SubDistrict;
+            return Governorate;
+        }
     }
 
     public class GovernorateRef
@@ -61,6 +76,23 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public string Code { get; set; } = string.Empty;
         public string NameEn { get; set; } = string.Empty;
         public string NameAr { get; set; } = string.Empty;
+        public string GovernorateCode { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// A sub-district (ADM3). <see cref="Code"/> is the 8-char PCode joining to the boundary file
+    /// wwwroot/geo/syr_admin3.json (feature property <c>adm3_pcode</c>).
+    ///
+    /// <see cref="GovernorateCode"/> is carried explicitly even though it is derivable from
+    /// <see cref="DistrictCode"/>: the cascading governorate -> district filter needs to narrow
+    /// sub-districts by governorate without a second lookup hop in JS.
+    /// </summary>
+    public class SubDistrictRef
+    {
+        public string Code { get; set; } = string.Empty;
+        public string NameEn { get; set; } = string.Empty;
+        public string NameAr { get; set; } = string.Empty;
+        public string DistrictCode { get; set; } = string.Empty;
         public string GovernorateCode { get; set; } = string.Empty;
     }
 
@@ -95,6 +127,7 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         public List<int> FrameworkCodes { get; set; } = new();
         public List<string> GovernorateCodes { get; set; } = new();
         public List<string> DistrictCodes { get; set; } = new();
+        public List<string> SubDistrictCodes { get; set; } = new();
         public List<string> Communities { get; set; } = new();
     }
 }

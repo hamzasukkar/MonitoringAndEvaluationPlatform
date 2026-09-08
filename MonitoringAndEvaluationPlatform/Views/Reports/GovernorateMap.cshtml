@@ -82,16 +82,18 @@
     .syria-map-container:-webkit-full-screen { background: #fff; display: flex; align-items: center; justify-content: center; }
     .syria-map-container:-webkit-full-screen .syria-map { max-height: 96vh; height: 96vh; width: auto; }
 
-    /* ---- District level: Leaflet ---- */
-    .district-map-container { position: relative; width: 100%; padding: 1rem; }
-    #districtMap { width: 100%; height: 560px; border-radius: 10px; background: #fff; }
-    /* Clicking a district focuses its <path>, and the browser then paints its default focus ring
+    /* ---- Leaflet polygon levels (district + sub-district) ---- */
+    /* Keyed by class, not by id: both Leaflet levels share this styling. */
+    .leaflet-map-container { position: relative; width: 100%; padding: 1rem; }
+    .leaflet-level-map { width: 100%; height: 560px; border-radius: 10px; background: #fff; }
+    .geo-unavailable { height: 560px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #64748b; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 10px; }
+    /* Clicking an area focuses its <path>, and the browser then paints its default focus ring
        around the element's BOUNDING BOX. On an SVG shape that ring is an axis-aligned rectangle
-       with no relation to the district's actual outline, so it reads as a stray black box floating
-       over the map. The orange fill already shows which district is selected, and these paths are
+       with no relation to the area's actual outline, so it reads as a stray black box floating
+       over the map. The orange fill already shows which area is selected, and these paths are
        not in the tab order, so nothing is lost by removing the ring. */
-    #districtMap path.leaflet-interactive:focus,
-    #districtMap path.leaflet-interactive:focus-visible { outline: none; }
+    .leaflet-level-map path.leaflet-interactive:focus,
+    .leaflet-level-map path.leaflet-interactive:focus-visible { outline: none; }
     /* Leaflet tooltip styled like the governorate map's custom tooltip */
     .district-tooltip { background: rgba(0,0,0,0.85); color: #fff; border: none; border-radius: 8px; padding: 10px 15px; font-size: .9rem; max-width: 250px; }
     .district-tooltip .tooltip-title { font-weight: 600; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,.3); padding-bottom: 5px; }
@@ -99,8 +101,8 @@
     /* Fullscreen toggle control (rendered inside the map so it stays visible in fullscreen) */
     .fullscreen-btn { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; background: #fff; color: #333; cursor: pointer; }
     .fullscreen-btn:hover { background: #f4f4f4; color: #111; }
-    #districtMap:fullscreen { height: 100vh !important; }
-    #districtMap:-webkit-full-screen { height: 100vh !important; }
+    .leaflet-level-map:fullscreen { height: 100vh !important; }
+    .leaflet-level-map:-webkit-full-screen { height: 100vh !important; }
 
     /* ---- Legend ----
        Shared look, but positioned only inside the SVG container: at district level the legend is a
@@ -148,11 +150,14 @@
             @* Level toggle. Both levels are already in the payload, so switching is client-side
                only — no reload, and the filter selections survive the switch. *@
             <div class="btn-group level-toggle" role="group" id="levelToggle">
-                <button type="button" class="btn btn-outline-dark @(Model.IsDistrictLevel ? "" : "active")" data-level="governorate">
+                <button type="button" class="btn btn-outline-dark @(Model.IsLevel(MapLevels.Governorate) ? "active" : "")" data-level="@MapLevels.Governorate">
                     <i class="fas fa-map me-1"></i>@(isRtl ? "المحافظات" : "Governorates")
                 </button>
-                <button type="button" class="btn btn-outline-dark @(Model.IsDistrictLevel ? "active" : "")" data-level="district">
+                <button type="button" class="btn btn-outline-dark @(Model.IsLevel(MapLevels.District) ? "active" : "")" data-level="@MapLevels.District">
                     <i class="fas fa-draw-polygon me-1"></i>@(isRtl ? "المناطق" : "Districts")
+                </button>
+                <button type="button" class="btn btn-outline-dark @(Model.IsLevel(MapLevels.SubDistrict) ? "active" : "")" data-level="@MapLevels.SubDistrict">
+                    <i class="fas fa-vector-square me-1"></i>@(isRtl ? "النواحي" : "Sub-districts")
                 </button>
             </div>
 
@@ -195,6 +200,13 @@
             <div class="d-flex align-items-center gap-1 ms-2" id="govFilterWrap">
                 <i class="fas fa-search-location text-muted me-1"></i>
                 <select id="govFilter" class="form-select form-select-sm gov-select"></select>
+            </div>
+
+            @* District zoom filter - sub-district level only. Cascades off the governorate filter
+               above: choosing a governorate narrows this list, choosing a district zooms to its
+               sub-districts. 272 sub-districts nationwide make narrowing close to essential. *@
+            <div class="d-flex align-items-center gap-1" id="distFilterWrap">
+                <select id="distFilter" class="form-select form-select-sm gov-select"></select>
             </div>
 
             <!-- Year range (projects active within the period) -->
@@ -254,9 +266,25 @@
             </div>
         </div>
 
+        @* Each Leaflet level owns its own pane and its own map instance. They deliberately do NOT
+           share one: setLevel deactivates every non-target level, so a shared pane would let the
+           outgoing level hide the pane the incoming one just showed. *@
         <!-- District level -->
-        <div class="district-map-container" id="districtPane">
-            <div id="districtMap"></div>
+        <div class="leaflet-map-container" id="districtPane">
+            <div id="districtMap" class="leaflet-level-map"></div>
+        </div>
+
+        <!-- Sub-district level -->
+        <div class="leaflet-map-container" id="subDistrictPane">
+            <div id="subDistrictMap" class="leaflet-level-map"></div>
+            @* Shown instead of the map when the ADM3 boundary file is not deployed. *@
+            <div id="subDistrictUnavailable" class="geo-unavailable" style="display:none;">
+                <i class="fas fa-map-marked-alt fa-3x mb-3 opacity-25"></i>
+                <h5 class="mb-2">@(isRtl ? "بيانات حدود النواحي غير متوفرة حالياً" : "Sub-district boundary data is not available yet")</h5>
+                <p class="text-muted small mb-0">
+                    @(isRtl ? "سيتم عرض الخريطة فور توفّر ملف الحدود syr_admin3.json في wwwroot/geo" : "The map will appear once syr_admin3.json is added to wwwroot/geo")
+                </p>
+            </div>
         </div>
     </div>
 
@@ -287,14 +315,19 @@
         const strategiesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Strategies));
         const ministriesData   = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Ministries));
 
+        const subDistrictsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SubDistricts));
+        const hasSubDistrictGeo = @(Model.HasSubDistrictBoundaries ? "true" : "false");
+
         const districtByCode = Object.fromEntries(districtsData.map(d => [d.Code, d]));
+        const subDistrictByCode = Object.fromEntries(subDistrictsData.map(s => [s.Code, s]));
 
         // ---- Selection state (shared across both levels) ----
         const selectedStrategies = new Set();
         const selectedMinistries = new Set();
         const selectedProjects   = new Set();
         let activeGeoCode = null;        // last clicked area, in the ACTIVE level's code space
-        let selectedGovernorate = null;  // district level only: zoom/dim filter
+        let selectedGovernorate = null;  // Leaflet levels: zoom/dim filter
+        let selectedDistrict = null;     // sub-district level only: narrower zoom/dim filter
         let includeNational = true;      // toggle: show/hide country-wide projects
         let yearFrom = null, yearTo = null;
 
@@ -388,26 +421,16 @@
             deactivate() { this.pane().style.display = 'none'; }
         };
 
-        // ---- District level: Leaflet over wwwroot/geo/syr_admin2.json (ADM2) ----
-        let map = null, geoLayer = null, fullscreenControl = null;
-        let highlightedDistricts = new Set();
-        let highlightAllNational = false;
+        // ---- Leaflet polygon levels (district ADM2, sub-district ADM3) ----
+        // The two are structurally identical: polygons joined to DB rows by PCode, a choropleth by
+        // project count, a tooltip, a click handler, and parent-scoped dimming/zoom. They differ
+        // only in configuration, so one factory builds both rather than duplicating the plumbing.
+        //
+        // Each instance keeps its own map, layer and highlight state in its closure. They are NOT
+        // shared: setLevel deactivates every non-target level, so a shared pane or map would let
+        // the outgoing level tear down what the incoming one just set up.
 
-        function districtName(code) {
-            const d = districtByCode[code];
-            if (!d) return code;
-            return isRtlLang ? d.NameAr : (d.NameEn || d.NameAr);
-        }
-        function govNameOfDistrict(code) {
-            const d = districtByCode[code];
-            if (!d) return '';
-            const g = governoratesData.find(x => x.Code === d.GovernorateCode);
-            if (!g) return '';
-            return isRtlLang ? g.NameAr : (g.NameEn || g.NameAr);
-        }
-        function featureCode(layer) { return layer.feature.properties.adm2_pcode; }
-
-        // Choropleth ramp by project count (same palette as the governorate map)
+        // Choropleth ramp by project count - identical at every level.
         function rampColor(n, max) {
             if (n === 0) return '#e3f2fd';
             const ratio = n / max;
@@ -417,98 +440,326 @@
             return '#cfe8ff';
         }
 
-        // Single source of truth for a district polygon's style, from all current state
-        function styleFor(layer, countByCode, max) {
-            const code = featureCode(layer);
+        // ---- Shared name lookups ----
+        function districtName(code) {
             const d = districtByCode[code];
-            const highlighted = highlightAllNational || highlightedDistricts.has(code);
-            const active = code === activeGeoCode;
-            const dimmed = selectedGovernorate && d && d.GovernorateCode !== selectedGovernorate;
-
-            // Clicking a district on the map and having a selected project point at one are both
-            // "this is the district you're looking at" - same orange as the governorate map's
-            // .active/.highlight rules, rather than the dark navy this used to be on its own.
-            if (highlighted || active) {
-                return { fillColor: '#ff9800', color: '#e65100', weight: 2.5, fillOpacity: dimmed ? 0.35 : 0.9 };
-            }
-            const n = countByCode[code] || 0;
-            return {
-                fillColor: rampColor(n, max),
-                color: '#1976d2',
-                weight: 1,
-                fillOpacity: dimmed ? 0.15 : 0.8
-            };
+            if (!d) return code;
+            return isRtlLang ? d.NameAr : (d.NameEn || d.NameAr);
+        }
+        function govNameOfCode(govCode) {
+            const g = governoratesData.find(x => x.Code === govCode);
+            if (!g) return '';
+            return isRtlLang ? g.NameAr : (g.NameEn || g.NameAr);
+        }
+        function govNameOfDistrict(code) {
+            const d = districtByCode[code];
+            return d ? govNameOfCode(d.GovernorateCode) : '';
         }
 
-        function fitToGovernorate(govCode) {
-            if (!geoLayer) return;
-            if (!govCode) { map.fitBounds(geoLayer.getBounds()); return; }
-            let bounds = null;
-            geoLayer.eachLayer(l => {
-                const d = districtByCode[featureCode(l)];
-                if (d && d.GovernorateCode === govCode) {
-                    bounds = bounds ? bounds.extend(l.getBounds()) : L.latLngBounds(l.getBounds().getSouthWest(), l.getBounds().getNorthEast());
+        function createLeafletLevel(cfg) {
+            let map = null, geoLayer = null, fullscreenControl = null;
+            let highlighted = new Set();
+            let highlightAll = false;
+            let loadStarted = false;
+
+            const codeOf = layer => layer.feature.properties[cfg.pcodeProp];
+
+            // Single source of truth for a polygon's appearance, folding highlight + active +
+            // scope-dimming + choropleth.
+            function styleFor(layer, countByCode, max) {
+                const code = codeOf(layer);
+                const ref = cfg.refByCode()[code];
+                const isHighlighted = highlightAll || highlighted.has(code);
+                const active = code === activeGeoCode;
+                // A feature with no DB row is never dimmed - same tolerance the district level
+                // has always had for pcodes the database does not know about.
+                const dimmed = cfg.hasScope() && !!ref && !cfg.inScope(ref);
+
+                if (isHighlighted || active) {
+                    return { fillColor: '#ff9800', color: '#e65100', weight: 2.5, fillOpacity: dimmed ? 0.35 : 0.9 };
                 }
-            });
-            if (bounds) map.fitBounds(bounds, { padding: [20, 20] });
+                const n = countByCode[code] || 0;
+                return {
+                    fillColor: rampColor(n, max),
+                    color: '#1976d2',
+                    weight: 1,
+                    fillOpacity: dimmed ? 0.15 : 0.8
+                };
+            }
+
+            // Zoom to the active scope, or to everything when nothing is scoped. An empty match
+            // set deliberately leaves the viewport alone rather than jumping to world bounds.
+            function fitToScope() {
+                if (!geoLayer || !map) return;
+                if (!cfg.hasScope()) { map.fitBounds(geoLayer.getBounds()); return; }
+                let bounds = null;
+                geoLayer.eachLayer(l => {
+                    const ref = cfg.refByCode()[codeOf(l)];
+                    if (ref && cfg.inScope(ref)) {
+                        bounds = bounds
+                            ? bounds.extend(l.getBounds())
+                            : L.latLngBounds(l.getBounds().getSouthWest(), l.getBounds().getNorthEast());
+                    }
+                });
+                if (bounds) map.fitBounds(bounds, { padding: [20, 20] });
+            }
+
+            function onEachFeature(feature, layer) {
+                const code = feature.properties[cfg.pcodeProp];
+
+                layer.bindTooltip(() => {
+                    const name = cfg.refByCode()[code]
+                        ? level.nameOf(code)
+                        : (isRtlLang ? feature.properties[cfg.nameProps.ar] : feature.properties[cfg.nameProps.en]);
+                    const parent = cfg.parentNameOf(code);
+                    const n = projectsInGeo(code).length;
+                    return `<div class="tooltip-title">${name}${parent ? ` — ${parent}` : ''}</div>
+                        <div>${isRtlLang ? 'المشاريع' : 'Projects'}: <strong>${n}</strong></div>`;
+                }, { sticky: true, className: 'district-tooltip', direction: 'top' });
+
+                layer.on('mouseover', function () { this.setStyle({ weight: 3, color: '#2e7d32', fillColor: '#4caf50' }); });
+                layer.on('mouseout', function () { colorizeMap(); });
+                layer.on('click', function () {
+                    activeGeoCode = code;
+                    renderProjectTable(level.titleFor(code), projectsInGeo(code));
+                    document.getElementById('resetMapBtn').style.display = 'inline-block';
+                    colorizeMap();
+                });
+            }
+
+            function showUnavailable(show) {
+                if (!cfg.unavailableId) return;
+                const panel = document.getElementById(cfg.unavailableId);
+                const mapEl = document.getElementById(cfg.containerId);
+                if (panel) panel.style.display = show ? '' : 'none';
+                if (mapEl) mapEl.style.display = show ? 'none' : '';
+            }
+
+            function init() {
+                map = L.map(cfg.containerId, { attributionControl: false, zoomSnap: 0.25 });
+
+                const FullscreenControl = L.Control.extend({
+                    options: { position: 'topright' },
+                    onAdd() {
+                        const btn = L.DomUtil.create('a', 'leaflet-bar fullscreen-btn');
+                        btn.innerHTML = '<i class="fas fa-expand"></i>';
+                        btn.href = '#';
+                        btn.title = isRtlLang ? 'ملء الشاشة' : 'Full screen';
+                        L.DomEvent.on(btn, 'click', e => {
+                            L.DomEvent.stop(e);
+                            const el = document.getElementById(cfg.containerId);
+                            const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
+                            if (fsElement) {
+                                (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+                            } else {
+                                (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
+                            }
+                        });
+                        this._btn = btn;
+                        return btn;
+                    }
+                });
+                fullscreenControl = new FullscreenControl();
+                fullscreenControl.addTo(map);
+
+                const LegendControl = L.Control.extend({
+                    options: { position: isRtlLang ? 'bottomright' : 'bottomleft' },
+                    onAdd() {
+                        const div = L.DomUtil.create('div', 'map-legend');
+                        const rows = [
+                            { c: '#e3f2fd', ar: 'لا مشاريع',     en: 'No projects' },
+                            { c: '#cfe8ff', ar: 'قليل',          en: 'Low' },
+                            { c: '#90caf9', ar: 'متوسط',         en: 'Medium' },
+                            { c: '#42a5f5', ar: 'مرتفع',         en: 'High' },
+                            { c: '#1976d2', ar: 'الأعلى',        en: 'Highest' },
+                            { c: '#ff9800', ar: 'مشاريع مختارة', en: 'Selected projects' }
+                        ];
+                        div.innerHTML =
+                            `<div class="legend-title">${isRtlLang ? 'عدد المشاريع' : 'Project count'}</div>` +
+                            rows.map(r => `<div class="legend-row"><span class="legend-swatch" style="background:${r.c}"></span><span>${isRtlLang ? r.ar : r.en}</span></div>`).join('') +
+                            `<div class="legend-note">${cfg.legendNote()}</div>`;
+                        return div;
+                    }
+                });
+                new LegendControl().addTo(map);
+
+                fetch(cfg.geojsonUrl)
+                    .then(r => {
+                        // A missing boundary file is an expected state, not a crash. Without this
+                        // check a 404 returns HTML and r.json() throws an opaque SyntaxError.
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return r.json();
+                    })
+                    .then(geojson => {
+                        geoLayer = L.geoJSON(geojson, {
+                            style: { fillColor: '#e3f2fd', color: '#1976d2', weight: 1, fillOpacity: 0.8 },
+                            onEachFeature: onEachFeature
+                        }).addTo(map);
+                        map.fitBounds(geoLayer.getBounds());
+
+                        // Dev aid: surface pcodes with no database row. Capped, because a
+                        // mismatched ADM3 dataset would otherwise log hundreds of lines.
+                        const orphans = geojson.features
+                            .map(f => f.properties[cfg.pcodeProp])
+                            .filter(c => !cfg.refByCode()[c]);
+                        if (orphans.length) {
+                            console.warn(`${orphans.length} ${cfg.key} GeoJSON pcode(s) have no DB row`, orphans.slice(0, 5));
+                        }
+                        colorizeMap();
+                    })
+                    .catch(err => {
+                        console.warn(`Boundary file unavailable for ${cfg.key}: ${cfg.geojsonUrl}`, err.message);
+                        if (cfg.unavailableId) {
+                            showUnavailable(true);
+                        } else {
+                            document.getElementById(cfg.containerId).innerHTML =
+                                '<p class="text-danger text-center pt-5">' + (isRtlLang ? 'خطأ في تحميل الخريطة' : 'Error loading map') + '</p>';
+                        }
+                    });
+            }
+
+            const level = {
+                key: cfg.key,
+                scopeFilters: cfg.scopeFilters,
+                pane: () => document.getElementById(cfg.paneId),
+                codesOf: cfg.codesOf,
+                mapTitle: cfg.mapTitle,
+                placeholder: cfg.placeholder,
+                scopeBadge: cfg.scopeBadge,
+
+                nameOf(code) {
+                    const r = cfg.refByCode()[code];
+                    if (!r) return code;
+                    return isRtlLang ? r.NameAr : (r.NameEn || r.NameAr);
+                },
+
+                titleFor(code) {
+                    const parent = cfg.parentNameOf(code);
+                    return cfg.titlePrefix() + this.nameOf(code) + (parent ? ` (${parent})` : '');
+                },
+
+                colorize() {
+                    if (!geoLayer) return;
+                    const countByCode = {};
+                    let max = 1;
+                    cfg.refs().forEach(r => {
+                        const n = projectsInGeo(r.Code).length;
+                        countByCode[r.Code] = n;
+                        if (n > max) max = n;
+                    });
+                    geoLayer.eachLayer(l => l.setStyle(styleFor(l, countByCode, max)));
+                },
+
+                clearHighlight() {
+                    highlighted = new Set();
+                    highlightAll = false;
+                },
+
+                highlight(codes, anyNational) {
+                    highlighted = new Set(codes);
+                    highlightAll = anyNational;
+                },
+
+                clearActive() {
+                    highlighted = new Set();
+                    highlightAll = false;
+                    this.colorize();
+                },
+
+                resetView() { fitToScope(); },
+
+                activate() {
+                    this.pane().style.display = '';
+                    // The file is known missing before any request is made, so no doomed fetch.
+                    if (cfg.available === false) { showUnavailable(true); return; }
+                    if (!map && !loadStarted) { loadStarted = true; init(); }
+                    // Leaflet measures its container on creation; if the pane was display:none it
+                    // measured 0x0, so re-measure once the browser has laid it out.
+                    setTimeout(() => {
+                        if (!map) return;
+                        map.invalidateSize();
+                        fitToScope();
+                    }, 60);
+                },
+
+                deactivate() { this.pane().style.display = 'none'; },
+
+                // Called by the shared fullscreenchange handler; only Leaflet levels implement it.
+                onFullscreenChange(iconHtml, label) {
+                    if (fullscreenControl && fullscreenControl._btn) {
+                        fullscreenControl._btn.innerHTML = iconHtml;
+                        fullscreenControl._btn.title = label;
+                    }
+                    if (map) {
+                        setTimeout(() => { map.invalidateSize(); fitToScope(); }, 150);
+                    }
+                }
+            };
+
+            return level;
         }
 
-        const districtLevel = {
+        // ---- District level (ADM2) ----
+        const districtLevel = createLeafletLevel({
             key: 'district',
-            pane: () => document.getElementById('districtPane'),
+            paneId: 'districtPane',
+            containerId: 'districtMap',
+            geojsonUrl: '/geo/syr_admin2.json',
+            pcodeProp: 'adm2_pcode',
+            nameProps: { en: 'adm2_name', ar: 'adm2_name1' },
+            scopeFilters: ['gov'],
+            available: true,
             codesOf: p => p.DistrictCodes || [],
+            refs: () => districtsData,
+            refByCode: () => districtByCode,
+            hasScope: () => !!selectedGovernorate,
+            inScope: r => !selectedGovernorate || r.GovernorateCode === selectedGovernorate,
+            parentNameOf: code => govNameOfDistrict(code),
+            titlePrefix: () => isRtlLang ? 'مشاريع منطقة ' : 'Projects in ',
             mapTitle: () => isRtlLang ? 'خريطة سوريا — المناطق' : 'Syria Map — Districts',
             placeholder: () => isRtlLang
                 ? 'اختر منطقة من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع'
                 : 'Select a district from the map, or a project from the filters, to view projects',
-            nameOf(code) { return districtName(code); },
-            titleFor(code) {
-                const gov = govNameOfDistrict(code);
-                return (isRtlLang ? 'مشاريع منطقة ' : 'Projects in ') + districtName(code) + (gov ? ` (${gov})` : '');
+            scopeBadge: () => isRtlLang ? 'على مستوى المنطقة' : 'District-level',
+            legendNote: () => isRtlLang
+                ? 'التدرج نسبي: مقارنةً بالمنطقة الأعلى ضمن الفلاتر الحالية'
+                : 'Relative scale: compared to the busiest district under current filters'
+        });
+
+        // ---- Sub-district level (ADM3) ----
+        const subDistrictLevel = createLeafletLevel({
+            key: 'subdistrict',
+            paneId: 'subDistrictPane',
+            containerId: 'subDistrictMap',
+            unavailableId: 'subDistrictUnavailable',
+            geojsonUrl: '/geo/syr_admin3.json',
+            pcodeProp: 'adm3_pcode',
+            nameProps: { en: 'adm3_name', ar: 'adm3_name1' },
+            scopeFilters: ['gov', 'dist'],
+            available: hasSubDistrictGeo,
+            codesOf: p => p.SubDistrictCodes || [],
+            refs: () => subDistrictsData,
+            refByCode: () => subDistrictByCode,
+            // A district pick is narrower than a governorate pick; both apply together.
+            hasScope: () => !!(selectedGovernorate || selectedDistrict),
+            inScope: r => (!selectedGovernorate || r.GovernorateCode === selectedGovernorate)
+                       && (!selectedDistrict || r.DistrictCode === selectedDistrict),
+            parentNameOf: code => {
+                const s = subDistrictByCode[code];
+                return s ? districtName(s.DistrictCode) : '';
             },
+            titlePrefix: () => isRtlLang ? 'مشاريع ناحية ' : 'Projects in ',
+            mapTitle: () => isRtlLang ? 'خريطة سوريا — النواحي' : 'Syria Map — Sub-districts',
+            placeholder: () => isRtlLang
+                ? 'اختر ناحية من الخريطة، أو مشروعاً من الفلاتر، لعرض المشاريع'
+                : 'Select a sub-district from the map, or a project from the filters, to view projects',
+            scopeBadge: () => isRtlLang ? 'على مستوى الناحية' : 'Sub-district-level',
+            legendNote: () => isRtlLang
+                ? 'التدرج نسبي: مقارنةً بالناحية الأعلى ضمن الفلاتر الحالية'
+                : 'Relative scale: compared to the busiest sub-district under current filters'
+        });
 
-            colorize() {
-                if (!geoLayer) return;
-                const countByCode = {};
-                let max = 1;
-                districtsData.forEach(d => {
-                    const n = projectsInGeo(d.Code).length;
-                    countByCode[d.Code] = n;
-                    if (n > max) max = n;
-                });
-                geoLayer.eachLayer(l => l.setStyle(styleFor(l, countByCode, max)));
-            },
-
-            clearHighlight() {
-                highlightedDistricts = new Set();
-                highlightAllNational = false;
-            },
-
-            highlight(codes, anyNational) {
-                highlightedDistricts = new Set(codes);
-                highlightAllNational = anyNational;
-            },
-
-            clearActive() {
-                highlightedDistricts = new Set();
-                highlightAllNational = false;
-                this.colorize();
-            },
-
-            resetView() { fitToGovernorate(selectedGovernorate); },
-
-            activate() {
-                this.pane().style.display = '';
-                if (!map) initLeaflet();
-                // Leaflet measures the container on creation; if it was display:none it measured
-                // 0x0, so re-measure once the browser has laid the pane out.
-                setTimeout(() => { map.invalidateSize(); fitToGovernorate(selectedGovernorate); }, 60);
-            },
-
-            deactivate() { this.pane().style.display = 'none'; }
-        };
-
-        const levels = { governorate: governorateLevel, district: districtLevel };
+        const levels = { governorate: governorateLevel, district: districtLevel, subdistrict: subDistrictLevel };
         let currentLevel = '@Model.Level';
         function L_() { return levels[currentLevel]; }
 
@@ -585,7 +836,7 @@
             { labelAr: 'اسم المشروع', labelEn: 'Project Name',   key: p => (p.ProjectName || '').toLowerCase() },
             { labelAr: 'النطاق',      labelEn: 'Scope',          key: p => (p.IsNational ? 1 : 0) },
             { labelAr: 'الجهة',       labelEn: 'Ministry',       key: p => (p.Ministry || '').toLowerCase() },
-            { labelAr: 'الناحية',     labelEn: 'Community',      key: p => (p.Communities || []).join(', ').toLowerCase() },
+            { labelAr: 'المجتمع',     labelEn: 'Community',      key: p => (p.Communities || []).join(', ').toLowerCase() },
             { labelAr: 'الهدف الاستراتيجي', labelEn: 'Framework',      key: p => frameworkNames(p).join(', ').toLowerCase() },
             { labelAr: 'الميزانية',   labelEn: 'Budget',         key: p => (p.EstimatedBudget || 0) },
             { labelAr: 'الأداء',      labelEn: 'Performance',    key: p => (p.Performance || 0) },
@@ -654,7 +905,7 @@
             rowsData.forEach((p, i) => {
                 const scope = p.IsNational
                     ? `<span class="badge bg-info"><i class="fas fa-flag me-1"></i>${isRtlLang ? 'على مستوى القطر' : 'Country-wide'}</span>`
-                    : `<span class="badge bg-secondary"><i class="fas fa-map-marker-alt me-1"></i>${isRtlLang ? 'على مستوى المحافظة' : 'Governorate-level'}</span>`;
+                    : `<span class="badge bg-secondary"><i class="fas fa-map-marker-alt me-1"></i>${L_().scopeBadge()}</span>`;
                 const fwNames = frameworkNames(p);
                 const fwCell = fwNames.length
                     ? fwNames.map(n => `<span class="badge bg-light text-dark border">${n}</span>`).join(' ')
@@ -876,20 +1127,54 @@
             inp.addEventListener('click', e => e.stopPropagation());
         });
 
-        // ---- Governorate zoom filter (district level only) ----
+        // ---- Scope filters: governorate (both Leaflet levels), district (sub-district only) ----
+        // The two cascade: choosing a governorate narrows the district list. They are ANDed in each
+        // level's inScope(), so a district chosen on its own still narrows correctly.
+        function labelOf(x) { return isRtlLang ? x.NameAr : (x.NameEn || x.NameAr); }
+
         function initGovFilter() {
             const sel = document.getElementById('govFilter');
-            const opts = `<option value="">${isRtlLang ? 'كل المحافظات' : 'All governorates'}</option>` +
+            sel.innerHTML = `<option value="">${isRtlLang ? 'كل المحافظات' : 'All governorates'}</option>` +
                 governoratesData
                     .slice()
-                    .sort((a, b) => (isRtlLang ? a.NameAr : a.NameEn || '').localeCompare(isRtlLang ? b.NameAr : b.NameEn || ''))
-                    .map(g => `<option value="${g.Code}">${isRtlLang ? g.NameAr : (g.NameEn || g.NameAr)}</option>`)
+                    .sort((a, b) => labelOf(a).localeCompare(labelOf(b)))
+                    .map(g => `<option value="${g.Code}">${labelOf(g)}</option>`)
                     .join('');
-            sel.innerHTML = opts;
             sel.addEventListener('change', e => {
                 selectedGovernorate = e.target.value || null;
+                // A district under the old governorate would silently keep dimming everything.
+                if (selectedDistrict) {
+                    const d = districtByCode[selectedDistrict];
+                    if (!d || (selectedGovernorate && d.GovernorateCode !== selectedGovernorate)) {
+                        selectedDistrict = null;
+                    }
+                }
+                rebuildDistrictFilter();
                 colorizeMap();
-                fitToGovernorate(selectedGovernorate);
+                // resetView, not fitToGovernorate: this handler serves both Leaflet levels now.
+                L_().resetView();
+            });
+        }
+
+        function rebuildDistrictFilter() {
+            const sel = document.getElementById('distFilter');
+            const inGov = districtsData
+                .filter(d => !selectedGovernorate || d.GovernorateCode === selectedGovernorate)
+                .slice()
+                .sort((a, b) => labelOf(a).localeCompare(labelOf(b)));
+            sel.innerHTML = `<option value="">${isRtlLang ? 'كل المناطق' : 'All districts'}</option>` +
+                inGov.map(d => `<option value="${d.Code}">${labelOf(d)}</option>`).join('');
+            sel.value = selectedDistrict || '';
+        }
+
+        function initDistrictFilter() {
+            const sel = document.getElementById('distFilter');
+            sel.setAttribute('aria-label', isRtlLang ? 'المنطقة' : 'District');
+            rebuildDistrictFilter();
+            sel.addEventListener('change', e => {
+                selectedDistrict = e.target.value || null;
+                colorizeMap();
+                L_().resetView();
             });
         }
 
@@ -938,6 +1223,8 @@
             activeGeoCode = null;
             selectedGovernorate = null;
             document.getElementById('govFilter').value = '';
+            selectedDistrict = null;
+            rebuildDistrictFilter();
             includeNational = true;
             document.getElementById('nationalToggle').checked = true;
             yearFrom = null;
@@ -988,15 +1275,10 @@
                     : (isRtlLang ? 'ملء الشاشة' : 'Full screen');
                 fullscreenBtn.innerHTML = fs ? '<i class="fas fa-compress"></i>' : '<i class="fas fa-expand"></i>';
                 fullscreenBtn.title = label;
-                if (fullscreenControl && fullscreenControl._btn) {
-                    fullscreenControl._btn.innerHTML = fullscreenBtn.innerHTML;
-                    fullscreenControl._btn.title = label;
-                }
-                // Let the browser finish resizing before Leaflet measures, then refit so the
-                // polygons fill the new size (keeps any governorate zoom)
-                if (map) {
-                    setTimeout(() => { map.invalidateSize(); fitToGovernorate(selectedGovernorate); }, 150);
-                }
+                // Each Leaflet level owns its own map and control, so the active level handles its
+                // own re-measure and refit (keeping whatever scope zoom is applied). The SVG
+                // governorate level has no such hook and needs none.
+                if (L_().onFullscreenChange) L_().onFullscreenChange(fullscreenBtn.innerHTML, label);
             }));
 
         // ---- Governorate map: load the SVG ----
@@ -1068,102 +1350,6 @@
                 });
         }
 
-        // ---- District map: Leaflet ----
-        // Plain polygons on a blank background (no tile layer) so the page works fully offline.
-        function initLeaflet() {
-            map = L.map('districtMap', { attributionControl: false, zoomSnap: 0.25 });
-
-            const FullscreenControl = L.Control.extend({
-                options: { position: 'topright' },
-                onAdd() {
-                    const btn = L.DomUtil.create('a', 'leaflet-bar fullscreen-btn');
-                    btn.innerHTML = '<i class="fas fa-expand"></i>';
-                    btn.href = '#';
-                    btn.title = isRtlLang ? 'ملء الشاشة' : 'Full screen';
-                    L.DomEvent.on(btn, 'click', e => {
-                        L.DomEvent.stop(e);
-                        const el = document.getElementById('districtMap');
-                        const fsElement = document.fullscreenElement || document.webkitFullscreenElement;
-                        if (fsElement) {
-                            (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-                        } else {
-                            (el.requestFullscreen || el.webkitRequestFullscreen).call(el);
-                        }
-                    });
-                    this._btn = btn;
-                    return btn;
-                }
-            });
-            fullscreenControl = new FullscreenControl();
-            fullscreenControl.addTo(map);
-
-            // Colour legend: choropleth is relative to the busiest district under the current filters
-            const LegendControl = L.Control.extend({
-                options: { position: isRtlLang ? 'bottomright' : 'bottomleft' },
-                onAdd() {
-                    const div = L.DomUtil.create('div', 'map-legend');
-                    const rows = [
-                        { c: '#e3f2fd', ar: 'لا مشاريع',     en: 'No projects' },
-                        { c: '#cfe8ff', ar: 'قليل',          en: 'Low' },
-                        { c: '#90caf9', ar: 'متوسط',         en: 'Medium' },
-                        { c: '#42a5f5', ar: 'مرتفع',         en: 'High' },
-                        { c: '#1976d2', ar: 'الأعلى',        en: 'Highest' },
-                        { c: '#ff9800', ar: 'مشاريع مختارة', en: 'Selected projects' }
-                    ];
-                    div.innerHTML =
-                        `<div class="legend-title">${isRtlLang ? 'عدد المشاريع' : 'Project count'}</div>` +
-                        rows.map(r => `<div class="legend-row"><span class="legend-swatch" style="background:${r.c}"></span><span>${isRtlLang ? r.ar : r.en}</span></div>`).join('') +
-                        `<div class="legend-note">${isRtlLang ? 'التدرج نسبي: مقارنةً بالمنطقة الأعلى ضمن الفلاتر الحالية' : 'Relative scale: compared to the busiest district under current filters'}</div>`;
-                    return div;
-                }
-            });
-            new LegendControl().addTo(map);
-
-            fetch('/geo/syr_admin2.json')
-                .then(r => r.json())
-                .then(geojson => {
-                    geoLayer = L.geoJSON(geojson, {
-                        style: { fillColor: '#e3f2fd', color: '#1976d2', weight: 1, fillOpacity: 0.8 },
-                        onEachFeature: onEachFeature
-                    }).addTo(map);
-                    map.fitBounds(geoLayer.getBounds());
-                    // Dev aid: surface any pcode not present in the database
-                    geojson.features.forEach(f => {
-                        if (!districtByCode[f.properties.adm2_pcode]) {
-                            console.warn('No DB district for GeoJSON pcode', f.properties.adm2_pcode);
-                        }
-                    });
-                    colorizeMap();
-                })
-                .catch(err => {
-                    console.error('Error loading district boundaries:', err);
-                    document.getElementById('districtMap').innerHTML =
-                        '<p class="text-danger text-center pt-5">@(isRtl ? "خطأ في تحميل الخريطة" : "Error loading map")</p>';
-                });
-        }
-
-        function onEachFeature(feature, layer) {
-            const code = feature.properties.adm2_pcode;
-
-            layer.bindTooltip(() => {
-                const name = districtByCode[code]
-                    ? districtName(code)
-                    : (isRtlLang ? feature.properties.adm2_name1 : feature.properties.adm2_name);
-                const gov = govNameOfDistrict(code);
-                const n = projectsInGeo(code).length;
-                return `<div class="tooltip-title">${name}${gov ? ` — ${gov}` : ''}</div>
-                    <div>${isRtlLang ? 'المشاريع' : 'Projects'}: <strong>${n}</strong></div>`;
-            }, { sticky: true, className: 'district-tooltip', direction: 'top' });
-
-            layer.on('mouseover', function () { this.setStyle({ weight: 3, color: '#2e7d32', fillColor: '#4caf50' }); });
-            layer.on('mouseout', function () { colorizeMap(); });
-            layer.on('click', function () {
-                activeGeoCode = code;
-                renderProjectTable(districtLevel.titleFor(code), projectsInGeo(code));
-                document.getElementById('resetMapBtn').style.display = 'inline-block';
-                colorizeMap();
-            });
-        }
 
         // ---- Level switching ----
         // The area codes are per-level, so a governorate selection means nothing as a district and
@@ -1186,7 +1372,9 @@
                 b.classList.toggle('active', b.dataset.level === next));
             document.getElementById('mapTitle').textContent = L_().mapTitle();
             // The governorate zoom filter only means something when districts are the shapes
-            document.getElementById('govFilterWrap').style.display = next === 'district' ? '' : 'none';
+            const scopes = L_().scopeFilters || [];
+            document.getElementById('govFilterWrap').style.display = scopes.includes('gov') ? '' : 'none';
+            document.getElementById('distFilterWrap').style.display = scopes.includes('dist') ? '' : 'none';
 
             L_().activate();
             colorizeMap();
@@ -1206,6 +1394,7 @@
 
         // ---- Init ----
         initGovFilter();
+        initDistrictFilter();
         initYearFilter();
         rebuildStrategyOptions();
         rebuildMinistryOptions();
