@@ -267,7 +267,7 @@
 
         <!-- Orientation toggle -->
         <label class="phases-toggle-label" for="horizontalToggle">
-            <input type="checkbox" id="horizontalToggle" class="phases-toggle-cb">
+            <input type="checkbox" id="horizontalToggle" class="phases-toggle-cb" checked>
             <i class="fas fa-sitemap fa-rotate-270"></i>
             @Localizer["Horizontal View"]
         </label>
@@ -2797,7 +2797,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 zoom: zoomLevel,
                 statusColors: document.body.classList.contains('status-colors-on'),
                 treeLines: document.body.classList.contains('tree-lines-on'),
-                horizontal: document.body.classList.contains('tree-horizontal'),
+                orientation: document.body.classList.contains('tree-horizontal') ? 'horizontal' : 'vertical',
                 compact: document.body.classList.contains('tree-compact'),
                 depth: parseInt(depthSelect.value, 10) || 0
             }));
@@ -2919,8 +2919,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const linesOn = p.treeLines === true;
         document.body.classList.toggle('tree-lines-on', linesOn);
         document.getElementById('showLinesToggle').checked = linesOn;
-        // Orientation — vertical by default (only horizontal when explicitly saved as true)
-        const horizontalOn = p.horizontal === true;
+        // Orientation — horizontal by default (vertical only when saved as 'vertical').
+        // Read from `orientation`, not the old boolean `horizontal`: every earlier visit saved
+        // horizontal:false on unload, so honouring it would keep those browsers on vertical.
+        const horizontalOn = p.orientation !== 'vertical';
         document.body.classList.toggle('tree-horizontal', horizontalOn);
         document.getElementById('horizontalToggle').checked = horizontalOn;
         // Compact nodes — full-size by default
