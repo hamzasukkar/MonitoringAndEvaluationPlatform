@@ -13,6 +13,11 @@
     var canDelete = (await AuthService.AuthorizeAsync(User, Permissions.DeleteStrategy)).Succeeded;
 
     var ministries = ViewBag.Ministries as List<Ministry> ?? new List<Ministry>();
+
+    // Which rows offer Edit. A ministry-scoped user cannot edit an output that also reaches
+    // another ministry's strategies or indicators — the controller decides that (see
+    // ImpactController.HasLinksOutsideScope) so the rule is not restated here.
+    var editableOutputIds = ViewBag.EditableOutputIds as HashSet<int> ?? new HashSet<int>();
     var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
     // The year range spanned by every project output on the page. Declared here so it stays in
@@ -426,6 +431,18 @@
                                                 title="@Localizer["How these figures are calculated"]">
                                             <i class="fas fa-calculator"></i>
                                         </button>
+
+                                        @* fa-edit, not fa-pen-to-square: that icon is already
+                                           the actual-impact button two along, and this matches
+                                           _ImpactIndicatorsTable's Edit link. *@
+                                        @if (canModify && editableOutputIds.Contains(po.Id))
+                                        {
+                                            <a href="@Url.Action("Edit", "Impact", new { id = po.Id })"
+                                               class="btn btn-outline-primary btn-sm action-btn"
+                                               title="@Localizer["Edit"]">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        }
                                         @if (canModify)
                                         {
                                             @* Opens the ONE shared modal at the bottom of the page,

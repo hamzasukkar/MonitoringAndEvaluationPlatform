@@ -95,6 +95,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToListAsync();
 
             ViewBag.Ministries = await ScopedMinistriesAsync();
+
+            // Which rows offer an Edit button. Computed here rather than in the view so the
+            // "may this user edit this row?" rule lives in one place (HasLinksOutsideScope) and
+            // cannot drift from what Edit itself enforces. The query above already Includes
+            // Ministries, Frameworks and IndicatorLinks -> ImpactIndicator -> Project, which is
+            // everything the predicate reads.
+            ViewBag.EditableOutputIds = outputs
+                .Where(po => isAdmin || !HasLinksOutsideScope(po, scopedMinistryCode))
+                .Select(po => po.Id)
+                .ToHashSet();
+
             return View(outputs);
         }
 
@@ -124,6 +135,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return Forbid();
             }
+
+            // Drives the Edit button in the header — same rule as Index, same single source.
+            ViewBag.CanEditThis = isAdmin || !HasLinksOutsideScope(projectOutput, scopedMinistryCode);
 
             return View(projectOutput);
         }
@@ -234,6 +248,192 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             TempData["SuccessMessage"] = _localizer["Project output created successfully."].Value;
             return RedirectToAction(nameof(Index));
+        }
+
+        // GET: /Impact/Edit/5
+        //
+        // Same form as Create, prefilled. Everything the create form sets is editable here:
+        // name, bounds, ministries, frameworks, linked indicators and their weights.
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var projectOutput = await LoadForEditAsync(id, tracking: false);
+            if (projectOutput == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
+            // Same ministry scope check as Details/Delete.
+            if (!isAdmin &&
+                (scopedMinistryCode is null ||
+                 !projectOutput.Ministries.Any(m => m.Code == scopedMinistryCode)))
+            {
+                return Forbid();
+            }
+
+            // Not Forbid(): they may legitimately READ this row, so a 403 would misdescribe the
+            // situation. See HasLinksOutsideScope for why a partially visible output cannot be
+            // edited coherently.
+            if (!isAdmin && HasLinksOutsideScope(projectOutput, scopedMinistryCode))
+            {
+                TempData["ErrorMessage"] = _localizer[
+                    "This project output is linked to ministries, strategic goals or indicators outside your scope, so only a system administrator can edit it."].Value;
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var model = new ProjectOutputFormViewModel
+            {
+                Id = projectOutput.Id,
+                Name = projectOutput.Name,
+                BaseValue = projectOutput.BaseValue,
+                TargetValue = projectOutput.TargetValue,
+                SelectedMinistryCodes = projectOutput.Ministries.Select(m => m.Code).ToList(),
+                SelectedFrameworkCodes = projectOutput.Frameworks.Select(f => f.Code).ToList(),
+                SelectedImpactIndicatorIds = projectOutput.IndicatorLinks.Select(l => l.ImpactIndicatorId).ToList(),
+                // Doubles as the shared form's JS seed map — without it renderWeights() repaints
+                // every saved weight as an equal split on first load. See _ProjectOutputForm.cshtml.
+                IndicatorWeights = projectOutput.IndicatorLinks
+                    .Select(l => new IndicatorWeightInput
+                    {
+                        ImpactIndicatorId = l.ImpactIndicatorId,
+                        Weight = l.Weight
+                    })
+                    .ToList()
+            };
+
+            // MUST run after the Selected* lists are filled — it reads them to tick the pickers.
+            await PopulatePickersAsync(model);
+            return View(model);
+        }
+
+        // POST: /Impact/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> Edit([FromRoute] int id, ProjectOutputFormViewModel form)
+        {
+            // [FromRoute] is load-bearing, not decoration. Without it the form value provider
+            // outranks the route one, so a posted Id of 6 would bind to BOTH id and form.Id, the
+            // check below would pass, and a form served for /Impact/Edit/5 would quietly edit 6
+            // instead. Verified: it returned 302 having edited the other row. Pinning id to the
+            // route makes the mismatch detectable, which is the whole point of the check.
+            if (id != form.Id) return NotFound();
+
+            var projectOutput = await LoadForEditAsync(id, tracking: true);
+            if (projectOutput == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
+            if (!isAdmin &&
+                (scopedMinistryCode is null ||
+                 !projectOutput.Ministries.Any(m => m.Code == scopedMinistryCode)))
+            {
+                return Forbid();
+            }
+
+            // Re-checked on POST, not just on GET: scope membership can move between the two (an
+            // indicator's project reassigned to another ministry), and the reconciliation below
+            // must never run against a graph the user cannot fully see.
+            if (!isAdmin && HasLinksOutsideScope(projectOutput, scopedMinistryCode))
+            {
+                TempData["ErrorMessage"] = _localizer[
+                    "This project output is linked to ministries, strategic goals or indicators outside your scope, so only a system administrator can edit it."].Value;
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            var selectedMinistryCodes = form.SelectedMinistryCodes ?? new List<int>();
+            var selectedFrameworkCodes = form.SelectedFrameworkCodes ?? new List<int>();
+            var selectedIndicatorIds = form.SelectedImpactIndicatorIds ?? new List<int>();
+
+            // Resolve the FINAL, scope-filtered sets up front, exactly as Create does, so the
+            // weight-sum check below validates precisely what will be persisted.
+            //
+            // Ministries load through _context.Ministries (TRACKED) rather than
+            // ScopedMinistriesAsync, whose AsNoTracking() results cannot be attached to the
+            // tracked graph without EF trying to INSERT a duplicate Ministry. Create takes the
+            // same route for the same reason.
+            var allowedMinistryCodes = (await ScopedMinistriesAsync())
+                .Select(m => m.Code)
+                .ToHashSet();
+
+            var postedMinistries = selectedMinistryCodes.Any()
+                ? (await _context.Ministries
+                        .Where(m => selectedMinistryCodes.Contains(m.Code))
+                        .ToListAsync())
+                    .Where(m => allowedMinistryCodes.Contains(m.Code))
+                    .ToList()
+                : new List<Ministry>();
+
+            // These two are already tracked queries, so their results are the same instances
+            // LoadForEditAsync tracked — no duplicate-key risk.
+            var postedFrameworks = selectedFrameworkCodes.Any()
+                ? await (await ScopedFrameworksQueryAsync())
+                    .Where(f => selectedFrameworkCodes.Contains(f.Code))
+                    .ToListAsync()
+                : new List<Framework>();
+
+            var postedIndicators = selectedIndicatorIds.Any()
+                ? await (await ScopedIndicatorsQueryAsync())
+                    .Where(i => selectedIndicatorIds.Contains(i.Id))
+                    .ToListAsync()
+                : new List<ImpactIndicator>();
+
+            // A non-admin who drops their own ministry loses the row for good: Index, Details,
+            // Edit, SaveActualImpact and Delete all filter on it and there is no way back without
+            // an administrator. Blocked rather than warned — the action has no user-side undo, and
+            // the success redirect would 403 on arrival.
+            if (!isAdmin && !postedMinistries.Any(m => m.Code == scopedMinistryCode))
+            {
+                ModelState.AddModelError(nameof(form.SelectedMinistryCodes), _localizer[
+                    "You cannot remove your own ministry from this project output — you would lose access to it."].Value);
+            }
+
+            // Same rule and 0.01 tolerance as Create. Thanks to the out-of-scope guard above, the
+            // set checked here IS the full persisted set — there is never a hidden link
+            // contributing weight the user cannot see.
+            if (postedIndicators.Any())
+            {
+                var totalWeight = postedIndicators
+                    .Select(i => form.IndicatorWeights?.FirstOrDefault(w => w.ImpactIndicatorId == i.Id)?.Weight ?? 0)
+                    .Sum();
+
+                if (Math.Abs(totalWeight - 100) > 0.01)
+                {
+                    ModelState.AddModelError(string.Empty, _localizer[
+                        "Indicator weights must sum to exactly 100. Current sum: {0}.",
+                        totalWeight.ToString("N2")].Value);
+                }
+            }
+
+            // Nothing above this line mutates the tracked entity, so a rejected post leaves the
+            // row exactly as it was.
+            if (!ModelState.IsValid)
+            {
+                await PopulatePickersAsync(form);
+                return View(form);
+            }
+
+            projectOutput.Name = form.Name.Trim();
+            projectOutput.BaseValue = form.BaseValue;
+            projectOutput.TargetValue = form.TargetValue;
+            // CreatedAt deliberately untouched — it records creation, not last edit.
+
+            SyncScopedLinks(projectOutput.Ministries, postedMinistries,
+                m => m.Code,
+                m => isAdmin || m.Code == scopedMinistryCode);
+
+            SyncScopedLinks(projectOutput.Frameworks, postedFrameworks,
+                f => f.Code,
+                f => isAdmin || f.MinistryCode == scopedMinistryCode);
+
+            SyncIndicatorLinks(projectOutput, postedIndicators, form, isAdmin, scopedMinistryCode);
+
+            await _context.SaveChangesAsync();
+
+            // Nothing to recalculate: every impact figure is computed live off the links
+            // (ProjectOutput.cs), so no *Performance column and no IPerformanceService call.
+
+            TempData["SuccessMessage"] = _localizer["Project output updated successfully."].Value;
+            return RedirectToAction(nameof(Details), new { id = projectOutput.Id });
         }
 
         // POST: /Impact/SaveActualImpact
@@ -465,6 +665,150 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             foreach (var i in model.AvailableImpactIndicators)
             {
                 i.Selected = model.SelectedImpactIndicatorIds?.Contains(int.Parse(i.Value)) == true;
+            }
+        }
+
+        // ──────────────────────────── Edit helpers ─────────────────────────────
+
+        /// <summary>
+        /// The Edit graph. Ministries/Frameworks for the pickers and the scope checks;
+        /// IndicatorLinks -> ImpactIndicator -> Project because BOTH the link reconciliation and
+        /// the out-of-scope guard read Project.MinistryCode to decide whether a link is visible.
+        /// Dropping the Project hop would make every existing link look out of scope and bounce
+        /// every non-admin off the page — it fails quietly, so keep it.
+        ///
+        /// Deliberately omits YearlyValues and ActualImpacts: the Edit form renders no rolled-up
+        /// figure, so loading them would only cost rows.
+        /// </summary>
+        private Task<ProjectOutput?> LoadForEditAsync(int id, bool tracking)
+        {
+            IQueryable<ProjectOutput> query = _context.ProjectOutputs
+                .Include(po => po.Ministries)
+                .Include(po => po.Frameworks)
+                .Include(po => po.IndicatorLinks).ThenInclude(l => l.ImpactIndicator).ThenInclude(i => i.Project);
+
+            if (!tracking) query = query.AsNoTracking();
+
+            return query.FirstOrDefaultAsync(po => po.Id == id);
+        }
+
+        /// <summary>
+        /// True when this output reaches any ministry, framework or indicator the given scope
+        /// cannot see. Each clause is the in-memory twin of the matching Scoped*QueryAsync
+        /// predicate.
+        ///
+        /// Such an output is NOT editable by a non-admin. Preserving the invisible links while
+        /// reconciling the visible ones would keep the data safe, but it leaves the weight rule
+        /// incoherent: the form can only show part of the set, so "weights must sum to 100"
+        /// becomes either unsatisfiable (validate the whole set, show 60% of it) or a silent
+        /// corruption of the invariant (validate only what is shown, persist a total that is not
+        /// 100). Handing the row to an administrator, who sees all of it, is the only honest
+        /// option.
+        ///
+        /// Only ever called with isAdmin == false. A non-admin past the ministry scope check
+        /// always has a non-null scopedMinistryCode, so the null comparisons below simply read as
+        /// "not visible", which is correct.
+        /// </summary>
+        private static bool HasLinksOutsideScope(ProjectOutput po, int? scopedMinistryCode) =>
+            po.Ministries.Any(m => m.Code != scopedMinistryCode)
+            || po.Frameworks.Any(f => f.MinistryCode != scopedMinistryCode)
+            || po.IndicatorLinks.Any(l => l.ImpactIndicator.Project == null
+                                          || l.ImpactIndicator.Project.MinistryCode != scopedMinistryCode);
+
+        /// <summary>
+        /// Reconciles a plain many-to-many collection against the posted selection, touching only
+        /// the rows the editor can SEE. An existing link outside their scope was never rendered on
+        /// the form, so its absence from the post means "not shown to me", not "unlink it" —
+        /// removing it would be silent data loss. Additions are already scope-filtered by the
+        /// caller.
+        ///
+        /// With the HasLinksOutsideScope guard in place this is equivalent to a full diff for
+        /// every user today; it exists so the delete path stays safe if that guard is ever
+        /// relaxed, and during the window where scope membership shifts between GET and POST.
+        /// </summary>
+        private static void SyncScopedLinks<T>(
+            ICollection<T> current,
+            IReadOnlyCollection<T> posted,
+            Func<T, int> keyOf,
+            Func<T, bool> isVisible)
+        {
+            var postedKeys = posted.Select(keyOf).ToHashSet();
+
+            foreach (var dropped in current.Where(isVisible)
+                                           .Where(x => !postedKeys.Contains(keyOf(x)))
+                                           .ToList())      // ToList: we mutate `current` below
+            {
+                current.Remove(dropped);
+            }
+
+            var currentKeys = current.Select(keyOf).ToHashSet();
+            foreach (var added in posted.Where(p => !currentKeys.Contains(keyOf(p))))
+            {
+                current.Add(added);
+            }
+        }
+
+        /// <summary>
+        /// Reconciles the weighted join rows: remove dropped, update Weight on survivors, add new.
+        ///
+        /// Diffed rather than cleared-and-re-added. Two reasons, both real:
+        ///  - ProjectOutputImpactIndicator has a UNIQUE index on
+        ///    (ProjectOutputId, ImpactIndicatorId). Clear-and-re-add puts the DELETE and the
+        ///    re-INSERT of the same pair in one SaveChanges batch, and EF does not guarantee the
+        ///    DELETE is ordered first — that is an intermittent unique-index violation, the worst
+        ///    kind.
+        ///  - A survivor keeps its own Id and row, so only the Weight column is written.
+        ///
+        /// Same visibility rule as SyncScopedLinks: a link whose indicator's project sits outside
+        /// the editor's scope is left untouched.
+        /// </summary>
+        private void SyncIndicatorLinks(
+            ProjectOutput projectOutput,
+            IReadOnlyCollection<ImpactIndicator> postedIndicators,
+            ProjectOutputFormViewModel form,
+            bool isAdmin,
+            int? scopedMinistryCode)
+        {
+            var postedIds = postedIndicators.Select(i => i.Id).ToHashSet();
+
+            // 1. Remove links the user dropped — only ones the form actually offered them.
+            var dropped = projectOutput.IndicatorLinks
+                .Where(l => isAdmin
+                            || (l.ImpactIndicator.Project != null
+                                && l.ImpactIndicator.Project.MinistryCode == scopedMinistryCode))
+                .Where(l => !postedIds.Contains(l.ImpactIndicatorId))
+                .ToList();
+
+            if (dropped.Any())
+            {
+                // Explicit Remove rather than relying on orphan-cascade, and also detached from
+                // the in-memory collection so the graph stays truthful for anything reading it
+                // after this point.
+                _context.RemoveRange(dropped);
+                foreach (var link in dropped) projectOutput.IndicatorLinks.Remove(link);
+            }
+
+            // 2. Update survivors in place, 3. add the genuinely new ones.
+            foreach (var indicator in postedIndicators)
+            {
+                var weight = form.IndicatorWeights?
+                    .FirstOrDefault(w => w.ImpactIndicatorId == indicator.Id)?.Weight ?? 0;
+
+                var existing = projectOutput.IndicatorLinks
+                    .FirstOrDefault(l => l.ImpactIndicatorId == indicator.Id);
+
+                if (existing != null)
+                {
+                    existing.Weight = weight;
+                }
+                else
+                {
+                    projectOutput.IndicatorLinks.Add(new ProjectOutputImpactIndicator
+                    {
+                        ImpactIndicator = indicator,
+                        Weight = weight
+                    });
+                }
             }
         }
     }

@@ -129,4 +129,16 @@
   <data name="{0} is not one of this project output's years." xml:space="preserve">
     <value>{0} is not one of this development impact indicator's years.</value>
   </data>
+  <data name="Project output updated successfully." xml:space="preserve">
+    <value>Development impact indicator updated successfully.</value>
+  </data>
+  <data name="Indicator weights must sum to exactly 100. Current sum: {0}." xml:space="preserve">
+    <value>Indicator weights must sum to exactly 100. Current sum: {0}.</value>
+  </data>
+  <data name="You cannot remove your own ministry from this project output — you would lose access to it." xml:space="preserve">
+    <value>You cannot remove your own ministry from this development impact indicator — you would lose access to it.</value>
+  </data>
+  <data name="This project output is linked to ministries, strategic goals or indicators outside your scope, so only a system administrator can edit it." xml:space="preserve">
+    <value>This development impact indicator is linked to ministries, strategic goals or indicators outside your scope, so only a system administrator can edit it.</value>
+  </data>
 </root>

@@ -1,8 +1,8 @@
-﻿@model MonitoringAndEvaluationPlatform.ViewModel.ProjectOutputFormViewModel
+@model MonitoringAndEvaluationPlatform.ViewModel.ProjectOutputFormViewModel
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @{
-    ViewData["Title"] = "Add Development Impact Indicator";
+    ViewData["Title"] = "Edit Development Impact Indicator";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 }
 
@@ -13,15 +13,15 @@
             @Localizer["Impact"]
         </a>
         <i class="fas fa-chevron-right breadcrumb-separator"></i>
-        <span class="current-page">@Localizer["Add Project Output"]</span>
+        <span class="current-page">@Localizer["Edit Project Output"]</span>
     </div>
 
     <h1 class="dashboard-title">
-        <i class="fas fa-layer-group me-3"></i>
-        @Localizer["Add Project Output"]
+        <i class="fas fa-edit me-3"></i>
+        @Localizer["Edit Project Output"]
     </h1>
     <p class="dashboard-subtitle">
-        @Localizer["Group impact indicators from across projects under a single output."]
+        @Model.Name
     </p>
 </div>
 
@@ -32,6 +32,7 @@
         </h6>
     </div>
     <div class="card-body">
+        @* Same form as Create — it switches itself to Edit off Model.Id. *@
         <partial name="_ProjectOutputForm" model="Model" />
     </div>
 </div>

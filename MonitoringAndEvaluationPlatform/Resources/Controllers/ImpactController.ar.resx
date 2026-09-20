@@ -129,4 +129,16 @@
   <data name="{0} is not one of this project output's years." xml:space="preserve">
     <value>{0} ليست من سنوات مؤشر الأثر التنموي هذا.</value>
   </data>
+  <data name="Project output updated successfully." xml:space="preserve">
+    <value>تم تحديث مؤشر الأثر التنموي بنجاح.</value>
+  </data>
+  <data name="Indicator weights must sum to exactly 100. Current sum: {0}." xml:space="preserve">
+    <value>يجب أن يساوي مجموع أوزان المؤشرات 100 بالضبط. المجموع الحالي: {0}.</value>
+  </data>
+  <data name="You cannot remove your own ministry from this project output — you would lose access to it." xml:space="preserve">
+    <value>لا يمكنك إزالة وزارتك من مؤشر الأثر التنموي هذا، إذ ستفقد صلاحية الوصول إليه.</value>
+  </data>
+  <data name="This project output is linked to ministries, strategic goals or indicators outside your scope, so only a system administrator can edit it." xml:space="preserve">
+    <value>يرتبط مؤشر الأثر التنموي هذا بوزارات أو أهداف استراتيجية أو مؤشرات خارج نطاق صلاحيتك، لذا لا يمكن تعديله إلا من قبل مسؤول النظام.</value>
+  </data>
 </root>
