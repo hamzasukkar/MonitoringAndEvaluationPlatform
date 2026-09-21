@@ -141,4 +141,13 @@
   <data name="This project output is linked to ministries, strategic goals or indicators outside your scope, so only a system administrator can edit it." xml:space="preserve">
     <value>يرتبط مؤشر الأثر التنموي هذا بوزارات أو أهداف استراتيجية أو مؤشرات خارج نطاق صلاحيتك، لذا لا يمكن تعديله إلا من قبل مسؤول النظام.</value>
   </data>
+  <data name="'{0}' has been unlinked from this project output. The remaining indicators' weights have been split equally." xml:space="preserve">
+    <value>تم إلغاء ربط '{0}' بمؤشر الأثر التنموي هذا. وتم توزيع أوزان المؤشرات المتبقية بالتساوي.</value>
+  </data>
+  <data name="'{0}' has been unlinked from this project output. It now has no linked indicators." xml:space="preserve">
+    <value>تم إلغاء ربط '{0}' بمؤشر الأثر التنموي هذا. ولم تعد هناك مؤشرات مرتبطة به.</value>
+  </data>
+  <data name="That indicator is no longer linked to this project output." xml:space="preserve">
+    <value>لم يعد هذا المؤشر مرتبطًا بمؤشر الأثر التنموي هذا.</value>
+  </data>
 </root>

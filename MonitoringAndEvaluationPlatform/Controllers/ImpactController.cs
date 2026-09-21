@@ -497,6 +497,108 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        // POST: /Impact/UnlinkIndicator/5
+        //
+        // Removes ONE impact indicator from this project output. Only the
+        // ProjectOutputImpactIndicator join row goes: the ImpactIndicator, its yearly values, and
+        // any link the same indicator has to a DIFFERENT output are untouched. The indicator-level
+        // delete lives in ImpactIndicatorsController and is a different verb — see the header
+        // comment on _ImpactIndicatorsTable.cshtml, which now renders both.
+        //
+        // The surviving links are then re-split equally. The 100-sum invariant
+        // (ProjectOutputImpactIndicator, enforced in Create/Edit) has no other way back here: the
+        // user is on a read-only page with no weight inputs, and leaving the row summing to 75
+        // would make the very next Edit reject itself over a total the user never chose. Same
+        // resolution ProjectPhasesController.Delete applies to ProjectPhase.Weight, down to
+        // announcing the redistribution in the success message.
+        //
+        // Keyed by (output, indicator) rather than by the join row's own Id: the shared partial
+        // renders ProjectOutput.ImpactIndicators, a [NotMapped] projection that drops the link
+        // entity, so ind.Id is the only identifier the button has. The pair is a natural key —
+        // ApplicationDbContext puts a unique index on it.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Permission(Permissions.ModifyStrategy)]
+        public async Task<IActionResult> UnlinkIndicator([FromRoute] int id, [FromForm] int impactIndicatorId)
+        {
+            // Exactly the Edit graph, for exactly the Edit reasons: Ministries for the membership
+            // check, Frameworks + IndicatorLinks -> ImpactIndicator -> Project for
+            // HasLinksOutsideScope. It also supplies ImpactIndicator.Name for the message below.
+            var projectOutput = await LoadForEditAsync(id, tracking: true);
+            if (projectOutput == null) return NotFound();
+
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+
+            if (!isAdmin &&
+                (scopedMinistryCode is null ||
+                 !projectOutput.Ministries.Any(m => m.Code == scopedMinistryCode)))
+            {
+                return Forbid();
+            }
+
+            // Same guard, same message, same argument as Edit — and not merely by analogy:
+            // re-weighting the survivors is precisely the operation HasLinksOutsideScope says
+            // cannot be done coherently when part of the set is invisible, because the equal split
+            // would overwrite the weight of a link the user was never shown. Details hides the
+            // button in this case; this covers a hand-made POST and the window where scope
+            // membership shifts between render and click.
+            if (!isAdmin && HasLinksOutsideScope(projectOutput, scopedMinistryCode))
+            {
+                TempData["ErrorMessage"] = _localizer[
+                    "This project output is linked to ministries, strategic goals or indicators outside your scope, so only a system administrator can edit it."].Value;
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            // Scoped to THIS output's links by the Include, so an indicator linked to several
+            // outputs loses only the row belonging to this one.
+            var link = projectOutput.IndicatorLinks
+                .FirstOrDefault(l => l.ImpactIndicatorId == impactIndicatorId);
+
+            // Stale page: another tab already unlinked it, or the indicator was deleted outright
+            // (which cascades this row away). NOT a 404 — the output is real and the user's intent
+            // is already satisfied. NOT a success banner either: this click changed nothing and the
+            // page behind it is out of date. The redirect refreshes that stale table.
+            if (link == null)
+            {
+                TempData["ErrorMessage"] = _localizer[
+                    "That indicator is no longer linked to this project output."].Value;
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            // Read the display name BEFORE the row leaves the graph.
+            var indicatorName = link.ImpactIndicator.Name;
+
+            // Explicit Remove rather than orphan-cascade, AND detached from the in-memory
+            // collection — the same two statements as SyncIndicatorLinks. Here the second is
+            // load-bearing rather than tidiness: RedistributeWeightsEqually reads exactly this
+            // collection to decide the survivors' share, and would otherwise count the row it is
+            // about to delete.
+            _context.Remove(link);
+            projectOutput.IndicatorLinks.Remove(link);
+
+            RedistributeWeightsEqually(projectOutput);
+
+            // ONE SaveChanges for the DELETE and the weight UPDATEs together, so the row is never
+            // persisted with weights summing to neither 100 nor nothing.
+            await _context.SaveChangesAsync();
+
+            // Nothing to recalculate: every impact figure is computed live off the links
+            // (ProjectOutput.cs), so no *Performance column and no IPerformanceService call.
+
+            TempData["SuccessMessage"] = projectOutput.IndicatorLinks.Any()
+                ? _localizer[
+                    "'{0}' has been unlinked from this project output. The remaining indicators' weights have been split equally.",
+                    indicatorName].Value
+                // Never promise a redistribution that did not happen. An output with no indicators
+                // is a legal state — Edit already allows unticking them all — and the helper
+                // returns having touched nothing.
+                : _localizer[
+                    "'{0}' has been unlinked from this project output. It now has no linked indicators.",
+                    indicatorName].Value;
+
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
         // POST: /Impact/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -810,6 +912,43 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     });
                 }
             }
+        }
+
+        /// <summary>
+        /// Splits 100 equally across whatever links this output has left, IN PLACE. The caller
+        /// saves — deliberately, so an unlink's DELETE and these UPDATEs land in one SaveChanges
+        /// and the row is never observable with a broken total.
+        ///
+        /// Same arithmetic as the two existing equal splits, which agree with each other:
+        /// ProjectPhasesController.RedistributeWeightsEqually and
+        /// IndicatorProjectPairService.RedistributeIndicatorWeightsAsync — Math.Round(100/n, 2)
+        /// for every row, with the rounding remainder folded into the LAST one so the stored total
+        /// is exactly 100 rather than 99.99. It is also what the Add/Edit form's equalSplit() JS
+        /// produces, so a user who opens Edit after an unlink sees the weights the form itself
+        /// would have proposed. n=3 gives 33.33 / 33.33 / 33.34, which passes Create/Edit's
+        /// Math.Abs(total - 100) > 0.01 check with room to spare.
+        ///
+        /// OrderBy(Id) is the same tie-break ProjectPhases uses. IndicatorLinks arrives from an
+        /// Include with no ordering guarantee, so without it "the last row" would be whatever the
+        /// provider happened to return and the same unlink could round differently on two runs.
+        /// Deliberately not display order (Details sorts by name): which row absorbs the 0.01 is
+        /// an arithmetic detail, and pinning it to a mutable name would be worse.
+        /// </summary>
+        private static void RedistributeWeightsEqually(ProjectOutput projectOutput)
+        {
+            var links = projectOutput.IndicatorLinks.OrderBy(l => l.Id).ToList();
+            if (links.Count == 0) return;
+
+            double equalWeight = Math.Round(100.0 / links.Count, 2);
+            foreach (var link in links)
+            {
+                link.Weight = equalWeight;
+            }
+
+            // Absorb the rounding remainder into the last row so the total is exactly 100. A no-op
+            // when the split already divides evenly; the remainder can be negative (n=7).
+            double total = links.Sum(l => l.Weight);
+            links[^1].Weight = Math.Round(links[^1].Weight + (100.0 - total), 2);
         }
     }
 }

@@ -26,8 +26,19 @@
         .OrderBy(l => l.ImpactIndicator.Name).ToList();
 
     // Edit/Delete inside the shared table act on the INDICATOR, not on its link to this output.
-    // Too easy to misread as "unlink" here, so show the Details link only.
+    // Too easy to misread as "unlink" here, so they are suppressed.
     ViewData["ImpactTableReadOnly"] = true;
+
+    // ...and the link-level Remove is offered in their place. Independent of the flag above: one
+    // hides indicator-level actions, the other enables a link-level one. Set only when this user
+    // may actually re-weight this output — the same pair of conditions as the Edit button in the
+    // header, and exactly what ImpactController.UnlinkIndicator re-checks server-side. The partial
+    // cannot work the scope half out for itself: that needs the ProjectOutput, and its model is a
+    // bare IEnumerable<ImpactIndicator>.
+    if (canModify && canEditThis)
+    {
+        ViewData["ImpactUnlinkOutputId"] = Model.Id;
+    }
 }
 
 <div class="dashboard-header">

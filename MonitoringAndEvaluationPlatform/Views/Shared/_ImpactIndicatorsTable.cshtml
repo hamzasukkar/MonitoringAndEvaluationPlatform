@@ -14,9 +14,24 @@
     NOTE: whatever query supplies this model must .Include(i => i.YearlyValues), otherwise
     every row renders 0% achieved without any error.
 
-    Set ViewData["ImpactTableReadOnly"] = true to show only the Details link. Impact/Details
-    passes this because Edit/Delete there act on the INDICATOR itself, not on its link to the
-    project output — a distinction too easy to misread as "unlink" next to a grouping.
+    Two INDEPENDENT switches control the Actions column, because they act on two different
+    objects:
+
+      ViewData["ImpactTableReadOnly"] = true
+          Hides Edit and Delete, which act on the INDICATOR itself — they would remove the row
+          from ImpactIndicators, not merely detach it from whatever is grouping it.
+
+      ViewData["ImpactUnlinkOutputId"] = <project output id>
+          Shows Remove, which acts on the LINK: it deletes one ProjectOutputImpactIndicator row
+          for that output and leaves the indicator alone. Only Impact/Details sets it, and only
+          once it has established that this user may edit THAT output — ModifyStrategy plus the
+          ministry-scope rule (ViewBag.CanEditThis). This partial deliberately does not re-derive
+          that: the scope half needs the ProjectOutput, which is not in this model. Same
+          "caller decides" contract as ImpactController's ViewBag.EditableOutputIds, and
+          ImpactController.UnlinkIndicator re-checks all of it server-side anyway.
+
+    Impact/Details sets BOTH: there, Edit/Delete are the wrong verbs and Remove is the right one.
+    The other two callers set neither.
 *@
 @{
     var indicators = (Model ?? Enumerable.Empty<ImpactIndicator>())
@@ -26,6 +41,10 @@
 
     var canModify = !readOnly && (await Auth.AuthorizeAsync(User, Permissions.ModifyIndicator)).Succeeded;
     var canDelete = !readOnly && (await Auth.AuthorizeAsync(User, Permissions.DeleteIndicator)).Succeeded;
+
+    // See above: set by the caller, and only when that caller has already established this user
+    // may edit that project output. Deliberately independent of readOnly.
+    var unlinkFromOutputId = ViewData["ImpactUnlinkOutputId"] as int?;
 }
 
 @if (indicators.Any())
@@ -80,6 +99,32 @@
                                         <button type="submit" class="btn btn-outline-danger btn-sm action-btn"
                                                 title="@Localizer["Delete"]">
                                             <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                                }
+                                @*
+                                    Unlinks THIS indicator from the project output being viewed.
+                                    Only the ProjectOutputImpactIndicator row goes — unlike the
+                                    fa-trash-alt button above, which deletes the indicator itself.
+                                    Hence a different icon AND a different colour: amber, never the
+                                    red of a real delete.
+
+                                    The confirm text must contain NO apostrophe. Razor encodes '
+                                    as &#x27; in an attribute, the browser decodes it before the JS
+                                    parser runs, and the handler then fails to parse — which
+                                    submits the form with no confirmation at all, silently.
+                                *@
+                                @if (unlinkFromOutputId.HasValue)
+                                {
+                                    <form asp-controller="Impact" asp-action="UnlinkIndicator"
+                                          asp-route-id="@unlinkFromOutputId.Value"
+                                          method="post" style="display:inline"
+                                          onsubmit="return confirm('@Localizer["Remove this indicator from this project output? The indicator itself is not deleted. The weights of the remaining indicators will be split equally."]')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="impactIndicatorId" value="@ind.Id" />
+                                        <button type="submit" class="btn btn-outline-warning btn-sm action-btn"
+                                                title="@Localizer["Remove from this project output"]">
+                                            <i class="fas fa-link-slash"></i>
                                         </button>
                                     </form>
                                 }
