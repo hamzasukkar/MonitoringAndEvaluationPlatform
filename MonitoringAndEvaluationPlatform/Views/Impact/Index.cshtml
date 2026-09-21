@@ -432,9 +432,10 @@
                                             <i class="fas fa-calculator"></i>
                                         </button>
 
-                                        @* fa-edit, not fa-pen-to-square: that icon is already
-                                           the actual-impact button two along, and this matches
-                                           _ImpactIndicatorsTable's Edit link. *@
+                                        @* fa-edit matches _ImpactIndicatorsTable's Edit link. In
+                                           Font Awesome 6 it is an alias of fa-pen-to-square, which
+                                           is why the actual-impact button below must NOT use that
+                                           icon: the two would render as the same pen. *@
                                         @if (canModify && editableOutputIds.Contains(po.Id))
                                         {
                                             <a href="@Url.Action("Edit", "Impact", new { id = po.Id })"
@@ -465,7 +466,7 @@
                                                                       (po.ActualImpacts ?? new List<ProjectOutputActualImpact>())
                                                                           .ToDictionary(a => a.Year.ToString(), a => a.Value))"
                                                     title="@Localizer["Record actual impact"]">
-                                                <i class="fas fa-pen-to-square"></i>
+                                                <i class="fas fa-clipboard-check"></i>
                                             </button>
                                         }
                                         @if (canDelete)
@@ -524,7 +525,7 @@
 
                     <div class="modal-header">
                         <h5 class="modal-title">
-                            <i class="fas fa-pen-to-square me-2"></i>@Localizer["Record actual impact"]
+                            <i class="fas fa-clipboard-check me-2"></i>@Localizer["Record actual impact"]
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                 aria-label="@Localizer["Cancel"]"></button>
