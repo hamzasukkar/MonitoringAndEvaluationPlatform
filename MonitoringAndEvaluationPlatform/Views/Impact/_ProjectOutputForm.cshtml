@@ -250,7 +250,9 @@
                 weightInput.name = 'IndicatorWeights[' + i + '].Weight';
                 weightInput.min = '0';
                 weightInput.max = '100';
-                weightInput.step = '0.1';
+                // 'any', not '0.1': equal splits have two decimals (33.33), and jQuery Validation
+                // turns the step attribute into a rule that would block the submit.
+                weightInput.step = 'any';
                 // Seeded value on first paint, equal split from then on. Keyed by id, not
                 // index, so a different picker ordering cannot scramble it.
                 var seeded = useSeed && Object.prototype.hasOwnProperty.call(seedWeights, id);

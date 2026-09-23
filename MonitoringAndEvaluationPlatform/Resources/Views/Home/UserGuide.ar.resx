@@ -62,7 +62,7 @@
   <data name="NEW" xml:space="preserve">
     <value>جديد</value>
   </data>
-  <!-- Header -->
+  <!-- Section: Header -->
   <data name="User Guide" xml:space="preserve">
     <value>دليل الاستخدام</value>
   </data>
@@ -72,10 +72,10 @@
   <data name="Print Guide" xml:space="preserve">
     <value>طباعة الدليل</value>
   </data>
-  <data name="Download PDF" xml:space="preserve">
-    <value>تحميل PDF</value>
+  <data name="Download Features Summary (Word)" xml:space="preserve">
+    <value>تحميل ملخص الميزات (Word)</value>
   </data>
-  <!-- Table of Contents -->
+  <!-- Section: Table of Contents -->
   <data name="Table of Contents" xml:space="preserve">
     <value>جدول المحتويات</value>
   </data>
@@ -104,13 +104,13 @@
     <value>أهداف السياسة</value>
   </data>
   <data name="Set Up" xml:space="preserve">
-    <value>الإعدادات</value>
+    <value>ادارة الجهات</value>
   </data>
   <data name="Projects" xml:space="preserve">
     <value>المشاريع</value>
   </data>
   <data name="Monitoring" xml:space="preserve">
-    <value>المراقبة</value>
+    <value>رصد كلي</value>
   </data>
   <data name="Reports &amp; Export" xml:space="preserve">
     <value>التقارير والتصدير</value>
@@ -122,7 +122,7 @@
     <value>إدارة البيانات</value>
   </data>
   <data name="Audit Logs" xml:space="preserve">
-    <value>سجلات التدقيق</value>
+    <value>سجل المستخدمين</value>
   </data>
   <data name="User Roles &amp; Permissions" xml:space="preserve">
     <value>أدوار المستخدمين والصلاحيات</value>
@@ -167,20 +167,14 @@
   <data name="1.1 Platform Structure" xml:space="preserve">
     <value>1.1 هيكل المنصة</value>
   </data>
-  <data name="The platform is organized into five main sections accessible from the sidebar:" xml:space="preserve">
-    <value>المنصة منظمة في خمسة أقسام رئيسية يمكن الوصول إليها من الشريط الجانبي:</value>
+  <data name="The sidebar gives access to the platform's main areas. Set Up and Audit Logs are shown to System Administrators only:" xml:space="preserve">
+    <value>تتيح القائمة الجانبية الوصول إلى الأقسام الرئيسية للمنصة، ولا تظهر «ادارة الجهات» و«سجل المستخدمين» إلا لمديري النظام:</value>
   </data>
   <data name="Manage frameworks, outcomes, outputs, sub-outputs, and indicators." xml:space="preserve">
     <value>إدارة الأهداف الاستراتيجية والسياسات والبرامج والبرامج الفرعية والمشاريع.</value>
   </data>
-  <data name="Configure ministries, donors, sectors, project managers, supervisors, and locations." xml:space="preserve">
-    <value>تكوين الوزارات والمانحين والقطاعات ومديري المشاريع والمشرفين والمواقع.</value>
-  </data>
   <data name="Create and manage projects, action plans, activities, and plans." xml:space="preserve">
     <value>إنشاء وإدارة المشاريع وخطط العمل والأنشطة والخطط.</value>
-  </data>
-  <data name="Track performance at all levels of the hierarchy in real-time." xml:space="preserve">
-    <value>تتبع الأداء على جميع مستويات التسلسل الهرمي في الوقت الفعلي.</value>
   </data>
   <data name="View analytics, charts, gauges, and summary statistics." xml:space="preserve">
     <value>عرض التحليلات والرسوم البيانية والمقاييس والإحصائيات الموجزة.</value>
@@ -210,14 +204,14 @@
   <data name="Enter Credentials" xml:space="preserve">
     <value>أدخل بيانات الاعتماد</value>
   </data>
-  <data name="Enter your email address and password in the login form." xml:space="preserve">
-    <value>أدخل عنوان بريدك الإلكتروني وكلمة المرور في نموذج تسجيل الدخول.</value>
+  <data name="Enter your username and password in the login form." xml:space="preserve">
+    <value>أدخل اسم المستخدم وكلمة المرور في نموذج تسجيل الدخول.</value>
   </data>
-  <data name="Access Dashboard" xml:space="preserve">
-    <value>الوصول إلى لوحة المعلومات</value>
+  <data name="Start Working" xml:space="preserve">
+    <value>ابدأ العمل</value>
   </data>
-  <data name="After successful login, you will be redirected to the main dashboard." xml:space="preserve">
-    <value>بعد تسجيل الدخول بنجاح، سيتم توجيهك إلى لوحة المعلومات الرئيسية.</value>
+  <data name="After signing in, the Frameworks page opens." xml:space="preserve">
+    <value>بعد تسجيل الدخول تُفتح صفحة «الأهداف الاستراتيجية».</value>
   </data>
   <data name="Login Page Screenshot" xml:space="preserve">
     <value>لقطة شاشة صفحة تسجيل الدخول</value>
@@ -231,14 +225,14 @@
   <data name="2.2 Changing Language" xml:space="preserve">
     <value>2.2 تغيير اللغة</value>
   </data>
-  <data name="The platform supports Arabic (default), English, and French. To change the language:" xml:space="preserve">
-    <value>تدعم المنصة العربية (الافتراضية) والإنجليزية والفرنسية. لتغيير اللغة:</value>
+  <data name="The platform is available in Arabic (the default) and English. To change the language:" xml:space="preserve">
+    <value>المنصة متاحة باللغتين العربية (الافتراضية) والإنجليزية. لتغيير اللغة:</value>
   </data>
   <data name="Find Language Selector" xml:space="preserve">
     <value>ابحث عن محدد اللغة</value>
   </data>
-  <data name="Look for the language dropdown in the top navigation bar." xml:space="preserve">
-    <value>ابحث عن قائمة اللغات المنسدلة في شريط التنقل العلوي.</value>
+  <data name="Use the language list in the top bar or at the bottom of the sidebar." xml:space="preserve">
+    <value>استخدم قائمة اللغات في الشريط العلوي أو أسفل القائمة الجانبية.</value>
   </data>
   <data name="Select Language" xml:space="preserve">
     <value>اختر اللغة</value>
@@ -261,23 +255,8 @@
   <data name="The platform uses a sidebar menu on the left (or right in Arabic) for main navigation. The top bar contains:" xml:space="preserve">
     <value>تستخدم المنصة قائمة جانبية على اليسار (أو اليمين بالعربية) للتنقل الرئيسي. يحتوي الشريط العلوي على:</value>
   </data>
-  <data name="Framework dropdown menus for quick access to specific frameworks" xml:space="preserve">
-    <value>قوائم منسدلة للأهداف الاستراتيجية للوصول السريع إلى أهداف استراتيجية محددة</value>
-  </data>
-  <data name="Ministries dropdown for quick ministry navigation" xml:space="preserve">
-    <value>قائمة منسدلة للوزارات للتنقل السريع بين الوزارات</value>
-  </data>
-  <data name="Sectors dropdown organized by category" xml:space="preserve">
-    <value>قائمة منسدلة للقطاعات منظمة حسب الفئة</value>
-  </data>
-  <data name="Donors dropdown organized by type" xml:space="preserve">
-    <value>قائمة منسدلة للمانحين منظمة حسب النوع</value>
-  </data>
   <data name="SDGs dropdown with all 17 Sustainable Development Goals" xml:space="preserve">
     <value>قائمة منسدلة لأهداف التنمية المستدامة الـ 17</value>
-  </data>
-  <data name="Language selector and user menu" xml:space="preserve">
-    <value>محدد اللغة وقائمة المستخدم</value>
   </data>
   <data name="Sidebar Navigation Screenshot" xml:space="preserve">
     <value>لقطة شاشة التنقل الجانبي</value>
@@ -319,11 +298,11 @@
   <data name="Visual representation of performance trends over time." xml:space="preserve">
     <value>تمثيل مرئي لاتجاهات الأداء عبر الزمن.</value>
   </data>
-  <data name="Geographic Map" xml:space="preserve">
-    <value>الخريطة الجغرافية</value>
+  <data name="Ministry Overview" xml:space="preserve">
+    <value>نظرة عامة على الوزارات</value>
   </data>
-  <data name="Interactive map showing project distribution by governorate." xml:space="preserve">
-    <value>خريطة تفاعلية تعرض توزيع المشاريع حسب المحافظة.</value>
+  <data name="One card per ministry with its performance, finances, counts and development impact. See 3.8." xml:space="preserve">
+    <value>بطاقة لكل وزارة تعرض أداءها وماليتها وأعدادها وأثرها التنموي. راجع 3.8.</value>
   </data>
   <data name="Recent Activities" xml:space="preserve">
     <value>الأنشطة الأخيرة</value>
@@ -485,8 +464,8 @@
   <data name="4.2 Viewing Frameworks" xml:space="preserve">
     <value>4.2 عرض الأهداف الاستراتيجية</value>
   </data>
-  <data name="Navigate to Results Framework from the sidebar. The list shows all frameworks with their performance rates, search, and sort options." xml:space="preserve">
-    <value>انتقل إلى الأهداف الاستراتيجية من الشريط الجانبي. تعرض القائمة جميع الأهداف الاستراتيجية مع معدلات أدائها وخيارات البحث والفرز.</value>
+  <data name="Open Frameworks from the sidebar. The list shows all frameworks with their performance rates, search, and sort options." xml:space="preserve">
+    <value>افتح «الأهداف الاستراتيجية» من القائمة الجانبية. تعرض القائمة جميع الأهداف الاستراتيجية مع نسب أدائها وخيارات البحث والفرز.</value>
   </data>
   <data name="Frameworks List Screenshot" xml:space="preserve">
     <value>لقطة شاشة قائمة الأهداف الاستراتيجية</value>
@@ -569,8 +548,8 @@
   <data name="4.6 Tree View" xml:space="preserve">
     <value>4.6 العرض الشجري</value>
   </data>
-  <data name="View the complete framework hierarchy as an interactive tree. Expand or collapse nodes to explore the structure." xml:space="preserve">
-    <value>عرض التسلسل الهرمي الكامل للهدف الاستراتيجي كشجرة تفاعلية. وسّع أو اطوِ العقد لاستكشاف الهيكل.</value>
+  <data name="The tree view draws the whole hierarchy as an interactive diagram, from the ministry or strategy down to projects and their phases. Expand or collapse any branch to explore it." xml:space="preserve">
+    <value>يعرض عرض الشجرة التسلسل الهرمي كاملاً كمخطط تفاعلي، من الوزارة أو الاستراتيجية نزولاً إلى المشاريع وفقراتها. وسّع أي فرع أو اطوِه لاستكشافه.</value>
   </data>
   <data name="Framework Tree View Screenshot" xml:space="preserve">
     <value>لقطة شاشة العرض الشجري للهدف الاستراتيجي</value>
@@ -1011,7 +990,7 @@
     <value>عرض الوزارات</value>
   </data>
   <data name="Navigate to Set Up &gt; Ministries to see all ministries with inline editing." xml:space="preserve">
-    <value>انتقل إلى الإعدادات &gt; الوزارات لرؤية جميع الوزارات مع التعديل المباشر.</value>
+    <value>انتقل إلى «ادارة الجهات» ثم «الوزارات» لعرض جميع الوزارات مع إمكانية التعديل المباشر.</value>
   </data>
   <data name="Add Ministry" xml:space="preserve">
     <value>إضافة وزارة</value>
@@ -1248,8 +1227,8 @@
   <data name="Performance Metrics" xml:space="preserve">
     <value>مقاييس الأداء</value>
   </data>
-  <data name="Financial, physical, disbursement, field monitoring, and impact assessment." xml:space="preserve">
-    <value>المالي والمادي والصرف والمراقبة الميدانية وتقييم الأثر.</value>
+  <data name="Execution performance, calculated from the phases and their measures, and disbursement performance." xml:space="preserve">
+    <value>أداء التنفيذ المحسوب من الفقرات وقياساتها، وأداء الإنفاق.</value>
   </data>
   <data name="Stakeholders" xml:space="preserve">
     <value>أصحاب المصلحة</value>
@@ -1427,30 +1406,30 @@
   <data name="Figure 11.2: Inline Realised Value Update" xml:space="preserve">
     <value>الشكل 11.2: تحديث القيمة المحققة المباشر</value>
   </data>
-  <!-- Sections 12-20 -->
-  <data name="The Monitoring section provides real-time performance tracking at every level of the hierarchy." xml:space="preserve">
-    <value>يوفر قسم المراقبة تتبعاً فورياً للأداء على كل مستوى من مستويات التسلسل الهرمي.</value>
+  <!-- Section 12: Monitoring -->
+  <data name="Monitoring in the sidebar opens Ministry Monitoring, the top of the hierarchy. From there you drill down level by level to projects and their phases." xml:space="preserve">
+    <value>يفتح «رصد كلي» في القائمة الجانبية صفحة «متابعة الوزارات»، وهي أعلى التسلسل الهرمي. ومنها تنتقل مستوىً بعد مستوى وصولاً إلى المشاريع ومراحلها.</value>
   </data>
-  <data name="12.1 Framework Dashboard" xml:space="preserve">
-    <value>12.1 لوحة معلومات الأهداف الاستراتيجية</value>
+  <data name="12.1 Ministry Monitoring" xml:space="preserve">
+    <value>12.1 متابعة الوزارات</value>
   </data>
-  <data name="View all frameworks with their overall performance. Filter by ministry to see ministry-specific results." xml:space="preserve">
-    <value>عرض جميع الأهداف الاستراتيجية مع أدائها العام. التصفية حسب الوزارة لرؤية نتائج خاصة بالوزارة.</value>
+  <data name="Each ministry has a card with its number of strategies and two performance figures. Both are averages over the ministry's strategies, so they match the strategy cards one level down. A ministry that owns no strategies shows a dash." xml:space="preserve">
+    <value>لكل وزارة بطاقة تعرض عدد أهدافها الاستراتيجية ورقمين للأداء، وكلاهما متوسط لاستراتيجيات الوزارة، لذا يتطابقان مع بطاقات الاستراتيجيات في المستوى التالي. وتظهر شرطة للوزارة التي لا تملك استراتيجيات.</value>
   </data>
-  <data name="Monitoring Framework Screenshot" xml:space="preserve">
-    <value>لقطة شاشة مراقبة الأهداف الاستراتيجية</value>
+  <data name="Ministry Monitoring Screenshot" xml:space="preserve">
+    <value>لقطة شاشة متابعة الوزارات</value>
   </data>
-  <data name="Screenshot: Monitoring Framework Dashboard" xml:space="preserve">
-    <value>لقطة شاشة: لوحة مراقبة الأهداف الاستراتيجية</value>
+  <data name="Screenshot: Ministry Monitoring" xml:space="preserve">
+    <value>لقطة شاشة: متابعة الوزارات</value>
   </data>
-  <data name="Figure 12.1: Framework Monitoring Dashboard" xml:space="preserve">
-    <value>الشكل 12.1: لوحة مراقبة الأهداف الاستراتيجية</value>
+  <data name="Figure 12.1: Ministry Monitoring" xml:space="preserve">
+    <value>الشكل 12.1: متابعة الوزارات</value>
   </data>
   <data name="12.2 Monitoring Levels" xml:space="preserve">
     <value>12.2 مستويات المراقبة</value>
   </data>
-  <data name="Navigate through each level of the hierarchy to see detailed performance:" xml:space="preserve">
-    <value>تنقل عبر كل مستوى من التسلسل الهرمي لرؤية الأداء التفصيلي:</value>
+  <data name="From a ministry card, drill down level by level. The ministry you chose is carried through every level:" xml:space="preserve">
+    <value>من بطاقة الوزارة، انتقل مستوىً بعد مستوى، وتبقى الوزارة التي اخترتها محددة في جميع المستويات:</value>
   </data>
   <data name="Performance of each outcome within a framework" xml:space="preserve">
     <value>أداء كل سياسة ضمن الهدف الاستراتيجي</value>
@@ -1491,12 +1470,12 @@
   <data name="Figure 12.3: Project Monitoring View" xml:space="preserve">
     <value>الشكل 12.3: عرض رصد المشاريع</value>
   </data>
-  <!-- Section 13 -->
+  <!-- Section 14: Reports & Export -->
   <data name="Generate comprehensive reports and export data for analysis and stakeholder communication." xml:space="preserve">
     <value>إنشاء تقارير شاملة وتصدير البيانات للتحليل والتواصل مع أصحاب المصلحة.</value>
   </data>
-  <data name="13.1 Reports Dashboard" xml:space="preserve">
-    <value>13.1 لوحة التقارير</value>
+  <data name="14.1 Reports Dashboard" xml:space="preserve">
+    <value>14.1 لوحة التقارير</value>
   </data>
   <data name="Reports Dashboard Screenshot" xml:space="preserve">
     <value>لقطة شاشة لوحة التقارير</value>
@@ -1504,11 +1483,11 @@
   <data name="Screenshot: Reports Dashboard" xml:space="preserve">
     <value>لقطة شاشة: لوحة التقارير</value>
   </data>
-  <data name="Figure 13.1: Reports Dashboard" xml:space="preserve">
-    <value>الشكل 13.1: لوحة التقارير</value>
+  <data name="Figure 14.1: Reports Dashboard" xml:space="preserve">
+    <value>الشكل 14.1: لوحة التقارير</value>
   </data>
-  <data name="13.2 Export Options" xml:space="preserve">
-    <value>13.2 خيارات التصدير</value>
+  <data name="14.5 Export Options" xml:space="preserve">
+    <value>14.5 خيارات التصدير</value>
   </data>
   <data name="Most data views support exporting to Excel and PDF. Export buttons are available on:" xml:space="preserve">
     <value>تدعم معظم طرق عرض البيانات التصدير إلى Excel و PDF. أزرار التصدير متاحة في:</value>
@@ -1546,15 +1525,15 @@
   <data name="PDF exports create formatted, printable documents suitable for sharing with stakeholders." xml:space="preserve">
     <value>ينشئ تصدير PDF مستندات منسقة قابلة للطباعة مناسبة للمشاركة مع أصحاب المصلحة.</value>
   </data>
-  <!-- Section 14 -->
+  <!-- Section 15: Administration -->
   <data name="Admin Only" xml:space="preserve">
     <value>للمديرين فقط</value>
   </data>
   <data name="These features are only available to users with the System Administrator role." xml:space="preserve">
     <value>هذه الميزات متاحة فقط للمستخدمين الذين لديهم دور مدير النظام.</value>
   </data>
-  <data name="14.1 User Management" xml:space="preserve">
-    <value>14.1 إدارة المستخدمين</value>
+  <data name="15.1 User Management" xml:space="preserve">
+    <value>15.1 إدارة المستخدمين</value>
   </data>
   <data name="Create, edit, and manage user accounts with search, filter, and pagination." xml:space="preserve">
     <value>إنشاء وتعديل وإدارة حسابات المستخدمين مع البحث والتصفية والتصفح.</value>
@@ -1562,8 +1541,8 @@
   <data name="View Users" xml:space="preserve">
     <value>عرض المستخدمين</value>
   </data>
-  <data name="Navigate to Admin &gt; Users to see all system users." xml:space="preserve">
-    <value>انتقل إلى الإدارة &gt; المستخدمين لرؤية جميع مستخدمي النظام.</value>
+  <data name="Open Settings from the user menu to see all system users. It is available to System Administrators only." xml:space="preserve">
+    <value>افتح «إعدادات» من قائمة المستخدم لعرض جميع مستخدمي النظام، وهي متاحة لمديري النظام فقط.</value>
   </data>
   <data name="Create User" xml:space="preserve">
     <value>إنشاء مستخدم</value>
@@ -1583,11 +1562,11 @@
   <data name="Screenshot: User Management" xml:space="preserve">
     <value>لقطة شاشة: إدارة المستخدمين</value>
   </data>
-  <data name="Figure 14.1: User Management" xml:space="preserve">
-    <value>الشكل 14.1: إدارة المستخدمين</value>
+  <data name="Figure 15.1: User Management" xml:space="preserve">
+    <value>الشكل 15.1: إدارة المستخدمين</value>
   </data>
-  <data name="14.2 Role Management" xml:space="preserve">
-    <value>14.2 إدارة الأدوار</value>
+  <data name="15.2 Role Management" xml:space="preserve">
+    <value>15.2 إدارة الأدوار</value>
   </data>
   <data name="View all system roles and the users assigned to each role." xml:space="preserve">
     <value>عرض جميع أدوار النظام والمستخدمين المعينين لكل دور.</value>
@@ -1598,11 +1577,11 @@
   <data name="Screenshot: Role Management" xml:space="preserve">
     <value>لقطة شاشة: إدارة الأدوار</value>
   </data>
-  <data name="Figure 14.2: Role Management" xml:space="preserve">
-    <value>الشكل 14.2: إدارة الأدوار</value>
+  <data name="Figure 15.2: Role Management" xml:space="preserve">
+    <value>الشكل 15.2: إدارة الأدوار</value>
   </data>
-  <data name="14.3 Formulas Documentation" xml:space="preserve">
-    <value>14.3 توثيق الصيغ</value>
+  <data name="15.3 Formulas Documentation" xml:space="preserve">
+    <value>15.3 توثيق الصيغ</value>
   </data>
   <data name="View all calculation formulas used in the platform for performance metrics." xml:space="preserve">
     <value>عرض جميع صيغ الحساب المستخدمة في المنصة لمقاييس الأداء.</value>
@@ -1613,18 +1592,18 @@
   <data name="Screenshot: Formulas Documentation" xml:space="preserve">
     <value>لقطة شاشة: توثيق الصيغ</value>
   </data>
-  <data name="Figure 14.3: Performance Formulas" xml:space="preserve">
-    <value>الشكل 14.3: صيغ الأداء</value>
+  <data name="Figure 15.3: Performance Formulas" xml:space="preserve">
+    <value>الشكل 15.3: صيغ الأداء</value>
   </data>
-  <!-- Section 15 -->
+  <!-- Section 16: Data Management -->
   <data name="Caution" xml:space="preserve">
     <value>تنبيه</value>
   </data>
   <data name="Data Management operations are powerful and some are irreversible. They are password-protected and restricted to System Administrators only." xml:space="preserve">
     <value>عمليات إدارة البيانات قوية وبعضها لا يمكن التراجع عنه. وهي محمية بكلمة مرور ومقيدة بمديري النظام فقط.</value>
   </data>
-  <data name="15.1 Database Backup" xml:space="preserve">
-    <value>15.1 النسخ الاحتياطي لقاعدة البيانات</value>
+  <data name="16.1 Database Backup" xml:space="preserve">
+    <value>16.1 النسخ الاحتياطي لقاعدة البيانات</value>
   </data>
   <data name="Create a backup of the entire database for disaster recovery." xml:space="preserve">
     <value>إنشاء نسخة احتياطية لقاعدة البيانات بالكامل للتعافي من الكوارث.</value>
@@ -1635,23 +1614,23 @@
   <data name="Screenshot: Database Backup" xml:space="preserve">
     <value>لقطة شاشة: النسخ الاحتياطي لقاعدة البيانات</value>
   </data>
-  <data name="Figure 15.1: Database Backup Interface" xml:space="preserve">
-    <value>الشكل 15.1: واجهة النسخ الاحتياطي لقاعدة البيانات</value>
+  <data name="Figure 16.1: Database Backup Interface" xml:space="preserve">
+    <value>الشكل 16.1: واجهة النسخ الاحتياطي لقاعدة البيانات</value>
   </data>
-  <data name="15.2 Clear Data" xml:space="preserve">
-    <value>15.2 مسح البيانات</value>
+  <data name="16.2 Clear Data" xml:space="preserve">
+    <value>16.2 مسح البيانات</value>
   </data>
   <data name="Selectively clear data by groups (e.g., projects, plans, measures) while preserving system configuration." xml:space="preserve">
     <value>مسح البيانات بشكل انتقائي حسب المجموعات (مثل المشاريع والخطط والقياسات) مع الحفاظ على تكوين النظام.</value>
   </data>
-  <data name="15.3 Delete Projects" xml:space="preserve">
-    <value>15.3 حذف المشاريع</value>
+  <data name="16.3 Delete Projects" xml:space="preserve">
+    <value>16.3 حذف المشاريع</value>
   </data>
   <data name="Bulk delete selected projects and all their associated data (action plans, activities, plans)." xml:space="preserve">
     <value>حذف جماعي للمشاريع المحددة وجميع بياناتها المرتبطة (خطط العمل والأنشطة والخطط).</value>
   </data>
-  <data name="15.4 Reset Values" xml:space="preserve">
-    <value>15.4 إعادة تعيين القيم</value>
+  <data name="16.4 Reset Values" xml:space="preserve">
+    <value>16.4 إعادة تعيين القيم</value>
   </data>
   <data name="Reset all performance values across the hierarchy while keeping the structure intact." xml:space="preserve">
     <value>إعادة تعيين جميع قيم الأداء عبر التسلسل الهرمي مع الحفاظ على الهيكل سليماً.</value>
@@ -1662,15 +1641,15 @@
   <data name="Screenshot: Data Management Hub" xml:space="preserve">
     <value>لقطة شاشة: مركز إدارة البيانات</value>
   </data>
-  <data name="Figure 15.2: Data Management Hub" xml:space="preserve">
-    <value>الشكل 15.2: مركز إدارة البيانات</value>
+  <data name="Figure 16.2: Data Management Hub" xml:space="preserve">
+    <value>الشكل 16.2: مركز إدارة البيانات</value>
   </data>
-  <!-- Section 16 -->
-  <data name="The Audit Log system tracks all changes made in the platform for accountability and transparency." xml:space="preserve">
-    <value>يتتبع نظام سجل التدقيق جميع التغييرات التي تتم في المنصة من أجل المساءلة والشفافية.</value>
+  <!-- Section 17: Audit Logs -->
+  <data name="The Audit Log system tracks all changes made in the platform for accountability and transparency. Open it from Audit Logs in the sidebar; it is available to System Administrators only." xml:space="preserve">
+    <value>يتتبع نظام سجل التدقيق جميع التغييرات التي تتم في المنصة من أجل المساءلة والشفافية. افتحه من «سجل المستخدمين» في القائمة الجانبية، وهو متاح لمديري النظام فقط.</value>
   </data>
-  <data name="16.1 Viewing Audit Logs" xml:space="preserve">
-    <value>16.1 عرض سجلات التدقيق</value>
+  <data name="17.1 Viewing Audit Logs" xml:space="preserve">
+    <value>17.1 عرض سجلات التدقيق</value>
   </data>
   <data name="Filter audit logs by:" xml:space="preserve">
     <value>تصفية سجلات التدقيق حسب:</value>
@@ -1693,28 +1672,28 @@
   <data name="Screenshot: Audit Logs" xml:space="preserve">
     <value>لقطة شاشة: سجلات التدقيق</value>
   </data>
-  <data name="Figure 16.1: Audit Logs View" xml:space="preserve">
-    <value>الشكل 16.1: عرض سجلات التدقيق</value>
+  <data name="Figure 17.1: Audit Logs View" xml:space="preserve">
+    <value>الشكل 17.1: عرض سجلات التدقيق</value>
   </data>
-  <data name="16.2 Entity History" xml:space="preserve">
-    <value>16.2 سجل الكيان</value>
+  <data name="17.2 Entity History" xml:space="preserve">
+    <value>17.2 سجل الكيان</value>
   </data>
   <data name="View the complete change history of any entity, showing old and new values for each modification." xml:space="preserve">
     <value>عرض سجل التغييرات الكامل لأي كيان، مع عرض القيم القديمة والجديدة لكل تعديل.</value>
   </data>
-  <data name="16.3 User Activity" xml:space="preserve">
-    <value>16.3 نشاط المستخدم</value>
+  <data name="17.3 User Activity" xml:space="preserve">
+    <value>17.3 نشاط المستخدم</value>
   </data>
   <data name="Track all actions performed by a specific user across the platform." xml:space="preserve">
     <value>تتبع جميع الإجراءات التي قام بها مستخدم محدد عبر المنصة.</value>
   </data>
-  <data name="16.4 Exporting Audit Logs" xml:space="preserve">
-    <value>16.4 تصدير سجلات التدقيق</value>
+  <data name="17.4 Exporting Audit Logs" xml:space="preserve">
+    <value>17.4 تصدير سجلات التدقيق</value>
   </data>
   <data name="Export filtered audit logs for external analysis and compliance reporting." xml:space="preserve">
     <value>تصدير سجلات التدقيق المصفاة للتحليل الخارجي وتقارير الامتثال.</value>
   </data>
-  <!-- Section 17 -->
+  <!-- Section 18: User Roles & Permissions -->
   <data name="The platform uses role-based access control with four predefined roles:" xml:space="preserve">
     <value>تستخدم المنصة التحكم في الوصول المستند إلى الأدوار مع أربعة أدوار محددة مسبقاً:</value>
   </data>
@@ -1737,13 +1716,13 @@
     <value>يمكنه إدارة المشاريع وخطط العمل والمقاييس. لا يمكنه تعديل الأهداف الاستراتيجية.</value>
   </data>
   <data name="Reading User" xml:space="preserve">
-    <value>مستخدم القراءة</value>
+    <value>مستخدم للقراءة فقط</value>
   </data>
-  <data name="View-only access to dashboards and basic reports. Cannot modify any data." xml:space="preserve">
-    <value>وصول للعرض فقط للوحات المعلومات والتقارير الأساسية. لا يمكنه تعديل أي بيانات.</value>
+  <data name="View-only access to the dashboard, reports, maps, monitoring and development impact. Cannot open project pages or change any data." xml:space="preserve">
+    <value>صلاحية عرض فقط للوحة المعلومات والتقارير والخرائط والرصد والأثر التنموي، دون إمكانية فتح صفحات المشاريع أو تعديل أي بيانات.</value>
   </data>
-  <data name="17.1 Permission Summary" xml:space="preserve">
-    <value>17.1 ملخص الصلاحيات</value>
+  <data name="18.1 Permission Summary" xml:space="preserve">
+    <value>18.1 ملخص الصلاحيات</value>
   </data>
   <data name="Feature" xml:space="preserve">
     <value>الميزة</value>
@@ -1769,27 +1748,21 @@
   <data name="Manage Projects" xml:space="preserve">
     <value>إدارة المشاريع</value>
   </data>
-  <data name="View Reports" xml:space="preserve">
-    <value>عرض التقارير</value>
-  </data>
-  <data name="Export Data" xml:space="preserve">
-    <value>تصدير البيانات</value>
-  </data>
   <data name="User Management" xml:space="preserve">
     <value>إدارة المستخدمين</value>
   </data>
-  <!-- Section 18 -->
-  <data name="Performance metrics flow upward through the hierarchy, from plans to framework level." xml:space="preserve">
-    <value>تتدفق مقاييس الأداء صعوداً عبر التسلسل الهرمي، من الخطط إلى مستوى الهدف الاستراتيجي.</value>
+  <!-- Section 19: Performance Calculations -->
+  <data name="Performance metrics flow upward through the hierarchy, from measures to framework level." xml:space="preserve">
+    <value>تتدفق مقاييس الأداء صعوداً عبر التسلسل الهرمي، من القياسات إلى مستوى الهدف الاستراتيجي.</value>
   </data>
-  <data name="18.1 Calculation Flow" xml:space="preserve">
-    <value>18.1 تدفق الحسابات</value>
+  <data name="19.1 Calculation Flow" xml:space="preserve">
+    <value>19.1 تدفق الحسابات</value>
   </data>
-  <data name="Plans (Planned vs Realized Values)" xml:space="preserve">
-    <value>الخطط (القيم المخططة مقابل المحققة)</value>
+  <data name="Measures → Phase Performance" xml:space="preserve">
+    <value>القياسات ← أداء المرحلة</value>
   </data>
-  <data name="Project Performance" xml:space="preserve">
-    <value>أداء المشروع</value>
+  <data name="Project Performance (weighted by phase)" xml:space="preserve">
+    <value>أداء المشروع (مرجّح حسب المراحل)</value>
   </data>
   <data name="Indicator Performance" xml:space="preserve">
     <value>أداء المشروع</value>
@@ -1800,35 +1773,14 @@
   <data name="Framework Performance" xml:space="preserve">
     <value>أداء الهدف الاستراتيجي</value>
   </data>
-  <data name="18.2 Performance Types" xml:space="preserve">
-    <value>18.2 أنواع الأداء</value>
-  </data>
-  <data name="Financial Performance" xml:space="preserve">
-    <value>الأداء المالي</value>
-  </data>
-  <data name="Realized budget / Planned budget x 100" xml:space="preserve">
-    <value>الميزانية المحققة / الميزانية المخططة × 100</value>
-  </data>
-  <data name="Physical Performance" xml:space="preserve">
-    <value>الأداء المادي</value>
-  </data>
-  <data name="Realized physical progress / Planned physical progress x 100" xml:space="preserve">
-    <value>التقدم المادي المحقق / التقدم المادي المخطط × 100</value>
+  <data name="19.2 Performance Types" xml:space="preserve">
+    <value>19.2 أنواع الأداء</value>
   </data>
   <data name="Disbursement Performance" xml:space="preserve">
     <value>نسبة الإنفاق</value>
   </data>
-  <data name="Actual disbursement / Planned disbursement x 100" xml:space="preserve">
-    <value>الصرف الفعلي / الصرف المخطط × 100</value>
-  </data>
-  <data name="Field verification score" xml:space="preserve">
-    <value>درجة التحقق الميداني</value>
-  </data>
-  <data name="Outcome impact evaluation score" xml:space="preserve">
-    <value>درجة تقييم أثر السياسات</value>
-  </data>
-  <data name="18.3 Weighted Averages" xml:space="preserve">
-    <value>18.3 المتوسطات المرجحة</value>
+  <data name="19.3 Weighted Averages" xml:space="preserve">
+    <value>19.3 المتوسطات المرجحة</value>
   </data>
   <data name="Performance at each hierarchy level is calculated as a weighted average of its children. Weights can be adjusted at every level (Outcomes, Outputs, SubOutputs, Indicators)." xml:space="preserve">
     <value>يتم حساب الأداء عند كل مستوى هرمي كمتوسط مرجح لعناصره الفرعية. يمكن ضبط الأوزان عند كل مستوى (السياسات، البرامج، البرامج الفرعية، المشاريع).</value>
@@ -1839,12 +1791,12 @@
   <data name="Parent Performance = Sum of (Child Performance x Child Weight) / Sum of Weights" xml:space="preserve">
     <value>أداء المستوى الأعلى = مجموع (أداء العنصر الفرعي × وزن العنصر الفرعي) / مجموع الأوزان</value>
   </data>
-  <!-- Section 19 -->
-  <data name="19.1 Theme Selection" xml:space="preserve">
-    <value>19.1 اختيار السمة</value>
+  <!-- Section 20: Settings & Themes -->
+  <data name="20.1 Theme Selection" xml:space="preserve">
+    <value>20.1 اختيار السمة</value>
   </data>
-  <data name="The platform offers multiple visual themes. Click the theme icon in the top bar to switch between:" xml:space="preserve">
-    <value>توفر المنصة سمات مرئية متعددة. انقر على أيقونة السمة في الشريط العلوي للتبديل بين:</value>
+  <data name="Most pages have a theme list in the top bar with a Blue and a Green theme. A few results-framework and set-up pages use an older theme menu with these options:" xml:space="preserve">
+    <value>تحتوي معظم الصفحات على قائمة سمات في الشريط العلوي بسمتين: زرقاء وخضراء. وتستخدم بعض صفحات الأهداف الاستراتيجية والإعدادات قائمة سمات أقدم بالخيارات التالية:</value>
   </data>
   <data name="Default Theme" xml:space="preserve">
     <value>السمة الافتراضية</value>
@@ -1852,8 +1804,8 @@
   <data name="Calm Blue" xml:space="preserve">
     <value>الأزرق الهادئ</value>
   </data>
-  <data name="Alternative" xml:space="preserve">
-    <value>البديل</value>
+  <data name="Earth Tones" xml:space="preserve">
+    <value>الألوان الترابية</value>
   </data>
   <data name="Modern Glass" xml:space="preserve">
     <value>الزجاج الحديث</value>
@@ -1864,31 +1816,22 @@
   <data name="Screenshot: Theme Selector" xml:space="preserve">
     <value>لقطة شاشة: محدد السمة</value>
   </data>
-  <data name="Figure 19.1: Theme Selection" xml:space="preserve">
-    <value>الشكل 19.1: اختيار السمة</value>
+  <data name="Figure 20.1: Theme Selection" xml:space="preserve">
+    <value>الشكل 20.1: اختيار السمة</value>
   </data>
-  <data name="19.2 User Settings" xml:space="preserve">
-    <value>19.2 إعدادات المستخدم</value>
+  <data name="20.2 User Settings" xml:space="preserve">
+    <value>20.2 إعدادات المستخدم</value>
   </data>
-  <data name="Access user settings from the user menu in the top-right corner to manage your account preferences." xml:space="preserve">
-    <value>الوصول إلى إعدادات المستخدم من قائمة المستخدم في الزاوية العلوية اليمنى لإدارة تفضيلات حسابك.</value>
+  <data name="Settings in the user menu opens user management, which is available to System Administrators only. There is no per-user preferences page: your language and theme choices are remembered by your browser." xml:space="preserve">
+    <value>يفتح «إعدادات» في قائمة المستخدم إدارة المستخدمين، وهي متاحة لمديري النظام فقط. ولا توجد صفحة تفضيلات لكل مستخدم، إذ يتذكر متصفحك اختياراتك للغة والسمة.</value>
   </data>
-  <data name="19.3 Notifications" xml:space="preserve">
-    <value>19.3 الإشعارات</value>
+  <data name="20.3 Notifications" xml:space="preserve">
+    <value>20.3 الإشعارات</value>
   </data>
-  <data name="The notification system alerts you to important updates and changes across the platform. Click the bell icon to view notifications." xml:space="preserve">
-    <value>ينبهك نظام الإشعارات إلى التحديثات والتغييرات المهمة عبر المنصة. انقر على أيقونة الجرس لعرض الإشعارات.</value>
+  <data name="There is no notification bell. After an action, a success or error message appears at the top of the page." xml:space="preserve">
+    <value>لا توجد أيقونة إشعارات. بعد تنفيذ أي إجراء تظهر رسالة نجاح أو خطأ أعلى الصفحة.</value>
   </data>
-  <data name="Notifications Screenshot" xml:space="preserve">
-    <value>لقطة شاشة الإشعارات</value>
-  </data>
-  <data name="Screenshot: Notifications Panel" xml:space="preserve">
-    <value>لقطة شاشة: لوحة الإشعارات</value>
-  </data>
-  <data name="Figure 19.2: Notifications" xml:space="preserve">
-    <value>الشكل 19.2: الإشعارات</value>
-  </data>
-  <!-- Section 20 -->
+  <!-- Section 23: Getting Help, followed by later additions -->
   <data name="20.1 Contextual Help" xml:space="preserve">
     <value>20.1 المساعدة السياقية</value>
   </data>
@@ -1955,8 +1898,8 @@
   <data name="The goal type is chosen when the goal is created and cannot be changed afterwards. Choose carefully: switching later requires deleting the goal and creating it again." xml:space="preserve">
     <value>يُختار نوع الهدف عند إنشائه ولا يمكن تغييره بعد ذلك. اختر بعناية: التبديل لاحقاً يتطلب حذف الهدف وإنشاءه من جديد.</value>
   </data>
-  <data name="The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, and Locations." xml:space="preserve">
-    <value>يدير قسم الإعداد كل البيانات المرجعية اللازمة للمشاريع: الوزارات والجهات المانحة والقطاعات وأنواع القطاع العام ومديري المشاريع والمشرفين والمواقع.</value>
+  <data name="The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, Locations and Units of Measurement." xml:space="preserve">
+    <value>يدير قسم «ادارة الجهات» جميع البيانات المرجعية اللازمة للمشاريع: الوزارات، والمانحين، والقطاعات، وأنواع القطاع العام، ومديري المشاريع، والمشرفين، والمواقع، ووحدات القياس.</value>
   </data>
   <data name="Public Sector Types" xml:space="preserve">
     <value>أنواع القطاع العام</value>
@@ -2003,8 +1946,8 @@
   <data name="Ministry Strategy Manager" xml:space="preserve">
     <value>مدير استراتيجية الوزارة</value>
   </data>
-  <data name="Works alongside the System Administrator on the strategic hierarchy: can create and edit frameworks, outcomes, outputs, and framework goals within the scope of their ministry." xml:space="preserve">
-    <value>يعمل إلى جانب مدير النظام على الهيكل الاستراتيجي: يمكنه إنشاء وتعديل الأهداف الاستراتيجية والسياسات والبرامج وأهداف الإطار ضمن نطاق وزارته.</value>
+  <data name="Works alongside the System Administrator on the strategic hierarchy of their own ministry: creates and edits frameworks, outcomes, outputs, sub-outputs, indicators and framework goals, manages projects, and manages development impact and project output indicators. Does not have the Dashboard, Reports or maps." xml:space="preserve">
+    <value>يعمل إلى جانب مدير النظام على الهيكل الاستراتيجي لوزارته: ينشئ ويعدّل الأهداف الاستراتيجية والسياسات والبرامج والبرامج الفرعية والمؤشرات وأهداف السياسة، ويدير المشاريع، ويدير الأثر التنموي ومؤشرات مخرج المشروع. ولا تتاح له لوحة المعلومات والتقارير والخرائط.</value>
   </data>
   <data name="Submit Requests" xml:space="preserve">
     <value>تقديم الطلبات</value>
@@ -2012,14 +1955,8 @@
   <data name="Manage Requests" xml:space="preserve">
     <value>إدارة الطلبات</value>
   </data>
-  <data name="This role is not shown as a separate column above because its permissions are scoped to the strategic hierarchy rather than to the general features listed. In addition to standard viewing, it can create and edit frameworks, outcomes, outputs, and framework goals for its own ministry — the only non-administrator role able to do so." xml:space="preserve">
-    <value>لا يظهر هذا الدور كعمود منفصل أعلاه لأن صلاحياته محصورة بالهيكل الاستراتيجي لا بالميزات العامة المذكورة. إضافة إلى الاطلاع الاعتيادي، يمكنه إنشاء وتعديل الأهداف الاستراتيجية والسياسات والبرامج وأهداف الإطار الخاصة بوزارته — وهو الدور الوحيد غير الإداري القادر على ذلك.</value>
-  </data>
-  <data name="Field Monitoring" xml:space="preserve">
-    <value>المتابعة الميدانية</value>
-  </data>
-  <data name="Impact Assessment" xml:space="preserve">
-    <value>تقييم الأثر</value>
+  <data name="Every role except System Administrator works within one ministry: it sees, and where allowed changes, only that ministry's data. Exports follow the same rule, because each export comes from a page the user can already open." xml:space="preserve">
+    <value>تعمل جميع الأدوار باستثناء مدير النظام ضمن وزارة واحدة، فترى بيانات تلك الوزارة فقط وتعدّلها حيث يُسمح لها. وينطبق ذلك على التصدير أيضاً، لأن كل تصدير يتم من صفحة يستطيع المستخدم فتحها أصلاً.</value>
   </data>
   <data name="The Requests module lets you submit support requests, change proposals, and inquiries directly to the platform team, then follow them through to completion. Every request is tracked with a category, a priority, and a status." xml:space="preserve">
     <value>تتيح لك وحدة الطلبات تقديم طلبات الدعم ومقترحات التعديل والاستفسارات مباشرة إلى فريق المنصة، ثم متابعتها حتى الإنجاز. يُتابَع كل طلب بتصنيف وأولوية وحالة.</value>
@@ -2030,8 +1967,8 @@
   <data name="Each request receives a unique reference number in the format REQ-YYYY-000 (for example REQ-2026-014) generated automatically on submission. Use this number when following up on a request." xml:space="preserve">
     <value>يحصل كل طلب على رقم مرجعي فريد بالصيغة REQ-YYYY-000 (مثل REQ-2026-014) يُولَّد تلقائياً عند التقديم. استخدم هذا الرقم عند متابعة الطلب.</value>
   </data>
-  <data name="20.1 Submitting a Request" xml:space="preserve">
-    <value>20.1 تقديم طلب</value>
+  <data name="21.1 Submitting a Request" xml:space="preserve">
+    <value>21.1 تقديم طلب</value>
   </data>
   <data name="Open Submit Request" xml:space="preserve">
     <value>افتح «تقديم طلب»</value>
@@ -2069,11 +2006,11 @@
   <data name="Screenshot: Submit Request Form" xml:space="preserve">
     <value>لقطة شاشة: نموذج تقديم طلب</value>
   </data>
-  <data name="Figure 20.1: Submit Request Form" xml:space="preserve">
-    <value>الشكل 20.1: نموذج تقديم طلب</value>
+  <data name="Figure 21.1: Submit Request Form" xml:space="preserve">
+    <value>الشكل 21.1: نموذج تقديم طلب</value>
   </data>
-  <data name="20.2 Request Statuses" xml:space="preserve">
-    <value>20.2 حالات الطلب</value>
+  <data name="21.2 Request Statuses" xml:space="preserve">
+    <value>21.2 حالات الطلب</value>
   </data>
   <data name="A request moves through the following statuses. There is no fixed sequence: an authorised user can switch a request to any status directly from the quick status dropdown on the request details page." xml:space="preserve">
     <value>يمر الطلب بالحالات التالية. لا يوجد تسلسل ثابت: يمكن للمستخدم المخوّل نقل الطلب إلى أي حالة مباشرة من قائمة تغيير الحالة السريع في صفحة تفاصيل الطلب.</value>
@@ -2117,14 +2054,14 @@
   <data name="The request will not be actioned and is excluded from progress calculations." xml:space="preserve">
     <value>لن يُنفَّذ الطلب وهو مستثنى من حسابات التقدم.</value>
   </data>
-  <data name="20.3 My Requests" xml:space="preserve">
-    <value>20.3 طلباتي</value>
+  <data name="21.3 My Requests" xml:space="preserve">
+    <value>21.3 طلباتي</value>
   </data>
   <data name="My Requests lists every request you submitted, with its current status badge, so you can follow progress without needing management access." xml:space="preserve">
     <value>تعرض «طلباتي» كل طلب قدّمته مع شارة حالته الحالية، لتتابع التقدم دون الحاجة لصلاحية الإدارة.</value>
   </data>
-  <data name="20.4 Requests Management" xml:space="preserve">
-    <value>20.4 إدارة الطلبات</value>
+  <data name="21.4 Requests Management" xml:space="preserve">
+    <value>21.4 إدارة الطلبات</value>
   </data>
   <data name="Administrators open Requests Management to see all requests across the platform. The page provides:" xml:space="preserve">
     <value>يفتح المسؤولون «إدارة الطلبات» لعرض كل الطلبات في المنصة. توفر الصفحة:</value>
@@ -2147,11 +2084,11 @@
   <data name="Screenshot: Request Details and Status Control" xml:space="preserve">
     <value>لقطة شاشة: تفاصيل الطلب وأداة تغيير الحالة</value>
   </data>
-  <data name="Figure 20.2: Request Details with Quick Status Control" xml:space="preserve">
-    <value>الشكل 20.2: تفاصيل الطلب مع أداة تغيير الحالة السريع</value>
+  <data name="Figure 21.2: Request Details with Quick Status Control" xml:space="preserve">
+    <value>الشكل 21.2: تفاصيل الطلب مع أداة تغيير الحالة السريع</value>
   </data>
-  <data name="20.5 Comments and Test Records" xml:space="preserve">
-    <value>20.5 التعليقات وسجلات الاختبار</value>
+  <data name="21.5 Comments and Test Records" xml:space="preserve">
+    <value>21.5 التعليقات وسجلات الاختبار</value>
   </data>
   <data name="The request details page carries a discussion thread and a testing log:" xml:space="preserve">
     <value>تتضمن صفحة تفاصيل الطلب سلسلة نقاش وسجل اختبار:</value>
@@ -2177,14 +2114,14 @@
   <data name="Test records are attributed to an employee from the Request Employees directory, which is maintained from the user menu. At least one employee must exist before a test can be recorded." xml:space="preserve">
     <value>تُنسب سجلات الاختبار إلى موظف من دليل «موظفو الطلبات» الذي يُدار من قائمة المستخدم. يجب وجود موظف واحد على الأقل قبل إمكانية تسجيل اختبار.</value>
   </data>
-  <data name="20.6 Who Can Do What" xml:space="preserve">
-    <value>20.6 من يمكنه فعل ماذا</value>
+  <data name="21.6 Who Can Do What" xml:space="preserve">
+    <value>21.6 من يمكنه فعل ماذا</value>
   </data>
   <data name="Requests Permissions" xml:space="preserve">
     <value>صلاحيات الطلبات</value>
   </data>
-  <data name="Submitting and viewing requests: System Administrator, Ministries User, and Data Entry" xml:space="preserve">
-    <value>تقديم الطلبات وعرضها: مدير النظام ومستخدم الوزارات ومدخل البيانات</value>
+  <data name="Submitting and viewing requests: System Administrator, Ministries User, Data Entry and Ministry Strategy Manager" xml:space="preserve">
+    <value>تقديم الطلبات وعرضها: مدير النظام، ومستخدم الوزارات، وإدخال البيانات، ومدير استراتيجية الوزارة</value>
   </data>
   <data name="Managing and deleting requests, and maintaining the Request Employees directory: System Administrator only" xml:space="preserve">
     <value>إدارة الطلبات وحذفها وإدارة دليل موظفي الطلبات: مدير النظام فقط</value>
@@ -2195,8 +2132,8 @@
   <data name="Platform Versions group completed requests into numbered releases, giving every user a clear record of what changed in the platform and when." xml:space="preserve">
     <value>تجمع إصدارات المنصة الطلبات المنجزة في إصدارات مرقّمة، ما يمنح كل مستخدم سجلاً واضحاً بما تغيّر في المنصة ومتى.</value>
   </data>
-  <data name="21.1 Version Statuses" xml:space="preserve">
-    <value>21.1 حالات الإصدار</value>
+  <data name="22.1 Version Statuses" xml:space="preserve">
+    <value>22.1 حالات الإصدار</value>
   </data>
   <data name="Planned" xml:space="preserve">
     <value>مخطط</value>
@@ -2216,8 +2153,8 @@
   <data name="The version has been published and its completed requests appear in What's New." xml:space="preserve">
     <value>نُشر الإصدار وتظهر طلباته المنجزة في «ما الجديد».</value>
   </data>
-  <data name="21.2 Creating and Releasing a Version" xml:space="preserve">
-    <value>21.2 إنشاء الإصدار وإطلاقه</value>
+  <data name="22.2 Creating and Releasing a Version" xml:space="preserve">
+    <value>22.2 إنشاء الإصدار وإطلاقه</value>
   </data>
   <data name="Create the Version" xml:space="preserve">
     <value>أنشئ الإصدار</value>
@@ -2243,8 +2180,8 @@
   <data name="When releasing a version, every linked request that is not Completed and not Cancelled is counted as unfinished — this includes requests marked In Progress, On Hold, and Needs Discussion. Cancelled requests are excluded from the version's progress entirely." xml:space="preserve">
     <value>عند إطلاق إصدار، يُعدّ كل طلب مرتبط ليس «منجزاً» وليس «ملغى» طلباً غير منتهٍ — ويشمل ذلك الطلبات بحالة «قيد التنفيذ» و«معلّق» و«بحاجة للنقاش». أما الطلبات الملغاة فتُستثنى كلياً من تقدم الإصدار.</value>
   </data>
-  <data name="21.3 What's New" xml:space="preserve">
-    <value>21.3 ما الجديد</value>
+  <data name="22.3 What's New" xml:space="preserve">
+    <value>22.3 ما الجديد</value>
   </data>
   <data name="The What's New page is available to every signed-in user from the user menu. It lists released versions together with their completed requests, so users can see exactly which improvements were delivered. Requests that are not completed never appear here." xml:space="preserve">
     <value>صفحة «ما الجديد» متاحة لكل مستخدم مسجّل الدخول من قائمة المستخدم. تعرض الإصدارات المُطلقة مع طلباتها المنجزة، ليرى المستخدمون بدقة التحسينات التي سُلِّمت. الطلبات غير المنجزة لا تظهر هنا إطلاقاً.</value>
@@ -2255,8 +2192,8 @@
   <data name="Screenshot: What's New Page" xml:space="preserve">
     <value>لقطة شاشة: صفحة ما الجديد</value>
   </data>
-  <data name="Figure 21.1: What's New Release Notes" xml:space="preserve">
-    <value>الشكل 21.1: ملاحظات إصدار ما الجديد</value>
+  <data name="Figure 22.1: What's New Release Notes" xml:space="preserve">
+    <value>الشكل 22.1: ملاحظات إصدار ما الجديد</value>
   </data>
   <data name="Versions Permissions" xml:space="preserve">
     <value>صلاحيات الإصدارات</value>
@@ -2264,20 +2201,20 @@
   <data name="Creating, editing, and releasing versions is restricted to the System Administrator. Viewing What's New is open to all signed-in users." xml:space="preserve">
     <value>إنشاء الإصدارات وتعديلها وإطلاقها مقتصر على مدير النظام. أما الاطلاع على «ما الجديد» فمتاح لكل المستخدمين المسجّلين.</value>
   </data>
-  <data name="22.1 Contextual Help" xml:space="preserve">
-    <value>22.1 المساعدة السياقية</value>
+  <data name="23.1 Contextual Help" xml:space="preserve">
+    <value>23.1 المساعدة السياقية</value>
   </data>
   <data name="Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips. This includes the Requests pages." xml:space="preserve">
     <value>تحتوي كل صفحة على زر مساعدة (؟) يوفر توثيقاً خاصاً بسياق الصفحة، بتبويبات لنظرة عامة وكيفية الاستخدام والأسئلة الشائعة والنصائح. ويشمل ذلك صفحات الطلبات.</value>
   </data>
-  <data name="Figure 22.1: Contextual Help Modal" xml:space="preserve">
-    <value>الشكل 22.1: نافذة المساعدة السياقية</value>
+  <data name="Figure 23.1: Contextual Help Modal" xml:space="preserve">
+    <value>الشكل 23.1: نافذة المساعدة السياقية</value>
   </data>
-  <data name="22.2 Contact Support" xml:space="preserve">
-    <value>22.2 التواصل مع الدعم</value>
+  <data name="23.2 Contact Support" xml:space="preserve">
+    <value>23.2 التواصل مع الدعم</value>
   </data>
-  <data name="You can also raise a tracked request from the user menu using Submit Request — see section 20, Requests &amp; Support." xml:space="preserve">
-    <value>يمكنك أيضاً رفع طلب متابَع من قائمة المستخدم عبر «تقديم طلب» — راجع القسم 20، الطلبات والدعم.</value>
+  <data name="You can also raise a tracked request from the user menu using Submit Request — see section 21, Requests &amp; Support." xml:space="preserve">
+    <value>يمكنك أيضاً رفع طلب متابَع من قائمة المستخدم عبر «تقديم طلب» — راجع القسم 21، الطلبات والدعم.</value>
   </data>
   <data name="New" xml:space="preserve">
     <value>جديد</value>
@@ -2302,5 +2239,926 @@
   </data>
   <data name="Performance recalculates automatically. The Measures list shows the Quantity and Achievement % separately. The phase total accumulates across all measure entries, capped at 100%." xml:space="preserve">
     <value>يُعاد احتساب الأداء تلقائياً. تعرض قائمة القياسات الكمية ونسبة الإنجاز بشكل منفصل. ويتراكم إجمالي الفقرة عبر جميع الإدخالات بحد أقصى 100%.</value>
+  </data>
+  <!-- Section 13: Development Impact -->
+  <data name="Development Impact" xml:space="preserve">
+    <value>الأثر التنموي</value>
+  </data>
+  <!-- Section 13: Development Impact (content) -->
+  <data name="Development Impact measures what projects deliver, not only how well they are executed. Each project records its outputs against a target year by year, and those outputs are grouped into development impact indicators that show the result for a ministry or a strategic goal." xml:space="preserve">
+    <value>يقيس الأثر التنموي ما تحققه المشاريع، لا مدى جودة تنفيذها فقط. يسجّل كل مشروع مخرجاته مقابل قيمة مستهدفة سنة بسنة، وتُجمَّع هذه المخرجات في مؤشرات أثر تنموي تُظهر النتيجة على مستوى الوزارة أو الهدف الاستراتيجي.</value>
+  </data>
+  <data name="Open it from Impact in the top bar. It is not in the sidebar." xml:space="preserve">
+    <value>افتحه من «الأثر» في الشريط العلوي، فهو غير موجود في القائمة الجانبية.</value>
+  </data>
+  <data name="13.1 Key Concepts" xml:space="preserve">
+    <value>13.1 المفاهيم الأساسية</value>
+  </data>
+  <data name="Project Output Indicator" xml:space="preserve">
+    <value>مؤشر مخرج المشروع</value>
+  </data>
+  <data name="Belongs to one project. It has a target for the whole project and a value for each year, for example schools rehabilitated." xml:space="preserve">
+    <value>يتبع مشروعاً واحداً، وله قيمة مستهدفة للمشروع كاملاً وقيمة لكل سنة، مثل عدد المدارس المُعاد تأهيلها.</value>
+  </data>
+  <data name="Development Impact Indicator" xml:space="preserve">
+    <value>مؤشر الأثر التنموي</value>
+  </data>
+  <data name="Groups project output indicators from one or more projects, gives each a weight, and is tagged with ministries and strategic goals. Its yearly figures are calculated from the indicators it groups." xml:space="preserve">
+    <value>يجمع مؤشرات مخرج المشروع من مشروع واحد أو أكثر، ويعطي كلاً منها وزناً، ويُصنَّف حسب الوزارات والأهداف الاستراتيجية. تُحسب أرقامه السنوية من المؤشرات التي يجمعها.</value>
+  </data>
+  <data name="A Separate Track" xml:space="preserve">
+    <value>مسار منفصل</value>
+  </data>
+  <data name="Impact figures never feed project, strategy, outcome or output performance. Those are calculated from phases and measures — see section 19." xml:space="preserve">
+    <value>لا تدخل أرقام الأثر في أداء المشاريع أو الاستراتيجيات أو السياسات أو البرامج؛ فهذه تُحسب من الفقرات والقياسات — راجع القسم 19.</value>
+  </data>
+  <data name="13.2 Project Output Indicators" xml:space="preserve">
+    <value>13.2 مؤشرات مخرج المشروع</value>
+  </data>
+  <data name="Open a project's details page and find the Project Output Indicators card. Use New Indicator to add one, or View All to see every indicator of the project with its totals." xml:space="preserve">
+    <value>افتح صفحة تفاصيل المشروع وابحث عن بطاقة «مؤشرات مخرج المشروع». استخدم «مؤشر جديد» للإضافة، أو «عرض الكل» لعرض جميع مؤشرات المشروع مع مجاميعها.</value>
+  </data>
+  <data name="Field" xml:space="preserve">
+    <value>الحقل</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>الوصف</value>
+  </data>
+  <data name="Indicator Name" xml:space="preserve">
+    <value>اسم المؤشر</value>
+  </data>
+  <data name="What the project delivers, for example schools rehabilitated. Required." xml:space="preserve">
+    <value>ما يحققه المشروع، مثل: مدارس مُعاد تأهيلها. حقل إلزامي.</value>
+  </data>
+  <data name="Target Value" xml:space="preserve">
+    <value>القيمة المستهدفة</value>
+  </data>
+  <data name="The total to deliver across the whole project. Required, and greater than zero." xml:space="preserve">
+    <value>الإجمالي المطلوب إنجازه على مدى المشروع بالكامل. حقل إلزامي، ويجب أن يكون أكبر من صفر.</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>الوحدة</value>
+  </data>
+  <data name="Chosen from Units of Measurement. The + button next to the list adds a new unit without leaving the form." xml:space="preserve">
+    <value>تُختار من «وحدات القياس». ويضيف زر + بجانب القائمة وحدة جديدة دون مغادرة النموذج.</value>
+  </data>
+  <data name="Baseline Value and Baseline Year" xml:space="preserve">
+    <value>قيمة الأساس وسنة الأساس</value>
+  </data>
+  <data name="For reference only. They do not change the achievement rate." xml:space="preserve">
+    <value>للمرجعية فقط، ولا تغيّران نسبة الإنجاز.</value>
+  </data>
+  <data name="Yearly Values" xml:space="preserve">
+    <value>القيم السنوية</value>
+  </data>
+  <data name="One row for each year of the project, taken from its start and end dates. Leave a year blank if it was not measured: blank is not the same as zero." xml:space="preserve">
+    <value>سطر لكل سنة من سنوات المشروع حسب تاريخي البداية والنهاية. اترك السنة فارغة إذا لم تُقَس، فالفراغ لا يعني صفراً.</value>
+  </data>
+  <data name="Achievement Rate" xml:space="preserve">
+    <value>نسبة الإنجاز</value>
+  </data>
+  <data name="Achieved is the sum of the yearly values. Achievement Rate = Achieved ÷ Target Value × 100, with no upper limit, so an indicator can pass 100%. The bar is teal above 100%, green from 76%, amber from 51%, and red below that." xml:space="preserve">
+    <value>المنجز هو مجموع القيم السنوية. نسبة الإنجاز = المنجز ÷ القيمة المستهدفة × 100، دون حد أعلى، فقد يتجاوز المؤشر 100%. يكون الشريط فيروزياً فوق 100%، وأخضر من 76%، وكهرمانياً من 51%، وأحمر دون ذلك.</value>
+  </data>
+  <data name="Deleting a Project Output Indicator" xml:space="preserve">
+    <value>حذف مؤشر مخرج المشروع</value>
+  </data>
+  <data name="Deleting an indicator also deletes its yearly values and removes it from every development impact indicator that groups it. The remaining weights there are not re-split, so the next time you edit that development impact indicator you must bring its weights back to 100." xml:space="preserve">
+    <value>حذف المؤشر يحذف قيمه السنوية أيضاً ويزيله من كل مؤشر أثر تنموي يضمّه. ولا يُعاد توزيع الأوزان المتبقية هناك، لذا يجب إعادة مجموعها إلى 100 عند تعديل مؤشر الأثر التنموي في المرة التالية.</value>
+  </data>
+  <data name="Project Output Indicators Screenshot" xml:space="preserve">
+    <value>لقطة شاشة مؤشرات مخرج المشروع</value>
+  </data>
+  <data name="Screenshot: Project Output Indicators" xml:space="preserve">
+    <value>لقطة شاشة: مؤشرات مخرج المشروع</value>
+  </data>
+  <data name="Figure 13.1: Project Output Indicators" xml:space="preserve">
+    <value>الشكل 13.1: مؤشرات مخرج المشروع</value>
+  </data>
+  <data name="13.3 The Development Impact Page" xml:space="preserve">
+    <value>13.3 صفحة الأثر التنموي</value>
+  </data>
+  <data name="The page opens with three summary cards: the number of development impact indicators, the linked project output indicators, and the years covered. Below them you can search by name, filter by ministry, and reset the filters." xml:space="preserve">
+    <value>تبدأ الصفحة بثلاث بطاقات ملخّصة: عدد مؤشرات الأثر التنموي، ومؤشرات مخرج المشروع المرتبطة، والسنوات المشمولة. وتحتها يمكنك البحث بالاسم، والتصفية حسب الوزارة، وإعادة تعيين عوامل التصفية.</value>
+  </data>
+  <data name="Column" xml:space="preserve">
+    <value>العمود</value>
+  </data>
+  <data name="What it shows" xml:space="preserve">
+    <value>ما يعرضه</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>الاسم</value>
+  </data>
+  <data name="The development impact indicator, with its strategic goals as badges underneath. Click it to open its details." xml:space="preserve">
+    <value>مؤشر الأثر التنموي، وتحته أهدافه الاستراتيجية على شكل شارات. انقر عليه لفتح تفاصيله.</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>الوزارات</value>
+  </data>
+  <data name="The ministries it is tagged with." xml:space="preserve">
+    <value>الوزارات التي صُنّف ضمنها.</value>
+  </data>
+  <data name="Indicators (count)" xml:space="preserve">
+    <value>المؤشرات (العدد)</value>
+  </data>
+  <data name="How many project output indicators it groups." xml:space="preserve">
+    <value>عدد مؤشرات مخرج المشروع التي يجمعها.</value>
+  </data>
+  <data name="Base Value and Target" xml:space="preserve">
+    <value>القيمة الأساس والقيمة المستهدفة</value>
+  </data>
+  <data name="Its starting value (with the base year) and the value it aims for. A badge shows the direction: Increase or Decrease." xml:space="preserve">
+    <value>قيمته الابتدائية (مع سنة الأساس) والقيمة التي يسعى إليها. وتُظهر شارة الاتجاه: تصاعدي أو تخفيضي.</value>
+  </data>
+  <data name="Each year" xml:space="preserve">
+    <value>كل سنة</value>
+  </data>
+  <data name="Three figures per year: Amount of Change, Total Value and Actual Impact. Years outside this row's range show a dash." xml:space="preserve">
+    <value>ثلاثة أرقام لكل سنة: مقدار التغيّر، والأثر المحقق، والأثر الفعلي. وتظهر شرطة في السنوات الواقعة خارج نطاق هذا الصف.</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>الإجمالي</value>
+  </data>
+  <data name="The average of the yearly percentages." xml:space="preserve">
+    <value>متوسط النسب السنوية.</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>التفاصيل</value>
+  </data>
+  <data name="How these figures are calculated" xml:space="preserve">
+    <value>كيف تُحسب هذه الأرقام</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>تعديل</value>
+  </data>
+  <data name="Record actual impact" xml:space="preserve">
+    <value>تسجيل الأثر الفعلي</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>حذف</value>
+  </data>
+  <data name="Button" xml:space="preserve">
+    <value>الزر</value>
+  </data>
+  <data name="What it does" xml:space="preserve">
+    <value>ما يفعله</value>
+  </data>
+  <data name="Opens the details page." xml:space="preserve">
+    <value>يفتح صفحة التفاصيل.</value>
+  </data>
+  <data name="Explains this row's figures year by year, with a worked example. Available to everyone." xml:space="preserve">
+    <value>يشرح أرقام هذا الصف سنة بسنة مع مثال محسوب. متاح للجميع.</value>
+  </data>
+  <data name="Opens the edit form. See 13.4." xml:space="preserve">
+    <value>يفتح نموذج التعديل. راجع 13.4.</value>
+  </data>
+  <data name="Records the observed impact for one year. See 13.6." xml:space="preserve">
+    <value>يسجّل الأثر الملاحَظ لسنة واحدة. راجع 13.6.</value>
+  </data>
+  <data name="Deletes the development impact indicator. See 13.7." xml:space="preserve">
+    <value>يحذف مؤشر الأثر التنموي. راجع 13.7.</value>
+  </data>
+  <data name="Development Impact Page Screenshot" xml:space="preserve">
+    <value>لقطة شاشة صفحة الأثر التنموي</value>
+  </data>
+  <data name="Screenshot: Development Impact Page" xml:space="preserve">
+    <value>لقطة شاشة: صفحة الأثر التنموي</value>
+  </data>
+  <data name="Figure 13.2: The Development Impact Page" xml:space="preserve">
+    <value>الشكل 13.2: صفحة الأثر التنموي</value>
+  </data>
+  <data name="13.4 Adding and Editing a Development Impact Indicator" xml:space="preserve">
+    <value>13.4 إضافة مؤشر أثر تنموي وتعديله</value>
+  </data>
+  <data name="Open the Form" xml:space="preserve">
+    <value>افتح النموذج</value>
+  </data>
+  <data name="Click Add Development Impact Indicator, or the Edit button on a row or on its details page." xml:space="preserve">
+    <value>انقر «إضافة مؤشر أثر تنموي»، أو زر «تعديل» في الصف أو في صفحة التفاصيل.</value>
+  </data>
+  <data name="Enter the Name" xml:space="preserve">
+    <value>أدخل الاسم</value>
+  </data>
+  <data name="Give it a name, for example improved access to basic education. Required." xml:space="preserve">
+    <value>أعطه اسماً، مثل: تحسين الوصول إلى التعليم الأساسي. حقل إلزامي.</value>
+  </data>
+  <data name="Set the Base Value and Target" xml:space="preserve">
+    <value>حدّد القيمة الأساس والقيمة المستهدفة</value>
+  </data>
+  <data name="Both are optional and accept decimals. A target below the base makes it a decrease goal. If either is empty, Amount of Change and Total Value show a dash." xml:space="preserve">
+    <value>كلاهما اختياري ويقبل الكسور العشرية. القيمة المستهدفة الأقل من القيمة الأساس تجعله هدفاً تخفيضياً. وإذا تُركت إحداهما فارغة يظهر مقدار التغيّر والأثر المحقق كشرطة.</value>
+  </data>
+  <data name="Choose Ministries" xml:space="preserve">
+    <value>اختر الوزارات</value>
+  </data>
+  <data name="Choose one or more. This narrows the two lists below to what belongs to those ministries." xml:space="preserve">
+    <value>اختر واحدة أو أكثر. يضيّق ذلك القائمتين أدناه إلى ما يتبع تلك الوزارات.</value>
+  </data>
+  <data name="Choose Strategic Goals" xml:space="preserve">
+    <value>اختر الأهداف الاستراتيجية</value>
+  </data>
+  <data name="The strategic goals this development impact indicator contributes to." xml:space="preserve">
+    <value>الأهداف الاستراتيجية التي يساهم فيها مؤشر الأثر التنموي هذا.</value>
+  </data>
+  <data name="Choose Project Output Indicators" xml:space="preserve">
+    <value>اختر مؤشرات مخرج المشروع</value>
+  </data>
+  <data name="Each is listed as indicator — project. These are the indicators whose values it groups." xml:space="preserve">
+    <value>يظهر كل منها بصيغة «المؤشر — المشروع». وهي المؤشرات التي يجمع قيمها.</value>
+  </data>
+  <data name="Set the Indicator Weights and Save" xml:space="preserve">
+    <value>حدّد أوزان المؤشرات واحفظ</value>
+  </data>
+  <data name="Each chosen indicator gets a weight box, and a live total shows whether they add up to 100. Create returns you to the list; Save Changes returns you to the details page." xml:space="preserve">
+    <value>يحصل كل مؤشر مختار على خانة وزن، ويُظهر إجمالي مباشر ما إذا كان مجموعها 100. يعيدك «إنشاء» إلى القائمة، ويعيدك «حفظ التغييرات» إلى صفحة التفاصيل.</value>
+  </data>
+  <data name="Weights Must Total Exactly 100" xml:space="preserve">
+    <value>يجب أن يساوي مجموع الأوزان 100 بالضبط</value>
+  </data>
+  <data name="The form will not save otherwise. Any change to the chosen indicators, including one caused by changing Ministries, resets the weights to an equal split, for example 33.33, 33.33 and 33.34. Adjust them afterwards if needed. With no indicators chosen, there is nothing to weigh." xml:space="preserve">
+    <value>لن يُحفظ النموذج بخلاف ذلك. وأي تغيير في المؤشرات المختارة، بما في ذلك الناتج عن تغيير الوزارات، يعيد الأوزان إلى توزيع متساوٍ، مثل 33.33 و33.33 و33.34. عدّلها بعد ذلك عند الحاجة. وإذا لم يُختر أي مؤشر فلا توجد أوزان.</value>
+  </data>
+  <data name="Editing" xml:space="preserve">
+    <value>التعديل</value>
+  </data>
+  <data name="Edit lets you change everything the add form sets, and opens with the saved weights." xml:space="preserve">
+    <value>يتيح التعديل تغيير كل ما يحدده نموذج الإضافة، ويُفتح بالأوزان المحفوظة.</value>
+  </data>
+  <data name="Development Impact Form Screenshot" xml:space="preserve">
+    <value>لقطة شاشة نموذج الأثر التنموي</value>
+  </data>
+  <data name="Screenshot: Development Impact Form" xml:space="preserve">
+    <value>لقطة شاشة: نموذج الأثر التنموي</value>
+  </data>
+  <data name="Figure 13.3: Adding a Development Impact Indicator" xml:space="preserve">
+    <value>الشكل 13.3: إضافة مؤشر أثر تنموي</value>
+  </data>
+  <data name="13.5 How the Figures Are Calculated" xml:space="preserve">
+    <value>13.5 كيف تُحسب الأرقام</value>
+  </data>
+  <data name="Figure" xml:space="preserve">
+    <value>الرقم</value>
+  </data>
+  <data name="How it is calculated" xml:space="preserve">
+    <value>طريقة الحساب</value>
+  </data>
+  <data name="Years" xml:space="preserve">
+    <value>السنوات</value>
+  </data>
+  <data name="Every year covered by the projects of the linked indicators. The earliest is the base year." xml:space="preserve">
+    <value>كل سنة تغطيها مشاريع المؤشرات المرتبطة، وأقدمها سنة الأساس.</value>
+  </data>
+  <data name="Actual Value" xml:space="preserve">
+    <value>القيمة الفعلية</value>
+  </data>
+  <data name="For each year, the weighted average of the linked indicators' cumulative achievement rates, counting only indicators whose project covers that year: Σ(rate × weight) ÷ Σ(weights)." xml:space="preserve">
+    <value>لكل سنة، المتوسط المرجّح لنسب الإنجاز التراكمية للمؤشرات المرتبطة، مع احتساب المؤشرات التي يغطي مشروعها تلك السنة فقط: Σ(النسبة × الوزن) ÷ Σ(الأوزان).</value>
+  </data>
+  <data name="Amount of Change" xml:space="preserve">
+    <value>مقدار التغيّر</value>
+  </data>
+  <data name="((Target − Base Value) × Actual Value) ÷ 100, or ((Base Value − Target) × Actual Value) ÷ 100 for a decrease goal. It is the change from the base value, not the current level." xml:space="preserve">
+    <value>((القيمة المستهدفة − القيمة الأساس) × القيمة الفعلية) ÷ 100، أو ((القيمة الأساس − القيمة المستهدفة) × القيمة الفعلية) ÷ 100 للهدف التخفيضي. وهو التغيّر عن القيمة الأساس، لا المستوى الحالي.</value>
+  </data>
+  <data name="Total Value" xml:space="preserve">
+    <value>الأثر المحقق</value>
+  </data>
+  <data name="Base Value + Amount of Change, or Base Value − Amount of Change for a decrease goal: the level reached." xml:space="preserve">
+    <value>القيمة الأساس + مقدار التغيّر، أو القيمة الأساس − مقدار التغيّر للهدف التخفيضي: المستوى الذي تم بلوغه.</value>
+  </data>
+  <data name="Actual Impact" xml:space="preserve">
+    <value>الأثر الفعلي</value>
+  </data>
+  <data name="Entered by hand for each year. It is not used in any calculation." xml:space="preserve">
+    <value>يُدخَل يدوياً لكل سنة، ولا يدخل في أي حساب.</value>
+  </data>
+  <data name="The average of the yearly Actual Value percentages, for years that have a value." xml:space="preserve">
+    <value>متوسط نسب القيمة الفعلية السنوية، للسنوات التي لها قيمة.</value>
+  </data>
+  <data name="Worked Example" xml:space="preserve">
+    <value>مثال محسوب</value>
+  </data>
+  <data name="Base Value 20, Target 100, two indicators weighted 60 and 40 with rates of 50% and 25%: Actual Value = (50 × 60 + 25 × 40) ÷ 100 = 40%, Amount of Change = (80 × 40) ÷ 100 = 32, Total Value = 20 + 32 = 52. For a decrease goal with Base Value 80, Target 20 and an Actual Value of 50%: Amount of Change = (60 × 50) ÷ 100 = 30 and Total Value = 80 − 30 = 50." xml:space="preserve">
+    <value>القيمة الأساس 20، والقيمة المستهدفة 100، ومؤشران بوزنين 60 و40 ونسبتي إنجاز 50% و25%: القيمة الفعلية = (50 × 60 + 25 × 40) ÷ 100 = 40%، ومقدار التغيّر = (80 × 40) ÷ 100 = 32، والأثر المحقق = 20 + 32 = 52. ولهدف تخفيضي قيمته الأساس 80 وقيمته المستهدفة 20 وقيمته الفعلية 50%: مقدار التغيّر = (60 × 50) ÷ 100 = 30، والأثر المحقق = 80 − 30 = 50.</value>
+  </data>
+  <data name="Calculation Explanation Screenshot" xml:space="preserve">
+    <value>لقطة شاشة شرح الحساب</value>
+  </data>
+  <data name="Screenshot: How These Figures Are Calculated" xml:space="preserve">
+    <value>لقطة شاشة: كيف تُحسب هذه الأرقام</value>
+  </data>
+  <data name="Figure 13.4: How These Figures Are Calculated" xml:space="preserve">
+    <value>الشكل 13.4: كيف تُحسب هذه الأرقام</value>
+  </data>
+  <data name="13.6 Recording Actual Impact" xml:space="preserve">
+    <value>13.6 تسجيل الأثر الفعلي</value>
+  </data>
+  <data name="Open Record Actual Impact" xml:space="preserve">
+    <value>افتح تسجيل الأثر الفعلي</value>
+  </data>
+  <data name="Click the clipboard button on the row." xml:space="preserve">
+    <value>انقر زر الحافظة في الصف.</value>
+  </data>
+  <data name="Choose the Year" xml:space="preserve">
+    <value>اختر السنة</value>
+  </data>
+  <data name="Only this row's years are offered, and years already recorded are marked. Choosing one fills in its saved value." xml:space="preserve">
+    <value>تُعرض سنوات هذا الصف فقط، وتُميَّز السنوات المسجّلة مسبقاً. واختيار إحداها يملأ قيمتها المحفوظة.</value>
+  </data>
+  <data name="Enter the Value and Save" xml:space="preserve">
+    <value>أدخل القيمة واحفظ</value>
+  </data>
+  <data name="Saving a year that already has a value replaces it." xml:space="preserve">
+    <value>حفظ سنة لها قيمة مسبقاً يستبدلها.</value>
+  </data>
+  <data name="Actual Impact Is Separate" xml:space="preserve">
+    <value>الأثر الفعلي مستقل</value>
+  </data>
+  <data name="Actual impact is what was observed on the ground. It is shown next to the calculated figures but never changes them." xml:space="preserve">
+    <value>الأثر الفعلي هو ما لوحظ على أرض الواقع. يُعرض بجانب الأرقام المحسوبة لكنه لا يغيّرها أبداً.</value>
+  </data>
+  <data name="13.7 Details Page: Remove or Delete" xml:space="preserve">
+    <value>13.7 صفحة التفاصيل: الإزالة أو الحذف</value>
+  </data>
+  <data name="The details page shows the linked indicators, the sum of targets and of achieved values, and the years covered; its ministries and strategic goals; the Linked Project Output Indicators card; and the Yearly Contribution by Indicator table, whose Total row is exactly what the main page shows." xml:space="preserve">
+    <value>تعرض صفحة التفاصيل المؤشرات المرتبطة، ومجموع المستهدفات والمنجز، والسنوات المشمولة؛ ووزاراته وأهدافه الاستراتيجية؛ وبطاقة «مؤشرات مخرج المشروع المرتبطة»؛ وجدول «المساهمة السنوية حسب المؤشر» الذي يطابق صف الإجمالي فيه ما تعرضه الصفحة الرئيسية تماماً.</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>إزالة</value>
+  </data>
+  <data name="Delete the development impact indicator" xml:space="preserve">
+    <value>حذف مؤشر الأثر التنموي</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>الإجراء</value>
+  </data>
+  <data name="What happens" xml:space="preserve">
+    <value>ما يحدث</value>
+  </data>
+  <data name="In the Linked Project Output Indicators card. Takes one indicator out of this development impact indicator only. The indicator, its yearly values and its links elsewhere stay. The remaining weights are split equally. Removing the last one is allowed." xml:space="preserve">
+    <value>في بطاقة «مؤشرات مخرج المشروع المرتبطة». يُخرج مؤشراً واحداً من مؤشر الأثر التنموي هذا فقط، ويبقى المؤشر وقيمه السنوية وارتباطاته الأخرى. وتُوزَّع الأوزان المتبقية بالتساوي. ويُسمح بإزالة آخر مؤشر.</value>
+  </data>
+  <data name="Deletes the grouping and its recorded actual impact values. The project output indicators themselves are not deleted." xml:space="preserve">
+    <value>يحذف التجميع وقيم الأثر الفعلي المسجّلة له، ولا تُحذف مؤشرات مخرج المشروع نفسها.</value>
+  </data>
+  <data name="Delete a project output indicator" xml:space="preserve">
+    <value>حذف مؤشر مخرج المشروع</value>
+  </data>
+  <data name="Done from the project, not here. See 13.2." xml:space="preserve">
+    <value>يتم من المشروع وليس من هنا. راجع 13.2.</value>
+  </data>
+  <data name="Development Impact Details Screenshot" xml:space="preserve">
+    <value>لقطة شاشة تفاصيل الأثر التنموي</value>
+  </data>
+  <data name="Screenshot: Development Impact Details" xml:space="preserve">
+    <value>لقطة شاشة: تفاصيل الأثر التنموي</value>
+  </data>
+  <data name="Figure 13.5: The Details Page" xml:space="preserve">
+    <value>الشكل 13.5: صفحة التفاصيل</value>
+  </data>
+  <data name="13.8 Who Can Do What" xml:space="preserve">
+    <value>13.8 من يمكنه فعل ماذا</value>
+  </data>
+  <data name="Viewing" xml:space="preserve">
+    <value>العرض</value>
+  </data>
+  <data name="All roles. Users other than System Administrators see only the rows that include their own ministry." xml:space="preserve">
+    <value>جميع الأدوار. ويرى المستخدمون من غير مديري النظام الصفوف التي تتضمن وزارتهم فقط.</value>
+  </data>
+  <data name="Adding, editing, recording, removing and deleting" xml:space="preserve">
+    <value>الإضافة والتعديل والتسجيل والإزالة والحذف</value>
+  </data>
+  <data name="System Administrator and Ministry Strategy Manager. The same two roles manage project output indicators." xml:space="preserve">
+    <value>مدير النظام ومدير استراتيجية الوزارة. والدوران نفساهما يديران مؤشرات مخرج المشروع.</value>
+  </data>
+  <data name="Rows Shared With Other Ministries" xml:space="preserve">
+    <value>الصفوف المشتركة مع وزارات أخرى</value>
+  </data>
+  <data name="A Ministry Strategy Manager cannot edit or remove indicators from a row that also reaches another ministry, another ministry's strategic goal, or an indicator from another ministry's project. Only a System Administrator can, because only they can see the whole row. They also cannot untick their own ministry, since they would lose access to the row." xml:space="preserve">
+    <value>لا يستطيع مدير استراتيجية الوزارة تعديل صف يمتد إلى وزارة أخرى أو إلى هدف استراتيجي لوزارة أخرى أو إلى مؤشر من مشروع وزارة أخرى، ولا إزالة مؤشرات منه؛ فذلك لمدير النظام وحده لأنه الوحيد الذي يرى الصف كاملاً. كما لا يستطيع إلغاء اختيار وزارته، لأنه سيفقد صلاحية الوصول إلى الصف.</value>
+  </data>
+  <!-- impact-2: sections 1-2 and header -->
+  <data name="Measure development impact across projects, by ministry and strategic goal" xml:space="preserve">
+    <value>قياس الأثر التنموي عبر المشاريع، حسب الوزارة والهدف الاستراتيجي</value>
+  </data>
+  <data name="See where projects are on maps by governorate, district and sub-district" xml:space="preserve">
+    <value>عرض توزّع المشاريع على الخرائط حسب المحافظة والمنطقة والناحية</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>الأهداف الاستراتيجية</value>
+  </data>
+  <data name="Configure ministries, donors, sectors, project managers, supervisors, locations and units of measurement." xml:space="preserve">
+    <value>إعداد الوزارات والمانحين والقطاعات ومديري المشاريع والمشرفين والمواقع ووحدات القياس.</value>
+  </data>
+  <data name="Follow performance ministry by ministry, down through strategies to projects and their phases." xml:space="preserve">
+    <value>متابعة الأداء وزارةً وزارة، نزولاً عبر الاستراتيجيات إلى المشاريع وفقراتها.</value>
+  </data>
+  <data name="Project Monitoring" xml:space="preserve">
+    <value>رصد المشاريع</value>
+  </data>
+  <data name="Follow the performance of individual projects with hierarchy filters." xml:space="preserve">
+    <value>متابعة أداء المشاريع منفردةً مع عوامل تصفية حسب التسلسل الهرمي.</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>التقارير</value>
+  </data>
+  <data name="Reports and exports, including the Ministry Report and the Units Report." xml:space="preserve">
+    <value>التقارير والتصدير، بما فيها تقرير الوزارات وتقرير الوحدات.</value>
+  </data>
+  <data name="Geographic Map Systems" xml:space="preserve">
+    <value>نظم الخرائط الجغرافية</value>
+  </data>
+  <data name="Project distribution maps by governorate, district and sub-district." xml:space="preserve">
+    <value>خرائط توزّع المشاريع حسب المحافظة والمنطقة والناحية.</value>
+  </data>
+  <data name="A record of every change made in the system." xml:space="preserve">
+    <value>سجل بكل تغيير يُجرى في النظام.</value>
+  </data>
+  <data name="This guide." xml:space="preserve">
+    <value>هذا الدليل.</value>
+  </data>
+  <data name="Development Impact opens from Impact in the top bar rather than the sidebar — see section 13." xml:space="preserve">
+    <value>يُفتح الأثر التنموي من «الأثر» في الشريط العلوي لا من القائمة الجانبية — راجع القسم 13.</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>الصفحة الرئيسية</value>
+  </data>
+  <data name="opens the Frameworks page" xml:space="preserve">
+    <value>تفتح صفحة «الأهداف الاستراتيجية»</value>
+  </data>
+  <data name="National Development Strategy" xml:space="preserve">
+    <value>استراتيجية التنمية الوطنية</value>
+  </data>
+  <data name="a searchable list of ministries and their strategies, with quick links to each strategy's goals, outcomes, outputs, sub-outputs and indicators" xml:space="preserve">
+    <value>قائمة قابلة للبحث بالوزارات واستراتيجياتها، مع روابط سريعة إلى الأهداف المقاسة والسياسات والبرامج والبرامج الفرعية والمشاريع لكل استراتيجية</value>
+  </data>
+  <data name="Impact" xml:space="preserve">
+    <value>الأثر</value>
+  </data>
+  <data name="opens Development Impact, see section 13" xml:space="preserve">
+    <value>يفتح الأثر التنموي، راجع القسم 13</value>
+  </data>
+  <data name="International Cooperation Partners" xml:space="preserve">
+    <value>الشركاء</value>
+  </data>
+  <data name="partners grouped by type: United Nations organizations, international non-governmental organizations, countries and local partners" xml:space="preserve">
+    <value>الشركاء مصنّفون حسب النوع: منظمات الأمم المتحدة، والمنظمات الدولية غير الحكومية، والدول، والشركاء المحليون</value>
+  </data>
+  <data name="User menu" xml:space="preserve">
+    <value>قائمة المستخدم</value>
+  </data>
+  <data name="What's New, Settings and Logout, plus Submit Request and My Requests for roles that can raise requests. Administrators also see Requests Management, Request Employees and Versions Management." xml:space="preserve">
+    <value>ما الجديد وإعدادات وتسجيل الخروج، إضافةً إلى تقديم طلب وطلباتي للأدوار التي يمكنها رفع الطلبات. ويرى مديرو النظام أيضاً إدارة الطلبات وموظفو الطلبات وإدارة الإصدارات.</value>
+  </data>
+  <data name="Language and theme" xml:space="preserve">
+    <value>اللغة والسمة</value>
+  </data>
+  <data name="switch between Arabic and English, and between the blue and green themes" xml:space="preserve">
+    <value>للتبديل بين العربية والإنجليزية، وبين السمتين الزرقاء والخضراء</value>
+  </data>
+  <!-- impact-2: section 3 Dashboard -->
+  <data name="Maps of where projects are live in Geographic Map Systems in the sidebar — see section 14.3." xml:space="preserve">
+    <value>توجد خرائط توزّع المشاريع في «نظم الخرائط الجغرافية» في القائمة الجانبية — راجع القسم 14.3.</value>
+  </data>
+  <data name="3.8 Ministry Overview" xml:space="preserve">
+    <value>3.8 نظرة عامة على الوزارات</value>
+  </data>
+  <data name="The Ministry Overview section shows one card per ministry. Show or hide it with the Ministries tab at the top of the dashboard." xml:space="preserve">
+    <value>يعرض قسم «نظرة عامة على الوزارات» بطاقة لكل وزارة. أظهره أو أخفه من تبويب «الوزارات» أعلى لوحة المعلومات.</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>الأداء</value>
+  </data>
+  <data name="Project Average (the mean of the ministry's projects), Strategy Roll-up (the mean of its strategies, or a dash if it has none) and Disbursement." xml:space="preserve">
+    <value>متوسط المشاريع (متوسط مشاريع الوزارة)، وتجميع الأهداف الاستراتيجية (متوسط استراتيجياتها، أو شرطة إن لم تكن لها استراتيجيات)، والإنفاق.</value>
+  </data>
+  <data name="Financial" xml:space="preserve">
+    <value>المالية</value>
+  </data>
+  <data name="Budget (SYP), Disbursed and Spend Rate. A warning shows how many projects were left out because they have no exchange rate." xml:space="preserve">
+    <value>الموازنة (ل.س)، والمنصرف، ونسبة الإنفاق. ويظهر تنبيه بعدد المشاريع المستبعدة لعدم وجود سعر صرف لها.</value>
+  </data>
+  <data name="Counts" xml:space="preserve">
+    <value>الأعداد</value>
+  </data>
+  <data name="Strategies, indicators and projects, with how many projects are active and how many are completed." xml:space="preserve">
+    <value>الأهداف الاستراتيجية والمؤشرات والمشاريع، مع عدد المشاريع قيد التنفيذ والمنجزة.</value>
+  </data>
+  <data name="Impact Achievement and Impact Outputs for the ministry. See section 13." xml:space="preserve">
+    <value>تحقيق الأثر ومخرجات الأثر للوزارة. راجع القسم 13.</value>
+  </data>
+  <data name="Filtering by Ministry" xml:space="preserve">
+    <value>التصفية حسب الوزارة</value>
+  </data>
+  <data name="Click a ministry card to filter the whole dashboard by that ministry, and click it again to clear the filter. Users tied to one ministry always see their own. The ministry figures cover the whole portfolio and do not narrow with the location filters." xml:space="preserve">
+    <value>انقر بطاقة وزارة لتصفية لوحة المعلومات كاملةً حسبها، وانقرها مرة أخرى لإلغاء التصفية. ويرى المستخدمون المرتبطون بوزارة واحدة وزارتهم دائماً. وتغطي أرقام الوزارات المحفظة بأكملها ولا تتأثر بعوامل تصفية المواقع.</value>
+  </data>
+  <data name="Ministry Overview Screenshot" xml:space="preserve">
+    <value>لقطة شاشة نظرة عامة على الوزارات</value>
+  </data>
+  <data name="Screenshot: Ministry Overview" xml:space="preserve">
+    <value>لقطة شاشة: نظرة عامة على الوزارات</value>
+  </data>
+  <data name="Figure 3.7: Ministry Overview" xml:space="preserve">
+    <value>الشكل 3.7: نظرة عامة على الوزارات</value>
+  </data>
+  <!-- impact-2: section 4 Tree View -->
+  <data name="Opening the Tree" xml:space="preserve">
+    <value>فتح الشجرة</value>
+  </data>
+  <data name="Ministry tree" xml:space="preserve">
+    <value>شجرة الوزارة</value>
+  </data>
+  <data name="the Strategy Tree button on a ministry's row, on the Frameworks page or in Set Up, shows all of that ministry's strategies" xml:space="preserve">
+    <value>يعرض زر «شجرة الأهداف الاستراتيجية» في صف الوزارة، في صفحة الأهداف الاستراتيجية أو في «ادارة الجهات»، جميع استراتيجيات تلك الوزارة</value>
+  </data>
+  <data name="Single strategy" xml:space="preserve">
+    <value>استراتيجية واحدة</value>
+  </data>
+  <data name="the tree icon on a strategy's row shows that strategy alone. It is offered to System Administrators and Ministry Strategy Managers." xml:space="preserve">
+    <value>تعرض أيقونة الشجرة في صف الاستراتيجية تلك الاستراتيجية وحدها، وتظهر لمديري النظام ومديري استراتيجية الوزارة.</value>
+  </data>
+  <data name="Toolbar" xml:space="preserve">
+    <value>شريط الأدوات</value>
+  </data>
+  <data name="Indicators, Both, Disbursement" xml:space="preserve">
+    <value>المشاريع، كلاهما، الصرف</value>
+  </data>
+  <data name="which performance each node shows" xml:space="preserve">
+    <value>نوع الأداء الذي تعرضه كل عقدة</value>
+  </data>
+  <data name="Expand All and Collapse All" xml:space="preserve">
+    <value>توسيع الكل وطي الكل</value>
+  </data>
+  <data name="open or close every branch at once" xml:space="preserve">
+    <value>فتح جميع الفروع أو طيّها دفعة واحدة</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>تصدير</value>
+  </data>
+  <data name="saves the tree as a PNG image" xml:space="preserve">
+    <value>يحفظ الشجرة كصورة PNG</value>
+  </data>
+  <data name="Zoom and Fit to Screen" xml:space="preserve">
+    <value>التكبير وملاءمة الشاشة</value>
+  </data>
+  <data name="zoom out, reset, zoom in, or fit the whole tree on screen" xml:space="preserve">
+    <value>التصغير وإعادة الضبط والتكبير، أو ملاءمة الشجرة كاملة للشاشة</value>
+  </data>
+  <data name="Full Screen and Pin toolbars" xml:space="preserve">
+    <value>ملء الشاشة وتثبيت الأشرطة</value>
+  </data>
+  <data name="in full screen the toolbars hide until you move the pointer to the top, unless you pin them" xml:space="preserve">
+    <value>في وضع ملء الشاشة تختفي الأشرطة حتى تحرّك المؤشر إلى الأعلى، ما لم تثبّتها</value>
+  </data>
+  <data name="Display Options" xml:space="preserve">
+    <value>خيارات العرض</value>
+  </data>
+  <data name="Show Levels and Show Phases" xml:space="preserve">
+    <value>إظهار المستويات وإظهار المراحل</value>
+  </data>
+  <data name="choose which levels of the hierarchy appear, and whether project phases are drawn" xml:space="preserve">
+    <value>اختر مستويات التسلسل الهرمي التي تظهر، وما إذا كانت مراحل المشاريع تُرسم</value>
+  </data>
+  <data name="Show Connecting Lines" xml:space="preserve">
+    <value>خطوط الوصل</value>
+  </data>
+  <data name="draws lines from each node to its children" xml:space="preserve">
+    <value>يرسم خطوطاً من كل عقدة إلى فروعها</value>
+  </data>
+  <data name="Horizontal View" xml:space="preserve">
+    <value>عرض أفقي</value>
+  </data>
+  <data name="lays the tree out from side to side instead of top to bottom. It is on by default." xml:space="preserve">
+    <value>يعرض الشجرة من جانب إلى آخر بدلاً من الأعلى إلى الأسفل، وهو مفعّل افتراضياً.</value>
+  </data>
+  <data name="Compact Nodes" xml:space="preserve">
+    <value>عقد مضغوطة</value>
+  </data>
+  <data name="smaller boxes that fit more on screen" xml:space="preserve">
+    <value>مربعات أصغر تتسع لعدد أكبر على الشاشة</value>
+  </data>
+  <data name="Depth" xml:space="preserve">
+    <value>العمق</value>
+  </data>
+  <data name="how many levels to open" xml:space="preserve">
+    <value>عدد المستويات التي تُفتح</value>
+  </data>
+  <data name="Min Performance" xml:space="preserve">
+    <value>الحد الأدنى للأداء</value>
+  </data>
+  <data name="dims or hides nodes below the chosen performance" xml:space="preserve">
+    <value>يعتّم العقد التي يقل أداؤها عن الحد المختار أو يخفيها</value>
+  </data>
+  <data name="Cell Spacing and Density" xml:space="preserve">
+    <value>التباعد بين الخلايا والكثافة</value>
+  </data>
+  <data name="spacing between nodes; Density offers Compact, Comfortable and Spacious presets" xml:space="preserve">
+    <value>المسافة بين العقد؛ وتوفر الكثافة الخيارات: مضغوط، ومريح، وواسع</value>
+  </data>
+  <data name="Status Colors" xml:space="preserve">
+    <value>ألوان الحالة</value>
+  </data>
+  <data name="colours each node by its performance: Good 80% and above, Average 60 to 79%, Low 40 to 59%, Critical below 40%" xml:space="preserve">
+    <value>يلوّن كل عقدة حسب أدائها: جيد 80% فأكثر، متوسط من 60 إلى 79%، منخفض من 40 إلى 59%، حرج دون 40%</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>البحث</value>
+  </data>
+  <data name="highlights matching nodes" xml:space="preserve">
+    <value>يميّز العقد المطابقة</value>
+  </data>
+  <data name="Your Settings Are Remembered" xml:space="preserve">
+    <value>تُحفظ إعداداتك</value>
+  </data>
+  <data name="The tree remembers your display choices, such as orientation, spacing, zoom and colours, in your browser for the next visit." xml:space="preserve">
+    <value>تحفظ الشجرة خيارات العرض الخاصة بك، مثل الاتجاه والتباعد والتكبير والألوان، في متصفحك للزيارة التالية.</value>
+  </data>
+  <!-- impact-2: sections 9-10 -->
+  <data name="9.7 Units of Measurement" xml:space="preserve">
+    <value>9.7 وحدات القياس</value>
+  </data>
+  <data name="Units of Measurement lists the units used across the platform by project output indicators, framework goals and measures. Open Set Up and choose the Units tab." xml:space="preserve">
+    <value>تعرض «وحدات القياس» الوحدات المستخدمة في المنصة لمؤشرات مخرج المشروع وأهداف السياسة والقياسات. افتح «ادارة الجهات» واختر تبويب «وحدات القياس».</value>
+  </data>
+  <data name="Every unit needs an English and an Arabic name; a French name is optional." xml:space="preserve">
+    <value>تحتاج كل وحدة إلى اسم بالإنجليزية واسم بالعربية، والاسم بالفرنسية اختياري.</value>
+  </data>
+  <data name="Edit a name directly in the table." xml:space="preserve">
+    <value>عدّل الاسم مباشرةً في الجدول.</value>
+  </data>
+  <data name="The In Use By column shows what uses each unit. A unit that is in use cannot be deleted." xml:space="preserve">
+    <value>يُظهر عمود «مستخدمة في» ما يستخدم كل وحدة، ولا يمكن حذف وحدة مستخدمة.</value>
+  </data>
+  <data name="Adding a Unit While You Work" xml:space="preserve">
+    <value>إضافة وحدة أثناء العمل</value>
+  </data>
+  <data name="Forms that ask for a unit have a + button next to the list, which adds a new unit without leaving the form." xml:space="preserve">
+    <value>تحتوي النماذج التي تطلب وحدة على زر + بجانب القائمة، يضيف وحدة جديدة دون مغادرة النموذج.</value>
+  </data>
+  <data name="Units of Measurement Screenshot" xml:space="preserve">
+    <value>لقطة شاشة وحدات القياس</value>
+  </data>
+  <data name="Screenshot: Units of Measurement" xml:space="preserve">
+    <value>لقطة شاشة: وحدات القياس</value>
+  </data>
+  <data name="Figure 9.8: Units of Measurement" xml:space="preserve">
+    <value>الشكل 9.8: وحدات القياس</value>
+  </data>
+  <data name="10.8 Project Output Indicators" xml:space="preserve">
+    <value>10.8 مؤشرات مخرج المشروع</value>
+  </data>
+  <data name="A project's details page has a Project Output Indicators card for what the project delivers, measured year by year against a target. They are measured separately from execution performance and are grouped into development impact indicators. See section 13.2." xml:space="preserve">
+    <value>تحتوي صفحة تفاصيل المشروع على بطاقة «مؤشرات مخرج المشروع» لما يحققه المشروع، مقيساً سنة بسنة مقابل قيمة مستهدفة. وتُقاس بشكل منفصل عن أداء التنفيذ، وتُجمَّع في مؤشرات الأثر التنموي. راجع القسم 13.2.</value>
+  </data>
+  <!-- impact-2: section 12 Monitoring -->
+  <data name="Indicators Performance" xml:space="preserve">
+    <value>نسبة الأداء</value>
+  </data>
+  <data name="The average execution performance of the ministry's strategies." xml:space="preserve">
+    <value>متوسط أداء التنفيذ لاستراتيجيات الوزارة.</value>
+  </data>
+  <data name="The average disbursement performance of the ministry's strategies." xml:space="preserve">
+    <value>متوسط أداء الإنفاق لاستراتيجيات الوزارة.</value>
+  </data>
+  <data name="Ministry Navigation" xml:space="preserve">
+    <value>تصفح الوزارة</value>
+  </data>
+  <data name="Counts that open each level for this ministry, from its strategies, outcomes, outputs and sub-outputs down to indicators, projects and project phases." xml:space="preserve">
+    <value>أعداد تفتح كل مستوى لهذه الوزارة، من أهدافها الاستراتيجية وسياساتها وبرامجها وبرامجها الفرعية وصولاً إلى المشاريع ومراحل المشروع.</value>
+  </data>
+  <data name="find a ministry by name" xml:space="preserve">
+    <value>ابحث عن وزارة بالاسم</value>
+  </data>
+  <data name="Performance Level" xml:space="preserve">
+    <value>مستوى الأداء</value>
+  </data>
+  <data name="All, High (80% and above), Medium (60 to 79%) or Low (below 60%)" xml:space="preserve">
+    <value>الكل، أو مرتفع (80% فأكثر)، أو متوسط (من 60 إلى 79%)، أو منخفض (دون 60%)</value>
+  </data>
+  <data name="Sort By" xml:space="preserve">
+    <value>ترتيب حسب</value>
+  </data>
+  <data name="Name, Performance or Projects" xml:space="preserve">
+    <value>الاسم أو الأداء أو المشاريع</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>عرض</value>
+  </data>
+  <data name="Grid or List" xml:space="preserve">
+    <value>شبكة أو قائمة</value>
+  </data>
+  <data name="open or fold every card. Each card also remembers, in your browser, whether you folded it." xml:space="preserve">
+    <value>فتح جميع البطاقات أو طيّها. وتتذكر كل بطاقة في متصفحك ما إذا كنت قد طويتها.</value>
+  </data>
+  <data name="Your Ministry Only" xml:space="preserve">
+    <value>وزارتك فقط</value>
+  </data>
+  <data name="Users other than System Administrators always see only their own ministry, here and at every level below it." xml:space="preserve">
+    <value>يرى المستخدمون من غير مديري النظام وزارتهم فقط دائماً، هنا وفي جميع المستويات التي تليها.</value>
+  </data>
+  <data name="Strategies" xml:space="preserve">
+    <value>الأهداف الاستراتيجية</value>
+  </data>
+  <data name="Performance of each of the ministry's strategies" xml:space="preserve">
+    <value>أداء كل استراتيجية من استراتيجيات الوزارة</value>
+  </data>
+  <data name="Project Phases" xml:space="preserve">
+    <value>مراحل المشروع</value>
+  </data>
+  <data name="Performance of each phase of a project" xml:space="preserve">
+    <value>أداء كل مرحلة من مراحل المشروع</value>
+  </data>
+  <!-- impact-2: section 14 Reports -->
+  <data name="Reports in the sidebar opens the Reports Dashboard: summary cards, a map of projects by governorate with details for the governorate you click, and charts comparing performance across frameworks, sectors, ministries and hierarchy levels, with budget and utilization overviews. Export Excel and Print Report are at the top of the page." xml:space="preserve">
+    <value>يفتح «التقارير» في القائمة الجانبية لوحة التقارير: بطاقات ملخّصة، وخريطة للمشاريع حسب المحافظة مع تفاصيل المحافظة التي تنقر عليها، ورسوم بيانية تقارن الأداء بين الأهداف الاستراتيجية والقطاعات والوزارات ومستويات التسلسل الهرمي، مع عرض للموازنات ونسب استخدامها. ويوجد زرا التصدير إلى Excel وطباعة التقرير أعلى الصفحة.</value>
+  </data>
+  <data name="Specialized Reports" xml:space="preserve">
+    <value>التقارير التخصصية</value>
+  </data>
+  <data name="The Specialized Reports row, and the matching buttons at the top of the page, open:" xml:space="preserve">
+    <value>يفتح صف «التقارير التخصصية»، والأزرار المقابلة أعلى الصفحة:</value>
+  </data>
+  <data name="Ministry Report" xml:space="preserve">
+    <value>تقرير الوزارات</value>
+  </data>
+  <data name="a scorecard for each ministry — see 14.2" xml:space="preserve">
+    <value>بطاقة أداء لكل وزارة — راجع 14.2</value>
+  </data>
+  <data name="Financial Analysis" xml:space="preserve">
+    <value>التحليل المالي</value>
+  </data>
+  <data name="estimated compared with real budgets" xml:space="preserve">
+    <value>مقارنة الموازنة المقدّرة بالفعلية</value>
+  </data>
+  <data name="project maps — see 14.3" xml:space="preserve">
+    <value>خرائط المشاريع — راجع 14.3</value>
+  </data>
+  <data name="Units Report" xml:space="preserve">
+    <value>تقرير وحدات القياس</value>
+  </data>
+  <data name="delivery by unit of measurement — see 14.4" xml:space="preserve">
+    <value>الإنجاز حسب وحدة القياس — راجع 14.4</value>
+  </data>
+  <data name="Who Can Open Reports" xml:space="preserve">
+    <value>من يمكنه فتح التقارير</value>
+  </data>
+  <data name="The Dashboard, the Reports pages and Geographic Map Systems are available to every role except Ministry Strategy Manager. Users tied to one ministry see their own ministry's data." xml:space="preserve">
+    <value>تتاح لوحة المعلومات وصفحات التقارير ونظم الخرائط الجغرافية لجميع الأدوار باستثناء مدير استراتيجية الوزارة، ويرى المستخدمون المرتبطون بوزارة واحدة بيانات وزارتهم.</value>
+  </data>
+  <data name="14.2 Ministry Report" xml:space="preserve">
+    <value>14.2 تقرير الوزارات</value>
+  </data>
+  <data name="Open it from the Ministry Report button or card on the Reports page. It gives each ministry a scorecard of its performance, finances, counts and development impact." xml:space="preserve">
+    <value>افتحه من زر «تقرير الوزارات» أو بطاقته في صفحة التقارير. يمنح كل وزارة بطاقة أداء تشمل أداءها وماليتها وأعدادها وأثرها التنموي.</value>
+  </data>
+  <data name="System Administrators can choose one ministry or all of them; other users see their own." xml:space="preserve">
+    <value>يمكن لمديري النظام اختيار وزارة واحدة أو جميع الوزارات، ويرى المستخدمون الآخرون وزارتهم.</value>
+  </data>
+  <data name="From date and To date" xml:space="preserve">
+    <value>من تاريخ وإلى تاريخ</value>
+  </data>
+  <data name="include every project running at any point in the period. They do not apply to strategies or development impact indicators." xml:space="preserve">
+    <value>تشمل كل مشروع كان قائماً في أي وقت خلال الفترة، ولا تنطبق على الأهداف الاستراتيجية أو مؤشرات الأثر التنموي.</value>
+  </data>
+  <data name="narrows the ministries and projects shown" xml:space="preserve">
+    <value>يضيّق الوزارات والمشاريع المعروضة</value>
+  </data>
+  <data name="Two Performance Figures" xml:space="preserve">
+    <value>رقمان للأداء</value>
+  </data>
+  <data name="Performance by ministry compares two deliberately different numbers: the average of the ministry's projects, and the roll-up of its strategies." xml:space="preserve">
+    <value>يقارن «الأداء حسب الوزارة» رقمين مختلفين عن قصد: متوسط أداء مشاريع الوزارة، وتجميع أداء أهدافها الاستراتيجية.</value>
+  </data>
+  <data name="Detail by ministry shows each ministry's performance, finances, counts and development impact, followed by a table of its projects with sector, budget, amount disbursed, spend rate, performance and dates. Export to Excel and Export to PDF save the report with the current filters; Print prints it." xml:space="preserve">
+    <value>يعرض «التفاصيل حسب الوزارة» أداء كل وزارة وماليتها وأعدادها وأثرها التنموي، يليها جدول بمشاريعها يتضمن القطاع والموازنة والمبلغ المنصرف ونسبة الإنفاق والأداء والتواريخ. ويحفظ «تصدير إلى Excel» و«تصدير إلى PDF» التقرير بعوامل التصفية الحالية، ويطبعه زر «طباعة».</value>
+  </data>
+  <data name="Ministry Report Screenshot" xml:space="preserve">
+    <value>لقطة شاشة تقرير الوزارات</value>
+  </data>
+  <data name="Screenshot: Ministry Report" xml:space="preserve">
+    <value>لقطة شاشة: تقرير الوزارات</value>
+  </data>
+  <data name="Figure 14.2: Ministry Report" xml:space="preserve">
+    <value>الشكل 14.2: تقرير الوزارات</value>
+  </data>
+  <data name="14.3 Geographic Map Systems" xml:space="preserve">
+    <value>14.3 نظم الخرائط الجغرافية</value>
+  </data>
+  <data name="Geographic Map Systems in the sidebar, also a card on the Reports page, shows where projects are on a map of Syria." xml:space="preserve">
+    <value>تعرض «نظم الخرائط الجغرافية» في القائمة الجانبية، وهي أيضاً بطاقة في صفحة التقارير، أماكن المشاريع على خريطة سوريا.</value>
+  </data>
+  <data name="Levels" xml:space="preserve">
+    <value>المستويات</value>
+  </data>
+  <data name="Governorates, Districts and Sub-districts. Switching level keeps your filters and clears the selection. The level is kept in the page address, so refreshing or sharing the link opens the same level." xml:space="preserve">
+    <value>المحافظات والمناطق والنواحي. يحتفظ تغيير المستوى بعوامل التصفية ويلغي التحديد. ويُحفظ المستوى في عنوان الصفحة، فيفتح التحديث أو مشاركة الرابط المستوى نفسه.</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>عوامل التصفية</value>
+  </data>
+  <data name="Strategies, Ministries and Projects, each searchable and narrowed by the others; a governorate list on the district and sub-district levels and a district list on the sub-district level, which dim the rest of the map and zoom in; From and To years; and Show country-wide projects, which is on by default. Clear filters resets them all." xml:space="preserve">
+    <value>الأهداف الاستراتيجية والوزارات والمشاريع، وكل منها قابل للبحث ويتضيّق حسب الآخرين؛ وقائمة للمحافظات في مستويي المناطق والنواحي وقائمة للمناطق في مستوى النواحي، تعتّمان بقية الخريطة وتكبّران المنطقة؛ وسنتا «من» و«إلى»؛ و«عرض مشاريع مستوى القطر» المفعّل افتراضياً. ويعيد «مسح الفلاتر» تعيينها جميعاً.</value>
+  </data>
+  <data name="Clicking an area" xml:space="preserve">
+    <value>النقر على منطقة</value>
+  </data>
+  <data name="colours it orange and lists its projects in the table below. Clear selection removes it." xml:space="preserve">
+    <value>يلوّنها بالبرتقالي ويعرض مشاريعها في الجدول أدناه، ويزيل «إلغاء التحديد» ذلك.</value>
+  </data>
+  <data name="Choosing projects" xml:space="preserve">
+    <value>اختيار مشاريع</value>
+  </data>
+  <data name="in the Projects filter colours their areas orange." xml:space="preserve">
+    <value>من عامل تصفية المشاريع يلوّن مناطقها بالبرتقالي.</value>
+  </data>
+  <data name="Colours" xml:space="preserve">
+    <value>الألوان</value>
+  </data>
+  <data name="shade each area by its number of projects, from No projects through Low, Medium and High to Highest, relative to the busiest area under the current filters." xml:space="preserve">
+    <value>تُظلَّل كل منطقة حسب عدد مشاريعها، من «لا مشاريع» مروراً بـ«قليل» و«متوسط» و«مرتفع» وصولاً إلى «الأعلى»، نسبةً إلى المنطقة الأكثر مشاريع ضمن عوامل التصفية الحالية.</value>
+  </data>
+  <data name="Projects table" xml:space="preserve">
+    <value>جدول المشاريع</value>
+  </data>
+  <data name="project name, scope, ministry, community, framework, budget, performance, disbursement, total disbursed and dates. Click a heading to sort; a totals row sums the list." xml:space="preserve">
+    <value>اسم المشروع والنطاق والجهة والمجتمع والهدف الاستراتيجي والموازنة والأداء والإنفاق وإجمالي المنصرف والتواريخ. انقر على عنوان عمود للفرز، ويلخّص صف الإجماليات القائمة.</value>
+  </data>
+  <data name="Country-wide Projects" xml:space="preserve">
+    <value>مشاريع مستوى القطر</value>
+  </data>
+  <data name="A country-wide project counts in every area. Hover over an area to see its name and number of projects; the full-screen button enlarges the map." xml:space="preserve">
+    <value>يُحتسب المشروع على مستوى القطر في كل منطقة. مرّر المؤشر فوق منطقة لرؤية اسمها وعدد مشاريعها، ويكبّر زر ملء الشاشة الخريطة.</value>
+  </data>
+  <data name="Geographic Map Systems Screenshot" xml:space="preserve">
+    <value>لقطة شاشة نظم الخرائط الجغرافية</value>
+  </data>
+  <data name="Screenshot: Geographic Map Systems" xml:space="preserve">
+    <value>لقطة شاشة: نظم الخرائط الجغرافية</value>
+  </data>
+  <data name="Figure 14.3: Geographic Map Systems" xml:space="preserve">
+    <value>الشكل 14.3: نظم الخرائط الجغرافية</value>
+  </data>
+  <data name="14.4 Units Report" xml:space="preserve">
+    <value>14.4 تقرير وحدات القياس</value>
+  </data>
+  <data name="The Units Report shows what projects deliver, grouped by unit of measurement. It draws on two sources: project output indicators, which the report labels Impact Indicators, and the measures recorded on project phases." xml:space="preserve">
+    <value>يعرض تقرير وحدات القياس ما تحققه المشاريع مجمّعاً حسب وحدة القياس، ويعتمد على مصدرين: مؤشرات مخرج المشروع، التي يسمّيها التقرير «مؤشرات الأثر»، والقياسات المسجّلة على مراحل المشاريع.</value>
+  </data>
+  <data name="Filter by unit, ministry, project and dates, or search. The page shows the units in use, the projects covered and the average achievement, a chart of the achievement rate by unit, and the detail for each unit. Print prints it." xml:space="preserve">
+    <value>صفِّ حسب وحدة القياس والوزارة والمشروع والتواريخ، أو ابحث. تعرض الصفحة وحدات القياس المستخدمة والمشاريع المشمولة ومتوسط نسبة الإنجاز، ورسماً بيانياً لنسبة الإنجاز حسب وحدة القياس، والتفاصيل لكل وحدة. ويطبعها زر «طباعة».</value>
+  </data>
+  <data name="Units Report Screenshot" xml:space="preserve">
+    <value>لقطة شاشة تقرير وحدات القياس</value>
+  </data>
+  <data name="Screenshot: Units Report" xml:space="preserve">
+    <value>لقطة شاشة: تقرير وحدات القياس</value>
+  </data>
+  <data name="Figure 14.4: Units Report" xml:space="preserve">
+    <value>الشكل 14.4: تقرير وحدات القياس</value>
+  </data>
+  <data name="Ministry Report (Excel and PDF)" xml:space="preserve">
+    <value>تقرير الوزارات (Excel وPDF)</value>
+  </data>
+  <!-- impact-2: sections 15-21 -->
+  <data name="Strategy Manager" xml:space="preserve">
+    <value>مدير الاستراتيجية</value>
+  </data>
+  <data name="View Projects" xml:space="preserve">
+    <value>عرض المشاريع</value>
+  </data>
+  <data name="View Reports and Maps" xml:space="preserve">
+    <value>عرض التقارير والخرائط</value>
+  </data>
+  <data name="View Development Impact" xml:space="preserve">
+    <value>عرض الأثر التنموي</value>
+  </data>
+  <data name="Manage Development Impact" xml:space="preserve">
+    <value>إدارة الأثر التنموي</value>
+  </data>
+  <data name="Manage Project Output Indicators" xml:space="preserve">
+    <value>إدارة مؤشرات مخرج المشروع</value>
+  </data>
+  <data name="Export From Pages You Can Open" xml:space="preserve">
+    <value>التصدير من الصفحات المتاحة لك</value>
+  </data>
+  <data name="Ministry Scope" xml:space="preserve">
+    <value>نطاق الوزارة</value>
+  </data>
+  <data name="Execution Performance" xml:space="preserve">
+    <value>أداء التنفيذ</value>
+  </data>
+  <data name="each measure is its quantity ÷ the phase target × 100; a phase's performance is the sum of its measures, up to 100%; a project's performance is the weighted average of its phases, Σ(phase performance × weight) ÷ Σ(weights)." xml:space="preserve">
+    <value>قيمة كل قياس = الكمية ÷ هدف المرحلة × 100؛ وأداء المرحلة هو مجموع قياساتها حتى 100%؛ وأداء المشروع هو المتوسط المرجّح لمراحله: Σ(أداء المرحلة × الوزن) ÷ Σ(الأوزان).</value>
+  </data>
+  <data name="(Σ Realised values across the project's action plans ÷ Estimated Budget) × 100. Time-phased planned targets are not used." xml:space="preserve">
+    <value>(مجموع القيم المنفذة في خطط عمل المشروع ÷ الموازنة التقديرية) × 100. ولا تُستخدم المستهدفات المخططة الموزعة زمنياً.</value>
+  </data>
+  <data name="Development Impact Is Calculated Separately" xml:space="preserve">
+    <value>يُحسب الأثر التنموي بشكل منفصل</value>
+  </data>
+  <data name="Development impact figures do not enter any of these calculations. See section 13.5." xml:space="preserve">
+    <value>لا تدخل أرقام الأثر التنموي في أي من هذه الحسابات. راجع القسم 13.5.</value>
   </data>
 </root>

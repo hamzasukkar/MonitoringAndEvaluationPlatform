@@ -27,8 +27,9 @@
         <button class="btn btn-outline-light" onclick="window.print()">
             <i class="fas fa-print me-2"></i>@Localizer["Print Guide"]
         </button>
-        <a href="@Url.Content("~/docs/Platform-Features-EN.doc")" class="btn btn-light" download>
-            <i class="fas fa-download me-2"></i>@Localizer["Download PDF"]
+        @* A Word summary of the platform's features, in the page's language. *@
+        <a href="@Url.Content(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? "~/docs/Platform-Features-AR.doc" : "~/docs/Platform-Features-EN.doc")" class="btn btn-light" download>
+            <i class="fas fa-file-word me-2"></i>@Localizer["Download Features Summary (Word)"]
         </a>
     </div>
 </div>
@@ -51,17 +52,18 @@
             <a href="#setup" class="toc-link">9. @Localizer["Set Up"]</a>
             <a href="#projects" class="toc-link">10. @Localizer["Projects"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
             <a href="#plans" class="toc-link">11. @Localizer["Plans"]</a>
-            <a href="#monitoring" class="toc-link">12. @Localizer["Monitoring"]</a>
-            <a href="#reports" class="toc-link">13. @Localizer["Reports & Export"]</a>
-            <a href="#admin" class="toc-link">14. @Localizer["Administration"]</a>
-            <a href="#data-management" class="toc-link">15. @Localizer["Data Management"]</a>
-            <a href="#audit" class="toc-link">16. @Localizer["Audit Logs"]</a>
-            <a href="#roles" class="toc-link">17. @Localizer["User Roles & Permissions"]</a>
-            <a href="#performance" class="toc-link">18. @Localizer["Performance Calculations"]</a>
-            <a href="#settings" class="toc-link">19. @Localizer["Settings & Themes"]</a>
-            <a href="#requests" class="toc-link">20. @Localizer["Requests & Support"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
-            <a href="#platform-versions" class="toc-link">21. @Localizer["Platform Versions & What's New"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
-            <a href="#help" class="toc-link">22. @Localizer["Getting Help"]</a>
+            <a href="#monitoring" class="toc-link">12. @Localizer["Monitoring"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
+            <a href="#impact" class="toc-link">13. @Localizer["Development Impact"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
+            <a href="#reports" class="toc-link">14. @Localizer["Reports & Export"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
+            <a href="#admin" class="toc-link">15. @Localizer["Administration"]</a>
+            <a href="#data-management" class="toc-link">16. @Localizer["Data Management"]</a>
+            <a href="#audit" class="toc-link">17. @Localizer["Audit Logs"]</a>
+            <a href="#roles" class="toc-link">18. @Localizer["User Roles & Permissions"]</a>
+            <a href="#performance" class="toc-link">19. @Localizer["Performance Calculations"]</a>
+            <a href="#settings" class="toc-link">20. @Localizer["Settings & Themes"]</a>
+            <a href="#requests" class="toc-link">21. @Localizer["Requests & Support"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
+            <a href="#platform-versions" class="toc-link">22. @Localizer["Platform Versions & What's New"] <span class="toc-new-badge">@Localizer["NEW"]</span></a>
+            <a href="#help" class="toc-link">23. @Localizer["Getting Help"]</a>
         </nav>
     </div>
 
@@ -87,6 +89,8 @@
                             <li>@Localizer["Monitor indicators with real-time calculations"]</li>
                             <li>@Localizer["Coordinate with ministries, donors, and partners"]</li>
                             <li>@Localizer["Generate and export comprehensive reports (Excel & PDF)"]</li>
+                            <li>@Localizer["Measure development impact across projects, by ministry and strategic goal"]</li>
+                            <li>@Localizer["See where projects are on maps by governorate, district and sub-district"]</li>
                             <li>@Localizer["Manage locations, sectors, and organizational structures"]</li>
                             <li>@Localizer["Audit and track all system activities"]</li>
                         </ul>
@@ -94,18 +98,18 @@
                 </div>
 
                 <h3>@Localizer["1.1 Platform Structure"]</h3>
-                <p>@Localizer["The platform is organized into five main sections accessible from the sidebar:"]</p>
+                <p>@Localizer["The sidebar gives access to the platform's main areas. Set Up and Audit Logs are shown to System Administrators only:"]</p>
 
                 <div class="feature-grid">
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-sitemap"></i></div>
-                        <h4>@Localizer["Results Framework"]</h4>
+                        <h4>@Localizer["Frameworks"]</h4>
                         <p>@Localizer["Manage frameworks, outcomes, outputs, sub-outputs, and indicators."]</p>
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-cogs"></i></div>
                         <h4>@Localizer["Set Up"]</h4>
-                        <p>@Localizer["Configure ministries, donors, sectors, project managers, supervisors, and locations."]</p>
+                        <p>@Localizer["Configure ministries, donors, sectors, project managers, supervisors, locations and units of measurement."]</p>
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-project-diagram"></i></div>
@@ -115,14 +119,40 @@
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
                         <h4>@Localizer["Monitoring"]</h4>
-                        <p>@Localizer["Track performance at all levels of the hierarchy in real-time."]</p>
+                        <p>@Localizer["Follow performance ministry by ministry, down through strategies to projects and their phases."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-list-check"></i></div>
+                        <h4>@Localizer["Project Monitoring"]</h4>
+                        <p>@Localizer["Follow the performance of individual projects with hierarchy filters."]</p>
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-tachometer-alt"></i></div>
                         <h4>@Localizer["Dashboard"]</h4>
                         <p>@Localizer["View analytics, charts, gauges, and summary statistics."]</p>
                     </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-file-alt"></i></div>
+                        <h4>@Localizer["Reports"]</h4>
+                        <p>@Localizer["Reports and exports, including the Ministry Report and the Units Report."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-map-marked-alt"></i></div>
+                        <h4>@Localizer["Geographic Map Systems"]</h4>
+                        <p>@Localizer["Project distribution maps by governorate, district and sub-district."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-history"></i></div>
+                        <h4>@Localizer["Audit Logs"]</h4>
+                        <p>@Localizer["A record of every change made in the system."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-book-open"></i></div>
+                        <h4>@Localizer["User Guide"]</h4>
+                        <p>@Localizer["This guide."]</p>
+                    </div>
                 </div>
+                <p>@Localizer["Development Impact opens from Impact in the top bar rather than the sidebar — see section 13."]</p>
 
                 <div class="screenshot-placeholder">
                     <div class="screenshot-frame">
@@ -160,14 +190,14 @@
                         <div class="step-number">2</div>
                         <div class="step-content">
                             <h4>@Localizer["Enter Credentials"]</h4>
-                            <p>@Localizer["Enter your email address and password in the login form."]</p>
+                            <p>@Localizer["Enter your username and password in the login form."]</p>
                         </div>
                     </div>
                     <div class="step">
                         <div class="step-number">3</div>
                         <div class="step-content">
-                            <h4>@Localizer["Access Dashboard"]</h4>
-                            <p>@Localizer["After successful login, you will be redirected to the main dashboard."]</p>
+                            <h4>@Localizer["Start Working"]</h4>
+                            <p>@Localizer["After signing in, the Frameworks page opens."]</p>
                         </div>
                     </div>
                 </div>
@@ -185,14 +215,14 @@
                 </div>
 
                 <h3>@Localizer["2.2 Changing Language"]</h3>
-                <p>@Localizer["The platform supports Arabic (default), English, and French. To change the language:"]</p>
+                <p>@Localizer["The platform is available in Arabic (the default) and English. To change the language:"]</p>
 
                 <div class="step-list">
                     <div class="step">
                         <div class="step-number">1</div>
                         <div class="step-content">
                             <h4>@Localizer["Find Language Selector"]</h4>
-                            <p>@Localizer["Look for the language dropdown in the top navigation bar."]</p>
+                            <p>@Localizer["Use the language list in the top bar or at the bottom of the sidebar."]</p>
                         </div>
                     </div>
                     <div class="step">
@@ -219,12 +249,13 @@
                 <h3>@Localizer["2.3 Navigation"]</h3>
                 <p>@Localizer["The platform uses a sidebar menu on the left (or right in Arabic) for main navigation. The top bar contains:"]</p>
                 <ul>
-                    <li>@Localizer["Framework dropdown menus for quick access to specific frameworks"]</li>
-                    <li>@Localizer["Ministries dropdown for quick ministry navigation"]</li>
-                    <li>@Localizer["Sectors dropdown organized by category"]</li>
-                    <li>@Localizer["Donors dropdown organized by type"]</li>
+                    <li><strong>@Localizer["Home"]:</strong> @Localizer["opens the Frameworks page"]</li>
+                    <li><strong>@Localizer["National Development Strategy"]:</strong> @Localizer["a searchable list of ministries and their strategies, with quick links to each strategy's goals, outcomes, outputs, sub-outputs and indicators"]</li>
+                    <li><strong>@Localizer["Impact"]:</strong> @Localizer["opens Development Impact, see section 13"]</li>
                     <li>@Localizer["SDGs dropdown with all 17 Sustainable Development Goals"]</li>
-                    <li>@Localizer["Language selector and user menu"]</li>
+                    <li><strong>@Localizer["International Cooperation Partners"]:</strong> @Localizer["partners grouped by type: United Nations organizations, international non-governmental organizations, countries and local partners"]</li>
+                    <li><strong>@Localizer["User menu"]:</strong> @Localizer["What's New, Settings and Logout, plus Submit Request and My Requests for roles that can raise requests. Administrators also see Requests Management, Request Employees and Versions Management."]</li>
+                    <li><strong>@Localizer["Language and theme"]:</strong> @Localizer["switch between Arabic and English, and between the blue and green themes"]</li>
                 </ul>
 
                 <div class="screenshot-placeholder">
@@ -278,8 +309,8 @@
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-map"></i></div>
-                        <h4>@Localizer["Geographic Map"]</h4>
-                        <p>@Localizer["Interactive map showing project distribution by governorate."]</p>
+                        <h4>@Localizer["Ministry Overview"]</h4>
+                        <p>@Localizer["One card per ministry with its performance, finances, counts and development impact. See 3.8."]</p>
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-bell"></i></div>
@@ -299,6 +330,8 @@
                     </div>
                     <p class="screenshot-caption">@Localizer["Figure 3.1: Dashboard Overview"]</p>
                 </div>
+
+                <p>@Localizer["Maps of where projects are live in Geographic Map Systems in the sidebar — see section 14.3."]</p>
 
                 <h3>@Localizer["3.2 Framework Performance Gauges"]</h3>
                 <p>@Localizer["View performance gauges for each framework. Gauges show the achievement rate as a percentage with color-coded indicators:"]</p>
@@ -404,6 +437,49 @@
                         </div>
                     </div>
                 </div>
+
+                <h3>@Localizer["3.8 Ministry Overview"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["The Ministry Overview section shows one card per ministry. Show or hide it with the Ministries tab at the top of the dashboard."]</p>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
+                        <h4>@Localizer["Performance"]</h4>
+                        <p>@Localizer["Project Average (the mean of the ministry's projects), Strategy Roll-up (the mean of its strategies, or a dash if it has none) and Disbursement."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-coins"></i></div>
+                        <h4>@Localizer["Financial"]</h4>
+                        <p>@Localizer["Budget (SYP), Disbursed and Spend Rate. A warning shows how many projects were left out because they have no exchange rate."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-list-ol"></i></div>
+                        <h4>@Localizer["Counts"]</h4>
+                        <p>@Localizer["Strategies, indicators and projects, with how many projects are active and how many are completed."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-arrow-trend-up"></i></div>
+                        <h4>@Localizer["Development Impact"]</h4>
+                        <p>@Localizer["Impact Achievement and Impact Outputs for the ministry. See section 13."]</p>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-hand-pointer"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Filtering by Ministry"]</h4>
+                        <p>@Localizer["Click a ministry card to filter the whole dashboard by that ministry, and click it again to clear the filter. Users tied to one ministry always see their own. The ministry figures cover the whole portfolio and do not narrow with the location filters."]</p>
+                    </div>
+                </div>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/dashboard-ministries.png" alt="@Localizer["Ministry Overview Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Ministry Overview"]</span>
+                            <small>dashboard-ministries.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 3.7: Ministry Overview"]</p>
+                </div>
             </div>
         </section>
 
@@ -444,7 +520,7 @@
                 </div>
 
                 <h3>@Localizer["4.2 Viewing Frameworks"]</h3>
-                <p>@Localizer["Navigate to Results Framework from the sidebar. The list shows all frameworks with their performance rates, search, and sort options."]</p>
+                <p>@Localizer["Open Frameworks from the sidebar. The list shows all frameworks with their performance rates, search, and sort options."]</p>
 
                 <div class="screenshot-placeholder">
                     <div class="screenshot-frame">
@@ -527,8 +603,41 @@
                     <p class="screenshot-caption">@Localizer["Figure 4.3: Export Framework Data"]</p>
                 </div>
 
-                <h3>@Localizer["4.6 Tree View"]</h3>
-                <p>@Localizer["View the complete framework hierarchy as an interactive tree. Expand or collapse nodes to explore the structure."]</p>
+                <h3>@Localizer["4.6 Tree View"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["The tree view draws the whole hierarchy as an interactive diagram, from the ministry or strategy down to projects and their phases. Expand or collapse any branch to explore it."]</p>
+
+                <h4>@Localizer["Opening the Tree"]</h4>
+                <ul>
+                    <li><strong>@Localizer["Ministry tree"]:</strong> @Localizer["the Strategy Tree button on a ministry's row, on the Frameworks page or in Set Up, shows all of that ministry's strategies"]</li>
+                    <li><strong>@Localizer["Single strategy"]:</strong> @Localizer["the tree icon on a strategy's row shows that strategy alone. It is offered to System Administrators and Ministry Strategy Managers."]</li>
+                </ul>
+                <h4>@Localizer["Toolbar"]</h4>
+                <ul>
+                    <li><strong>@Localizer["Indicators, Both, Disbursement"]:</strong> @Localizer["which performance each node shows"]</li>
+                    <li><strong>@Localizer["Expand All and Collapse All"]:</strong> @Localizer["open or close every branch at once"]</li>
+                    <li><strong>@Localizer["Export"]:</strong> @Localizer["saves the tree as a PNG image"]</li>
+                    <li><strong>@Localizer["Zoom and Fit to Screen"]:</strong> @Localizer["zoom out, reset, zoom in, or fit the whole tree on screen"]</li>
+                    <li><strong>@Localizer["Full Screen and Pin toolbars"]:</strong> @Localizer["in full screen the toolbars hide until you move the pointer to the top, unless you pin them"]</li>
+                </ul>
+                <h4>@Localizer["Display Options"]</h4>
+                <ul>
+                    <li><strong>@Localizer["Show Levels and Show Phases"]:</strong> @Localizer["choose which levels of the hierarchy appear, and whether project phases are drawn"]</li>
+                    <li><strong>@Localizer["Show Connecting Lines"]:</strong> @Localizer["draws lines from each node to its children"]</li>
+                    <li><strong>@Localizer["Horizontal View"]:</strong> @Localizer["lays the tree out from side to side instead of top to bottom. It is on by default."]</li>
+                    <li><strong>@Localizer["Compact Nodes"]:</strong> @Localizer["smaller boxes that fit more on screen"]</li>
+                    <li><strong>@Localizer["Depth"]:</strong> @Localizer["how many levels to open"]</li>
+                    <li><strong>@Localizer["Min Performance"]:</strong> @Localizer["dims or hides nodes below the chosen performance"]</li>
+                    <li><strong>@Localizer["Cell Spacing and Density"]:</strong> @Localizer["spacing between nodes; Density offers Compact, Comfortable and Spacious presets"]</li>
+                    <li><strong>@Localizer["Status Colors"]:</strong> @Localizer["colours each node by its performance: Good 80% and above, Average 60 to 79%, Low 40 to 59%, Critical below 40%"]</li>
+                    <li><strong>@Localizer["Search"]:</strong> @Localizer["highlights matching nodes"]</li>
+                </ul>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-save"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Your Settings Are Remembered"]</h4>
+                        <p>@Localizer["The tree remembers your display choices, such as orientation, spacing, zoom and colours, in your browser for the next visit."]</p>
+                    </div>
+                </div>
 
                 <div class="screenshot-placeholder">
                     <div class="screenshot-frame">
@@ -973,7 +1082,7 @@
                 <h2>@Localizer["Set Up"]</h2>
             </div>
             <div class="section-content">
-                <p>@Localizer["The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, and Locations."]</p>
+                <p>@Localizer["The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, Locations and Units of Measurement."]</p>
 
                 <h3>@Localizer["9.1 Ministries & Agencies"]</h3>
                 <p>@Localizer["Manage government ministries and agencies responsible for development projects. Each ministry shows its linked projects and performance."]</p>
@@ -1124,6 +1233,32 @@
                     </div>
                     <p class="screenshot-caption">@Localizer["Figure 9.7: Location Hierarchy Management"]</p>
                 </div>
+
+                <h3>@Localizer["9.7 Units of Measurement"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["Units of Measurement lists the units used across the platform by project output indicators, framework goals and measures. Open Set Up and choose the Units tab."]</p>
+                <ul>
+                    <li>@Localizer["Every unit needs an English and an Arabic name; a French name is optional."]</li>
+                    <li>@Localizer["Edit a name directly in the table."]</li>
+                    <li>@Localizer["The In Use By column shows what uses each unit. A unit that is in use cannot be deleted."]</li>
+                </ul>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-plus-circle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Adding a Unit While You Work"]</h4>
+                        <p>@Localizer["Forms that ask for a unit have a + button next to the list, which adds a new unit without leaving the form."]</p>
+                    </div>
+                </div>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/units-setup.png" alt="@Localizer["Units of Measurement Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Units of Measurement"]</span>
+                            <small>units-setup.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 9.8: Units of Measurement"]</p>
+                </div>
             </div>
         </section>
 
@@ -1237,7 +1372,7 @@
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
                         <h4>@Localizer["Performance Metrics"]</h4>
-                        <p>@Localizer["Financial, physical, disbursement, field monitoring, and impact assessment."]</p>
+                        <p>@Localizer["Execution performance, calculated from the phases and their measures, and disbursement performance."]</p>
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-users"></i></div>
@@ -1388,6 +1523,9 @@
                         <p>@Localizer["If a budget is 5 million and you set the Budget Unit to Millions, enter 5 — not 5,000,000. Setting the unit incorrectly will distort budget totals and disbursement performance."]</p>
                     </div>
                 </div>
+
+                <h3>@Localizer["10.8 Project Output Indicators"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["A project's details page has a Project Output Indicators card for what the project delivers, measured year by year against a target. They are measured separately from execution performance and are grouped into development impact indicators. See section 13.2."]</p>
             </div>
         </section>
 
@@ -1470,31 +1608,66 @@
                 <h2>@Localizer["Monitoring"]</h2>
             </div>
             <div class="section-content">
-                <p>@Localizer["The Monitoring section provides real-time performance tracking at every level of the hierarchy."]</p>
+                <p>@Localizer["Monitoring in the sidebar opens Ministry Monitoring, the top of the hierarchy. From there you drill down level by level to projects and their phases."]</p>
 
-                <h3>@Localizer["12.1 Framework Dashboard"]</h3>
-                <p>@Localizer["View all frameworks with their overall performance. Filter by ministry to see ministry-specific results."]</p>
+                <h3>@Localizer["12.1 Ministry Monitoring"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["Each ministry has a card with its number of strategies and two performance figures. Both are averages over the ministry's strategies, so they match the strategy cards one level down. A ministry that owns no strategies shows a dash."]</p>
+
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+                        <h4>@Localizer["Indicators Performance"]</h4>
+                        <p>@Localizer["The average execution performance of the ministry's strategies."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-coins"></i></div>
+                        <h4>@Localizer["Disbursement Performance"]</h4>
+                        <p>@Localizer["The average disbursement performance of the ministry's strategies."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-compass"></i></div>
+                        <h4>@Localizer["Ministry Navigation"]</h4>
+                        <p>@Localizer["Counts that open each level for this ministry, from its strategies, outcomes, outputs and sub-outputs down to indicators, projects and project phases."]</p>
+                    </div>
+                </div>
+                <h4>@Localizer["Toolbar"]</h4>
+                <ul>
+                    <li><strong>@Localizer["Search"]:</strong> @Localizer["find a ministry by name"]</li>
+                    <li><strong>@Localizer["Performance Level"]:</strong> @Localizer["All, High (80% and above), Medium (60 to 79%) or Low (below 60%)"]</li>
+                    <li><strong>@Localizer["Sort By"]:</strong> @Localizer["Name, Performance or Projects"]</li>
+                    <li><strong>@Localizer["View"]:</strong> @Localizer["Grid or List"]</li>
+                    <li><strong>@Localizer["Expand All and Collapse All"]:</strong> @Localizer["open or fold every card. Each card also remembers, in your browser, whether you folded it."]</li>
+                </ul>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-user-lock"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Your Ministry Only"]</h4>
+                        <p>@Localizer["Users other than System Administrators always see only their own ministry, here and at every level below it."]</p>
+                    </div>
+                </div>
 
                 <div class="screenshot-placeholder">
                     <div class="screenshot-frame">
-                        <img src="~/images/guide/monitoring-framework.png" alt="@Localizer["Monitoring Framework Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <img src="~/images/guide/monitoring-ministry.png" alt="@Localizer["Ministry Monitoring Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                         <div class="screenshot-missing">
                             <i class="fas fa-image"></i>
-                            <span>@Localizer["Screenshot: Monitoring Framework Dashboard"]</span>
-                            <small>monitoring-framework.png</small>
+                            <span>@Localizer["Screenshot: Ministry Monitoring"]</span>
+                            <small>monitoring-ministry.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 12.1: Framework Monitoring Dashboard"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 12.1: Ministry Monitoring"]</p>
                 </div>
 
                 <h3>@Localizer["12.2 Monitoring Levels"]</h3>
-                <p>@Localizer["Navigate through each level of the hierarchy to see detailed performance:"]</p>
+                <p>@Localizer["From a ministry card, drill down level by level. The ministry you chose is carried through every level:"]</p>
                 <ul>
+                    <li><strong>@Localizer["Strategies"]</strong>: @Localizer["Performance of each of the ministry's strategies"]</li>
                     <li><strong>@Localizer["Outcomes"]</strong>: @Localizer["Performance of each outcome within a framework"]</li>
                     <li><strong>@Localizer["Outputs"]</strong>: @Localizer["Performance of outputs within an outcome"]</li>
                     <li><strong>@Localizer["SubOutputs"]</strong>: @Localizer["Performance of sub-outputs within an output"]</li>
                     <li><strong>@Localizer["Indicators"]</strong>: @Localizer["Individual indicator measurements and trends"]</li>
                     <li><strong>@Localizer["Projects"]</strong>: @Localizer["Project-level performance with hierarchical filters"]</li>
+                    <li><strong>@Localizer["Project Phases"]</strong>: @Localizer["Performance of each phase of a project"]</li>
                 </ul>
 
                 <div class="screenshot-placeholder">
@@ -1526,16 +1699,425 @@
             </div>
         </section>
 
-        <!-- ==================== Section 13: Reports & Export ==================== -->
-        <section id="reports" class="guide-section">
+        <!-- ==================== Section 13: Development Impact ==================== -->
+        <section id="impact" class="guide-section">
             <div class="section-header">
                 <span class="section-number">13</span>
+                <h2>@Localizer["Development Impact"] <span class="section-new-badge">@Localizer["NEW"]</span></h2>
+            </div>
+            <div class="section-content">
+                <p>@Localizer["Development Impact measures what projects deliver, not only how well they are executed. Each project records its outputs against a target year by year, and those outputs are grouped into development impact indicators that show the result for a ministry or a strategic goal."]</p>
+                <p>@Localizer["Open it from Impact in the top bar. It is not in the sidebar."]</p>
+
+                <h3>@Localizer["13.1 Key Concepts"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-bullseye"></i></div>
+                        <h4>@Localizer["Project Output Indicator"]</h4>
+                        <p>@Localizer["Belongs to one project. It has a target for the whole project and a value for each year, for example schools rehabilitated."]</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon"><i class="fas fa-layer-group"></i></div>
+                        <h4>@Localizer["Development Impact Indicator"]</h4>
+                        <p>@Localizer["Groups project output indicators from one or more projects, gives each a weight, and is tagged with ministries and strategic goals. Its yearly figures are calculated from the indicators it groups."]</p>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["A Separate Track"]</h4>
+                        <p>@Localizer["Impact figures never feed project, strategy, outcome or output performance. Those are calculated from phases and measures — see section 19."]</p>
+                    </div>
+                </div>
+
+                <h3>@Localizer["13.2 Project Output Indicators"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["Open a project's details page and find the Project Output Indicators card. Use New Indicator to add one, or View All to see every indicator of the project with its totals."]</p>
+                <div class="guide-table-wrapper">
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Field"]</th>
+                                <th>@Localizer["Description"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Localizer["Indicator Name"]</td>
+                                <td>@Localizer["What the project delivers, for example schools rehabilitated. Required."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Target Value"]</td>
+                                <td>@Localizer["The total to deliver across the whole project. Required, and greater than zero."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Unit"]</td>
+                                <td>@Localizer["Chosen from Units of Measurement. The + button next to the list adds a new unit without leaving the form."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Baseline Value and Baseline Year"]</td>
+                                <td>@Localizer["For reference only. They do not change the achievement rate."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Yearly Values"]</td>
+                                <td>@Localizer["One row for each year of the project, taken from its start and end dates. Leave a year blank if it was not measured: blank is not the same as zero."]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-calculator"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Achievement Rate"]</h4>
+                        <p>@Localizer["Achieved is the sum of the yearly values. Achievement Rate = Achieved ÷ Target Value × 100, with no upper limit, so an indicator can pass 100%. The bar is teal above 100%, green from 76%, amber from 51%, and red below that."]</p>
+                    </div>
+                </div>
+                <div class="info-box warning">
+                    <div class="info-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Deleting a Project Output Indicator"]</h4>
+                        <p>@Localizer["Deleting an indicator also deletes its yearly values and removes it from every development impact indicator that groups it. The remaining weights there are not re-split, so the next time you edit that development impact indicator you must bring its weights back to 100."]</p>
+                    </div>
+                </div>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/impact-project-indicators.png" alt="@Localizer["Project Output Indicators Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Project Output Indicators"]</span>
+                            <small>impact-project-indicators.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 13.1: Project Output Indicators"]</p>
+                </div>
+
+                <h3>@Localizer["13.3 The Development Impact Page"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["The page opens with three summary cards: the number of development impact indicators, the linked project output indicators, and the years covered. Below them you can search by name, filter by ministry, and reset the filters."]</p>
+                <div class="guide-table-wrapper">
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Column"]</th>
+                                <th>@Localizer["What it shows"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Localizer["Name"]</td>
+                                <td>@Localizer["The development impact indicator, with its strategic goals as badges underneath. Click it to open its details."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Ministries"]</td>
+                                <td>@Localizer["The ministries it is tagged with."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Indicators (count)"]</td>
+                                <td>@Localizer["How many project output indicators it groups."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Base Value and Target"]</td>
+                                <td>@Localizer["Its starting value (with the base year) and the value it aims for. A badge shows the direction: Increase or Decrease."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Each year"]</td>
+                                <td>@Localizer["Three figures per year: Amount of Change, Total Value and Actual Impact. Years outside this row's range show a dash."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Total"]</td>
+                                <td>@Localizer["The average of the yearly percentages."]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="guide-table-wrapper">
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Button"]</th>
+                                <th>@Localizer["What it does"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="fas fa-circle-info"></i> @Localizer["Details"]</td>
+                                <td>@Localizer["Opens the details page."]</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-calculator"></i> @Localizer["How these figures are calculated"]</td>
+                                <td>@Localizer["Explains this row's figures year by year, with a worked example. Available to everyone."]</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-edit"></i> @Localizer["Edit"]</td>
+                                <td>@Localizer["Opens the edit form. See 13.4."]</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-clipboard-check"></i> @Localizer["Record actual impact"]</td>
+                                <td>@Localizer["Records the observed impact for one year. See 13.6."]</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-trash-alt"></i> @Localizer["Delete"]</td>
+                                <td>@Localizer["Deletes the development impact indicator. See 13.7."]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/impact-index.png" alt="@Localizer["Development Impact Page Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Development Impact Page"]</span>
+                            <small>impact-index.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 13.2: The Development Impact Page"]</p>
+                </div>
+
+                <h3>@Localizer["13.4 Adding and Editing a Development Impact Indicator"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Open the Form"]</h4>
+                            <p>@Localizer["Click Add Development Impact Indicator, or the Edit button on a row or on its details page."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Enter the Name"]</h4>
+                            <p>@Localizer["Give it a name, for example improved access to basic education. Required."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Set the Base Value and Target"]</h4>
+                            <p>@Localizer["Both are optional and accept decimals. A target below the base makes it a decrease goal. If either is empty, Amount of Change and Total Value show a dash."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">4</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Choose Ministries"]</h4>
+                            <p>@Localizer["Choose one or more. This narrows the two lists below to what belongs to those ministries."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">5</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Choose Strategic Goals"]</h4>
+                            <p>@Localizer["The strategic goals this development impact indicator contributes to."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">6</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Choose Project Output Indicators"]</h4>
+                            <p>@Localizer["Each is listed as indicator — project. These are the indicators whose values it groups."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">7</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Set the Indicator Weights and Save"]</h4>
+                            <p>@Localizer["Each chosen indicator gets a weight box, and a live total shows whether they add up to 100. Create returns you to the list; Save Changes returns you to the details page."]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box warning">
+                    <div class="info-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Weights Must Total Exactly 100"]</h4>
+                        <p>@Localizer["The form will not save otherwise. Any change to the chosen indicators, including one caused by changing Ministries, resets the weights to an equal split, for example 33.33, 33.33 and 33.34. Adjust them afterwards if needed. With no indicators chosen, there is nothing to weigh."]</p>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-edit"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Editing"]</h4>
+                        <p>@Localizer["Edit lets you change everything the add form sets, and opens with the saved weights."]</p>
+                    </div>
+                </div>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/impact-form.png" alt="@Localizer["Development Impact Form Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Development Impact Form"]</span>
+                            <small>impact-form.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 13.3: Adding a Development Impact Indicator"]</p>
+                </div>
+
+                <h3>@Localizer["13.5 How the Figures Are Calculated"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <div class="guide-table-wrapper">
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Figure"]</th>
+                                <th>@Localizer["How it is calculated"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Localizer["Years"]</td>
+                                <td>@Localizer["Every year covered by the projects of the linked indicators. The earliest is the base year."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Actual Value"]</td>
+                                <td>@Localizer["For each year, the weighted average of the linked indicators' cumulative achievement rates, counting only indicators whose project covers that year: Σ(rate × weight) ÷ Σ(weights)."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Amount of Change"]</td>
+                                <td>@Localizer["((Target − Base Value) × Actual Value) ÷ 100, or ((Base Value − Target) × Actual Value) ÷ 100 for a decrease goal. It is the change from the base value, not the current level."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Total Value"]</td>
+                                <td>@Localizer["Base Value + Amount of Change, or Base Value − Amount of Change for a decrease goal: the level reached."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Actual Impact"]</td>
+                                <td>@Localizer["Entered by hand for each year. It is not used in any calculation."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Total"]</td>
+                                <td>@Localizer["The average of the yearly Actual Value percentages, for years that have a value."]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="info-box success">
+                    <div class="info-icon"><i class="fas fa-check-circle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Worked Example"]</h4>
+                        <p>@Localizer["Base Value 20, Target 100, two indicators weighted 60 and 40 with rates of 50% and 25%: Actual Value = (50 × 60 + 25 × 40) ÷ 100 = 40%, Amount of Change = (80 × 40) ÷ 100 = 32, Total Value = 20 + 32 = 52. For a decrease goal with Base Value 80, Target 20 and an Actual Value of 50%: Amount of Change = (60 × 50) ÷ 100 = 30 and Total Value = 80 − 30 = 50."]</p>
+                    </div>
+                </div>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/impact-calculator.png" alt="@Localizer["Calculation Explanation Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: How These Figures Are Calculated"]</span>
+                            <small>impact-calculator.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 13.4: How These Figures Are Calculated"]</p>
+                </div>
+
+                <h3>@Localizer["13.6 Recording Actual Impact"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <div class="step-list">
+                    <div class="step">
+                        <div class="step-number">1</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Open Record Actual Impact"]</h4>
+                            <p>@Localizer["Click the clipboard button on the row."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">2</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Choose the Year"]</h4>
+                            <p>@Localizer["Only this row's years are offered, and years already recorded are marked. Choosing one fills in its saved value."]</p>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-number">3</div>
+                        <div class="step-content">
+                            <h4>@Localizer["Enter the Value and Save"]</h4>
+                            <p>@Localizer["Saving a year that already has a value replaces it."]</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Actual Impact Is Separate"]</h4>
+                        <p>@Localizer["Actual impact is what was observed on the ground. It is shown next to the calculated figures but never changes them."]</p>
+                    </div>
+                </div>
+
+                <h3>@Localizer["13.7 Details Page: Remove or Delete"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["The details page shows the linked indicators, the sum of targets and of achieved values, and the years covered; its ministries and strategic goals; the Linked Project Output Indicators card; and the Yearly Contribution by Indicator table, whose Total row is exactly what the main page shows."]</p>
+                <div class="guide-table-wrapper">
+                    <table class="guide-table">
+                        <thead>
+                            <tr>
+                                <th>@Localizer["Action"]</th>
+                                <th>@Localizer["What happens"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><i class="fas fa-link-slash text-warning"></i> @Localizer["Remove"]</td>
+                                <td>@Localizer["In the Linked Project Output Indicators card. Takes one indicator out of this development impact indicator only. The indicator, its yearly values and its links elsewhere stay. The remaining weights are split equally. Removing the last one is allowed."]</td>
+                            </tr>
+                            <tr>
+                                <td><i class="fas fa-trash-alt text-danger"></i> @Localizer["Delete the development impact indicator"]</td>
+                                <td>@Localizer["Deletes the grouping and its recorded actual impact values. The project output indicators themselves are not deleted."]</td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Delete a project output indicator"]</td>
+                                <td>@Localizer["Done from the project, not here. See 13.2."]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/impact-details.png" alt="@Localizer["Development Impact Details Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Development Impact Details"]</span>
+                            <small>impact-details.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 13.5: The Details Page"]</p>
+                </div>
+
+                <h3>@Localizer["13.8 Who Can Do What"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <ul>
+                    <li><strong>@Localizer["Viewing"]:</strong> @Localizer["All roles. Users other than System Administrators see only the rows that include their own ministry."]</li>
+                    <li><strong>@Localizer["Adding, editing, recording, removing and deleting"]:</strong> @Localizer["System Administrator and Ministry Strategy Manager. The same two roles manage project output indicators."]</li>
+                </ul>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-user-lock"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Rows Shared With Other Ministries"]</h4>
+                        <p>@Localizer["A Ministry Strategy Manager cannot edit or remove indicators from a row that also reaches another ministry, another ministry's strategic goal, or an indicator from another ministry's project. Only a System Administrator can, because only they can see the whole row. They also cannot untick their own ministry, since they would lose access to the row."]</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== Section 14: Reports & Export ==================== -->
+        <section id="reports" class="guide-section">
+            <div class="section-header">
+                <span class="section-number">14</span>
                 <h2>@Localizer["Reports & Export"]</h2>
             </div>
             <div class="section-content">
                 <p>@Localizer["Generate comprehensive reports and export data for analysis and stakeholder communication."]</p>
 
-                <h3>@Localizer["13.1 Reports Dashboard"]</h3>
+                <h3>@Localizer["14.1 Reports Dashboard"]</h3>
+                <p>@Localizer["Reports in the sidebar opens the Reports Dashboard: summary cards, a map of projects by governorate with details for the governorate you click, and charts comparing performance across frameworks, sectors, ministries and hierarchy levels, with budget and utilization overviews. Export Excel and Print Report are at the top of the page."]</p>
+                <h4>@Localizer["Specialized Reports"]</h4>
+                <p>@Localizer["The Specialized Reports row, and the matching buttons at the top of the page, open:"]</p>
+                <ul>
+                    <li><strong>@Localizer["Ministry Report"]:</strong> @Localizer["a scorecard for each ministry — see 14.2"]</li>
+                    <li><strong>@Localizer["Financial Analysis"]:</strong> @Localizer["estimated compared with real budgets"]</li>
+                    <li><strong>@Localizer["Geographic Map Systems"]:</strong> @Localizer["project maps — see 14.3"]</li>
+                    <li><strong>@Localizer["Units Report"]:</strong> @Localizer["delivery by unit of measurement — see 14.4"]</li>
+                </ul>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-user-lock"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Who Can Open Reports"]</h4>
+                        <p>@Localizer["The Dashboard, the Reports pages and Geographic Map Systems are available to every role except Ministry Strategy Manager. Users tied to one ministry see their own ministry's data."]</p>
+                    </div>
+                </div>
+
 
                 <div class="screenshot-placeholder">
                     <div class="screenshot-frame">
@@ -1546,10 +2128,81 @@
                             <small>reports-dashboard.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 13.1: Reports Dashboard"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 14.1: Reports Dashboard"]</p>
                 </div>
 
-                <h3>@Localizer["13.2 Export Options"]</h3>
+                <h3>@Localizer["14.2 Ministry Report"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["Open it from the Ministry Report button or card on the Reports page. It gives each ministry a scorecard of its performance, finances, counts and development impact."]</p>
+                <ul>
+                    <li><strong>@Localizer["Ministry"]:</strong> @Localizer["System Administrators can choose one ministry or all of them; other users see their own."]</li>
+                    <li><strong>@Localizer["From date and To date"]:</strong> @Localizer["include every project running at any point in the period. They do not apply to strategies or development impact indicators."]</li>
+                    <li><strong>@Localizer["Search"]:</strong> @Localizer["narrows the ministries and projects shown"]</li>
+                </ul>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Two Performance Figures"]</h4>
+                        <p>@Localizer["Performance by ministry compares two deliberately different numbers: the average of the ministry's projects, and the roll-up of its strategies."]</p>
+                    </div>
+                </div>
+                <p>@Localizer["Detail by ministry shows each ministry's performance, finances, counts and development impact, followed by a table of its projects with sector, budget, amount disbursed, spend rate, performance and dates. Export to Excel and Export to PDF save the report with the current filters; Print prints it."]</p>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/reports-ministry.png" alt="@Localizer["Ministry Report Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Ministry Report"]</span>
+                            <small>reports-ministry.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 14.2: Ministry Report"]</p>
+                </div>
+
+                <h3>@Localizer["14.3 Geographic Map Systems"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["Geographic Map Systems in the sidebar, also a card on the Reports page, shows where projects are on a map of Syria."]</p>
+                <ul>
+                    <li><strong>@Localizer["Levels"]:</strong> @Localizer["Governorates, Districts and Sub-districts. Switching level keeps your filters and clears the selection. The level is kept in the page address, so refreshing or sharing the link opens the same level."]</li>
+                    <li><strong>@Localizer["Filters"]:</strong> @Localizer["Strategies, Ministries and Projects, each searchable and narrowed by the others; a governorate list on the district and sub-district levels and a district list on the sub-district level, which dim the rest of the map and zoom in; From and To years; and Show country-wide projects, which is on by default. Clear filters resets them all."]</li>
+                    <li><strong>@Localizer["Clicking an area"]:</strong> @Localizer["colours it orange and lists its projects in the table below. Clear selection removes it."]</li>
+                    <li><strong>@Localizer["Choosing projects"]:</strong> @Localizer["in the Projects filter colours their areas orange."]</li>
+                    <li><strong>@Localizer["Colours"]:</strong> @Localizer["shade each area by its number of projects, from No projects through Low, Medium and High to Highest, relative to the busiest area under the current filters."]</li>
+                    <li><strong>@Localizer["Projects table"]:</strong> @Localizer["project name, scope, ministry, community, framework, budget, performance, disbursement, total disbursed and dates. Click a heading to sort; a totals row sums the list."]</li>
+                </ul>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-globe"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Country-wide Projects"]</h4>
+                        <p>@Localizer["A country-wide project counts in every area. Hover over an area to see its name and number of projects; the full-screen button enlarges the map."]</p>
+                    </div>
+                </div>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/geo-map-systems.png" alt="@Localizer["Geographic Map Systems Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Geographic Map Systems"]</span>
+                            <small>geo-map-systems.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 14.3: Geographic Map Systems"]</p>
+                </div>
+
+                <h3>@Localizer["14.4 Units Report"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <p>@Localizer["The Units Report shows what projects deliver, grouped by unit of measurement. It draws on two sources: project output indicators, which the report labels Impact Indicators, and the measures recorded on project phases."]</p>
+                <p>@Localizer["Filter by unit, ministry, project and dates, or search. The page shows the units in use, the projects covered and the average achievement, a chart of the achievement rate by unit, and the detail for each unit. Print prints it."]</p>
+                <div class="screenshot-placeholder">
+                    <div class="screenshot-frame">
+                        <img src="~/images/guide/reports-units.png" alt="@Localizer["Units Report Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                        <div class="screenshot-missing">
+                            <i class="fas fa-image"></i>
+                            <span>@Localizer["Screenshot: Units Report"]</span>
+                            <small>reports-units.png</small>
+                        </div>
+                    </div>
+                    <p class="screenshot-caption">@Localizer["Figure 14.4: Units Report"]</p>
+                </div>
+
+                <h3>@Localizer["14.5 Export Options"]</h3>
                 <p>@Localizer["Most data views support exporting to Excel and PDF. Export buttons are available on:"]</p>
                 <ul>
                     <li>@Localizer["Frameworks list"]</li>
@@ -1558,6 +2211,7 @@
                     <li>@Localizer["SubOutputs list and projects list"]</li>
                     <li>@Localizer["Indicators list"]</li>
                     <li>@Localizer["Dashboard views"]</li>
+                    <li>@Localizer["Ministry Report (Excel and PDF)"]</li>
                     <li>@Localizer["Audit logs access"]</li>
                 </ul>
 
@@ -1579,10 +2233,10 @@
             </div>
         </section>
 
-        <!-- ==================== Section 14: Administration ==================== -->
+        <!-- ==================== Section 15: Administration ==================== -->
         <section id="admin" class="guide-section">
             <div class="section-header">
-                <span class="section-number">14</span>
+                <span class="section-number">15</span>
                 <h2>@Localizer["Administration"]</h2>
             </div>
             <div class="section-content">
@@ -1594,7 +2248,7 @@
                     </div>
                 </div>
 
-                <h3>@Localizer["14.1 User Management"]</h3>
+                <h3>@Localizer["15.1 User Management"]</h3>
                 <p>@Localizer["Create, edit, and manage user accounts with search, filter, and pagination."]</p>
 
                 <div class="step-list">
@@ -1602,7 +2256,7 @@
                         <div class="step-number">1</div>
                         <div class="step-content">
                             <h4>@Localizer["View Users"]</h4>
-                            <p>@Localizer["Navigate to Admin > Users to see all system users."]</p>
+                            <p>@Localizer["Open Settings from the user menu to see all system users. It is available to System Administrators only."]</p>
                         </div>
                     </div>
                     <div class="step">
@@ -1630,10 +2284,10 @@
                             <small>admin-users.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 14.1: User Management"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 15.1: User Management"]</p>
                 </div>
 
-                <h3>@Localizer["14.2 Role Management"]</h3>
+                <h3>@Localizer["15.2 Role Management"]</h3>
                 <p>@Localizer["View all system roles and the users assigned to each role."]</p>
 
                 <div class="screenshot-placeholder">
@@ -1645,10 +2299,10 @@
                             <small>admin-roles.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 14.2: Role Management"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 15.2: Role Management"]</p>
                 </div>
 
-                <h3>@Localizer["14.3 Formulas Documentation"]</h3>
+                <h3>@Localizer["15.3 Formulas Documentation"]</h3>
                 <p>@Localizer["View all calculation formulas used in the platform for performance metrics."]</p>
 
                 <div class="screenshot-placeholder">
@@ -1660,15 +2314,15 @@
                             <small>admin-formulas.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 14.3: Performance Formulas"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 15.3: Performance Formulas"]</p>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== Section 15: Data Management ==================== -->
+        <!-- ==================== Section 16: Data Management ==================== -->
         <section id="data-management" class="guide-section">
             <div class="section-header">
-                <span class="section-number">15</span>
+                <span class="section-number">16</span>
                 <h2>@Localizer["Data Management"]</h2>
             </div>
             <div class="section-content">
@@ -1680,7 +2334,7 @@
                     </div>
                 </div>
 
-                <h3>@Localizer["15.1 Database Backup"]</h3>
+                <h3>@Localizer["16.1 Database Backup"]</h3>
                 <p>@Localizer["Create a backup of the entire database for disaster recovery."]</p>
 
                 <div class="screenshot-placeholder">
@@ -1692,16 +2346,16 @@
                             <small>data-backup.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 15.1: Database Backup Interface"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 16.1: Database Backup Interface"]</p>
                 </div>
 
-                <h3>@Localizer["15.2 Clear Data"]</h3>
+                <h3>@Localizer["16.2 Clear Data"]</h3>
                 <p>@Localizer["Selectively clear data by groups (e.g., projects, plans, measures) while preserving system configuration."]</p>
 
-                <h3>@Localizer["15.3 Delete Projects"]</h3>
+                <h3>@Localizer["16.3 Delete Projects"]</h3>
                 <p>@Localizer["Bulk delete selected projects and all their associated data (action plans, activities, plans)."]</p>
 
-                <h3>@Localizer["15.4 Reset Values"]</h3>
+                <h3>@Localizer["16.4 Reset Values"]</h3>
                 <p>@Localizer["Reset all performance values across the hierarchy while keeping the structure intact."]</p>
 
                 <div class="screenshot-placeholder">
@@ -1713,21 +2367,21 @@
                             <small>data-management-hub.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 15.2: Data Management Hub"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 16.2: Data Management Hub"]</p>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== Section 16: Audit Logs ==================== -->
+        <!-- ==================== Section 17: Audit Logs ==================== -->
         <section id="audit" class="guide-section">
             <div class="section-header">
-                <span class="section-number">16</span>
+                <span class="section-number">17</span>
                 <h2>@Localizer["Audit Logs"]</h2>
             </div>
             <div class="section-content">
-                <p>@Localizer["The Audit Log system tracks all changes made in the platform for accountability and transparency."]</p>
+                <p>@Localizer["The Audit Log system tracks all changes made in the platform for accountability and transparency. Open it from Audit Logs in the sidebar; it is available to System Administrators only."]</p>
 
-                <h3>@Localizer["16.1 Viewing Audit Logs"]</h3>
+                <h3>@Localizer["17.1 Viewing Audit Logs"]</h3>
                 <p>@Localizer["Filter audit logs by:"]</p>
                 <ul>
                     <li>@Localizer["Action type (Create, Update, Delete)"]</li>
@@ -1745,24 +2399,24 @@
                             <small>audit-logs.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 16.1: Audit Logs View"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 17.1: Audit Logs View"]</p>
                 </div>
 
-                <h3>@Localizer["16.2 Entity History"]</h3>
+                <h3>@Localizer["17.2 Entity History"]</h3>
                 <p>@Localizer["View the complete change history of any entity, showing old and new values for each modification."]</p>
 
-                <h3>@Localizer["16.3 User Activity"]</h3>
+                <h3>@Localizer["17.3 User Activity"]</h3>
                 <p>@Localizer["Track all actions performed by a specific user across the platform."]</p>
 
-                <h3>@Localizer["16.4 Exporting Audit Logs"]</h3>
+                <h3>@Localizer["17.4 Exporting Audit Logs"]</h3>
                 <p>@Localizer["Export filtered audit logs for external analysis and compliance reporting."]</p>
             </div>
         </section>
 
-        <!-- ==================== Section 17: User Roles & Permissions ==================== -->
+        <!-- ==================== Section 18: User Roles & Permissions ==================== -->
         <section id="roles" class="guide-section">
             <div class="section-header">
-                <span class="section-number">17</span>
+                <span class="section-number">18</span>
                 <h2>@Localizer["User Roles & Permissions"]</h2>
             </div>
             <div class="section-content">
@@ -1787,16 +2441,16 @@
                     <div class="feature-item">
                         <div class="feature-icon" style="background:linear-gradient(135deg,#718096,#4a5568);"><i class="fas fa-eye"></i></div>
                         <h4>@Localizer["Reading User"]</h4>
-                        <p>@Localizer["View-only access to dashboards and basic reports. Cannot modify any data."]</p>
+                        <p>@Localizer["View-only access to the dashboard, reports, maps, monitoring and development impact. Cannot open project pages or change any data."]</p>
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon" style="background:linear-gradient(135deg,#805ad5,#553c9a);"><i class="fas fa-sitemap"></i></div>
                         <h4>@Localizer["Ministry Strategy Manager"] <span class="section-new-badge">@Localizer["NEW"]</span></h4>
-                        <p>@Localizer["Works alongside the System Administrator on the strategic hierarchy: can create and edit frameworks, outcomes, outputs, and framework goals within the scope of their ministry."]</p>
+                        <p>@Localizer["Works alongside the System Administrator on the strategic hierarchy of their own ministry: creates and edits frameworks, outcomes, outputs, sub-outputs, indicators and framework goals, manages projects, and manages development impact and project output indicators. Does not have the Dashboard, Reports or maps."]</p>
                     </div>
                 </div>
 
-                <h3>@Localizer["17.1 Permission Summary"]</h3>
+                <h3>@Localizer["18.1 Permission Summary"]</h3>
                 <div class="guide-table-wrapper">
                     <table class="guide-table">
                         <thead>
@@ -1806,6 +2460,7 @@
                                 <th>@Localizer["Ministry"]</th>
                                 <th>@Localizer["Data Entry"]</th>
                                 <th>@Localizer["Reader"]</th>
+                                <th>@Localizer["Strategy Manager"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -1815,9 +2470,11 @@
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
                             </tr>
                             <tr>
                                 <td>@Localizer["View Frameworks"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
@@ -1829,6 +2486,15 @@
                                 <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["View Projects"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
                             </tr>
                             <tr>
                                 <td>@Localizer["Manage Projects"]</td>
@@ -1836,20 +2502,55 @@
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
-                            </tr>
-                            <tr>
-                                <td>@Localizer["View Reports"]</td>
-                                <td><i class="fas fa-check text-success"></i></td>
-                                <td><i class="fas fa-check text-success"></i></td>
-                                <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                             </tr>
                             <tr>
-                                <td>@Localizer["Export Data"]</td>
+                                <td>@Localizer["Monitoring"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["View Reports and Maps"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["View Development Impact"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Manage Development Impact"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Manage Project Output Indicators"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                            </tr>
+                            <tr>
+                                <td>@Localizer["Export From Pages You Can Open"]</td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
                             </tr>
                             <tr>
                                 <td>@Localizer["Submit Requests"]</td>
@@ -1857,10 +2558,12 @@
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-check text-success"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-check text-success"></i></td>
                             </tr>
                             <tr>
                                 <td>@Localizer["Manage Requests"]</td>
                                 <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
@@ -1871,10 +2574,12 @@
                                 <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
                             </tr>
                             <tr>
                                 <td>@Localizer["Data Management"]</td>
                                 <td><i class="fas fa-check text-success"></i></td>
+                                <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
                                 <td><i class="fas fa-times text-danger"></i></td>
@@ -1886,30 +2591,30 @@
                 <div class="info-box">
                     <div class="info-icon"><i class="fas fa-sitemap"></i></div>
                     <div class="info-content">
-                        <h4>@Localizer["Ministry Strategy Manager"]</h4>
-                        <p>@Localizer["This role is not shown as a separate column above because its permissions are scoped to the strategic hierarchy rather than to the general features listed. In addition to standard viewing, it can create and edit frameworks, outcomes, outputs, and framework goals for its own ministry — the only non-administrator role able to do so."]</p>
+                        <h4>@Localizer["Ministry Scope"]</h4>
+                        <p>@Localizer["Every role except System Administrator works within one ministry: it sees, and where allowed changes, only that ministry's data. Exports follow the same rule, because each export comes from a page the user can already open."]</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- ==================== Section 18: Performance Calculations ==================== -->
+        <!-- ==================== Section 19: Performance Calculations ==================== -->
         <section id="performance" class="guide-section">
             <div class="section-header">
-                <span class="section-number">18</span>
+                <span class="section-number">19</span>
                 <h2>@Localizer["Performance Calculations"]</h2>
             </div>
             <div class="section-content">
-                <p>@Localizer["Performance metrics flow upward through the hierarchy, from plans to framework level."]</p>
+                <p>@Localizer["Performance metrics flow upward through the hierarchy, from measures to framework level."]</p>
 
-                <h3>@Localizer["18.1 Calculation Flow"]</h3>
+                <h3>@Localizer["19.1 Calculation Flow"]</h3>
                 <div class="hierarchy-diagram">
                     <div class="hierarchy-level level-5">
-                        <div class="hierarchy-item">@Localizer["Plans (Planned vs Realized Values)"]</div>
+                        <div class="hierarchy-item">@Localizer["Measures → Phase Performance"]</div>
                     </div>
                     <div class="hierarchy-arrow"><i class="fas fa-arrow-up"></i></div>
                     <div class="hierarchy-level level-4">
-                        <div class="hierarchy-item">@Localizer["Project Performance"]</div>
+                        <div class="hierarchy-item">@Localizer["Project Performance (weighted by phase)"]</div>
                     </div>
                     <div class="hierarchy-arrow"><i class="fas fa-arrow-up"></i></div>
                     <div class="hierarchy-level level-3">
@@ -1925,16 +2630,21 @@
                     </div>
                 </div>
 
-                <h3>@Localizer["18.2 Performance Types"]</h3>
+                <h3>@Localizer["19.2 Performance Types"]</h3>
                 <ul>
-                    <li><strong>@Localizer["Financial Performance"]</strong>: @Localizer["Realized budget / Planned budget x 100"]</li>
-                    <li><strong>@Localizer["Physical Performance"]</strong>: @Localizer["Realized physical progress / Planned physical progress x 100"]</li>
-                    <li><strong>@Localizer["Disbursement Performance"]</strong>: @Localizer["Actual disbursement / Planned disbursement x 100"]</li>
-                    <li><strong>@Localizer["Field Monitoring"]</strong>: @Localizer["Field verification score"]</li>
-                    <li><strong>@Localizer["Impact Assessment"]</strong>: @Localizer["Outcome impact evaluation score"]</li>
+                    <li><strong>@Localizer["Execution Performance"]</strong>: @Localizer["each measure is its quantity ÷ the phase target × 100; a phase's performance is the sum of its measures, up to 100%; a project's performance is the weighted average of its phases, Σ(phase performance × weight) ÷ Σ(weights)."]</li>
+                    <li><strong>@Localizer["Disbursement Performance"]</strong>: @Localizer["(Σ Realised values across the project's action plans ÷ Estimated Budget) × 100. Time-phased planned targets are not used."]</li>
                 </ul>
 
-                <h3>@Localizer["18.3 Weighted Averages"]</h3>
+                <div class="info-box">
+                    <div class="info-icon"><i class="fas fa-arrow-trend-up"></i></div>
+                    <div class="info-content">
+                        <h4>@Localizer["Development Impact Is Calculated Separately"]</h4>
+                        <p>@Localizer["Development impact figures do not enter any of these calculations. See section 13.5."]</p>
+                    </div>
+                </div>
+
+                <h3>@Localizer["19.3 Weighted Averages"]</h3>
                 <p>@Localizer["Performance at each hierarchy level is calculated as a weighted average of its children. Weights can be adjusted at every level (Outcomes, Outputs, SubOutputs, Indicators)."]</p>
 
                 <div class="info-box">
@@ -1947,19 +2657,19 @@
             </div>
         </section>
 
-        <!-- ==================== Section 19: Settings & Themes ==================== -->
+        <!-- ==================== Section 20: Settings & Themes ==================== -->
         <section id="settings" class="guide-section">
             <div class="section-header">
-                <span class="section-number">19</span>
+                <span class="section-number">20</span>
                 <h2>@Localizer["Settings & Themes"]</h2>
             </div>
             <div class="section-content">
-                <h3>@Localizer["19.1 Theme Selection"]</h3>
-                <p>@Localizer["The platform offers multiple visual themes. Click the theme icon in the top bar to switch between:"]</p>
+                <h3>@Localizer["20.1 Theme Selection"]</h3>
+                <p>@Localizer["Most pages have a theme list in the top bar with a Blue and a Green theme. A few results-framework and set-up pages use an older theme menu with these options:"]</p>
                 <ul>
                     <li>@Localizer["Default Theme"]</li>
                     <li>@Localizer["Calm Blue"]</li>
-                    <li>@Localizer["Alternative"]</li>
+                    <li>@Localizer["Earth Tones"]</li>
                     <li>@Localizer["Modern Glass"]</li>
                 </ul>
 
@@ -1972,33 +2682,22 @@
                             <small>theme-selector.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 19.1: Theme Selection"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 20.1: Theme Selection"]</p>
                 </div>
 
-                <h3>@Localizer["19.2 User Settings"]</h3>
-                <p>@Localizer["Access user settings from the user menu in the top-right corner to manage your account preferences."]</p>
+                <h3>@Localizer["20.2 User Settings"]</h3>
+                <p>@Localizer["Settings in the user menu opens user management, which is available to System Administrators only. There is no per-user preferences page: your language and theme choices are remembered by your browser."]</p>
 
-                <h3>@Localizer["19.3 Notifications"]</h3>
-                <p>@Localizer["The notification system alerts you to important updates and changes across the platform. Click the bell icon to view notifications."]</p>
+                <h3>@Localizer["20.3 Notifications"]</h3>
+                <p>@Localizer["There is no notification bell. After an action, a success or error message appears at the top of the page."]</p>
 
-                <div class="screenshot-placeholder">
-                    <div class="screenshot-frame">
-                        <img src="~/images/guide/notifications.png" alt="@Localizer["Notifications Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                        <div class="screenshot-missing">
-                            <i class="fas fa-image"></i>
-                            <span>@Localizer["Screenshot: Notifications Panel"]</span>
-                            <small>notifications.png</small>
-                        </div>
-                    </div>
-                    <p class="screenshot-caption">@Localizer["Figure 19.2: Notifications"]</p>
-                </div>
             </div>
         </section>
 
-        <!-- ==================== Section 20: Requests & Support ==================== -->
+        <!-- ==================== Section 21: Requests & Support ==================== -->
         <section id="requests" class="guide-section">
             <div class="section-header">
-                <span class="section-number">20</span>
+                <span class="section-number">21</span>
                 <h2>@Localizer["Requests & Support"] <span class="section-new-badge">@Localizer["NEW"]</span></h2>
             </div>
             <div class="section-content">
@@ -2012,7 +2711,7 @@
                     </div>
                 </div>
 
-                <h3>@Localizer["20.1 Submitting a Request"]</h3>
+                <h3>@Localizer["21.1 Submitting a Request"]</h3>
                 <div class="step-list">
                     <div class="step">
                         <div class="step-number">1</div>
@@ -2060,10 +2759,10 @@
                             <small>requests-create.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 20.1: Submit Request Form"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 21.1: Submit Request Form"]</p>
                 </div>
 
-                <h3>@Localizer["20.2 Request Statuses"]</h3>
+                <h3>@Localizer["21.2 Request Statuses"]</h3>
                 <p>@Localizer["A request moves through the following statuses. There is no fixed sequence: an authorised user can switch a request to any status directly from the quick status dropdown on the request details page."]</p>
 
                 <div class="guide-table-wrapper">
@@ -2110,10 +2809,10 @@
                     </table>
                 </div>
 
-                <h3>@Localizer["20.3 My Requests"]</h3>
+                <h3>@Localizer["21.3 My Requests"]</h3>
                 <p>@Localizer["My Requests lists every request you submitted, with its current status badge, so you can follow progress without needing management access."]</p>
 
-                <h3>@Localizer["20.4 Requests Management"]</h3>
+                <h3>@Localizer["21.4 Requests Management"]</h3>
                 <p>@Localizer["Administrators open Requests Management to see all requests across the platform. The page provides:"]</p>
                 <ul>
                     <li>@Localizer["Summary cards counting requests by status, plus an overall completion rate"]</li>
@@ -2131,10 +2830,10 @@
                             <small>requests-details.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 20.2: Request Details with Quick Status Control"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 21.2: Request Details with Quick Status Control"]</p>
                 </div>
 
-                <h3>@Localizer["20.5 Comments and Test Records"]</h3>
+                <h3>@Localizer["21.5 Comments and Test Records"]</h3>
                 <p>@Localizer["The request details page carries a discussion thread and a testing log:"]</p>
                 <div class="feature-grid">
                     <div class="feature-item">
@@ -2155,13 +2854,13 @@
                 </div>
                 <p>@Localizer["Test records are attributed to an employee from the Request Employees directory, which is maintained from the user menu. At least one employee must exist before a test can be recorded."]</p>
 
-                <h3>@Localizer["20.6 Who Can Do What"]</h3>
+                <h3>@Localizer["21.6 Who Can Do What"]</h3>
                 <div class="info-box">
                     <div class="info-icon"><i class="fas fa-user-lock"></i></div>
                     <div class="info-content">
                         <h4>@Localizer["Requests Permissions"]</h4>
                         <ul>
-                            <li>@Localizer["Submitting and viewing requests: System Administrator, Ministries User, and Data Entry"]</li>
+                            <li>@Localizer["Submitting and viewing requests: System Administrator, Ministries User, Data Entry and Ministry Strategy Manager"]</li>
                             <li>@Localizer["Managing and deleting requests, and maintaining the Request Employees directory: System Administrator only"]</li>
                             <li>@Localizer["Every user can always see the requests they submitted themselves in My Requests"]</li>
                         </ul>
@@ -2170,16 +2869,16 @@
             </div>
         </section>
 
-        <!-- ==================== Section 21: Platform Versions & What's New ==================== -->
+        <!-- ==================== Section 22: Platform Versions & What's New ==================== -->
         <section id="platform-versions" class="guide-section">
             <div class="section-header">
-                <span class="section-number">21</span>
+                <span class="section-number">22</span>
                 <h2>@Localizer["Platform Versions & What's New"] <span class="section-new-badge">@Localizer["NEW"]</span></h2>
             </div>
             <div class="section-content">
                 <p>@Localizer["Platform Versions group completed requests into numbered releases, giving every user a clear record of what changed in the platform and when."]</p>
 
-                <h3>@Localizer["21.1 Version Statuses"]</h3>
+                <h3>@Localizer["22.1 Version Statuses"]</h3>
                 <div class="feature-grid">
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-clipboard-list"></i></div>
@@ -2198,7 +2897,7 @@
                     </div>
                 </div>
 
-                <h3>@Localizer["21.2 Creating and Releasing a Version"]</h3>
+                <h3>@Localizer["22.2 Creating and Releasing a Version"]</h3>
                 <div class="step-list">
                     <div class="step">
                         <div class="step-number">1</div>
@@ -2231,7 +2930,7 @@
                     </div>
                 </div>
 
-                <h3>@Localizer["21.3 What's New"]</h3>
+                <h3>@Localizer["22.3 What's New"]</h3>
                 <p>@Localizer["The What's New page is available to every signed-in user from the user menu. It lists released versions together with their completed requests, so users can see exactly which improvements were delivered. Requests that are not completed never appear here."]</p>
 
                 <div class="screenshot-placeholder">
@@ -2243,7 +2942,7 @@
                             <small>whats-new.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 21.1: What's New Release Notes"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 22.1: What's New Release Notes"]</p>
                 </div>
 
                 <div class="info-box">
@@ -2256,14 +2955,14 @@
             </div>
         </section>
 
-        <!-- ==================== Section 22: Getting Help ==================== -->
+        <!-- ==================== Section 23: Getting Help ==================== -->
         <section id="help" class="guide-section">
             <div class="section-header">
-                <span class="section-number">22</span>
+                <span class="section-number">23</span>
                 <h2>@Localizer["Getting Help"]</h2>
             </div>
             <div class="section-content">
-                <h3>@Localizer["22.1 Contextual Help"]</h3>
+                <h3>@Localizer["23.1 Contextual Help"]</h3>
                 <p>@Localizer["Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips. This includes the Requests pages."]</p>
 
                 <div class="step-list">
@@ -2292,16 +2991,16 @@
                             <small>help-modal.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 22.1: Contextual Help Modal"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 23.1: Contextual Help Modal"]</p>
                 </div>
 
-                <h3>@Localizer["22.2 Contact Support"]</h3>
+                <h3>@Localizer["23.2 Contact Support"]</h3>
                 <div class="info-box">
                     <div class="info-icon"><i class="fas fa-envelope"></i></div>
                     <div class="info-content">
                         <h4>@Localizer["Support Contact"]</h4>
                         <p>@Localizer["For technical support and assistance, please contact your system administrator."]</p>
-                        <p>@Localizer["You can also raise a tracked request from the user menu using Submit Request — see section 20, Requests & Support."]</p>
+                        <p>@Localizer["You can also raise a tracked request from the user menu using Submit Request — see section 21, Requests & Support."]</p>
                     </div>
                 </div>
             </div>

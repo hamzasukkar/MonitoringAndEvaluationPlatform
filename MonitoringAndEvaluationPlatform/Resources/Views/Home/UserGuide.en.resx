@@ -72,8 +72,8 @@
   <data name="Print Guide" xml:space="preserve">
     <value>Print Guide</value>
   </data>
-  <data name="Download PDF" xml:space="preserve">
-    <value>Download PDF</value>
+  <data name="Download Features Summary (Word)" xml:space="preserve">
+    <value>Download Features Summary (Word)</value>
   </data>
   <!-- Section: Table of Contents -->
   <data name="Table of Contents" xml:space="preserve">
@@ -167,20 +167,14 @@
   <data name="1.1 Platform Structure" xml:space="preserve">
     <value>1.1 Platform Structure</value>
   </data>
-  <data name="The platform is organized into five main sections accessible from the sidebar:" xml:space="preserve">
-    <value>The platform is organized into five main sections accessible from the sidebar:</value>
+  <data name="The sidebar gives access to the platform's main areas. Set Up and Audit Logs are shown to System Administrators only:" xml:space="preserve">
+    <value>The sidebar gives access to the platform's main areas. Set Up and Audit Logs are shown to System Administrators only:</value>
   </data>
   <data name="Manage frameworks, outcomes, outputs, sub-outputs, and indicators." xml:space="preserve">
     <value>Manage frameworks, outcomes, outputs, sub-outputs, and indicators.</value>
   </data>
-  <data name="Configure ministries, donors, sectors, project managers, supervisors, and locations." xml:space="preserve">
-    <value>Configure ministries, donors, sectors, project managers, supervisors, and locations.</value>
-  </data>
   <data name="Create and manage projects, action plans, activities, and plans." xml:space="preserve">
     <value>Create and manage projects, action plans, activities, and plans.</value>
-  </data>
-  <data name="Track performance at all levels of the hierarchy in real-time." xml:space="preserve">
-    <value>Track performance at all levels of the hierarchy in real-time.</value>
   </data>
   <data name="View analytics, charts, gauges, and summary statistics." xml:space="preserve">
     <value>View analytics, charts, gauges, and summary statistics.</value>
@@ -210,14 +204,14 @@
   <data name="Enter Credentials" xml:space="preserve">
     <value>Enter Credentials</value>
   </data>
-  <data name="Enter your email address and password in the login form." xml:space="preserve">
-    <value>Enter your email address and password in the login form.</value>
+  <data name="Enter your username and password in the login form." xml:space="preserve">
+    <value>Enter your username and password in the login form.</value>
   </data>
-  <data name="Access Dashboard" xml:space="preserve">
-    <value>Access Dashboard</value>
+  <data name="Start Working" xml:space="preserve">
+    <value>Start Working</value>
   </data>
-  <data name="After successful login, you will be redirected to the main dashboard." xml:space="preserve">
-    <value>After successful login, you will be redirected to the main dashboard.</value>
+  <data name="After signing in, the Frameworks page opens." xml:space="preserve">
+    <value>After signing in, the Frameworks page opens.</value>
   </data>
   <data name="Login Page Screenshot" xml:space="preserve">
     <value>Login Page Screenshot</value>
@@ -231,14 +225,14 @@
   <data name="2.2 Changing Language" xml:space="preserve">
     <value>2.2 Changing Language</value>
   </data>
-  <data name="The platform supports Arabic (default), English, and French. To change the language:" xml:space="preserve">
-    <value>The platform supports Arabic (default), English, and French. To change the language:</value>
+  <data name="The platform is available in Arabic (the default) and English. To change the language:" xml:space="preserve">
+    <value>The platform is available in Arabic (the default) and English. To change the language:</value>
   </data>
   <data name="Find Language Selector" xml:space="preserve">
     <value>Find Language Selector</value>
   </data>
-  <data name="Look for the language dropdown in the top navigation bar." xml:space="preserve">
-    <value>Look for the language dropdown in the top navigation bar.</value>
+  <data name="Use the language list in the top bar or at the bottom of the sidebar." xml:space="preserve">
+    <value>Use the language list in the top bar or at the bottom of the sidebar.</value>
   </data>
   <data name="Select Language" xml:space="preserve">
     <value>Select Language</value>
@@ -261,23 +255,8 @@
   <data name="The platform uses a sidebar menu on the left (or right in Arabic) for main navigation. The top bar contains:" xml:space="preserve">
     <value>The platform uses a sidebar menu on the left (or right in Arabic) for main navigation. The top bar contains:</value>
   </data>
-  <data name="Framework dropdown menus for quick access to specific frameworks" xml:space="preserve">
-    <value>Framework dropdown menus for quick access to specific frameworks</value>
-  </data>
-  <data name="Ministries dropdown for quick ministry navigation" xml:space="preserve">
-    <value>Ministries dropdown for quick ministry navigation</value>
-  </data>
-  <data name="Sectors dropdown organized by category" xml:space="preserve">
-    <value>Sectors dropdown organized by category</value>
-  </data>
-  <data name="Donors dropdown organized by type" xml:space="preserve">
-    <value>Donors dropdown organized by type</value>
-  </data>
   <data name="SDGs dropdown with all 17 Sustainable Development Goals" xml:space="preserve">
     <value>SDGs dropdown with all 17 Sustainable Development Goals</value>
-  </data>
-  <data name="Language selector and user menu" xml:space="preserve">
-    <value>Language selector and user menu</value>
   </data>
   <data name="Sidebar Navigation Screenshot" xml:space="preserve">
     <value>Sidebar Navigation Screenshot</value>
@@ -319,11 +298,11 @@
   <data name="Visual representation of performance trends over time." xml:space="preserve">
     <value>Visual representation of performance trends over time.</value>
   </data>
-  <data name="Geographic Map" xml:space="preserve">
-    <value>Geographic Map</value>
+  <data name="Ministry Overview" xml:space="preserve">
+    <value>Ministry Overview</value>
   </data>
-  <data name="Interactive map showing project distribution by governorate." xml:space="preserve">
-    <value>Interactive map showing project distribution by governorate.</value>
+  <data name="One card per ministry with its performance, finances, counts and development impact. See 3.8." xml:space="preserve">
+    <value>One card per ministry with its performance, finances, counts and development impact. See 3.8.</value>
   </data>
   <data name="Recent Activities" xml:space="preserve">
     <value>Recent Activities</value>
@@ -485,8 +464,8 @@
   <data name="4.2 Viewing Frameworks" xml:space="preserve">
     <value>4.2 Viewing Frameworks</value>
   </data>
-  <data name="Navigate to Results Framework from the sidebar. The list shows all frameworks with their performance rates, search, and sort options." xml:space="preserve">
-    <value>Navigate to Results Framework from the sidebar. The list shows all frameworks with their performance rates, search, and sort options.</value>
+  <data name="Open Frameworks from the sidebar. The list shows all frameworks with their performance rates, search, and sort options." xml:space="preserve">
+    <value>Open Frameworks from the sidebar. The list shows all frameworks with their performance rates, search, and sort options.</value>
   </data>
   <data name="Frameworks List Screenshot" xml:space="preserve">
     <value>Frameworks List Screenshot</value>
@@ -569,8 +548,8 @@
   <data name="4.6 Tree View" xml:space="preserve">
     <value>4.6 Tree View</value>
   </data>
-  <data name="View the complete framework hierarchy as an interactive tree. Expand or collapse nodes to explore the structure." xml:space="preserve">
-    <value>View the complete framework hierarchy as an interactive tree. Expand or collapse nodes to explore the structure.</value>
+  <data name="The tree view draws the whole hierarchy as an interactive diagram, from the ministry or strategy down to projects and their phases. Expand or collapse any branch to explore it." xml:space="preserve">
+    <value>The tree view draws the whole hierarchy as an interactive diagram, from the ministry or strategy down to projects and their phases. Expand or collapse any branch to explore it.</value>
   </data>
   <data name="Framework Tree View Screenshot" xml:space="preserve">
     <value>Framework Tree View Screenshot</value>
@@ -1248,8 +1227,8 @@
   <data name="Performance Metrics" xml:space="preserve">
     <value>Performance Metrics</value>
   </data>
-  <data name="Financial, physical, disbursement, field monitoring, and impact assessment." xml:space="preserve">
-    <value>Financial, physical, disbursement, field monitoring, and impact assessment.</value>
+  <data name="Execution performance, calculated from the phases and their measures, and disbursement performance." xml:space="preserve">
+    <value>Execution performance, calculated from the phases and their measures, and disbursement performance.</value>
   </data>
   <data name="Stakeholders" xml:space="preserve">
     <value>Stakeholders</value>
@@ -1428,29 +1407,29 @@
     <value>Figure 11.2: Inline Realised Value Update</value>
   </data>
   <!-- Section 12: Monitoring -->
-  <data name="The Monitoring section provides real-time performance tracking at every level of the hierarchy." xml:space="preserve">
-    <value>The Monitoring section provides real-time performance tracking at every level of the hierarchy.</value>
+  <data name="Monitoring in the sidebar opens Ministry Monitoring, the top of the hierarchy. From there you drill down level by level to projects and their phases." xml:space="preserve">
+    <value>Monitoring in the sidebar opens Ministry Monitoring, the top of the hierarchy. From there you drill down level by level to projects and their phases.</value>
   </data>
-  <data name="12.1 Framework Dashboard" xml:space="preserve">
-    <value>12.1 Framework Dashboard</value>
+  <data name="12.1 Ministry Monitoring" xml:space="preserve">
+    <value>12.1 Ministry Monitoring</value>
   </data>
-  <data name="View all frameworks with their overall performance. Filter by ministry to see ministry-specific results." xml:space="preserve">
-    <value>View all frameworks with their overall performance. Filter by ministry to see ministry-specific results.</value>
+  <data name="Each ministry has a card with its number of strategies and two performance figures. Both are averages over the ministry's strategies, so they match the strategy cards one level down. A ministry that owns no strategies shows a dash." xml:space="preserve">
+    <value>Each ministry has a card with its number of strategies and two performance figures. Both are averages over the ministry's strategies, so they match the strategy cards one level down. A ministry that owns no strategies shows a dash.</value>
   </data>
-  <data name="Monitoring Framework Screenshot" xml:space="preserve">
-    <value>Monitoring Framework Screenshot</value>
+  <data name="Ministry Monitoring Screenshot" xml:space="preserve">
+    <value>Ministry Monitoring Screenshot</value>
   </data>
-  <data name="Screenshot: Monitoring Framework Dashboard" xml:space="preserve">
-    <value>Screenshot: Monitoring Framework Dashboard</value>
+  <data name="Screenshot: Ministry Monitoring" xml:space="preserve">
+    <value>Screenshot: Ministry Monitoring</value>
   </data>
-  <data name="Figure 12.1: Framework Monitoring Dashboard" xml:space="preserve">
-    <value>Figure 12.1: Framework Monitoring Dashboard</value>
+  <data name="Figure 12.1: Ministry Monitoring" xml:space="preserve">
+    <value>Figure 12.1: Ministry Monitoring</value>
   </data>
   <data name="12.2 Monitoring Levels" xml:space="preserve">
     <value>12.2 Monitoring Levels</value>
   </data>
-  <data name="Navigate through each level of the hierarchy to see detailed performance:" xml:space="preserve">
-    <value>Navigate through each level of the hierarchy to see detailed performance:</value>
+  <data name="From a ministry card, drill down level by level. The ministry you chose is carried through every level:" xml:space="preserve">
+    <value>From a ministry card, drill down level by level. The ministry you chose is carried through every level:</value>
   </data>
   <data name="Performance of each outcome within a framework" xml:space="preserve">
     <value>Performance of each outcome within a framework</value>
@@ -1491,12 +1470,12 @@
   <data name="Figure 12.3: Project Monitoring View" xml:space="preserve">
     <value>Figure 12.3: Project Monitoring View</value>
   </data>
-  <!-- Section 13: Reports & Export -->
+  <!-- Section 14: Reports & Export -->
   <data name="Generate comprehensive reports and export data for analysis and stakeholder communication." xml:space="preserve">
     <value>Generate comprehensive reports and export data for analysis and stakeholder communication.</value>
   </data>
-  <data name="13.1 Reports Dashboard" xml:space="preserve">
-    <value>13.1 Reports Dashboard</value>
+  <data name="14.1 Reports Dashboard" xml:space="preserve">
+    <value>14.1 Reports Dashboard</value>
   </data>
   <data name="Reports Dashboard Screenshot" xml:space="preserve">
     <value>Reports Dashboard Screenshot</value>
@@ -1504,11 +1483,11 @@
   <data name="Screenshot: Reports Dashboard" xml:space="preserve">
     <value>Screenshot: Reports Dashboard</value>
   </data>
-  <data name="Figure 13.1: Reports Dashboard" xml:space="preserve">
-    <value>Figure 13.1: Reports Dashboard</value>
+  <data name="Figure 14.1: Reports Dashboard" xml:space="preserve">
+    <value>Figure 14.1: Reports Dashboard</value>
   </data>
-  <data name="13.2 Export Options" xml:space="preserve">
-    <value>13.2 Export Options</value>
+  <data name="14.5 Export Options" xml:space="preserve">
+    <value>14.5 Export Options</value>
   </data>
   <data name="Most data views support exporting to Excel and PDF. Export buttons are available on:" xml:space="preserve">
     <value>Most data views support exporting to Excel and PDF. Export buttons are available on:</value>
@@ -1546,15 +1525,15 @@
   <data name="PDF exports create formatted, printable documents suitable for sharing with stakeholders." xml:space="preserve">
     <value>PDF exports create formatted, printable documents suitable for sharing with stakeholders.</value>
   </data>
-  <!-- Section 14: Administration -->
+  <!-- Section 15: Administration -->
   <data name="Admin Only" xml:space="preserve">
     <value>Admin Only</value>
   </data>
   <data name="These features are only available to users with the System Administrator role." xml:space="preserve">
     <value>These features are only available to users with the System Administrator role.</value>
   </data>
-  <data name="14.1 User Management" xml:space="preserve">
-    <value>14.1 User Management</value>
+  <data name="15.1 User Management" xml:space="preserve">
+    <value>15.1 User Management</value>
   </data>
   <data name="Create, edit, and manage user accounts with search, filter, and pagination." xml:space="preserve">
     <value>Create, edit, and manage user accounts with search, filter, and pagination.</value>
@@ -1562,8 +1541,8 @@
   <data name="View Users" xml:space="preserve">
     <value>View Users</value>
   </data>
-  <data name="Navigate to Admin &gt; Users to see all system users." xml:space="preserve">
-    <value>Navigate to Admin &gt; Users to see all system users.</value>
+  <data name="Open Settings from the user menu to see all system users. It is available to System Administrators only." xml:space="preserve">
+    <value>Open Settings from the user menu to see all system users. It is available to System Administrators only.</value>
   </data>
   <data name="Create User" xml:space="preserve">
     <value>Create User</value>
@@ -1583,11 +1562,11 @@
   <data name="Screenshot: User Management" xml:space="preserve">
     <value>Screenshot: User Management</value>
   </data>
-  <data name="Figure 14.1: User Management" xml:space="preserve">
-    <value>Figure 14.1: User Management</value>
+  <data name="Figure 15.1: User Management" xml:space="preserve">
+    <value>Figure 15.1: User Management</value>
   </data>
-  <data name="14.2 Role Management" xml:space="preserve">
-    <value>14.2 Role Management</value>
+  <data name="15.2 Role Management" xml:space="preserve">
+    <value>15.2 Role Management</value>
   </data>
   <data name="View all system roles and the users assigned to each role." xml:space="preserve">
     <value>View all system roles and the users assigned to each role.</value>
@@ -1598,11 +1577,11 @@
   <data name="Screenshot: Role Management" xml:space="preserve">
     <value>Screenshot: Role Management</value>
   </data>
-  <data name="Figure 14.2: Role Management" xml:space="preserve">
-    <value>Figure 14.2: Role Management</value>
+  <data name="Figure 15.2: Role Management" xml:space="preserve">
+    <value>Figure 15.2: Role Management</value>
   </data>
-  <data name="14.3 Formulas Documentation" xml:space="preserve">
-    <value>14.3 Formulas Documentation</value>
+  <data name="15.3 Formulas Documentation" xml:space="preserve">
+    <value>15.3 Formulas Documentation</value>
   </data>
   <data name="View all calculation formulas used in the platform for performance metrics." xml:space="preserve">
     <value>View all calculation formulas used in the platform for performance metrics.</value>
@@ -1613,18 +1592,18 @@
   <data name="Screenshot: Formulas Documentation" xml:space="preserve">
     <value>Screenshot: Formulas Documentation</value>
   </data>
-  <data name="Figure 14.3: Performance Formulas" xml:space="preserve">
-    <value>Figure 14.3: Performance Formulas</value>
+  <data name="Figure 15.3: Performance Formulas" xml:space="preserve">
+    <value>Figure 15.3: Performance Formulas</value>
   </data>
-  <!-- Section 15: Data Management -->
+  <!-- Section 16: Data Management -->
   <data name="Caution" xml:space="preserve">
     <value>Caution</value>
   </data>
   <data name="Data Management operations are powerful and some are irreversible. They are password-protected and restricted to System Administrators only." xml:space="preserve">
     <value>Data Management operations are powerful and some are irreversible. They are password-protected and restricted to System Administrators only.</value>
   </data>
-  <data name="15.1 Database Backup" xml:space="preserve">
-    <value>15.1 Database Backup</value>
+  <data name="16.1 Database Backup" xml:space="preserve">
+    <value>16.1 Database Backup</value>
   </data>
   <data name="Create a backup of the entire database for disaster recovery." xml:space="preserve">
     <value>Create a backup of the entire database for disaster recovery.</value>
@@ -1635,23 +1614,23 @@
   <data name="Screenshot: Database Backup" xml:space="preserve">
     <value>Screenshot: Database Backup</value>
   </data>
-  <data name="Figure 15.1: Database Backup Interface" xml:space="preserve">
-    <value>Figure 15.1: Database Backup Interface</value>
+  <data name="Figure 16.1: Database Backup Interface" xml:space="preserve">
+    <value>Figure 16.1: Database Backup Interface</value>
   </data>
-  <data name="15.2 Clear Data" xml:space="preserve">
-    <value>15.2 Clear Data</value>
+  <data name="16.2 Clear Data" xml:space="preserve">
+    <value>16.2 Clear Data</value>
   </data>
   <data name="Selectively clear data by groups (e.g., projects, plans, measures) while preserving system configuration." xml:space="preserve">
     <value>Selectively clear data by groups (e.g., projects, plans, measures) while preserving system configuration.</value>
   </data>
-  <data name="15.3 Delete Projects" xml:space="preserve">
-    <value>15.3 Delete Projects</value>
+  <data name="16.3 Delete Projects" xml:space="preserve">
+    <value>16.3 Delete Projects</value>
   </data>
   <data name="Bulk delete selected projects and all their associated data (action plans, activities, plans)." xml:space="preserve">
     <value>Bulk delete selected projects and all their associated data (action plans, activities, plans).</value>
   </data>
-  <data name="15.4 Reset Values" xml:space="preserve">
-    <value>15.4 Reset Values</value>
+  <data name="16.4 Reset Values" xml:space="preserve">
+    <value>16.4 Reset Values</value>
   </data>
   <data name="Reset all performance values across the hierarchy while keeping the structure intact." xml:space="preserve">
     <value>Reset all performance values across the hierarchy while keeping the structure intact.</value>
@@ -1662,15 +1641,15 @@
   <data name="Screenshot: Data Management Hub" xml:space="preserve">
     <value>Screenshot: Data Management Hub</value>
   </data>
-  <data name="Figure 15.2: Data Management Hub" xml:space="preserve">
-    <value>Figure 15.2: Data Management Hub</value>
+  <data name="Figure 16.2: Data Management Hub" xml:space="preserve">
+    <value>Figure 16.2: Data Management Hub</value>
   </data>
-  <!-- Section 16: Audit Logs -->
-  <data name="The Audit Log system tracks all changes made in the platform for accountability and transparency." xml:space="preserve">
-    <value>The Audit Log system tracks all changes made in the platform for accountability and transparency.</value>
+  <!-- Section 17: Audit Logs -->
+  <data name="The Audit Log system tracks all changes made in the platform for accountability and transparency. Open it from Audit Logs in the sidebar; it is available to System Administrators only." xml:space="preserve">
+    <value>The Audit Log system tracks all changes made in the platform for accountability and transparency. Open it from Audit Logs in the sidebar; it is available to System Administrators only.</value>
   </data>
-  <data name="16.1 Viewing Audit Logs" xml:space="preserve">
-    <value>16.1 Viewing Audit Logs</value>
+  <data name="17.1 Viewing Audit Logs" xml:space="preserve">
+    <value>17.1 Viewing Audit Logs</value>
   </data>
   <data name="Filter audit logs by:" xml:space="preserve">
     <value>Filter audit logs by:</value>
@@ -1693,28 +1672,28 @@
   <data name="Screenshot: Audit Logs" xml:space="preserve">
     <value>Screenshot: Audit Logs</value>
   </data>
-  <data name="Figure 16.1: Audit Logs View" xml:space="preserve">
-    <value>Figure 16.1: Audit Logs View</value>
+  <data name="Figure 17.1: Audit Logs View" xml:space="preserve">
+    <value>Figure 17.1: Audit Logs View</value>
   </data>
-  <data name="16.2 Entity History" xml:space="preserve">
-    <value>16.2 Entity History</value>
+  <data name="17.2 Entity History" xml:space="preserve">
+    <value>17.2 Entity History</value>
   </data>
   <data name="View the complete change history of any entity, showing old and new values for each modification." xml:space="preserve">
     <value>View the complete change history of any entity, showing old and new values for each modification.</value>
   </data>
-  <data name="16.3 User Activity" xml:space="preserve">
-    <value>16.3 User Activity</value>
+  <data name="17.3 User Activity" xml:space="preserve">
+    <value>17.3 User Activity</value>
   </data>
   <data name="Track all actions performed by a specific user across the platform." xml:space="preserve">
     <value>Track all actions performed by a specific user across the platform.</value>
   </data>
-  <data name="16.4 Exporting Audit Logs" xml:space="preserve">
-    <value>16.4 Exporting Audit Logs</value>
+  <data name="17.4 Exporting Audit Logs" xml:space="preserve">
+    <value>17.4 Exporting Audit Logs</value>
   </data>
   <data name="Export filtered audit logs for external analysis and compliance reporting." xml:space="preserve">
     <value>Export filtered audit logs for external analysis and compliance reporting.</value>
   </data>
-  <!-- Section 17: User Roles & Permissions -->
+  <!-- Section 18: User Roles & Permissions -->
   <data name="The platform uses role-based access control with four predefined roles:" xml:space="preserve">
     <value>The platform uses role-based access control with four predefined roles:</value>
   </data>
@@ -1739,11 +1718,11 @@
   <data name="Reading User" xml:space="preserve">
     <value>Reading User</value>
   </data>
-  <data name="View-only access to dashboards and basic reports. Cannot modify any data." xml:space="preserve">
-    <value>View-only access to dashboards and basic reports. Cannot modify any data.</value>
+  <data name="View-only access to the dashboard, reports, maps, monitoring and development impact. Cannot open project pages or change any data." xml:space="preserve">
+    <value>View-only access to the dashboard, reports, maps, monitoring and development impact. Cannot open project pages or change any data.</value>
   </data>
-  <data name="17.1 Permission Summary" xml:space="preserve">
-    <value>17.1 Permission Summary</value>
+  <data name="18.1 Permission Summary" xml:space="preserve">
+    <value>18.1 Permission Summary</value>
   </data>
   <data name="Feature" xml:space="preserve">
     <value>Feature</value>
@@ -1769,27 +1748,21 @@
   <data name="Manage Projects" xml:space="preserve">
     <value>Manage Projects</value>
   </data>
-  <data name="View Reports" xml:space="preserve">
-    <value>View Reports</value>
-  </data>
-  <data name="Export Data" xml:space="preserve">
-    <value>Export Data</value>
-  </data>
   <data name="User Management" xml:space="preserve">
     <value>User Management</value>
   </data>
-  <!-- Section 18: Performance Calculations -->
-  <data name="Performance metrics flow upward through the hierarchy, from plans to framework level." xml:space="preserve">
-    <value>Performance metrics flow upward through the hierarchy, from plans to framework level.</value>
+  <!-- Section 19: Performance Calculations -->
+  <data name="Performance metrics flow upward through the hierarchy, from measures to framework level." xml:space="preserve">
+    <value>Performance metrics flow upward through the hierarchy, from measures to framework level.</value>
   </data>
-  <data name="18.1 Calculation Flow" xml:space="preserve">
-    <value>18.1 Calculation Flow</value>
+  <data name="19.1 Calculation Flow" xml:space="preserve">
+    <value>19.1 Calculation Flow</value>
   </data>
-  <data name="Plans (Planned vs Realized Values)" xml:space="preserve">
-    <value>Plans (Planned vs Realized Values)</value>
+  <data name="Measures → Phase Performance" xml:space="preserve">
+    <value>Measures → Phase Performance</value>
   </data>
-  <data name="Project Performance" xml:space="preserve">
-    <value>Project Performance</value>
+  <data name="Project Performance (weighted by phase)" xml:space="preserve">
+    <value>Project Performance (weighted by phase)</value>
   </data>
   <data name="Indicator Performance" xml:space="preserve">
     <value>Indicator Performance</value>
@@ -1800,35 +1773,14 @@
   <data name="Framework Performance" xml:space="preserve">
     <value>Framework Performance</value>
   </data>
-  <data name="18.2 Performance Types" xml:space="preserve">
-    <value>18.2 Performance Types</value>
-  </data>
-  <data name="Financial Performance" xml:space="preserve">
-    <value>Financial Performance</value>
-  </data>
-  <data name="Realized budget / Planned budget x 100" xml:space="preserve">
-    <value>Realized budget / Planned budget x 100</value>
-  </data>
-  <data name="Physical Performance" xml:space="preserve">
-    <value>Physical Performance</value>
-  </data>
-  <data name="Realized physical progress / Planned physical progress x 100" xml:space="preserve">
-    <value>Realized physical progress / Planned physical progress x 100</value>
+  <data name="19.2 Performance Types" xml:space="preserve">
+    <value>19.2 Performance Types</value>
   </data>
   <data name="Disbursement Performance" xml:space="preserve">
     <value>Disbursement Performance</value>
   </data>
-  <data name="Actual disbursement / Planned disbursement x 100" xml:space="preserve">
-    <value>Actual disbursement / Planned disbursement x 100</value>
-  </data>
-  <data name="Field verification score" xml:space="preserve">
-    <value>Field verification score</value>
-  </data>
-  <data name="Outcome impact evaluation score" xml:space="preserve">
-    <value>Outcome impact evaluation score</value>
-  </data>
-  <data name="18.3 Weighted Averages" xml:space="preserve">
-    <value>18.3 Weighted Averages</value>
+  <data name="19.3 Weighted Averages" xml:space="preserve">
+    <value>19.3 Weighted Averages</value>
   </data>
   <data name="Performance at each hierarchy level is calculated as a weighted average of its children. Weights can be adjusted at every level (Outcomes, Outputs, SubOutputs, Indicators)." xml:space="preserve">
     <value>Performance at each hierarchy level is calculated as a weighted average of its children. Weights can be adjusted at every level (Outcomes, Outputs, SubOutputs, Indicators).</value>
@@ -1839,12 +1791,12 @@
   <data name="Parent Performance = Sum of (Child Performance x Child Weight) / Sum of Weights" xml:space="preserve">
     <value>Parent Performance = Sum of (Child Performance x Child Weight) / Sum of Weights</value>
   </data>
-  <!-- Section 19: Settings & Themes -->
-  <data name="19.1 Theme Selection" xml:space="preserve">
-    <value>19.1 Theme Selection</value>
+  <!-- Section 20: Settings & Themes -->
+  <data name="20.1 Theme Selection" xml:space="preserve">
+    <value>20.1 Theme Selection</value>
   </data>
-  <data name="The platform offers multiple visual themes. Click the theme icon in the top bar to switch between:" xml:space="preserve">
-    <value>The platform offers multiple visual themes. Click the theme icon in the top bar to switch between:</value>
+  <data name="Most pages have a theme list in the top bar with a Blue and a Green theme. A few results-framework and set-up pages use an older theme menu with these options:" xml:space="preserve">
+    <value>Most pages have a theme list in the top bar with a Blue and a Green theme. A few results-framework and set-up pages use an older theme menu with these options:</value>
   </data>
   <data name="Default Theme" xml:space="preserve">
     <value>Default Theme</value>
@@ -1852,8 +1804,8 @@
   <data name="Calm Blue" xml:space="preserve">
     <value>Calm Blue</value>
   </data>
-  <data name="Alternative" xml:space="preserve">
-    <value>Alternative</value>
+  <data name="Earth Tones" xml:space="preserve">
+    <value>Earth Tones</value>
   </data>
   <data name="Modern Glass" xml:space="preserve">
     <value>Modern Glass</value>
@@ -1864,31 +1816,22 @@
   <data name="Screenshot: Theme Selector" xml:space="preserve">
     <value>Screenshot: Theme Selector</value>
   </data>
-  <data name="Figure 19.1: Theme Selection" xml:space="preserve">
-    <value>Figure 19.1: Theme Selection</value>
+  <data name="Figure 20.1: Theme Selection" xml:space="preserve">
+    <value>Figure 20.1: Theme Selection</value>
   </data>
-  <data name="19.2 User Settings" xml:space="preserve">
-    <value>19.2 User Settings</value>
+  <data name="20.2 User Settings" xml:space="preserve">
+    <value>20.2 User Settings</value>
   </data>
-  <data name="Access user settings from the user menu in the top-right corner to manage your account preferences." xml:space="preserve">
-    <value>Access user settings from the user menu in the top-right corner to manage your account preferences.</value>
+  <data name="Settings in the user menu opens user management, which is available to System Administrators only. There is no per-user preferences page: your language and theme choices are remembered by your browser." xml:space="preserve">
+    <value>Settings in the user menu opens user management, which is available to System Administrators only. There is no per-user preferences page: your language and theme choices are remembered by your browser.</value>
   </data>
-  <data name="19.3 Notifications" xml:space="preserve">
-    <value>19.3 Notifications</value>
+  <data name="20.3 Notifications" xml:space="preserve">
+    <value>20.3 Notifications</value>
   </data>
-  <data name="The notification system alerts you to important updates and changes across the platform. Click the bell icon to view notifications." xml:space="preserve">
-    <value>The notification system alerts you to important updates and changes across the platform. Click the bell icon to view notifications.</value>
+  <data name="There is no notification bell. After an action, a success or error message appears at the top of the page." xml:space="preserve">
+    <value>There is no notification bell. After an action, a success or error message appears at the top of the page.</value>
   </data>
-  <data name="Notifications Screenshot" xml:space="preserve">
-    <value>Notifications Screenshot</value>
-  </data>
-  <data name="Screenshot: Notifications Panel" xml:space="preserve">
-    <value>Screenshot: Notifications Panel</value>
-  </data>
-  <data name="Figure 19.2: Notifications" xml:space="preserve">
-    <value>Figure 19.2: Notifications</value>
-  </data>
-  <!-- Section 20: Getting Help -->
+  <!-- Section 23: Getting Help, followed by later additions -->
   <data name="20.1 Contextual Help" xml:space="preserve">
     <value>20.1 Contextual Help</value>
   </data>
@@ -1955,8 +1898,8 @@
   <data name="The goal type is chosen when the goal is created and cannot be changed afterwards. Choose carefully: switching later requires deleting the goal and creating it again." xml:space="preserve">
     <value>The goal type is chosen when the goal is created and cannot be changed afterwards. Choose carefully: switching later requires deleting the goal and creating it again.</value>
   </data>
-  <data name="The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, and Locations." xml:space="preserve">
-    <value>The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, and Locations.</value>
+  <data name="The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, Locations and Units of Measurement." xml:space="preserve">
+    <value>The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, Locations and Units of Measurement.</value>
   </data>
   <data name="Public Sector Types" xml:space="preserve">
     <value>Public Sector Types</value>
@@ -2003,8 +1946,8 @@
   <data name="Ministry Strategy Manager" xml:space="preserve">
     <value>Ministry Strategy Manager</value>
   </data>
-  <data name="Works alongside the System Administrator on the strategic hierarchy: can create and edit frameworks, outcomes, outputs, and framework goals within the scope of their ministry." xml:space="preserve">
-    <value>Works alongside the System Administrator on the strategic hierarchy: can create and edit frameworks, outcomes, outputs, and framework goals within the scope of their ministry.</value>
+  <data name="Works alongside the System Administrator on the strategic hierarchy of their own ministry: creates and edits frameworks, outcomes, outputs, sub-outputs, indicators and framework goals, manages projects, and manages development impact and project output indicators. Does not have the Dashboard, Reports or maps." xml:space="preserve">
+    <value>Works alongside the System Administrator on the strategic hierarchy of their own ministry: creates and edits frameworks, outcomes, outputs, sub-outputs, indicators and framework goals, manages projects, and manages development impact and project output indicators. Does not have the Dashboard, Reports or maps.</value>
   </data>
   <data name="Submit Requests" xml:space="preserve">
     <value>Submit Requests</value>
@@ -2012,14 +1955,8 @@
   <data name="Manage Requests" xml:space="preserve">
     <value>Manage Requests</value>
   </data>
-  <data name="This role is not shown as a separate column above because its permissions are scoped to the strategic hierarchy rather than to the general features listed. In addition to standard viewing, it can create and edit frameworks, outcomes, outputs, and framework goals for its own ministry — the only non-administrator role able to do so." xml:space="preserve">
-    <value>This role is not shown as a separate column above because its permissions are scoped to the strategic hierarchy rather than to the general features listed. In addition to standard viewing, it can create and edit frameworks, outcomes, outputs, and framework goals for its own ministry — the only non-administrator role able to do so.</value>
-  </data>
-  <data name="Field Monitoring" xml:space="preserve">
-    <value>Field Monitoring</value>
-  </data>
-  <data name="Impact Assessment" xml:space="preserve">
-    <value>Impact Assessment</value>
+  <data name="Every role except System Administrator works within one ministry: it sees, and where allowed changes, only that ministry's data. Exports follow the same rule, because each export comes from a page the user can already open." xml:space="preserve">
+    <value>Every role except System Administrator works within one ministry: it sees, and where allowed changes, only that ministry's data. Exports follow the same rule, because each export comes from a page the user can already open.</value>
   </data>
   <data name="The Requests module lets you submit support requests, change proposals, and inquiries directly to the platform team, then follow them through to completion. Every request is tracked with a category, a priority, and a status." xml:space="preserve">
     <value>The Requests module lets you submit support requests, change proposals, and inquiries directly to the platform team, then follow them through to completion. Every request is tracked with a category, a priority, and a status.</value>
@@ -2030,8 +1967,8 @@
   <data name="Each request receives a unique reference number in the format REQ-YYYY-000 (for example REQ-2026-014) generated automatically on submission. Use this number when following up on a request." xml:space="preserve">
     <value>Each request receives a unique reference number in the format REQ-YYYY-000 (for example REQ-2026-014) generated automatically on submission. Use this number when following up on a request.</value>
   </data>
-  <data name="20.1 Submitting a Request" xml:space="preserve">
-    <value>20.1 Submitting a Request</value>
+  <data name="21.1 Submitting a Request" xml:space="preserve">
+    <value>21.1 Submitting a Request</value>
   </data>
   <data name="Open Submit Request" xml:space="preserve">
     <value>Open Submit Request</value>
@@ -2069,11 +2006,11 @@
   <data name="Screenshot: Submit Request Form" xml:space="preserve">
     <value>Screenshot: Submit Request Form</value>
   </data>
-  <data name="Figure 20.1: Submit Request Form" xml:space="preserve">
-    <value>Figure 20.1: Submit Request Form</value>
+  <data name="Figure 21.1: Submit Request Form" xml:space="preserve">
+    <value>Figure 21.1: Submit Request Form</value>
   </data>
-  <data name="20.2 Request Statuses" xml:space="preserve">
-    <value>20.2 Request Statuses</value>
+  <data name="21.2 Request Statuses" xml:space="preserve">
+    <value>21.2 Request Statuses</value>
   </data>
   <data name="A request moves through the following statuses. There is no fixed sequence: an authorised user can switch a request to any status directly from the quick status dropdown on the request details page." xml:space="preserve">
     <value>A request moves through the following statuses. There is no fixed sequence: an authorised user can switch a request to any status directly from the quick status dropdown on the request details page.</value>
@@ -2120,14 +2057,14 @@
   <data name="The request will not be actioned and is excluded from progress calculations." xml:space="preserve">
     <value>The request will not be actioned and is excluded from progress calculations.</value>
   </data>
-  <data name="20.3 My Requests" xml:space="preserve">
-    <value>20.3 My Requests</value>
+  <data name="21.3 My Requests" xml:space="preserve">
+    <value>21.3 My Requests</value>
   </data>
   <data name="My Requests lists every request you submitted, with its current status badge, so you can follow progress without needing management access." xml:space="preserve">
     <value>My Requests lists every request you submitted, with its current status badge, so you can follow progress without needing management access.</value>
   </data>
-  <data name="20.4 Requests Management" xml:space="preserve">
-    <value>20.4 Requests Management</value>
+  <data name="21.4 Requests Management" xml:space="preserve">
+    <value>21.4 Requests Management</value>
   </data>
   <data name="Administrators open Requests Management to see all requests across the platform. The page provides:" xml:space="preserve">
     <value>Administrators open Requests Management to see all requests across the platform. The page provides:</value>
@@ -2150,11 +2087,11 @@
   <data name="Screenshot: Request Details and Status Control" xml:space="preserve">
     <value>Screenshot: Request Details and Status Control</value>
   </data>
-  <data name="Figure 20.2: Request Details with Quick Status Control" xml:space="preserve">
-    <value>Figure 20.2: Request Details with Quick Status Control</value>
+  <data name="Figure 21.2: Request Details with Quick Status Control" xml:space="preserve">
+    <value>Figure 21.2: Request Details with Quick Status Control</value>
   </data>
-  <data name="20.5 Comments and Test Records" xml:space="preserve">
-    <value>20.5 Comments and Test Records</value>
+  <data name="21.5 Comments and Test Records" xml:space="preserve">
+    <value>21.5 Comments and Test Records</value>
   </data>
   <data name="The request details page carries a discussion thread and a testing log:" xml:space="preserve">
     <value>The request details page carries a discussion thread and a testing log:</value>
@@ -2180,14 +2117,14 @@
   <data name="Test records are attributed to an employee from the Request Employees directory, which is maintained from the user menu. At least one employee must exist before a test can be recorded." xml:space="preserve">
     <value>Test records are attributed to an employee from the Request Employees directory, which is maintained from the user menu. At least one employee must exist before a test can be recorded.</value>
   </data>
-  <data name="20.6 Who Can Do What" xml:space="preserve">
-    <value>20.6 Who Can Do What</value>
+  <data name="21.6 Who Can Do What" xml:space="preserve">
+    <value>21.6 Who Can Do What</value>
   </data>
   <data name="Requests Permissions" xml:space="preserve">
     <value>Requests Permissions</value>
   </data>
-  <data name="Submitting and viewing requests: System Administrator, Ministries User, and Data Entry" xml:space="preserve">
-    <value>Submitting and viewing requests: System Administrator, Ministries User, and Data Entry</value>
+  <data name="Submitting and viewing requests: System Administrator, Ministries User, Data Entry and Ministry Strategy Manager" xml:space="preserve">
+    <value>Submitting and viewing requests: System Administrator, Ministries User, Data Entry and Ministry Strategy Manager</value>
   </data>
   <data name="Managing and deleting requests, and maintaining the Request Employees directory: System Administrator only" xml:space="preserve">
     <value>Managing and deleting requests, and maintaining the Request Employees directory: System Administrator only</value>
@@ -2198,8 +2135,8 @@
   <data name="Platform Versions group completed requests into numbered releases, giving every user a clear record of what changed in the platform and when." xml:space="preserve">
     <value>Platform Versions group completed requests into numbered releases, giving every user a clear record of what changed in the platform and when.</value>
   </data>
-  <data name="21.1 Version Statuses" xml:space="preserve">
-    <value>21.1 Version Statuses</value>
+  <data name="22.1 Version Statuses" xml:space="preserve">
+    <value>22.1 Version Statuses</value>
   </data>
   <data name="Planned" xml:space="preserve">
     <value>Planned</value>
@@ -2219,8 +2156,8 @@
   <data name="The version has been published and its completed requests appear in What's New." xml:space="preserve">
     <value>The version has been published and its completed requests appear in What's New.</value>
   </data>
-  <data name="21.2 Creating and Releasing a Version" xml:space="preserve">
-    <value>21.2 Creating and Releasing a Version</value>
+  <data name="22.2 Creating and Releasing a Version" xml:space="preserve">
+    <value>22.2 Creating and Releasing a Version</value>
   </data>
   <data name="Create the Version" xml:space="preserve">
     <value>Create the Version</value>
@@ -2246,8 +2183,8 @@
   <data name="When releasing a version, every linked request that is not Completed and not Cancelled is counted as unfinished — this includes requests marked In Progress, On Hold, and Needs Discussion. Cancelled requests are excluded from the version's progress entirely." xml:space="preserve">
     <value>When releasing a version, every linked request that is not Completed and not Cancelled is counted as unfinished — this includes requests marked In Progress, On Hold, and Needs Discussion. Cancelled requests are excluded from the version's progress entirely.</value>
   </data>
-  <data name="21.3 What's New" xml:space="preserve">
-    <value>21.3 What's New</value>
+  <data name="22.3 What's New" xml:space="preserve">
+    <value>22.3 What's New</value>
   </data>
   <data name="The What's New page is available to every signed-in user from the user menu. It lists released versions together with their completed requests, so users can see exactly which improvements were delivered. Requests that are not completed never appear here." xml:space="preserve">
     <value>The What's New page is available to every signed-in user from the user menu. It lists released versions together with their completed requests, so users can see exactly which improvements were delivered. Requests that are not completed never appear here.</value>
@@ -2258,8 +2195,8 @@
   <data name="Screenshot: What's New Page" xml:space="preserve">
     <value>Screenshot: What's New Page</value>
   </data>
-  <data name="Figure 21.1: What's New Release Notes" xml:space="preserve">
-    <value>Figure 21.1: What's New Release Notes</value>
+  <data name="Figure 22.1: What's New Release Notes" xml:space="preserve">
+    <value>Figure 22.1: What's New Release Notes</value>
   </data>
   <data name="Versions Permissions" xml:space="preserve">
     <value>Versions Permissions</value>
@@ -2267,20 +2204,20 @@
   <data name="Creating, editing, and releasing versions is restricted to the System Administrator. Viewing What's New is open to all signed-in users." xml:space="preserve">
     <value>Creating, editing, and releasing versions is restricted to the System Administrator. Viewing What's New is open to all signed-in users.</value>
   </data>
-  <data name="22.1 Contextual Help" xml:space="preserve">
-    <value>22.1 Contextual Help</value>
+  <data name="23.1 Contextual Help" xml:space="preserve">
+    <value>23.1 Contextual Help</value>
   </data>
   <data name="Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips. This includes the Requests pages." xml:space="preserve">
     <value>Each page has a help button (?) that provides context-specific documentation with tabs for Overview, How To, FAQ, and Tips. This includes the Requests pages.</value>
   </data>
-  <data name="Figure 22.1: Contextual Help Modal" xml:space="preserve">
-    <value>Figure 22.1: Contextual Help Modal</value>
+  <data name="Figure 23.1: Contextual Help Modal" xml:space="preserve">
+    <value>Figure 23.1: Contextual Help Modal</value>
   </data>
-  <data name="22.2 Contact Support" xml:space="preserve">
-    <value>22.2 Contact Support</value>
+  <data name="23.2 Contact Support" xml:space="preserve">
+    <value>23.2 Contact Support</value>
   </data>
-  <data name="You can also raise a tracked request from the user menu using Submit Request — see section 20, Requests &amp; Support." xml:space="preserve">
-    <value>You can also raise a tracked request from the user menu using Submit Request — see section 20, Requests &amp; Support.</value>
+  <data name="You can also raise a tracked request from the user menu using Submit Request — see section 21, Requests &amp; Support." xml:space="preserve">
+    <value>You can also raise a tracked request from the user menu using Submit Request — see section 21, Requests &amp; Support.</value>
   </data>
   <data name="Measures record the actual achievement for a project phase against a specific indicator. Every measure is quantitative: you enter a quantity, and the system calculates the achievement percentage against the phase target." xml:space="preserve">
     <value>Measures record the actual achievement for a project phase against a specific indicator. Every measure is quantitative: you enter a quantity, and the system calculates the achievement percentage against the phase target.</value>
@@ -2302,5 +2239,926 @@
   </data>
   <data name="Performance recalculates automatically. The Measures list shows the Quantity and Achievement % separately. The phase total accumulates across all measure entries, capped at 100%." xml:space="preserve">
     <value>Performance recalculates automatically. The Measures list shows the Quantity and Achievement % separately. The phase total accumulates across all measure entries, capped at 100%.</value>
+  </data>
+  <!-- Section 13: Development Impact -->
+  <data name="Development Impact" xml:space="preserve">
+    <value>Development Impact</value>
+  </data>
+  <!-- Section 13: Development Impact (content) -->
+  <data name="Development Impact measures what projects deliver, not only how well they are executed. Each project records its outputs against a target year by year, and those outputs are grouped into development impact indicators that show the result for a ministry or a strategic goal." xml:space="preserve">
+    <value>Development Impact measures what projects deliver, not only how well they are executed. Each project records its outputs against a target year by year, and those outputs are grouped into development impact indicators that show the result for a ministry or a strategic goal.</value>
+  </data>
+  <data name="Open it from Impact in the top bar. It is not in the sidebar." xml:space="preserve">
+    <value>Open it from Impact in the top bar. It is not in the sidebar.</value>
+  </data>
+  <data name="13.1 Key Concepts" xml:space="preserve">
+    <value>13.1 Key Concepts</value>
+  </data>
+  <data name="Project Output Indicator" xml:space="preserve">
+    <value>Project Output Indicator</value>
+  </data>
+  <data name="Belongs to one project. It has a target for the whole project and a value for each year, for example schools rehabilitated." xml:space="preserve">
+    <value>Belongs to one project. It has a target for the whole project and a value for each year, for example schools rehabilitated.</value>
+  </data>
+  <data name="Development Impact Indicator" xml:space="preserve">
+    <value>Development Impact Indicator</value>
+  </data>
+  <data name="Groups project output indicators from one or more projects, gives each a weight, and is tagged with ministries and strategic goals. Its yearly figures are calculated from the indicators it groups." xml:space="preserve">
+    <value>Groups project output indicators from one or more projects, gives each a weight, and is tagged with ministries and strategic goals. Its yearly figures are calculated from the indicators it groups.</value>
+  </data>
+  <data name="A Separate Track" xml:space="preserve">
+    <value>A Separate Track</value>
+  </data>
+  <data name="Impact figures never feed project, strategy, outcome or output performance. Those are calculated from phases and measures — see section 19." xml:space="preserve">
+    <value>Impact figures never feed project, strategy, outcome or output performance. Those are calculated from phases and measures — see section 19.</value>
+  </data>
+  <data name="13.2 Project Output Indicators" xml:space="preserve">
+    <value>13.2 Project Output Indicators</value>
+  </data>
+  <data name="Open a project's details page and find the Project Output Indicators card. Use New Indicator to add one, or View All to see every indicator of the project with its totals." xml:space="preserve">
+    <value>Open a project's details page and find the Project Output Indicators card. Use New Indicator to add one, or View All to see every indicator of the project with its totals.</value>
+  </data>
+  <data name="Field" xml:space="preserve">
+    <value>Field</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="Indicator Name" xml:space="preserve">
+    <value>Indicator Name</value>
+  </data>
+  <data name="What the project delivers, for example schools rehabilitated. Required." xml:space="preserve">
+    <value>What the project delivers, for example schools rehabilitated. Required.</value>
+  </data>
+  <data name="Target Value" xml:space="preserve">
+    <value>Target Value</value>
+  </data>
+  <data name="The total to deliver across the whole project. Required, and greater than zero." xml:space="preserve">
+    <value>The total to deliver across the whole project. Required, and greater than zero.</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="Chosen from Units of Measurement. The + button next to the list adds a new unit without leaving the form." xml:space="preserve">
+    <value>Chosen from Units of Measurement. The + button next to the list adds a new unit without leaving the form.</value>
+  </data>
+  <data name="Baseline Value and Baseline Year" xml:space="preserve">
+    <value>Baseline Value and Baseline Year</value>
+  </data>
+  <data name="For reference only. They do not change the achievement rate." xml:space="preserve">
+    <value>For reference only. They do not change the achievement rate.</value>
+  </data>
+  <data name="Yearly Values" xml:space="preserve">
+    <value>Yearly Values</value>
+  </data>
+  <data name="One row for each year of the project, taken from its start and end dates. Leave a year blank if it was not measured: blank is not the same as zero." xml:space="preserve">
+    <value>One row for each year of the project, taken from its start and end dates. Leave a year blank if it was not measured: blank is not the same as zero.</value>
+  </data>
+  <data name="Achievement Rate" xml:space="preserve">
+    <value>Achievement Rate</value>
+  </data>
+  <data name="Achieved is the sum of the yearly values. Achievement Rate = Achieved ÷ Target Value × 100, with no upper limit, so an indicator can pass 100%. The bar is teal above 100%, green from 76%, amber from 51%, and red below that." xml:space="preserve">
+    <value>Achieved is the sum of the yearly values. Achievement Rate = Achieved ÷ Target Value × 100, with no upper limit, so an indicator can pass 100%. The bar is teal above 100%, green from 76%, amber from 51%, and red below that.</value>
+  </data>
+  <data name="Deleting a Project Output Indicator" xml:space="preserve">
+    <value>Deleting a Project Output Indicator</value>
+  </data>
+  <data name="Deleting an indicator also deletes its yearly values and removes it from every development impact indicator that groups it. The remaining weights there are not re-split, so the next time you edit that development impact indicator you must bring its weights back to 100." xml:space="preserve">
+    <value>Deleting an indicator also deletes its yearly values and removes it from every development impact indicator that groups it. The remaining weights there are not re-split, so the next time you edit that development impact indicator you must bring its weights back to 100.</value>
+  </data>
+  <data name="Project Output Indicators Screenshot" xml:space="preserve">
+    <value>Project Output Indicators Screenshot</value>
+  </data>
+  <data name="Screenshot: Project Output Indicators" xml:space="preserve">
+    <value>Screenshot: Project Output Indicators</value>
+  </data>
+  <data name="Figure 13.1: Project Output Indicators" xml:space="preserve">
+    <value>Figure 13.1: Project Output Indicators</value>
+  </data>
+  <data name="13.3 The Development Impact Page" xml:space="preserve">
+    <value>13.3 The Development Impact Page</value>
+  </data>
+  <data name="The page opens with three summary cards: the number of development impact indicators, the linked project output indicators, and the years covered. Below them you can search by name, filter by ministry, and reset the filters." xml:space="preserve">
+    <value>The page opens with three summary cards: the number of development impact indicators, the linked project output indicators, and the years covered. Below them you can search by name, filter by ministry, and reset the filters.</value>
+  </data>
+  <data name="Column" xml:space="preserve">
+    <value>Column</value>
+  </data>
+  <data name="What it shows" xml:space="preserve">
+    <value>What it shows</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="The development impact indicator, with its strategic goals as badges underneath. Click it to open its details." xml:space="preserve">
+    <value>The development impact indicator, with its strategic goals as badges underneath. Click it to open its details.</value>
+  </data>
+  <data name="Ministries" xml:space="preserve">
+    <value>Ministries</value>
+  </data>
+  <data name="The ministries it is tagged with." xml:space="preserve">
+    <value>The ministries it is tagged with.</value>
+  </data>
+  <data name="Indicators (count)" xml:space="preserve">
+    <value>Indicators (count)</value>
+  </data>
+  <data name="How many project output indicators it groups." xml:space="preserve">
+    <value>How many project output indicators it groups.</value>
+  </data>
+  <data name="Base Value and Target" xml:space="preserve">
+    <value>Base Value and Target</value>
+  </data>
+  <data name="Its starting value (with the base year) and the value it aims for. A badge shows the direction: Increase or Decrease." xml:space="preserve">
+    <value>Its starting value (with the base year) and the value it aims for. A badge shows the direction: Increase or Decrease.</value>
+  </data>
+  <data name="Each year" xml:space="preserve">
+    <value>Each year</value>
+  </data>
+  <data name="Three figures per year: Amount of Change, Total Value and Actual Impact. Years outside this row's range show a dash." xml:space="preserve">
+    <value>Three figures per year: Amount of Change, Total Value and Actual Impact. Years outside this row's range show a dash.</value>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>Total</value>
+  </data>
+  <data name="The average of the yearly percentages." xml:space="preserve">
+    <value>The average of the yearly percentages.</value>
+  </data>
+  <data name="Details" xml:space="preserve">
+    <value>Details</value>
+  </data>
+  <data name="How these figures are calculated" xml:space="preserve">
+    <value>How these figures are calculated</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="Record actual impact" xml:space="preserve">
+    <value>Record actual impact</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Button" xml:space="preserve">
+    <value>Button</value>
+  </data>
+  <data name="What it does" xml:space="preserve">
+    <value>What it does</value>
+  </data>
+  <data name="Opens the details page." xml:space="preserve">
+    <value>Opens the details page.</value>
+  </data>
+  <data name="Explains this row's figures year by year, with a worked example. Available to everyone." xml:space="preserve">
+    <value>Explains this row's figures year by year, with a worked example. Available to everyone.</value>
+  </data>
+  <data name="Opens the edit form. See 13.4." xml:space="preserve">
+    <value>Opens the edit form. See 13.4.</value>
+  </data>
+  <data name="Records the observed impact for one year. See 13.6." xml:space="preserve">
+    <value>Records the observed impact for one year. See 13.6.</value>
+  </data>
+  <data name="Deletes the development impact indicator. See 13.7." xml:space="preserve">
+    <value>Deletes the development impact indicator. See 13.7.</value>
+  </data>
+  <data name="Development Impact Page Screenshot" xml:space="preserve">
+    <value>Development Impact Page Screenshot</value>
+  </data>
+  <data name="Screenshot: Development Impact Page" xml:space="preserve">
+    <value>Screenshot: Development Impact Page</value>
+  </data>
+  <data name="Figure 13.2: The Development Impact Page" xml:space="preserve">
+    <value>Figure 13.2: The Development Impact Page</value>
+  </data>
+  <data name="13.4 Adding and Editing a Development Impact Indicator" xml:space="preserve">
+    <value>13.4 Adding and Editing a Development Impact Indicator</value>
+  </data>
+  <data name="Open the Form" xml:space="preserve">
+    <value>Open the Form</value>
+  </data>
+  <data name="Click Add Development Impact Indicator, or the Edit button on a row or on its details page." xml:space="preserve">
+    <value>Click Add Development Impact Indicator, or the Edit button on a row or on its details page.</value>
+  </data>
+  <data name="Enter the Name" xml:space="preserve">
+    <value>Enter the Name</value>
+  </data>
+  <data name="Give it a name, for example improved access to basic education. Required." xml:space="preserve">
+    <value>Give it a name, for example improved access to basic education. Required.</value>
+  </data>
+  <data name="Set the Base Value and Target" xml:space="preserve">
+    <value>Set the Base Value and Target</value>
+  </data>
+  <data name="Both are optional and accept decimals. A target below the base makes it a decrease goal. If either is empty, Amount of Change and Total Value show a dash." xml:space="preserve">
+    <value>Both are optional and accept decimals. A target below the base makes it a decrease goal. If either is empty, Amount of Change and Total Value show a dash.</value>
+  </data>
+  <data name="Choose Ministries" xml:space="preserve">
+    <value>Choose Ministries</value>
+  </data>
+  <data name="Choose one or more. This narrows the two lists below to what belongs to those ministries." xml:space="preserve">
+    <value>Choose one or more. This narrows the two lists below to what belongs to those ministries.</value>
+  </data>
+  <data name="Choose Strategic Goals" xml:space="preserve">
+    <value>Choose Strategic Goals</value>
+  </data>
+  <data name="The strategic goals this development impact indicator contributes to." xml:space="preserve">
+    <value>The strategic goals this development impact indicator contributes to.</value>
+  </data>
+  <data name="Choose Project Output Indicators" xml:space="preserve">
+    <value>Choose Project Output Indicators</value>
+  </data>
+  <data name="Each is listed as indicator — project. These are the indicators whose values it groups." xml:space="preserve">
+    <value>Each is listed as indicator — project. These are the indicators whose values it groups.</value>
+  </data>
+  <data name="Set the Indicator Weights and Save" xml:space="preserve">
+    <value>Set the Indicator Weights and Save</value>
+  </data>
+  <data name="Each chosen indicator gets a weight box, and a live total shows whether they add up to 100. Create returns you to the list; Save Changes returns you to the details page." xml:space="preserve">
+    <value>Each chosen indicator gets a weight box, and a live total shows whether they add up to 100. Create returns you to the list; Save Changes returns you to the details page.</value>
+  </data>
+  <data name="Weights Must Total Exactly 100" xml:space="preserve">
+    <value>Weights Must Total Exactly 100</value>
+  </data>
+  <data name="The form will not save otherwise. Any change to the chosen indicators, including one caused by changing Ministries, resets the weights to an equal split, for example 33.33, 33.33 and 33.34. Adjust them afterwards if needed. With no indicators chosen, there is nothing to weigh." xml:space="preserve">
+    <value>The form will not save otherwise. Any change to the chosen indicators, including one caused by changing Ministries, resets the weights to an equal split, for example 33.33, 33.33 and 33.34. Adjust them afterwards if needed. With no indicators chosen, there is nothing to weigh.</value>
+  </data>
+  <data name="Editing" xml:space="preserve">
+    <value>Editing</value>
+  </data>
+  <data name="Edit lets you change everything the add form sets, and opens with the saved weights." xml:space="preserve">
+    <value>Edit lets you change everything the add form sets, and opens with the saved weights.</value>
+  </data>
+  <data name="Development Impact Form Screenshot" xml:space="preserve">
+    <value>Development Impact Form Screenshot</value>
+  </data>
+  <data name="Screenshot: Development Impact Form" xml:space="preserve">
+    <value>Screenshot: Development Impact Form</value>
+  </data>
+  <data name="Figure 13.3: Adding a Development Impact Indicator" xml:space="preserve">
+    <value>Figure 13.3: Adding a Development Impact Indicator</value>
+  </data>
+  <data name="13.5 How the Figures Are Calculated" xml:space="preserve">
+    <value>13.5 How the Figures Are Calculated</value>
+  </data>
+  <data name="Figure" xml:space="preserve">
+    <value>Figure</value>
+  </data>
+  <data name="How it is calculated" xml:space="preserve">
+    <value>How it is calculated</value>
+  </data>
+  <data name="Years" xml:space="preserve">
+    <value>Years</value>
+  </data>
+  <data name="Every year covered by the projects of the linked indicators. The earliest is the base year." xml:space="preserve">
+    <value>Every year covered by the projects of the linked indicators. The earliest is the base year.</value>
+  </data>
+  <data name="Actual Value" xml:space="preserve">
+    <value>Actual Value</value>
+  </data>
+  <data name="For each year, the weighted average of the linked indicators' cumulative achievement rates, counting only indicators whose project covers that year: Σ(rate × weight) ÷ Σ(weights)." xml:space="preserve">
+    <value>For each year, the weighted average of the linked indicators' cumulative achievement rates, counting only indicators whose project covers that year: Σ(rate × weight) ÷ Σ(weights).</value>
+  </data>
+  <data name="Amount of Change" xml:space="preserve">
+    <value>Amount of Change</value>
+  </data>
+  <data name="((Target − Base Value) × Actual Value) ÷ 100, or ((Base Value − Target) × Actual Value) ÷ 100 for a decrease goal. It is the change from the base value, not the current level." xml:space="preserve">
+    <value>((Target − Base Value) × Actual Value) ÷ 100, or ((Base Value − Target) × Actual Value) ÷ 100 for a decrease goal. It is the change from the base value, not the current level.</value>
+  </data>
+  <data name="Total Value" xml:space="preserve">
+    <value>Total Value</value>
+  </data>
+  <data name="Base Value + Amount of Change, or Base Value − Amount of Change for a decrease goal: the level reached." xml:space="preserve">
+    <value>Base Value + Amount of Change, or Base Value − Amount of Change for a decrease goal: the level reached.</value>
+  </data>
+  <data name="Actual Impact" xml:space="preserve">
+    <value>Actual Impact</value>
+  </data>
+  <data name="Entered by hand for each year. It is not used in any calculation." xml:space="preserve">
+    <value>Entered by hand for each year. It is not used in any calculation.</value>
+  </data>
+  <data name="The average of the yearly Actual Value percentages, for years that have a value." xml:space="preserve">
+    <value>The average of the yearly Actual Value percentages, for years that have a value.</value>
+  </data>
+  <data name="Worked Example" xml:space="preserve">
+    <value>Worked Example</value>
+  </data>
+  <data name="Base Value 20, Target 100, two indicators weighted 60 and 40 with rates of 50% and 25%: Actual Value = (50 × 60 + 25 × 40) ÷ 100 = 40%, Amount of Change = (80 × 40) ÷ 100 = 32, Total Value = 20 + 32 = 52. For a decrease goal with Base Value 80, Target 20 and an Actual Value of 50%: Amount of Change = (60 × 50) ÷ 100 = 30 and Total Value = 80 − 30 = 50." xml:space="preserve">
+    <value>Base Value 20, Target 100, two indicators weighted 60 and 40 with rates of 50% and 25%: Actual Value = (50 × 60 + 25 × 40) ÷ 100 = 40%, Amount of Change = (80 × 40) ÷ 100 = 32, Total Value = 20 + 32 = 52. For a decrease goal with Base Value 80, Target 20 and an Actual Value of 50%: Amount of Change = (60 × 50) ÷ 100 = 30 and Total Value = 80 − 30 = 50.</value>
+  </data>
+  <data name="Calculation Explanation Screenshot" xml:space="preserve">
+    <value>Calculation Explanation Screenshot</value>
+  </data>
+  <data name="Screenshot: How These Figures Are Calculated" xml:space="preserve">
+    <value>Screenshot: How These Figures Are Calculated</value>
+  </data>
+  <data name="Figure 13.4: How These Figures Are Calculated" xml:space="preserve">
+    <value>Figure 13.4: How These Figures Are Calculated</value>
+  </data>
+  <data name="13.6 Recording Actual Impact" xml:space="preserve">
+    <value>13.6 Recording Actual Impact</value>
+  </data>
+  <data name="Open Record Actual Impact" xml:space="preserve">
+    <value>Open Record Actual Impact</value>
+  </data>
+  <data name="Click the clipboard button on the row." xml:space="preserve">
+    <value>Click the clipboard button on the row.</value>
+  </data>
+  <data name="Choose the Year" xml:space="preserve">
+    <value>Choose the Year</value>
+  </data>
+  <data name="Only this row's years are offered, and years already recorded are marked. Choosing one fills in its saved value." xml:space="preserve">
+    <value>Only this row's years are offered, and years already recorded are marked. Choosing one fills in its saved value.</value>
+  </data>
+  <data name="Enter the Value and Save" xml:space="preserve">
+    <value>Enter the Value and Save</value>
+  </data>
+  <data name="Saving a year that already has a value replaces it." xml:space="preserve">
+    <value>Saving a year that already has a value replaces it.</value>
+  </data>
+  <data name="Actual Impact Is Separate" xml:space="preserve">
+    <value>Actual Impact Is Separate</value>
+  </data>
+  <data name="Actual impact is what was observed on the ground. It is shown next to the calculated figures but never changes them." xml:space="preserve">
+    <value>Actual impact is what was observed on the ground. It is shown next to the calculated figures but never changes them.</value>
+  </data>
+  <data name="13.7 Details Page: Remove or Delete" xml:space="preserve">
+    <value>13.7 Details Page: Remove or Delete</value>
+  </data>
+  <data name="The details page shows the linked indicators, the sum of targets and of achieved values, and the years covered; its ministries and strategic goals; the Linked Project Output Indicators card; and the Yearly Contribution by Indicator table, whose Total row is exactly what the main page shows." xml:space="preserve">
+    <value>The details page shows the linked indicators, the sum of targets and of achieved values, and the years covered; its ministries and strategic goals; the Linked Project Output Indicators card; and the Yearly Contribution by Indicator table, whose Total row is exactly what the main page shows.</value>
+  </data>
+  <data name="Remove" xml:space="preserve">
+    <value>Remove</value>
+  </data>
+  <data name="Delete the development impact indicator" xml:space="preserve">
+    <value>Delete the development impact indicator</value>
+  </data>
+  <data name="Action" xml:space="preserve">
+    <value>Action</value>
+  </data>
+  <data name="What happens" xml:space="preserve">
+    <value>What happens</value>
+  </data>
+  <data name="In the Linked Project Output Indicators card. Takes one indicator out of this development impact indicator only. The indicator, its yearly values and its links elsewhere stay. The remaining weights are split equally. Removing the last one is allowed." xml:space="preserve">
+    <value>In the Linked Project Output Indicators card. Takes one indicator out of this development impact indicator only. The indicator, its yearly values and its links elsewhere stay. The remaining weights are split equally. Removing the last one is allowed.</value>
+  </data>
+  <data name="Deletes the grouping and its recorded actual impact values. The project output indicators themselves are not deleted." xml:space="preserve">
+    <value>Deletes the grouping and its recorded actual impact values. The project output indicators themselves are not deleted.</value>
+  </data>
+  <data name="Delete a project output indicator" xml:space="preserve">
+    <value>Delete a project output indicator</value>
+  </data>
+  <data name="Done from the project, not here. See 13.2." xml:space="preserve">
+    <value>Done from the project, not here. See 13.2.</value>
+  </data>
+  <data name="Development Impact Details Screenshot" xml:space="preserve">
+    <value>Development Impact Details Screenshot</value>
+  </data>
+  <data name="Screenshot: Development Impact Details" xml:space="preserve">
+    <value>Screenshot: Development Impact Details</value>
+  </data>
+  <data name="Figure 13.5: The Details Page" xml:space="preserve">
+    <value>Figure 13.5: The Details Page</value>
+  </data>
+  <data name="13.8 Who Can Do What" xml:space="preserve">
+    <value>13.8 Who Can Do What</value>
+  </data>
+  <data name="Viewing" xml:space="preserve">
+    <value>Viewing</value>
+  </data>
+  <data name="All roles. Users other than System Administrators see only the rows that include their own ministry." xml:space="preserve">
+    <value>All roles. Users other than System Administrators see only the rows that include their own ministry.</value>
+  </data>
+  <data name="Adding, editing, recording, removing and deleting" xml:space="preserve">
+    <value>Adding, editing, recording, removing and deleting</value>
+  </data>
+  <data name="System Administrator and Ministry Strategy Manager. The same two roles manage project output indicators." xml:space="preserve">
+    <value>System Administrator and Ministry Strategy Manager. The same two roles manage project output indicators.</value>
+  </data>
+  <data name="Rows Shared With Other Ministries" xml:space="preserve">
+    <value>Rows Shared With Other Ministries</value>
+  </data>
+  <data name="A Ministry Strategy Manager cannot edit or remove indicators from a row that also reaches another ministry, another ministry's strategic goal, or an indicator from another ministry's project. Only a System Administrator can, because only they can see the whole row. They also cannot untick their own ministry, since they would lose access to the row." xml:space="preserve">
+    <value>A Ministry Strategy Manager cannot edit or remove indicators from a row that also reaches another ministry, another ministry's strategic goal, or an indicator from another ministry's project. Only a System Administrator can, because only they can see the whole row. They also cannot untick their own ministry, since they would lose access to the row.</value>
+  </data>
+  <!-- impact-2: sections 1-2 and header -->
+  <data name="Measure development impact across projects, by ministry and strategic goal" xml:space="preserve">
+    <value>Measure development impact across projects, by ministry and strategic goal</value>
+  </data>
+  <data name="See where projects are on maps by governorate, district and sub-district" xml:space="preserve">
+    <value>See where projects are on maps by governorate, district and sub-district</value>
+  </data>
+  <data name="Frameworks" xml:space="preserve">
+    <value>Frameworks</value>
+  </data>
+  <data name="Configure ministries, donors, sectors, project managers, supervisors, locations and units of measurement." xml:space="preserve">
+    <value>Configure ministries, donors, sectors, project managers, supervisors, locations and units of measurement.</value>
+  </data>
+  <data name="Follow performance ministry by ministry, down through strategies to projects and their phases." xml:space="preserve">
+    <value>Follow performance ministry by ministry, down through strategies to projects and their phases.</value>
+  </data>
+  <data name="Project Monitoring" xml:space="preserve">
+    <value>Project Monitoring</value>
+  </data>
+  <data name="Follow the performance of individual projects with hierarchy filters." xml:space="preserve">
+    <value>Follow the performance of individual projects with hierarchy filters.</value>
+  </data>
+  <data name="Reports" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Reports and exports, including the Ministry Report and the Units Report." xml:space="preserve">
+    <value>Reports and exports, including the Ministry Report and the Units Report.</value>
+  </data>
+  <data name="Geographic Map Systems" xml:space="preserve">
+    <value>Geographic Map Systems</value>
+  </data>
+  <data name="Project distribution maps by governorate, district and sub-district." xml:space="preserve">
+    <value>Project distribution maps by governorate, district and sub-district.</value>
+  </data>
+  <data name="A record of every change made in the system." xml:space="preserve">
+    <value>A record of every change made in the system.</value>
+  </data>
+  <data name="This guide." xml:space="preserve">
+    <value>This guide.</value>
+  </data>
+  <data name="Development Impact opens from Impact in the top bar rather than the sidebar — see section 13." xml:space="preserve">
+    <value>Development Impact opens from Impact in the top bar rather than the sidebar — see section 13.</value>
+  </data>
+  <data name="Home" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="opens the Frameworks page" xml:space="preserve">
+    <value>opens the Frameworks page</value>
+  </data>
+  <data name="National Development Strategy" xml:space="preserve">
+    <value>National Development Strategy</value>
+  </data>
+  <data name="a searchable list of ministries and their strategies, with quick links to each strategy's goals, outcomes, outputs, sub-outputs and indicators" xml:space="preserve">
+    <value>a searchable list of ministries and their strategies, with quick links to each strategy's goals, outcomes, outputs, sub-outputs and indicators</value>
+  </data>
+  <data name="Impact" xml:space="preserve">
+    <value>Impact</value>
+  </data>
+  <data name="opens Development Impact, see section 13" xml:space="preserve">
+    <value>opens Development Impact, see section 13</value>
+  </data>
+  <data name="International Cooperation Partners" xml:space="preserve">
+    <value>International Cooperation Partners</value>
+  </data>
+  <data name="partners grouped by type: United Nations organizations, international non-governmental organizations, countries and local partners" xml:space="preserve">
+    <value>partners grouped by type: United Nations organizations, international non-governmental organizations, countries and local partners</value>
+  </data>
+  <data name="User menu" xml:space="preserve">
+    <value>User menu</value>
+  </data>
+  <data name="What's New, Settings and Logout, plus Submit Request and My Requests for roles that can raise requests. Administrators also see Requests Management, Request Employees and Versions Management." xml:space="preserve">
+    <value>What's New, Settings and Logout, plus Submit Request and My Requests for roles that can raise requests. Administrators also see Requests Management, Request Employees and Versions Management.</value>
+  </data>
+  <data name="Language and theme" xml:space="preserve">
+    <value>Language and theme</value>
+  </data>
+  <data name="switch between Arabic and English, and between the blue and green themes" xml:space="preserve">
+    <value>switch between Arabic and English, and between the blue and green themes</value>
+  </data>
+  <!-- impact-2: section 3 Dashboard -->
+  <data name="Maps of where projects are live in Geographic Map Systems in the sidebar — see section 14.3." xml:space="preserve">
+    <value>Maps of where projects are live in Geographic Map Systems in the sidebar — see section 14.3.</value>
+  </data>
+  <data name="3.8 Ministry Overview" xml:space="preserve">
+    <value>3.8 Ministry Overview</value>
+  </data>
+  <data name="The Ministry Overview section shows one card per ministry. Show or hide it with the Ministries tab at the top of the dashboard." xml:space="preserve">
+    <value>The Ministry Overview section shows one card per ministry. Show or hide it with the Ministries tab at the top of the dashboard.</value>
+  </data>
+  <data name="Performance" xml:space="preserve">
+    <value>Performance</value>
+  </data>
+  <data name="Project Average (the mean of the ministry's projects), Strategy Roll-up (the mean of its strategies, or a dash if it has none) and Disbursement." xml:space="preserve">
+    <value>Project Average (the mean of the ministry's projects), Strategy Roll-up (the mean of its strategies, or a dash if it has none) and Disbursement.</value>
+  </data>
+  <data name="Financial" xml:space="preserve">
+    <value>Financial</value>
+  </data>
+  <data name="Budget (SYP), Disbursed and Spend Rate. A warning shows how many projects were left out because they have no exchange rate." xml:space="preserve">
+    <value>Budget (SYP), Disbursed and Spend Rate. A warning shows how many projects were left out because they have no exchange rate.</value>
+  </data>
+  <data name="Counts" xml:space="preserve">
+    <value>Counts</value>
+  </data>
+  <data name="Strategies, indicators and projects, with how many projects are active and how many are completed." xml:space="preserve">
+    <value>Strategies, indicators and projects, with how many projects are active and how many are completed.</value>
+  </data>
+  <data name="Impact Achievement and Impact Outputs for the ministry. See section 13." xml:space="preserve">
+    <value>Impact Achievement and Impact Outputs for the ministry. See section 13.</value>
+  </data>
+  <data name="Filtering by Ministry" xml:space="preserve">
+    <value>Filtering by Ministry</value>
+  </data>
+  <data name="Click a ministry card to filter the whole dashboard by that ministry, and click it again to clear the filter. Users tied to one ministry always see their own. The ministry figures cover the whole portfolio and do not narrow with the location filters." xml:space="preserve">
+    <value>Click a ministry card to filter the whole dashboard by that ministry, and click it again to clear the filter. Users tied to one ministry always see their own. The ministry figures cover the whole portfolio and do not narrow with the location filters.</value>
+  </data>
+  <data name="Ministry Overview Screenshot" xml:space="preserve">
+    <value>Ministry Overview Screenshot</value>
+  </data>
+  <data name="Screenshot: Ministry Overview" xml:space="preserve">
+    <value>Screenshot: Ministry Overview</value>
+  </data>
+  <data name="Figure 3.7: Ministry Overview" xml:space="preserve">
+    <value>Figure 3.7: Ministry Overview</value>
+  </data>
+  <!-- impact-2: section 4 Tree View -->
+  <data name="Opening the Tree" xml:space="preserve">
+    <value>Opening the Tree</value>
+  </data>
+  <data name="Ministry tree" xml:space="preserve">
+    <value>Ministry tree</value>
+  </data>
+  <data name="the Strategy Tree button on a ministry's row, on the Frameworks page or in Set Up, shows all of that ministry's strategies" xml:space="preserve">
+    <value>the Strategy Tree button on a ministry's row, on the Frameworks page or in Set Up, shows all of that ministry's strategies</value>
+  </data>
+  <data name="Single strategy" xml:space="preserve">
+    <value>Single strategy</value>
+  </data>
+  <data name="the tree icon on a strategy's row shows that strategy alone. It is offered to System Administrators and Ministry Strategy Managers." xml:space="preserve">
+    <value>the tree icon on a strategy's row shows that strategy alone. It is offered to System Administrators and Ministry Strategy Managers.</value>
+  </data>
+  <data name="Toolbar" xml:space="preserve">
+    <value>Toolbar</value>
+  </data>
+  <data name="Indicators, Both, Disbursement" xml:space="preserve">
+    <value>Indicators, Both, Disbursement</value>
+  </data>
+  <data name="which performance each node shows" xml:space="preserve">
+    <value>which performance each node shows</value>
+  </data>
+  <data name="Expand All and Collapse All" xml:space="preserve">
+    <value>Expand All and Collapse All</value>
+  </data>
+  <data name="open or close every branch at once" xml:space="preserve">
+    <value>open or close every branch at once</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="saves the tree as a PNG image" xml:space="preserve">
+    <value>saves the tree as a PNG image</value>
+  </data>
+  <data name="Zoom and Fit to Screen" xml:space="preserve">
+    <value>Zoom and Fit to Screen</value>
+  </data>
+  <data name="zoom out, reset, zoom in, or fit the whole tree on screen" xml:space="preserve">
+    <value>zoom out, reset, zoom in, or fit the whole tree on screen</value>
+  </data>
+  <data name="Full Screen and Pin toolbars" xml:space="preserve">
+    <value>Full Screen and Pin toolbars</value>
+  </data>
+  <data name="in full screen the toolbars hide until you move the pointer to the top, unless you pin them" xml:space="preserve">
+    <value>in full screen the toolbars hide until you move the pointer to the top, unless you pin them</value>
+  </data>
+  <data name="Display Options" xml:space="preserve">
+    <value>Display Options</value>
+  </data>
+  <data name="Show Levels and Show Phases" xml:space="preserve">
+    <value>Show Levels and Show Phases</value>
+  </data>
+  <data name="choose which levels of the hierarchy appear, and whether project phases are drawn" xml:space="preserve">
+    <value>choose which levels of the hierarchy appear, and whether project phases are drawn</value>
+  </data>
+  <data name="Show Connecting Lines" xml:space="preserve">
+    <value>Show Connecting Lines</value>
+  </data>
+  <data name="draws lines from each node to its children" xml:space="preserve">
+    <value>draws lines from each node to its children</value>
+  </data>
+  <data name="Horizontal View" xml:space="preserve">
+    <value>Horizontal View</value>
+  </data>
+  <data name="lays the tree out from side to side instead of top to bottom. It is on by default." xml:space="preserve">
+    <value>lays the tree out from side to side instead of top to bottom. It is on by default.</value>
+  </data>
+  <data name="Compact Nodes" xml:space="preserve">
+    <value>Compact Nodes</value>
+  </data>
+  <data name="smaller boxes that fit more on screen" xml:space="preserve">
+    <value>smaller boxes that fit more on screen</value>
+  </data>
+  <data name="Depth" xml:space="preserve">
+    <value>Depth</value>
+  </data>
+  <data name="how many levels to open" xml:space="preserve">
+    <value>how many levels to open</value>
+  </data>
+  <data name="Min Performance" xml:space="preserve">
+    <value>Min Performance</value>
+  </data>
+  <data name="dims or hides nodes below the chosen performance" xml:space="preserve">
+    <value>dims or hides nodes below the chosen performance</value>
+  </data>
+  <data name="Cell Spacing and Density" xml:space="preserve">
+    <value>Cell Spacing and Density</value>
+  </data>
+  <data name="spacing between nodes; Density offers Compact, Comfortable and Spacious presets" xml:space="preserve">
+    <value>spacing between nodes; Density offers Compact, Comfortable and Spacious presets</value>
+  </data>
+  <data name="Status Colors" xml:space="preserve">
+    <value>Status Colors</value>
+  </data>
+  <data name="colours each node by its performance: Good 80% and above, Average 60 to 79%, Low 40 to 59%, Critical below 40%" xml:space="preserve">
+    <value>colours each node by its performance: Good 80% and above, Average 60 to 79%, Low 40 to 59%, Critical below 40%</value>
+  </data>
+  <data name="Search" xml:space="preserve">
+    <value>Search</value>
+  </data>
+  <data name="highlights matching nodes" xml:space="preserve">
+    <value>highlights matching nodes</value>
+  </data>
+  <data name="Your Settings Are Remembered" xml:space="preserve">
+    <value>Your Settings Are Remembered</value>
+  </data>
+  <data name="The tree remembers your display choices, such as orientation, spacing, zoom and colours, in your browser for the next visit." xml:space="preserve">
+    <value>The tree remembers your display choices, such as orientation, spacing, zoom and colours, in your browser for the next visit.</value>
+  </data>
+  <!-- impact-2: sections 9-10 -->
+  <data name="9.7 Units of Measurement" xml:space="preserve">
+    <value>9.7 Units of Measurement</value>
+  </data>
+  <data name="Units of Measurement lists the units used across the platform by project output indicators, framework goals and measures. Open Set Up and choose the Units tab." xml:space="preserve">
+    <value>Units of Measurement lists the units used across the platform by project output indicators, framework goals and measures. Open Set Up and choose the Units tab.</value>
+  </data>
+  <data name="Every unit needs an English and an Arabic name; a French name is optional." xml:space="preserve">
+    <value>Every unit needs an English and an Arabic name; a French name is optional.</value>
+  </data>
+  <data name="Edit a name directly in the table." xml:space="preserve">
+    <value>Edit a name directly in the table.</value>
+  </data>
+  <data name="The In Use By column shows what uses each unit. A unit that is in use cannot be deleted." xml:space="preserve">
+    <value>The In Use By column shows what uses each unit. A unit that is in use cannot be deleted.</value>
+  </data>
+  <data name="Adding a Unit While You Work" xml:space="preserve">
+    <value>Adding a Unit While You Work</value>
+  </data>
+  <data name="Forms that ask for a unit have a + button next to the list, which adds a new unit without leaving the form." xml:space="preserve">
+    <value>Forms that ask for a unit have a + button next to the list, which adds a new unit without leaving the form.</value>
+  </data>
+  <data name="Units of Measurement Screenshot" xml:space="preserve">
+    <value>Units of Measurement Screenshot</value>
+  </data>
+  <data name="Screenshot: Units of Measurement" xml:space="preserve">
+    <value>Screenshot: Units of Measurement</value>
+  </data>
+  <data name="Figure 9.8: Units of Measurement" xml:space="preserve">
+    <value>Figure 9.8: Units of Measurement</value>
+  </data>
+  <data name="10.8 Project Output Indicators" xml:space="preserve">
+    <value>10.8 Project Output Indicators</value>
+  </data>
+  <data name="A project's details page has a Project Output Indicators card for what the project delivers, measured year by year against a target. They are measured separately from execution performance and are grouped into development impact indicators. See section 13.2." xml:space="preserve">
+    <value>A project's details page has a Project Output Indicators card for what the project delivers, measured year by year against a target. They are measured separately from execution performance and are grouped into development impact indicators. See section 13.2.</value>
+  </data>
+  <!-- impact-2: section 12 Monitoring -->
+  <data name="Indicators Performance" xml:space="preserve">
+    <value>Indicators Performance</value>
+  </data>
+  <data name="The average execution performance of the ministry's strategies." xml:space="preserve">
+    <value>The average execution performance of the ministry's strategies.</value>
+  </data>
+  <data name="The average disbursement performance of the ministry's strategies." xml:space="preserve">
+    <value>The average disbursement performance of the ministry's strategies.</value>
+  </data>
+  <data name="Ministry Navigation" xml:space="preserve">
+    <value>Ministry Navigation</value>
+  </data>
+  <data name="Counts that open each level for this ministry, from its strategies, outcomes, outputs and sub-outputs down to indicators, projects and project phases." xml:space="preserve">
+    <value>Counts that open each level for this ministry, from its strategies, outcomes, outputs and sub-outputs down to indicators, projects and project phases.</value>
+  </data>
+  <data name="find a ministry by name" xml:space="preserve">
+    <value>find a ministry by name</value>
+  </data>
+  <data name="Performance Level" xml:space="preserve">
+    <value>Performance Level</value>
+  </data>
+  <data name="All, High (80% and above), Medium (60 to 79%) or Low (below 60%)" xml:space="preserve">
+    <value>All, High (80% and above), Medium (60 to 79%) or Low (below 60%)</value>
+  </data>
+  <data name="Sort By" xml:space="preserve">
+    <value>Sort By</value>
+  </data>
+  <data name="Name, Performance or Projects" xml:space="preserve">
+    <value>Name, Performance or Projects</value>
+  </data>
+  <data name="View" xml:space="preserve">
+    <value>View</value>
+  </data>
+  <data name="Grid or List" xml:space="preserve">
+    <value>Grid or List</value>
+  </data>
+  <data name="open or fold every card. Each card also remembers, in your browser, whether you folded it." xml:space="preserve">
+    <value>open or fold every card. Each card also remembers, in your browser, whether you folded it.</value>
+  </data>
+  <data name="Your Ministry Only" xml:space="preserve">
+    <value>Your Ministry Only</value>
+  </data>
+  <data name="Users other than System Administrators always see only their own ministry, here and at every level below it." xml:space="preserve">
+    <value>Users other than System Administrators always see only their own ministry, here and at every level below it.</value>
+  </data>
+  <data name="Strategies" xml:space="preserve">
+    <value>Strategies</value>
+  </data>
+  <data name="Performance of each of the ministry's strategies" xml:space="preserve">
+    <value>Performance of each of the ministry's strategies</value>
+  </data>
+  <data name="Project Phases" xml:space="preserve">
+    <value>Project Phases</value>
+  </data>
+  <data name="Performance of each phase of a project" xml:space="preserve">
+    <value>Performance of each phase of a project</value>
+  </data>
+  <!-- impact-2: section 14 Reports -->
+  <data name="Reports in the sidebar opens the Reports Dashboard: summary cards, a map of projects by governorate with details for the governorate you click, and charts comparing performance across frameworks, sectors, ministries and hierarchy levels, with budget and utilization overviews. Export Excel and Print Report are at the top of the page." xml:space="preserve">
+    <value>Reports in the sidebar opens the Reports Dashboard: summary cards, a map of projects by governorate with details for the governorate you click, and charts comparing performance across frameworks, sectors, ministries and hierarchy levels, with budget and utilization overviews. Export Excel and Print Report are at the top of the page.</value>
+  </data>
+  <data name="Specialized Reports" xml:space="preserve">
+    <value>Specialized Reports</value>
+  </data>
+  <data name="The Specialized Reports row, and the matching buttons at the top of the page, open:" xml:space="preserve">
+    <value>The Specialized Reports row, and the matching buttons at the top of the page, open:</value>
+  </data>
+  <data name="Ministry Report" xml:space="preserve">
+    <value>Ministry Report</value>
+  </data>
+  <data name="a scorecard for each ministry — see 14.2" xml:space="preserve">
+    <value>a scorecard for each ministry — see 14.2</value>
+  </data>
+  <data name="Financial Analysis" xml:space="preserve">
+    <value>Financial Analysis</value>
+  </data>
+  <data name="estimated compared with real budgets" xml:space="preserve">
+    <value>estimated compared with real budgets</value>
+  </data>
+  <data name="project maps — see 14.3" xml:space="preserve">
+    <value>project maps — see 14.3</value>
+  </data>
+  <data name="Units Report" xml:space="preserve">
+    <value>Units Report</value>
+  </data>
+  <data name="delivery by unit of measurement — see 14.4" xml:space="preserve">
+    <value>delivery by unit of measurement — see 14.4</value>
+  </data>
+  <data name="Who Can Open Reports" xml:space="preserve">
+    <value>Who Can Open Reports</value>
+  </data>
+  <data name="The Dashboard, the Reports pages and Geographic Map Systems are available to every role except Ministry Strategy Manager. Users tied to one ministry see their own ministry's data." xml:space="preserve">
+    <value>The Dashboard, the Reports pages and Geographic Map Systems are available to every role except Ministry Strategy Manager. Users tied to one ministry see their own ministry's data.</value>
+  </data>
+  <data name="14.2 Ministry Report" xml:space="preserve">
+    <value>14.2 Ministry Report</value>
+  </data>
+  <data name="Open it from the Ministry Report button or card on the Reports page. It gives each ministry a scorecard of its performance, finances, counts and development impact." xml:space="preserve">
+    <value>Open it from the Ministry Report button or card on the Reports page. It gives each ministry a scorecard of its performance, finances, counts and development impact.</value>
+  </data>
+  <data name="System Administrators can choose one ministry or all of them; other users see their own." xml:space="preserve">
+    <value>System Administrators can choose one ministry or all of them; other users see their own.</value>
+  </data>
+  <data name="From date and To date" xml:space="preserve">
+    <value>From date and To date</value>
+  </data>
+  <data name="include every project running at any point in the period. They do not apply to strategies or development impact indicators." xml:space="preserve">
+    <value>include every project running at any point in the period. They do not apply to strategies or development impact indicators.</value>
+  </data>
+  <data name="narrows the ministries and projects shown" xml:space="preserve">
+    <value>narrows the ministries and projects shown</value>
+  </data>
+  <data name="Two Performance Figures" xml:space="preserve">
+    <value>Two Performance Figures</value>
+  </data>
+  <data name="Performance by ministry compares two deliberately different numbers: the average of the ministry's projects, and the roll-up of its strategies." xml:space="preserve">
+    <value>Performance by ministry compares two deliberately different numbers: the average of the ministry's projects, and the roll-up of its strategies.</value>
+  </data>
+  <data name="Detail by ministry shows each ministry's performance, finances, counts and development impact, followed by a table of its projects with sector, budget, amount disbursed, spend rate, performance and dates. Export to Excel and Export to PDF save the report with the current filters; Print prints it." xml:space="preserve">
+    <value>Detail by ministry shows each ministry's performance, finances, counts and development impact, followed by a table of its projects with sector, budget, amount disbursed, spend rate, performance and dates. Export to Excel and Export to PDF save the report with the current filters; Print prints it.</value>
+  </data>
+  <data name="Ministry Report Screenshot" xml:space="preserve">
+    <value>Ministry Report Screenshot</value>
+  </data>
+  <data name="Screenshot: Ministry Report" xml:space="preserve">
+    <value>Screenshot: Ministry Report</value>
+  </data>
+  <data name="Figure 14.2: Ministry Report" xml:space="preserve">
+    <value>Figure 14.2: Ministry Report</value>
+  </data>
+  <data name="14.3 Geographic Map Systems" xml:space="preserve">
+    <value>14.3 Geographic Map Systems</value>
+  </data>
+  <data name="Geographic Map Systems in the sidebar, also a card on the Reports page, shows where projects are on a map of Syria." xml:space="preserve">
+    <value>Geographic Map Systems in the sidebar, also a card on the Reports page, shows where projects are on a map of Syria.</value>
+  </data>
+  <data name="Levels" xml:space="preserve">
+    <value>Levels</value>
+  </data>
+  <data name="Governorates, Districts and Sub-districts. Switching level keeps your filters and clears the selection. The level is kept in the page address, so refreshing or sharing the link opens the same level." xml:space="preserve">
+    <value>Governorates, Districts and Sub-districts. Switching level keeps your filters and clears the selection. The level is kept in the page address, so refreshing or sharing the link opens the same level.</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="Strategies, Ministries and Projects, each searchable and narrowed by the others; a governorate list on the district and sub-district levels and a district list on the sub-district level, which dim the rest of the map and zoom in; From and To years; and Show country-wide projects, which is on by default. Clear filters resets them all." xml:space="preserve">
+    <value>Strategies, Ministries and Projects, each searchable and narrowed by the others; a governorate list on the district and sub-district levels and a district list on the sub-district level, which dim the rest of the map and zoom in; From and To years; and Show country-wide projects, which is on by default. Clear filters resets them all.</value>
+  </data>
+  <data name="Clicking an area" xml:space="preserve">
+    <value>Clicking an area</value>
+  </data>
+  <data name="colours it orange and lists its projects in the table below. Clear selection removes it." xml:space="preserve">
+    <value>colours it orange and lists its projects in the table below. Clear selection removes it.</value>
+  </data>
+  <data name="Choosing projects" xml:space="preserve">
+    <value>Choosing projects</value>
+  </data>
+  <data name="in the Projects filter colours their areas orange." xml:space="preserve">
+    <value>in the Projects filter colours their areas orange.</value>
+  </data>
+  <data name="Colours" xml:space="preserve">
+    <value>Colours</value>
+  </data>
+  <data name="shade each area by its number of projects, from No projects through Low, Medium and High to Highest, relative to the busiest area under the current filters." xml:space="preserve">
+    <value>shade each area by its number of projects, from No projects through Low, Medium and High to Highest, relative to the busiest area under the current filters.</value>
+  </data>
+  <data name="Projects table" xml:space="preserve">
+    <value>Projects table</value>
+  </data>
+  <data name="project name, scope, ministry, community, framework, budget, performance, disbursement, total disbursed and dates. Click a heading to sort; a totals row sums the list." xml:space="preserve">
+    <value>project name, scope, ministry, community, framework, budget, performance, disbursement, total disbursed and dates. Click a heading to sort; a totals row sums the list.</value>
+  </data>
+  <data name="Country-wide Projects" xml:space="preserve">
+    <value>Country-wide Projects</value>
+  </data>
+  <data name="A country-wide project counts in every area. Hover over an area to see its name and number of projects; the full-screen button enlarges the map." xml:space="preserve">
+    <value>A country-wide project counts in every area. Hover over an area to see its name and number of projects; the full-screen button enlarges the map.</value>
+  </data>
+  <data name="Geographic Map Systems Screenshot" xml:space="preserve">
+    <value>Geographic Map Systems Screenshot</value>
+  </data>
+  <data name="Screenshot: Geographic Map Systems" xml:space="preserve">
+    <value>Screenshot: Geographic Map Systems</value>
+  </data>
+  <data name="Figure 14.3: Geographic Map Systems" xml:space="preserve">
+    <value>Figure 14.3: Geographic Map Systems</value>
+  </data>
+  <data name="14.4 Units Report" xml:space="preserve">
+    <value>14.4 Units Report</value>
+  </data>
+  <data name="The Units Report shows what projects deliver, grouped by unit of measurement. It draws on two sources: project output indicators, which the report labels Impact Indicators, and the measures recorded on project phases." xml:space="preserve">
+    <value>The Units Report shows what projects deliver, grouped by unit of measurement. It draws on two sources: project output indicators, which the report labels Impact Indicators, and the measures recorded on project phases.</value>
+  </data>
+  <data name="Filter by unit, ministry, project and dates, or search. The page shows the units in use, the projects covered and the average achievement, a chart of the achievement rate by unit, and the detail for each unit. Print prints it." xml:space="preserve">
+    <value>Filter by unit, ministry, project and dates, or search. The page shows the units in use, the projects covered and the average achievement, a chart of the achievement rate by unit, and the detail for each unit. Print prints it.</value>
+  </data>
+  <data name="Units Report Screenshot" xml:space="preserve">
+    <value>Units Report Screenshot</value>
+  </data>
+  <data name="Screenshot: Units Report" xml:space="preserve">
+    <value>Screenshot: Units Report</value>
+  </data>
+  <data name="Figure 14.4: Units Report" xml:space="preserve">
+    <value>Figure 14.4: Units Report</value>
+  </data>
+  <data name="Ministry Report (Excel and PDF)" xml:space="preserve">
+    <value>Ministry Report (Excel and PDF)</value>
+  </data>
+  <!-- impact-2: sections 15-21 -->
+  <data name="Strategy Manager" xml:space="preserve">
+    <value>Strategy Manager</value>
+  </data>
+  <data name="View Projects" xml:space="preserve">
+    <value>View Projects</value>
+  </data>
+  <data name="View Reports and Maps" xml:space="preserve">
+    <value>View Reports and Maps</value>
+  </data>
+  <data name="View Development Impact" xml:space="preserve">
+    <value>View Development Impact</value>
+  </data>
+  <data name="Manage Development Impact" xml:space="preserve">
+    <value>Manage Development Impact</value>
+  </data>
+  <data name="Manage Project Output Indicators" xml:space="preserve">
+    <value>Manage Project Output Indicators</value>
+  </data>
+  <data name="Export From Pages You Can Open" xml:space="preserve">
+    <value>Export From Pages You Can Open</value>
+  </data>
+  <data name="Ministry Scope" xml:space="preserve">
+    <value>Ministry Scope</value>
+  </data>
+  <data name="Execution Performance" xml:space="preserve">
+    <value>Execution Performance</value>
+  </data>
+  <data name="each measure is its quantity ÷ the phase target × 100; a phase's performance is the sum of its measures, up to 100%; a project's performance is the weighted average of its phases, Σ(phase performance × weight) ÷ Σ(weights)." xml:space="preserve">
+    <value>each measure is its quantity ÷ the phase target × 100; a phase's performance is the sum of its measures, up to 100%; a project's performance is the weighted average of its phases, Σ(phase performance × weight) ÷ Σ(weights).</value>
+  </data>
+  <data name="(Σ Realised values across the project's action plans ÷ Estimated Budget) × 100. Time-phased planned targets are not used." xml:space="preserve">
+    <value>(Σ Realised values across the project's action plans ÷ Estimated Budget) × 100. Time-phased planned targets are not used.</value>
+  </data>
+  <data name="Development Impact Is Calculated Separately" xml:space="preserve">
+    <value>Development Impact Is Calculated Separately</value>
+  </data>
+  <data name="Development impact figures do not enter any of these calculations. See section 13.5." xml:space="preserve">
+    <value>Development impact figures do not enter any of these calculations. See section 13.5.</value>
   </data>
 </root>
