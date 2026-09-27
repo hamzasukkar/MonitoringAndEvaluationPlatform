@@ -695,20 +695,8 @@
     <div id="ministryReport" class="category-report-table" data-title="@Localizer["Ministry Report"]">
         <h5 class="print-section-title print-only">@Localizer["Ministry Report"]</h5>
         <div class="row mb-3">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <canvas id="ministryProjectsChart" style="max-height: 300px;"></canvas>
-            </div>
-            <div class="col-md-4">
-                <div class="category-summary-card">
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.TotalMinistries</span>
-                        <span class="stat-label">@Localizer["Total Ministries"]</span>
-                    </div>
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.MinistryReports.Sum(m => m.ProjectCount)</span>
-                        <span class="stat-label">@Localizer["Projects with Ministry"]</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="table-responsive">
@@ -755,20 +743,8 @@
     <div id="sectorReport" class="category-report-table" style="display: none;" data-title="@Localizer["Sector Report"]">
         <h5 class="print-section-title print-only">@Localizer["Sector Report"]</h5>
         <div class="row mb-3">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <canvas id="sectorProjectsChart" style="max-height: 300px;"></canvas>
-            </div>
-            <div class="col-md-4">
-                <div class="category-summary-card">
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.TotalSectors</span>
-                        <span class="stat-label">@Localizer["Total Sectors"]</span>
-                    </div>
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.SectorReports.Sum(s => s.ProjectCount)</span>
-                        <span class="stat-label">@Localizer["Projects with Sector"]</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="table-responsive">
@@ -814,20 +790,8 @@
         <hr class="my-4" />
         <h5 class="mb-3"><i class="fas fa-sitemap me-2"></i>@Localizer["Projects by Public Sector Type"]</h5>
         <div class="row mb-3">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <canvas id="publicSectorTypeProjectsChart" style="max-height: 300px;"></canvas>
-            </div>
-            <div class="col-md-4">
-                <div class="category-summary-card">
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.TotalPublicSectorTypes</span>
-                        <span class="stat-label">@Localizer["Total Public Sector Types"]</span>
-                    </div>
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.PublicSectorTypeReports.Sum(t => t.ProjectCount)</span>
-                        <span class="stat-label">@Localizer["Projects with Public Sector Type"]</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="table-responsive">
@@ -870,20 +834,8 @@
     <div id="donorReport" class="category-report-table" style="display: none;" data-title="@Localizer["Donor Report"]">
         <h5 class="print-section-title print-only">@Localizer["Donor Report"]</h5>
         <div class="row mb-3">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <canvas id="donorProjectsChart" style="max-height: 300px;"></canvas>
-            </div>
-            <div class="col-md-4">
-                <div class="category-summary-card">
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.TotalDonors</span>
-                        <span class="stat-label">@Localizer["Total Donors"]</span>
-                    </div>
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.DonorReports.Sum(d => d.ProjectCount)</span>
-                        <span class="stat-label">@Localizer["Projects with Donor"]</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="table-responsive">
@@ -930,20 +882,8 @@
     <div id="supervisorReport" class="category-report-table" style="display: none;" data-title="@Localizer["Supervisor Report"]">
         <h5 class="print-section-title print-only">@Localizer["Supervisor Report"]</h5>
         <div class="row mb-3">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <canvas id="supervisorProjectsChart" style="max-height: 300px;"></canvas>
-            </div>
-            <div class="col-md-4">
-                <div class="category-summary-card">
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.TotalSupervisors</span>
-                        <span class="stat-label">@Localizer["Total Supervisors"]</span>
-                    </div>
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.SupervisorReports.Sum(s => s.ProjectCount)</span>
-                        <span class="stat-label">@Localizer["Projects with Supervisor"]</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="table-responsive">
@@ -990,20 +930,8 @@
     <div id="pmReport" class="category-report-table" style="display: none;" data-title="@Localizer["Project Manager Report"]">
         <h5 class="print-section-title print-only">@Localizer["Project Manager Report"]</h5>
         <div class="row mb-3">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <canvas id="pmProjectsChart" style="max-height: 300px;"></canvas>
-            </div>
-            <div class="col-md-4">
-                <div class="category-summary-card">
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.TotalProjectManagers</span>
-                        <span class="stat-label">@Localizer["Total Project Managers"]</span>
-                    </div>
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.ProjectManagerReports.Sum(pm => pm.ProjectCount)</span>
-                        <span class="stat-label">@Localizer["Projects with Manager"]</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="table-responsive">
@@ -1050,25 +978,8 @@
     <div id="governorateReport" class="category-report-table" style="display: none;" data-title="@Localizer["Governorate Report"]">
         <h5 class="print-section-title print-only">@Localizer["Governorate Report"]</h5>
         <div class="row mb-3">
-            <div class="col-md-8">
+            <div class="col-md-12">
                 <canvas id="governorateProjectsChart" style="max-height: 300px;"></canvas>
-            </div>
-            <div class="col-md-4">
-                <div class="category-summary-card">
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.TotalGovernorates</span>
-                        <span class="stat-label">@Localizer["Total Governorates"]</span>
-                    </div>
-                    @*
-                        Sum the province-only slices and add the nationwide row once. Summing the
-                        merged ProjectCount instead counted every nationwide project up to 14 times,
-                        because each governorate row already folds them all in.
-                    *@
-                    <div class="category-stat">
-                        <span class="stat-value">@Model.GovernorateReports.Sum(g => g.Provincial?.ProjectCount ?? g.ProjectCount)</span>
-                        <span class="stat-label">@Localizer["Projects by Location"]</span>
-                    </div>
-                </div>
             </div>
         </div>
         <div class="table-responsive">
