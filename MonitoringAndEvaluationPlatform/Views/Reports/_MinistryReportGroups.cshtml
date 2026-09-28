@@ -126,7 +126,7 @@ else
                                             <span class="fw-bold">@await Html.PartialAsync("_SypTotal", stats.Budget)</span>
                                         </div>
                                         <div class="d-flex justify-content-between small mb-1">
-                                            <span class="text-muted">@(isRtl ? "المنصرف" : "Disbursed")</span>
+                                        <span class="text-muted">@(isRtl ? "الإنفاق" : "Disbursed")</span>
                                             <span class="fw-bold">@await Html.PartialAsync("_SypTotal", stats.Disbursed)</span>
                                         </div>
                                         <div class="d-flex justify-content-between small">
@@ -207,7 +207,7 @@ else
                                         <th>@(isRtl ? "المشروع" : "Project")</th>
                                         <th>@(isRtl ? "القطاع" : "Sector")</th>
                                         <th class="text-end">@(isRtl ? "الموازنة (ل.س)" : "Budget (SYP)")</th>
-                                        <th class="text-end">@(isRtl ? "المنصرف (ل.س)" : "Disbursed (SYP)")</th>
+                                        <th class="text-end">@(isRtl ? "الإنفاق (ل.س)" : "Disbursed (SYP)")</th>
                                         <th class="text-end">@(isRtl ? "نسبة الإنفاق" : "Spend rate")</th>
                                         <th class="text-end">@(isRtl ? "الأداء" : "Performance")</th>
                                         <th>@(isRtl ? "من" : "Start")</th>
