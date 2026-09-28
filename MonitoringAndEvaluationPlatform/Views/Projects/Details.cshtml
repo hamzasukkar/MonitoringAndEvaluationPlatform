@@ -564,20 +564,50 @@
             @{
                 double totalPhaseBudget = (Model.Phases != null && Model.Phases.Any()) ? Model.Phases.Sum(pp => pp.Budget) : 0;
                 double budgetDiff = Model.EstimatedBudget - totalPhaseBudget;
+                double allocationPct = Model.EstimatedBudget > 0 ? totalPhaseBudget / Model.EstimatedBudget * 100 : 0;
+                bool fullyAllocated = Math.Abs(budgetDiff) < 0.01;
+                bool overAllocated = budgetDiff <= -0.01;
+                string allocationAlertClass = fullyAllocated ? "alert-success" : overAllocated ? "alert-danger" : "alert-info";
+                string allocationBarClass = fullyAllocated ? "bg-success" : overAllocated ? "bg-danger" : "bg-info";
             }
             @if (Model.Phases != null && Model.Phases.Any())
             {
-                <!-- Budget summary -->
-                <div class="alert @(Math.Abs(budgetDiff) < 0.01 ? "alert-success" : "alert-warning") py-2 mb-3 small">
-                    <i class="fas fa-info-circle me-1"></i>
-                    @Localizer["Phase budgets total:"]: <strong>@Model.CurrencySymbol@totalPhaseBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>
-                    @if (Math.Abs(budgetDiff) >= 0.01)
+                <!-- Budget summary: Σ phase budgets vs. estimated budget -->
+                <div class="alert @allocationAlertClass py-2 mb-3 small">
+                    <div>
+                        @Localizer["Phase budgets total:"]
+                        <strong>@Model.CurrencySymbol@totalPhaseBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>
+                        / @Localizer["Estimated Budget"]
+                        <strong>@Model.CurrencySymbol@Model.EstimatedBudget.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>
+                        <span class="ms-1">(@allocationPct.ToString("0.##")% @Localizer["of total budget"])</span>
+                    </div>
+                    <div class="progress my-2" style="height: 6px;">
+                        <div class="progress-bar @allocationBarClass" role="progressbar"
+                             style="width: @(Math.Min(allocationPct, 100).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))%"
+                             aria-valuenow="@allocationPct.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    @if (fullyAllocated)
                     {
-                        <span class="ms-2">(@Localizer["Remaining"]: @Model.CurrencySymbol@budgetDiff.ToString("N0", System.Globalization.CultureInfo.InvariantCulture))</span>
+                        <div class="fw-semibold">
+                            <i class="fas fa-check-circle me-1"></i>
+                            @Localizer["The total budget has been reached — phase budgets equal the estimated budget."]
+                        </div>
+                    }
+                    else if (overAllocated)
+                    {
+                        <div class="fw-semibold">
+                            <i class="fas fa-exclamation-circle me-1"></i>
+                            @Localizer["Phase budgets exceed the estimated budget by"]
+                            <strong>@Model.CurrencySymbol@((-budgetDiff).ToString("N0", System.Globalization.CultureInfo.InvariantCulture))</strong>
+                        </div>
                     }
                     else
                     {
-                        <span class="ms-2 text-success">✓ @Localizer["Fully allocated"]</span>
+                        <div>
+                            <i class="fas fa-info-circle me-1"></i>
+                            @Localizer["Remaining to allocate"]:
+                            <strong>@Model.CurrencySymbol@budgetDiff.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)</strong>
+                        </div>
                     }
                 </div>
 

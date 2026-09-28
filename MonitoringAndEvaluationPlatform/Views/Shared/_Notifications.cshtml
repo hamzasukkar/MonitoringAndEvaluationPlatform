@@ -39,10 +39,11 @@
 }
 
 <script>
-    // Auto-hide success and info messages after 5 seconds
+    // Auto-hide success and info notifications after 5 seconds.
+    // Scoped to the dismissible TempData alerts above so in-page status alerts stay visible.
     $(document).ready(function() {
         setTimeout(function() {
-            $('.alert-success, .alert-info').fadeOut('slow');
+            $('.alert-dismissible.alert-success, .alert-dismissible.alert-info').fadeOut('slow');
         }, 5000);
     });
 </script>
