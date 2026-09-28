@@ -39,6 +39,9 @@
     <!-- Select2 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
+    <!-- Fullscreen toggle for every Chart.js chart on the page -->
+    <link rel="stylesheet" href="~/css/chart-fullscreen.css" asp-append-version="true" />
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -1453,6 +1456,7 @@
 
     @await RenderSectionAsync("Scripts", required: false)
     <script src="~/js/money-words.js" asp-append-version="true"></script>
+    <script src="~/js/chart-fullscreen.js" asp-append-version="true"></script>
 
     <!-- Help Modal Section -->
     @await RenderSectionAsync("Modals", required: false)

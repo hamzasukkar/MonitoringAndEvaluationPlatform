@@ -18,6 +18,7 @@
     <title>@ViewData["Title"] -@Localizer["Monitoring & Evaluation System"] </title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/chart-fullscreen.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/MonitoringLayout.css" />
     <link rel="stylesheet" href="~/css/all.min.css" />
     <link rel="stylesheet" href="~/css/themes/theme-default.css" />
@@ -148,6 +149,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/money-words.js" asp-append-version="true"></script>
     <script src="~/js/theme-switcher.js" asp-append-version="true"></script>
+    <script src="~/js/chart-fullscreen.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
     @* Chatbot hidden - uncomment to re-enable *@
     @*@await Html.PartialAsync("_ChatbotWidget")*@

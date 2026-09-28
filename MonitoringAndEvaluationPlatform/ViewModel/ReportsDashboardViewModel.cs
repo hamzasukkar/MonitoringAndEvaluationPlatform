@@ -17,6 +17,12 @@ namespace MonitoringAndEvaluationPlatform.ViewModel
         // Framework Performance Data (for charts)
         public List<PerformanceDataItem> FrameworkPerformanceData { get; set; } = new List<PerformanceDataItem>();
 
+        // Every item at the lower levels, for the level switch on the Performance Comparison and
+        // Distribution charts. Unlike the Top/Bottom lists these are not truncated.
+        public List<PerformanceDataItem> OutcomePerformanceData { get; set; } = new List<PerformanceDataItem>();
+        public List<PerformanceDataItem> OutputPerformanceData { get; set; } = new List<PerformanceDataItem>();
+        public List<PerformanceDataItem> SubOutputPerformanceData { get; set; } = new List<PerformanceDataItem>();
+
         // Top 5 Performers
         public List<PerformanceDataItem> TopFrameworks { get; set; } = new List<PerformanceDataItem>();
         public List<PerformanceDataItem> TopOutcomes { get; set; } = new List<PerformanceDataItem>();

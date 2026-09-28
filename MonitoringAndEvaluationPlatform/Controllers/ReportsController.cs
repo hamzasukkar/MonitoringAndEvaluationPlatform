@@ -157,6 +157,48 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 DisbursementPerformance = Math.Round(f.DisbursementPerformance, 2)
             }).ToList();
 
+            // Full lists for the lower levels (the chart level switch). Built from the hierarchy
+            // already loaded above, so they inherit the ministry scoping; ordered by name so the
+            // chart axis is stable between visits.
+            viewModel.OutcomePerformanceData = frameworks
+                .SelectMany(f => f.Outcomes)
+                .OrderBy(o => o.Name)
+                .Select(o => new PerformanceDataItem
+                {
+                    Name = o.Name,
+                    Code = o.Code,
+                    IndicatorsPerformance = Math.Round(o.IndicatorsPerformance, 2),
+                    DisbursementPerformance = Math.Round(o.DisbursementPerformance, 2),
+                    ParentName = o.Framework?.Name
+                }).ToList();
+
+            viewModel.OutputPerformanceData = frameworks
+                .SelectMany(f => f.Outcomes)
+                .SelectMany(o => o.Outputs)
+                .OrderBy(op => op.Name)
+                .Select(op => new PerformanceDataItem
+                {
+                    Name = op.Name,
+                    Code = op.Code,
+                    IndicatorsPerformance = Math.Round(op.IndicatorsPerformance, 2),
+                    DisbursementPerformance = Math.Round(op.DisbursementPerformance, 2),
+                    ParentName = op.Outcome?.Name
+                }).ToList();
+
+            viewModel.SubOutputPerformanceData = frameworks
+                .SelectMany(f => f.Outcomes)
+                .SelectMany(o => o.Outputs)
+                .SelectMany(op => op.SubOutputs)
+                .OrderBy(so => so.Name)
+                .Select(so => new PerformanceDataItem
+                {
+                    Name = so.Name,
+                    Code = so.Code,
+                    IndicatorsPerformance = Math.Round(so.IndicatorsPerformance, 2),
+                    DisbursementPerformance = Math.Round(so.DisbursementPerformance, 2),
+                    ParentName = so.Output?.Name
+                }).ToList();
+
             // Top 5 Performers at each level
             viewModel.TopFrameworks = frameworks
                 .OrderByDescending(f => f.IndicatorsPerformance)

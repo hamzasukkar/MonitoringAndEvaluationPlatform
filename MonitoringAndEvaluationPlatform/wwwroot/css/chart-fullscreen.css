@@ -1,0 +1,120 @@
+/* Generic fullscreen toggle for Chart.js charts, added by wwwroot/js/chart-fullscreen.js to every
+   chart on any page that loads both files. Nothing here is page-specific: a chart's "host" box
+   (its .chart-container / .chart-card / .chart-content / .chart-wrapper ancestor, or its own
+   parent when none of those is found) is simply pinned to a large box over the page and given
+   room to grow; the chart itself is resized by the script, not by this stylesheet. */
+
+.chart-fs-positioned {
+    position: relative;
+}
+
+.chart-fullscreen-btn {
+    position: absolute;
+    top: 8px;
+    inset-inline-end: 8px;
+    z-index: 5;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.85);
+    color: #495057;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    cursor: pointer;
+    transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.chart-fullscreen-btn i {
+    font-size: 13px;
+}
+
+[data-fs-host]:hover .chart-fullscreen-btn,
+.chart-fullscreen-btn:focus-visible {
+    opacity: 1;
+}
+
+.chart-fullscreen-btn:hover {
+    background: #fff;
+    color: #212529;
+}
+
+/* The host while it is shown fullscreen. Only geometry/paint is touched (!important, since the
+   host's own class already sets a fixed height/width) - its internal layout is left alone. */
+.chart-fs-active {
+    position: fixed !important;
+    top: 40px !important;
+    left: 40px !important;
+    right: 40px !important;
+    bottom: 40px !important;
+    width: auto !important;
+    height: auto !important;
+    max-width: none !important;
+    max-height: none !important;
+    z-index: 2000 !important;
+    background: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4) !important;
+    padding: 1.5rem !important;
+    overflow: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.chart-fs-active .chart-fullscreen-btn {
+    opacity: 1;
+}
+
+/* Everything between the host and the canvas (its chart box, a scroll wrapper, ...) - normally
+   sized in pixels or in %, neither of which reaches the host's new, much taller box on its own.
+   Each relays the fullscreen host's extra height to the next one down, while a plain sibling
+   (a title, a legend) that is NOT in this chain keeps its own natural size, because it is not
+   marked with this class. */
+.chart-fs-active .chart-fs-fill {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 1 auto !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+}
+
+.chart-fs-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1999;
+    background: rgba(15, 23, 42, 0.75);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+.chart-fs-backdrop.show {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+@media (max-width: 576px) {
+    .chart-fs-active {
+        top: 12px !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 12px !important;
+        padding: 1rem !important;
+    }
+}
+
+@media print {
+    .chart-fullscreen-btn,
+    .chart-fs-backdrop {
+        display: none !important;
+    }
+
+    .chart-fs-active {
+        position: static !important;
+    }
+}

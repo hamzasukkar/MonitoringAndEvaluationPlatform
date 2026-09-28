@@ -358,15 +358,47 @@
 </div>
 
 <!-- Charts Row -->
+@{
+    // Initial legend counts for the default (Frameworks) level. The doughnut counts the items of
+    // whichever level is selected, so both charts always describe the same things; the JS level
+    // switch recomputes these. Model.High/Medium/LowPerformanceCount (outcome-based) still feed the
+    // polar chart and the Excel export and are deliberately not used here.
+    var fwLevelHigh = Model.FrameworkPerformanceData.Count(f => f.IndicatorsPerformance >= 75);
+    var fwLevelMedium = Model.FrameworkPerformanceData.Count(f => f.IndicatorsPerformance >= 50 && f.IndicatorsPerformance < 75);
+    var fwLevelLow = Model.FrameworkPerformanceData.Count(f => f.IndicatorsPerformance < 50);
+}
 <div id="print-section-charts" class="row g-4 mb-4 print-section">
+    @*
+        Level switch for the two charts below. Deliberately not .btn-outline-primary/-danger/-info
+        inside a .chart-card: the Top/Bottom performer and category tab handlers bind to those
+        selectors and would treat these buttons as tabs.
+    *@
+    <div class="col-12 no-print">
+        <div class="level-switch-bar">
+            <span class="text-muted small"><i class="fas fa-layer-group me-1"></i>@Localizer["Level"]:</span>
+            <div class="btn-group btn-group-sm" role="group" id="chartLevelSwitch">
+                <button type="button" class="btn btn-outline-secondary level-switch-btn active" data-level="frameworks" aria-pressed="true">@Localizer["Frameworks"]</button>
+                <button type="button" class="btn btn-outline-secondary level-switch-btn" data-level="outcomes" aria-pressed="false">@Localizer["Outcomes"]</button>
+                <button type="button" class="btn btn-outline-secondary level-switch-btn" data-level="outputs" aria-pressed="false">@Localizer["Outputs"]</button>
+                <button type="button" class="btn btn-outline-secondary level-switch-btn" data-level="suboutputs" aria-pressed="false">@Localizer["SubOutputs"]</button>
+            </div>
+        </div>
+    </div>
     <div class="col-lg-8">
         <div class="chart-card">
             <div class="chart-title">
                 <i class="fas fa-chart-bar me-2"></i>
-                @Localizer["Framework Performance Comparison"]
+                <span id="levelChartTitle">@Localizer["Framework Performance Comparison"]</span>
             </div>
             <div class="chart-container">
-                <canvas id="frameworkPerformanceChart"></canvas>
+                @* Scrolls sideways when a level has more bars than fit (outputs/sub-outputs run to
+                   60-70); JS sets the inner width from the bar count. ltr so it opens at the first
+                   bar in the Arabic UI too. *@
+                <div class="level-chart-scroll" dir="ltr">
+                    <div class="level-chart-inner" id="levelChartInner">
+                        <canvas id="frameworkPerformanceChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -382,15 +414,15 @@
             <div class="distribution-legend mt-3">
                 <div class="legend-item">
                     <span class="legend-color high"></span>
-                    <span>@Localizer["High"] (>=75%): @Model.HighPerformanceCount</span>
+                    <span>@Localizer["High"] (>=75%): <span id="distHighCount">@fwLevelHigh</span></span>
                 </div>
                 <div class="legend-item">
                     <span class="legend-color medium"></span>
-                    <span>@Localizer["Medium"] (50-74%): @Model.MediumPerformanceCount</span>
+                    <span>@Localizer["Medium"] (50-74%): <span id="distMediumCount">@fwLevelMedium</span></span>
                 </div>
                 <div class="legend-item">
                     <span class="legend-color low"></span>
-                    <span>@Localizer["Low"] (<50%): @Model.LowPerformanceCount</span>
+                    <span>@Localizer["Low"] (<50%): <span id="distLowCount">@fwLevelLow</span></span>
                 </div>
             </div>
         </div>
@@ -1340,25 +1372,58 @@
 
         // Framework Performance Chart
         const frameworkCtx = document.getElementById('frameworkPerformanceChart').getContext('2d');
+        // Framework-level arrays: the radar, dual-comparison and gap-analysis charts below keep
+        // using these, so the level switch must never reassign them.
         const frameworkLabels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.Name)));
         const indicatorsData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.IndicatorsPerformance)));
         const disbursementData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.FrameworkPerformanceData.Select(f => f.DisbursementPerformance)));
 
+        // Every item at each level, for the Performance Comparison / Distribution level switch.
+        const levelData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(new
+        {
+            frameworks = Model.FrameworkPerformanceData.Select(p => new { name = p.Name, parent = p.ParentName, ind = p.IndicatorsPerformance, disb = p.DisbursementPerformance }),
+            outcomes = Model.OutcomePerformanceData.Select(p => new { name = p.Name, parent = p.ParentName, ind = p.IndicatorsPerformance, disb = p.DisbursementPerformance }),
+            outputs = Model.OutputPerformanceData.Select(p => new { name = p.Name, parent = p.ParentName, ind = p.IndicatorsPerformance, disb = p.DisbursementPerformance }),
+            suboutputs = Model.SubOutputPerformanceData.Select(p => new { name = p.Name, parent = p.ParentName, ind = p.IndicatorsPerformance, disb = p.DisbursementPerformance })
+        }));
+        const levelTitles = {
+            frameworks: '@Localizer["Framework Performance Comparison"]',
+            outcomes: '@Localizer["Outcome Performance Comparison"]',
+            outputs: '@Localizer["Output Performance Comparison"]',
+            suboutputs: '@Localizer["SubOutput Performance Comparison"]'
+        };
+        let currentLevelItems = levelData.frameworks;
+
+        // Long names (some run to 200 characters) are cut on the axis; the tooltip has them in full.
+        function truncateLabel(s, n) {
+            return s && s.length > n ? s.slice(0, n - 1) + '…' : s;
+        }
+        function wrapLines(s, width) {
+            const lines = [];
+            let line = '';
+            (s || '').split(/\s+/).forEach(word => {
+                if ((line + ' ' + word).trim().length > width && line) { lines.push(line); line = word; }
+                else { line = (line + ' ' + word).trim(); }
+            });
+            if (line) lines.push(line);
+            return lines;
+        }
+
         frameworkChart = new Chart(frameworkCtx, {
             type: 'bar',
             data: {
-                labels: frameworkLabels,
+                labels: currentLevelItems.map(i => i.name),
                 datasets: [
                     {
                         label: '@Localizer["Indicators Performance"]',
-                        data: indicatorsData,
+                        data: currentLevelItems.map(i => i.ind),
                         backgroundColor: 'rgba(33, 150, 243, 0.8)',
                         borderColor: 'rgba(33, 150, 243, 1)',
                         borderWidth: 1
                     },
                     {
                         label: '@Localizer["Disbursement Performance"]',
-                        data: disbursementData,
+                        data: currentLevelItems.map(i => i.disb),
                         backgroundColor: 'rgba(76, 175, 80, 0.8)',
                         borderColor: 'rgba(76, 175, 80, 1)',
                         borderWidth: 1
@@ -1372,9 +1437,31 @@
                 plugins: {
                     legend: {
                         position: 'top',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            // Full name (wrapped) plus the parent it belongs to.
+                            title: function(ctx) {
+                                const item = currentLevelItems[ctx[0].dataIndex];
+                                if (!item) return '';
+                                const lines = wrapLines(item.name, 60);
+                                if (item.parent) lines.push('— ' + truncateLabel(item.parent, 70));
+                                return lines;
+                            }
+                        }
                     }
                 },
                 scales: {
+                    x: {
+                        ticks: {
+                            autoSkip: false,
+                            maxRotation: 60,
+                            minRotation: 0,
+                            callback: function(value) {
+                                return truncateLabel(this.getLabelForValue(value), 25);
+                            }
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         max: 100,
@@ -1395,7 +1482,8 @@
             data: {
                 labels: ['@Localizer["High"] (>=75%)', '@Localizer["Medium"] (50-74%)', '@Localizer["Low"] (<50%)'],
                 datasets: [{
-                    data: [@Model.HighPerformanceCount, @Model.MediumPerformanceCount, @Model.LowPerformanceCount],
+                    // Counts of the selected level's items (Frameworks by default); see setChartLevel.
+                    data: [@fwLevelHigh, @fwLevelMedium, @fwLevelLow],
                     backgroundColor: [
                         'rgba(76, 175, 80, 0.8)',
                         'rgba(255, 193, 7, 0.8)',
@@ -1420,6 +1508,58 @@
                 }
             }
         });
+
+        // Level switch for the two charts above. Only they follow it; the radar, dual-comparison and
+        // gap charts keep using frameworkLabels / indicatorsData / disbursementData.
+        const levelChartInner = document.getElementById('levelChartInner');
+        const levelChartScroll = levelChartInner ? levelChartInner.parentElement : null;
+
+        // Give each bar pair ~44px; wider than the card scrolls sideways instead of squashing bars.
+        function sizeLevelChart(count) {
+            if (!levelChartInner || !levelChartScroll) return;
+            const needed = count * 44;
+            const scrolls = needed > levelChartScroll.clientWidth;
+            levelChartInner.style.width = scrolls ? needed + 'px' : '100%';
+            // A centred legend would sit mid-way along the scrolled canvas, out of view.
+            frameworkChart.options.plugins.legend.align = scrolls ? 'start' : 'center';
+        }
+
+        function setChartLevel(level) {
+            const items = levelData[level];
+            if (!items) return;
+            currentLevelItems = items;
+
+            frameworkChart.data.labels = items.map(i => i.name);
+            frameworkChart.data.datasets[0].data = items.map(i => i.ind);
+            frameworkChart.data.datasets[1].data = items.map(i => i.disb);
+
+            const high = items.filter(i => i.ind >= 75).length;
+            const medium = items.filter(i => i.ind >= 50 && i.ind < 75).length;
+            const low = items.length - high - medium;
+            distributionChart.data.datasets[0].data = [high, medium, low];
+            document.getElementById('distHighCount').textContent = high;
+            document.getElementById('distMediumCount').textContent = medium;
+            document.getElementById('distLowCount').textContent = low;
+            document.getElementById('levelChartTitle').textContent = levelTitles[level];
+
+            document.querySelectorAll('#chartLevelSwitch .level-switch-btn').forEach(btn => {
+                const active = btn.dataset.level === level;
+                btn.classList.toggle('active', active);
+                btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+            });
+
+            sizeLevelChart(items.length);
+            if (levelChartScroll) levelChartScroll.scrollLeft = 0;
+            frameworkChart.resize();
+            frameworkChart.update();
+            distributionChart.update();
+        }
+
+        document.querySelectorAll('#chartLevelSwitch .level-switch-btn').forEach(btn => {
+            btn.addEventListener('click', () => setChartLevel(btn.dataset.level));
+        });
+        sizeLevelChart(currentLevelItems.length);
+        frameworkChart.resize();
 
         // NEW: Radar Chart - Multi-dimensional Framework Comparison
         const radarCtx = document.getElementById('radarChart').getContext('2d');
@@ -2627,6 +2767,31 @@
             display: none;
         }
 
+        /* Level switch above the Performance Comparison / Distribution charts */
+        .level-switch-bar {
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            background: #fff;
+            border-radius: 10px;
+            padding: 0.4rem 0.75rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Performance Comparison chart: widens with the bar count and scrolls sideways */
+        .level-chart-scroll {
+            height: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .level-chart-inner {
+            position: relative;
+            height: calc(100% - 12px);
+            min-width: 100%;
+        }
+
         /* Distribution Legend */
         .distribution-legend {
             display: flex;
@@ -2860,6 +3025,10 @@
             }
 
             .chart-container canvas {
+                display: none !important;
+            }
+
+            .level-chart-scroll {
                 display: none !important;
             }
 
