@@ -59,16 +59,16 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Project Managers" xml:space="preserve">
-    <value>مدراء المشاريع</value>
+    <value>الجهات المعنية بالمشاريع</value>
   </data>
   <data name="Project Managers List" xml:space="preserve">
-    <value>قائمة مدراء المشاريع</value>
+    <value>قائمة الجهات المعنية بالمشاريع</value>
   </data>
   <data name="Code" xml:space="preserve">
     <value>الرمز</value>
   </data>
   <data name="Project Manager Name" xml:space="preserve">
-    <value>اسم مدير المشروع</value>
+    <value>اسم الجهة المعنية بالمشروع</value>
   </data>
   <data name="Phone Number" xml:space="preserve">
     <value>رقم الهاتف</value>
@@ -107,7 +107,7 @@
     <value>الصف {0}: الرمز '{1}' ليس رقمًا.</value>
   </data>
   <data name="This project manager is assigned to {0} project(s). Reassign them to another project manager before deleting." xml:space="preserve">
-    <value>مدير المشروع هذا مرتبط بـ {0} مشروع. انقل هذه المشاريع إلى مدير مشروع آخر قبل الحذف.</value>
+    <value>هذه الجهة المعنية بالمشروع مرتبطة بـ {0} مشروع. انقل هذه المشاريع إلى جهة معنية أخرى قبل الحذف.</value>
   </data>
   <data name="Row {0}: Code {1} appears more than once in the file." xml:space="preserve">
     <value>الصف {0}: الرمز {1} مكرر في الملف.</value>
