@@ -262,6 +262,15 @@ namespace MonitoringAndEvaluationPlatform.Data
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Project → ProjectManager. Restrict: deleting a manager used to cascade-delete all of
+            // their projects (and every phase, plan and measure under them).
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.ProjectManager)
+                .WithMany()
+                .HasForeignKey(p => p.ProjectManagerCode)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Project → PublicSectorType (many-to-one; applies regardless of which Sector is selected)
             modelBuilder.Entity<Project>()
                 .HasOne(p => p.PublicSectorType)

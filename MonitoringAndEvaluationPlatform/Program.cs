@@ -110,6 +110,7 @@ builder.Services.AddScoped<IMinistryStatisticsService, MinistryStatisticsService
 builder.Services.AddAntiforgery(o => o.HeaderName = "RequestVerificationToken");
 builder.Services.AddScoped<MonitoringAndEvaluationPlatform.Helpers.INavigationHelper, MonitoringAndEvaluationPlatform.Helpers.NavigationHelper>();
 builder.Services.Configure<ChatbotSettings>(builder.Configuration.GetSection("Chatbot"));
+builder.Services.Configure<FeatureSettings>(builder.Configuration.GetSection("Features"));
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IChatbotService, ChatbotService>();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");

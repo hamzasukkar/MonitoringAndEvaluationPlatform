@@ -208,7 +208,7 @@
                                                     <tr>
                                                         <th>@Localizer["Project Name"]</th>
                                                         <th>@Localizer["Manager"]</th>
-                                                        <th>@Localizer["Supervisor"]</th>
+                                                        @if (FeatureFlags.Value.ShowSupervisors) { <th>@Localizer["Supervisor"]</th> }
                                                         <th class="text-center">@Localizer["Budget"]</th>
                                                         <th class="text-center">@Localizer["Timeline"]</th>
                                                         <th class="text-center">@Localizer["Status"]</th>
@@ -234,7 +234,7 @@
                                                                 }
                                                             </td>
                                                             <td>@(project.ProjectManager?.Name ?? "-")</td>
-                                                            <td>@(project.SuperVisor?.Name ?? "-")</td>
+                                                            @if (FeatureFlags.Value.ShowSupervisors) { <td>@(project.SuperVisor?.Name ?? "-")</td> }
                                                             <td class="text-center">
                                                                 <strong>@project.CurrencySymbol@project.EstimatedBudget.ToString("N0")</strong>
                                                             </td>

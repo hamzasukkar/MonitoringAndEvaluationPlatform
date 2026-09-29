@@ -381,7 +381,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             viewModel.BudgetOverview = new BudgetOverviewItem
             {
                 TotalEstimatedBudget = conv.SumBudget(projects).Syp,
-                TotalRealBudget = conv.SumRealBudget(projects).Syp
+                // Actual spending = Σ Plans.Realised (same source as Disbursement % and Financial Analysis).
+                // Project.RealBudget is never populated by the UI, so it is not used here.
+                TotalRealBudget = SumRealisedInSyp(projects, conv)
             };
 
             // NEW: Category Reports

@@ -429,6 +429,8 @@
     </div>
 </div>
 
+@* Hidden: Framework Performance Radar & Polar Performance View.
+   Their print option and chart script below are hidden too; un-comment all three to restore.
 <!-- NEW: Radar Chart - Multi-dimensional Framework Comparison & Project Analysis -->
 <div id="print-section-radar" class="row g-4 mb-4 print-section">
     <div class="col-lg-6">
@@ -454,6 +456,7 @@
         </div>
     </div>
 </div>
+*@
 
 <!-- NEW: Sector & Ministry Analysis -->
 <div id="print-section-sector-ministry" class="row g-4 mb-4 print-section">
@@ -708,7 +711,7 @@
 
 <!-- NEW: Category Reports Section -->
 <div id="print-section-categories" class="chart-card mb-4 print-section">
-    <div class="chart-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div class="chart-title d-flex align-items-center flex-wrap gap-2">
         <div>
             <i class="fas fa-layer-group me-2 text-info"></i>
             @Localizer["Reports by Category"]
@@ -717,7 +720,10 @@
             <button type="button" class="btn btn-sm btn-outline-info active" data-target="ministryReport">@Localizer["Ministries"]</button>
             <button type="button" class="btn btn-sm btn-outline-info" data-target="sectorReport">@Localizer["Sectors"]</button>
             <button type="button" class="btn btn-sm btn-outline-info" data-target="donorReport">@Localizer["Donors"]</button>
-            <button type="button" class="btn btn-sm btn-outline-info" data-target="supervisorReport">@Localizer["Supervisors"]</button>
+            @if (FeatureFlags.Value.ShowSupervisors)
+            {
+                <button type="button" class="btn btn-sm btn-outline-info" data-target="supervisorReport">@Localizer["Supervisors"]</button>
+            }
             <button type="button" class="btn btn-sm btn-outline-info" data-target="pmReport">@Localizer["Project Managers"]</button>
             <button type="button" class="btn btn-sm btn-outline-info" data-target="governorateReport">@Localizer["Governorates"]</button>
         </div>
@@ -911,6 +917,8 @@
     </div>
 
     <!-- Supervisor Report -->
+    @if (FeatureFlags.Value.ShowSupervisors)
+    {
     <div id="supervisorReport" class="category-report-table" style="display: none;" data-title="@Localizer["Supervisor Report"]">
         <h5 class="print-section-title print-only">@Localizer["Supervisor Report"]</h5>
         <div class="row mb-3">
@@ -957,6 +965,7 @@
             </table>
         </div>
     </div>
+    }
 
     <!-- Project Manager Report -->
     <div id="pmReport" class="category-report-table" style="display: none;" data-title="@Localizer["Project Manager Report"]">
@@ -1238,6 +1247,7 @@
                         </label>
                     </div>
 
+                    @* Hidden with the Radar & Polar section.
                     <!-- Radar & Polar Charts -->
                     <div class="form-check print-option-item">
                         <input class="form-check-input print-section-check" type="checkbox" id="printRadar" value="print-section-radar" checked>
@@ -1247,6 +1257,7 @@
                             <small class="text-muted d-block">@Localizer["Multi-dimensional performance visualization"]</small>
                         </label>
                     </div>
+                    *@
 
                     <!-- Hierarchy Overview -->
                     <div class="form-check print-option-item">
@@ -1284,7 +1295,9 @@
                         <label class="form-check-label" for="printCategories">
                             <i class="fas fa-layer-group me-2 text-info"></i>
                             @Localizer["Reports by Category"]
-                            <small class="text-muted d-block">@Localizer["Ministry, Sector, Donor, Supervisor, Project Manager, Governorate reports"]</small>
+                            <small class="text-muted d-block">@(FeatureFlags.Value.ShowSupervisors
+                                ? Localizer["Ministry, Sector, Donor, Supervisor, Project Manager, Governorate reports"]
+                                : Localizer["Ministry, Sector, Donor, Project Manager, Governorate reports"])</small>
                         </label>
                     </div>
 
@@ -1561,6 +1574,7 @@
         sizeLevelChart(currentLevelItems.length);
         frameworkChart.resize();
 
+        @* Hidden with the Radar & Polar section (their canvases are not rendered).
         // NEW: Radar Chart - Multi-dimensional Framework Comparison
         const radarCtx = document.getElementById('radarChart').getContext('2d');
         const radarChart = new Chart(radarCtx, {
@@ -1655,6 +1669,7 @@
                 }
             }
         });
+        *@
 
         // NEW: Sector Performance Chart
         const sectorCtx = document.getElementById('sectorChart').getContext('2d');
@@ -2261,7 +2276,7 @@
         const catSectorData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SectorReports.Take(8).Select(s => new { s.Name, s.ProjectCount, s.IndicatorsPerformance })));
         const catPublicSectorTypeData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.PublicSectorTypeReports.Take(9).Select(t => new { t.Name, t.ProjectCount, t.IndicatorsPerformance })));
         const catDonorData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.DonorReports.Take(8).Select(d => new { d.Name, d.ProjectCount, d.IndicatorsPerformance })));
-        const catSupervisorData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SupervisorReports.Take(8).Select(s => new { s.Name, s.ProjectCount, s.IndicatorsPerformance })));
+        const catSupervisorData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.SupervisorReports.Take(FeatureFlags.Value.ShowSupervisors ? 8 : 0).Select(s => new { s.Name, s.ProjectCount, s.IndicatorsPerformance })));
         const catPmData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.ProjectManagerReports.Take(8).Select(pm => new { pm.Name, pm.ProjectCount, pm.IndicatorsPerformance })));
         const catGovernorateData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GovernorateReports.Take(8).Select(g => new { g.Name, g.ProjectCount, g.IndicatorsPerformance })));
 

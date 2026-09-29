@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Project Managers" xml:space="preserve">
+    <value>مدراء المشاريع</value>
+  </data>
+  <data name="Project Managers List" xml:space="preserve">
+    <value>قائمة مدراء المشاريع</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>الرمز</value>
+  </data>
+  <data name="Project Manager Name" xml:space="preserve">
+    <value>اسم مدير المشروع</value>
+  </data>
+  <data name="Phone Number" xml:space="preserve">
+    <value>رقم الهاتف</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>البريد الإلكتروني</value>
+  </data>
+  <data name="Generated on" xml:space="preserve">
+    <value>تم الإنشاء في</value>
+  </data>
+  <data name="Page" xml:space="preserve">
+    <value>صفحة</value>
+  </data>
+  <data name="Please select a file to upload." xml:space="preserve">
+    <value>يرجى اختيار ملف لرفعه.</value>
+  </data>
+  <data name="Only .xlsx files are supported." xml:space="preserve">
+    <value>يُسمح فقط بملفات ‎.xlsx.</value>
+  </data>
+  <data name="The file is too large (maximum 5 MB)." xml:space="preserve">
+    <value>حجم الملف كبير جدًا (الحد الأقصى 5 ميغابايت).</value>
+  </data>
+  <data name="The file could not be read as an Excel workbook." xml:space="preserve">
+    <value>تعذّرت قراءة الملف كمصنف Excel.</value>
+  </data>
+  <data name="The file contains no data rows." xml:space="preserve">
+    <value>لا يحتوي الملف على أي صفوف بيانات.</value>
+  </data>
+  <data name="The file has errors. Nothing was imported." xml:space="preserve">
+    <value>يحتوي الملف على أخطاء. لم يتم استيراد أي بيانات.</value>
+  </data>
+  <data name="Row {0}: Name is required." xml:space="preserve">
+    <value>الصف {0}: الاسم مطلوب.</value>
+  </data>
+  <data name="Row {0}: Code '{1}' is not a number." xml:space="preserve">
+    <value>الصف {0}: الرمز '{1}' ليس رقمًا.</value>
+  </data>
+  <data name="This project manager is assigned to {0} project(s). Reassign them to another project manager before deleting." xml:space="preserve">
+    <value>مدير المشروع هذا مرتبط بـ {0} مشروع. انقل هذه المشاريع إلى مدير مشروع آخر قبل الحذف.</value>
+  </data>
+  <data name="Row {0}: Code {1} appears more than once in the file." xml:space="preserve">
+    <value>الصف {0}: الرمز {1} مكرر في الملف.</value>
+  </data>
+  <data name="An error occurred while saving the imported data." xml:space="preserve">
+    <value>حدث خطأ أثناء حفظ البيانات المستوردة.</value>
+  </data>
+  <data name="Import completed: {0} added, {1} updated, {2} unchanged." xml:space="preserve">
+    <value>اكتمل الاستيراد: {0} مضاف، {1} محدَّث، {2} دون تغيير.</value>
+  </data>
+</root>

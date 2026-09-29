@@ -281,7 +281,7 @@
                 <thead>
                     <tr>
                         <th>@Localizer["Project Name"]</th>
-                        <th>@Localizer["Supervisor"]</th>
+                        @if (FeatureFlags.Value.ShowSupervisors) { <th>@Localizer["Supervisor"]</th> }
                         <th>@Localizer["Ministry"]</th>
                         <th>@Localizer["Location"]</th>
                         <th>@Localizer["Budget"]</th>
@@ -295,7 +295,7 @@
                     {
                         <tr>
                             <td><strong>@project.ProjectName</strong></td>
-                            <td>@(project.SuperVisor?.Name ?? Localizer["unavailable"].Value)</td>
+                            @if (FeatureFlags.Value.ShowSupervisors) { <td>@(project.SuperVisor?.Name ?? Localizer["unavailable"].Value)</td> }
                             <td>
                                 @if (project.Ministries.Any())
                                 {

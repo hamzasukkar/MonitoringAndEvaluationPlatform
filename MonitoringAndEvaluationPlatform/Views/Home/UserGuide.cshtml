@@ -109,7 +109,9 @@
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-cogs"></i></div>
                         <h4>@Localizer["Set Up"]</h4>
-                        <p>@Localizer["Configure ministries, donors, sectors, project managers, supervisors, locations and units of measurement."]</p>
+                        <p>@(FeatureFlags.Value.ShowSupervisors
+                            ? Localizer["Configure ministries, donors, sectors, project managers, supervisors, locations and units of measurement."]
+                            : Localizer["Configure ministries, donors, sectors, project managers, locations and units of measurement."])</p>
                     </div>
                     <div class="feature-item">
                         <div class="feature-icon"><i class="fas fa-project-diagram"></i></div>
@@ -1082,7 +1084,9 @@
                 <h2>@Localizer["Set Up"]</h2>
             </div>
             <div class="section-content">
-                <p>@Localizer["The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, Locations and Units of Measurement."]</p>
+                <p>@(FeatureFlags.Value.ShowSupervisors
+                    ? Localizer["The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Supervisors, Locations and Units of Measurement."]
+                    : Localizer["The Set Up section manages all reference data needed for projects: Ministries, Donors, Sectors, Public Sector Types, Project Managers, Locations and Units of Measurement."])</p>
 
                 <h3>@Localizer["9.1 Ministries & Agencies"]</h3>
                 <p>@Localizer["Manage government ministries and agencies responsible for development projects. Each ministry shows its linked projects and performance."]</p>
@@ -1194,22 +1198,7 @@
                     <p class="screenshot-caption">@Localizer["Figure 9.5: Project Managers"]</p>
                 </div>
 
-                <h3>@Localizer["9.5 Supervisors"]</h3>
-                <p>@Localizer["Manage supervisors who oversee project implementation."]</p>
-
-                <div class="screenshot-placeholder">
-                    <div class="screenshot-frame">
-                        <img src="~/images/guide/supervisors.png" alt="@Localizer["Supervisors Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                        <div class="screenshot-missing">
-                            <i class="fas fa-image"></i>
-                            <span>@Localizer["Screenshot: Supervisors List"]</span>
-                            <small>supervisors.png</small>
-                        </div>
-                    </div>
-                    <p class="screenshot-caption">@Localizer["Figure 9.6: Supervisors Management"]</p>
-                </div>
-
-                <h3>@Localizer["9.6 Locations"]</h3>
+                <h3>@Localizer["9.5 Locations"]</h3>
                 <p>@Localizer["Manage the geographic hierarchy for project distribution:"]</p>
 
                 <div class="hierarchy-diagram horizontal">
@@ -1231,10 +1220,10 @@
                             <small>locations-management.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 9.7: Location Hierarchy Management"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 9.6: Location Hierarchy Management"]</p>
                 </div>
 
-                <h3>@Localizer["9.7 Units of Measurement"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
+                <h3>@Localizer["9.6 Units of Measurement"] <span class="section-new-badge">@Localizer["NEW"]</span></h3>
                 <p>@Localizer["Units of Measurement lists the units used across the platform by project output indicators, framework goals and measures. Open Set Up and choose the Units tab."]</p>
                 <ul>
                     <li>@Localizer["Every unit needs an English and an Arabic name; a French name is optional."]</li>
@@ -1257,8 +1246,26 @@
                             <small>units-setup.png</small>
                         </div>
                     </div>
-                    <p class="screenshot-caption">@Localizer["Figure 9.8: Units of Measurement"]</p>
+                    <p class="screenshot-caption">@Localizer["Figure 9.7: Units of Measurement"]</p>
                 </div>
+
+                @if (FeatureFlags.Value.ShowSupervisors)
+                {
+                    <h3>@Localizer["9.7 Supervisors"]</h3>
+                    <p>@Localizer["Manage supervisors who oversee project implementation."]</p>
+
+                    <div class="screenshot-placeholder">
+                        <div class="screenshot-frame">
+                            <img src="~/images/guide/supervisors.png" alt="@Localizer["Supervisors Screenshot"]" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div class="screenshot-missing">
+                                <i class="fas fa-image"></i>
+                                <span>@Localizer["Screenshot: Supervisors List"]</span>
+                                <small>supervisors.png</small>
+                            </div>
+                        </div>
+                        <p class="screenshot-caption">@Localizer["Figure 9.8: Supervisors Management"]</p>
+                    </div>
+                }
             </div>
         </section>
 
