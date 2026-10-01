@@ -186,7 +186,9 @@ app.UseAuthorization();
 
 app.Use(async (context, next) =>
 {
-    if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Identity/Account/Login") && !context.Request.Path.StartsWithSegments("/Identity/Account/Register"))
+    // Only the login page is open to anonymous visitors. Self-registration is closed: accounts
+    // are created by an administrator (Admin → Users), who also assigns the ministry and role.
+    if (!context.User.Identity.IsAuthenticated && !context.Request.Path.StartsWithSegments("/Identity/Account/Login"))
     {
         context.Response.Redirect("/Identity/Account/Login");
         return;
