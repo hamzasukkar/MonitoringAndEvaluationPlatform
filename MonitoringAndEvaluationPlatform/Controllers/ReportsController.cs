@@ -25,8 +25,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IMinistryStatisticsService _ministryStatistics;
         private readonly IWebHostEnvironment _env;
 
-        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ICurrencyConversionService currencyConversion, IMinistryStatisticsService ministryStatistics, IWebHostEnvironment env)
+        private readonly IMinistryScopeService _ministryScope;
+
+        public ReportsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, ICurrencyConversionService currencyConversion, IMinistryStatisticsService ministryStatistics, IWebHostEnvironment env, IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _userManager = userManager;
             _currencyConversion = currencyConversion;
@@ -82,13 +85,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         [Permission(Permissions.ViewControlPanel)]
@@ -96,21 +94,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var viewModel = new ReportsDashboardViewModel();
 
-            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            var frameworksQuery = _context.Frameworks.AsQueryable();
-            var projectsQuery = _context.Projects.AsQueryable();
-            if (!isAdmin)
-            {
-                frameworksQuery = scopedMinistryCode is null
-                    ? frameworksQuery.Where(_ => false)
-                    : frameworksQuery.Where(f => f.MinistryCode == scopedMinistryCode);
-                projectsQuery = scopedMinistryCode is null
-                    ? projectsQuery.Where(_ => false)
-                    : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
-            }
+            // Every figure on this page is built from these two scoped sets. The reference tables
+            // below (sectors, donors, governorates, ...) are loaded as names only and never with
+            // their Projects navigation, so another ministry's projects never enter memory.
+            var scope = await _ministryScope.GetScopeAsync();
+            var isAdmin = scope.IsAdmin;
 
             // Get all data with includes
-            var frameworks = await frameworksQuery
+            var frameworks = await _context.Frameworks.WithinScope(scope)
                 .Include(f => f.Outcomes)
                     .ThenInclude(o => o.Outputs)
                         .ThenInclude(op => op.SubOutputs)
@@ -118,7 +109,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 .ThenInclude(i => i.Project)
                 .ToListAsync();
 
-            var projects = await projectsQuery
+            var projects = await _context.Projects.WithinScope(scope)
                 .Include(p => p.Sector)
                 .Include(p => p.Ministry)
                 .Include(p => p.Donors)
@@ -129,12 +120,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     .ThenInclude(pp => pp.ActionPlan)
                         .ThenInclude(ap => ap.Plans)
                 .ToListAsync();
-            var sectors = await _context.Sectors.Include(s => s.Projects).ToListAsync();
-            var ministries = await _context.Ministries.Include(m => m.Projects).ToListAsync();
-            var donors = await _context.Donors.Include(d => d.Projects).ToListAsync();
+            var sectors = await _context.Sectors.AsNoTracking().ToListAsync();
+            var ministries = await _context.Ministries.WithinScope(scope).AsNoTracking().ToListAsync();
+            var donors = await _context.Donors.AsNoTracking().ToListAsync();
             var supervisors = await _context.SuperVisors.ToListAsync();
             var projectManagers = await _context.ProjectManagers.ToListAsync();
-            var governorates = await _context.Governorates.Include(g => g.projects).ToListAsync();
+            var governorates = await _context.Governorates.AsNoTracking().ToListAsync();
 
             // Summary Counts
             viewModel.TotalFrameworks = frameworks.Count;
@@ -345,24 +336,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             viewModel.MediumPerformanceCount = allOutcomes.Count(o => o.IndicatorsPerformance >= 50 && o.IndicatorsPerformance < 75);
             viewModel.LowPerformanceCount = allOutcomes.Count(o => o.IndicatorsPerformance < 50);
 
-            // Populate New Chart Data
-            // 1. Sector Performance
-            viewModel.SectorPerformanceData = sectors.Select(s => new PerformanceDataItem
-            {
-                Name = CultureInfo.CurrentCulture.Name.StartsWith("ar") ? s.AR_Name : s.EN_Name,
-                Code = s.Code,
-                IndicatorsPerformance = Math.Round(s.IndicatorsPerformance, 2),
-                DisbursementPerformance = Math.Round(s.DisbursementPerformance, 2)
-            }).OrderByDescending(s => s.IndicatorsPerformance).ToList();
-
-            // 2. Ministry Performance
-            viewModel.MinistryPerformanceData = ministries.Select(m => new PerformanceDataItem
-            {
-                Name = CultureInfo.CurrentCulture.Name.StartsWith("ar") ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN,
-                Code = m.Code,
-                IndicatorsPerformance = Math.Round(m.IndicatorsPerformance, 2),
-                DisbursementPerformance = Math.Round(m.DisbursementPerformance, 2)
-            }).OrderByDescending(m => m.IndicatorsPerformance).ToList();
+            // (Sector and Ministry performance charts are built after the category reports below,
+            // because a ministry user's figures are recomputed there from their own projects.)
 
             // Every figure below puts projects that may be denominated differently onto one
             // chart or into one sum, so all budgets are converted to SYP first.
@@ -389,48 +364,49 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // NEW: Category Reports
             var isArabic = CultureInfo.CurrentCulture.Name.StartsWith("ar");
 
-            // Ministry Reports
-            //
-            // Every aggregate reads the same set: the ministry's projects intersected with the
-            // ministry-scoped `projects` list. The many-to-many navigation (m.Projects) is loaded
-            // unscoped, so using it directly leaked other ministries' counts and budgets to a
-            // MinistriesUser, and disagreed with AmountSpent, which was already scoped.
-            viewModel.TotalMinistries = ministries.Count;
+            // Every category row below reads membership from the scoped `projects` list, so a
+            // ministry user's rows only ever contain their own projects. Performance: an
+            // administrator sees the stored national figure for the category; anyone else gets it
+            // recomputed from their own projects (same formulas, see ScopedAggregates), because the
+            // stored figure blends every ministry's results.
+            void ApplyPerformance(CategoryReportItem report, List<Project> rowProjects, double storedIndicators, double storedDisbursement)
+            {
+                report.IndicatorsPerformance = Math.Round(isAdmin ? storedIndicators : ScopedAggregates.IndicatorsPerformance(rowProjects), 2);
+                report.DisbursementPerformance = Math.Round(isAdmin ? storedDisbursement : ScopedAggregates.DisbursementPerformance(rowProjects, conv), 2);
+            }
+
+            // Ministry Reports — membership by the owning ministry (Project.MinistryCode).
             viewModel.MinistryReports = ministries
                 .Select(m => {
-                    var ministryProjectIds = m.Projects.Select(p => p.ProjectID).ToList();
-                    var ministryProjects = projects.Where(p => ministryProjectIds.Contains(p.ProjectID)).ToList();
+                    var ministryProjects = projects.Where(p => p.MinistryCode == m.Code).ToList();
                     var report = BuildCategoryReport(ministryProjects, conv);
                     report.Name = isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN;
                     report.NameAr = m.MinistryDisplayName_AR;
-                    report.IndicatorsPerformance = Math.Round(m.IndicatorsPerformance, 2);
-                    report.DisbursementPerformance = Math.Round(m.DisbursementPerformance, 2);
+                    ApplyPerformance(report, ministryProjects, m.IndicatorsPerformance, m.DisbursementPerformance);
                     return report;
                 })
                 .Where(m => m.ProjectCount > 0)
                 .OrderByDescending(m => m.ProjectCount)
                 .ToList();
+            viewModel.TotalMinistries = ministries.Count;
 
             // Sector Reports
-            viewModel.TotalSectors = sectors.Count;
             viewModel.SectorReports = sectors
                 .Select(s => {
-                    var sectorProjectIds = s.Projects.Select(p => p.ProjectID).ToList();
-                    var sectorProjects = projects.Where(p => sectorProjectIds.Contains(p.ProjectID)).ToList();
+                    var sectorProjects = projects.Where(p => p.SectorCode == s.Code).ToList();
                     var report = BuildCategoryReport(sectorProjects, conv);
                     report.Name = isArabic ? s.AR_Name : s.EN_Name;
                     report.NameAr = s.AR_Name;
-                    report.IndicatorsPerformance = Math.Round(s.IndicatorsPerformance, 2);
-                    report.DisbursementPerformance = Math.Round(s.DisbursementPerformance, 2);
+                    ApplyPerformance(report, sectorProjects, s.IndicatorsPerformance, s.DisbursementPerformance);
                     return report;
                 })
                 .Where(s => s.ProjectCount > 0)
                 .OrderByDescending(s => s.ProjectCount)
                 .ToList();
+            viewModel.TotalSectors = isAdmin ? sectors.Count : viewModel.SectorReports.Count;
 
             // Public Sector Type Reports (counts use the scoped projects list so ministry scoping is respected)
             var publicSectorTypes = await _context.PublicSectorTypes.ToListAsync();
-            viewModel.TotalPublicSectorTypes = publicSectorTypes.Count;
             viewModel.PublicSectorTypeReports = publicSectorTypes
                 .Select(t => {
                     var typeProjects = projects.Where(p => p.PublicSectorTypeCode == t.Code).ToList();
@@ -446,25 +422,63 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Where(t => t.ProjectCount > 0)
                 .OrderByDescending(t => t.ProjectCount)
                 .ToList();
+            viewModel.TotalPublicSectorTypes = isAdmin ? publicSectorTypes.Count : viewModel.PublicSectorTypeReports.Count;
 
             // Donor Reports
-            viewModel.TotalDonors = donors.Count;
             viewModel.DonorReports = donors
                 .Select(d => {
-                    var donorProjectIds = d.Projects.Select(p => p.ProjectID).ToList();
-                    var donorProjects = projects.Where(p => donorProjectIds.Contains(p.ProjectID)).ToList();
+                    var donorProjects = projects.Where(p => p.Donors.Any(x => x.Code == d.Code)).ToList();
                     var report = BuildCategoryReport(donorProjects, conv);
                     report.Name = d.Partner;
-                    report.IndicatorsPerformance = Math.Round(d.IndicatorsPerformance, 2);
-                    report.DisbursementPerformance = Math.Round(d.DisbursementPerformance, 2);
+                    ApplyPerformance(report, donorProjects, d.IndicatorsPerformance, d.DisbursementPerformance);
                     return report;
                 })
                 .Where(d => d.ProjectCount > 0)
                 .OrderByDescending(d => d.ProjectCount)
                 .ToList();
+            viewModel.TotalDonors = isAdmin ? donors.Count : viewModel.DonorReports.Count;
+
+            // Sector / Ministry performance charts. An administrator keeps the national chart of
+            // every sector and ministry; anyone else sees only the rows above, i.e. their own
+            // ministry and the sectors their projects fall in, with the recomputed figures.
+            var arabicChart = CultureInfo.CurrentCulture.Name.StartsWith("ar");
+            viewModel.SectorPerformanceData = (isAdmin
+                    ? sectors.Select(s => new PerformanceDataItem
+                    {
+                        Name = arabicChart ? s.AR_Name : s.EN_Name,
+                        Code = s.Code,
+                        IndicatorsPerformance = Math.Round(s.IndicatorsPerformance, 2),
+                        DisbursementPerformance = Math.Round(s.DisbursementPerformance, 2)
+                    })
+                    : sectors
+                        .Select(s => (Sector: s, Projects: projects.Where(p => p.SectorCode == s.Code).ToList()))
+                        .Where(x => x.Projects.Count > 0)
+                        .Select(x => new PerformanceDataItem
+                        {
+                            Name = arabicChart ? x.Sector.AR_Name : x.Sector.EN_Name,
+                            Code = x.Sector.Code,
+                            IndicatorsPerformance = Math.Round(ScopedAggregates.IndicatorsPerformance(x.Projects), 2),
+                            DisbursementPerformance = Math.Round(ScopedAggregates.DisbursementPerformance(x.Projects, conv), 2)
+                        }))
+                .OrderByDescending(s => s.IndicatorsPerformance)
+                .ToList();
+
+            viewModel.MinistryPerformanceData = ministries
+                .Select(m =>
+                {
+                    var ministryProjects = projects.Where(p => p.MinistryCode == m.Code).ToList();
+                    return new PerformanceDataItem
+                    {
+                        Name = arabicChart ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN,
+                        Code = m.Code,
+                        IndicatorsPerformance = Math.Round(isAdmin ? m.IndicatorsPerformance : ScopedAggregates.IndicatorsPerformance(ministryProjects), 2),
+                        DisbursementPerformance = Math.Round(isAdmin ? m.DisbursementPerformance : ScopedAggregates.DisbursementPerformance(ministryProjects, conv), 2)
+                    };
+                })
+                .OrderByDescending(m => m.IndicatorsPerformance)
+                .ToList();
 
             // Supervisor Reports
-            viewModel.TotalSupervisors = supervisors.Count;
             viewModel.SupervisorReports = supervisors
                 .Select(s => {
                     var supervisorProjects = projects.Where(p => p.SuperVisorCode == s.Code).ToList();
@@ -482,8 +496,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .OrderByDescending(s => s.ProjectCount)
                 .ToList();
 
+            viewModel.TotalSupervisors = isAdmin ? supervisors.Count : viewModel.SupervisorReports.Count;
+
             // Project Manager Reports
-            viewModel.TotalProjectManagers = projectManagers.Count;
             viewModel.ProjectManagerReports = projectManagers
                 .Select(pm => {
                     var pmProjects = projects.Where(p => p.ProjectManagerCode == pm.Code).ToList();
@@ -500,6 +515,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Where(pm => pm.ProjectCount > 0)
                 .OrderByDescending(pm => pm.ProjectCount)
                 .ToList();
+            viewModel.TotalProjectManagers = isAdmin ? projectManagers.Count : viewModel.ProjectManagerReports.Count;
 
             // National projects (IsEntireCountry = true) count for every governorate
             var nationalProjects = projects.Where(p => p.IsEntireCountry).ToList();
@@ -514,11 +530,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // national COUNT client-side while reading the merged BUDGET verbatim, which is why a
             // governorate with no projects of its own displayed 0 projects next to the entire
             // national budget.
-            viewModel.TotalGovernorates = governorates.Count;
             viewModel.GovernorateReports = governorates
                 .Select(g => {
-                    var govProjectIds = g.projects.Select(p => p.ProjectID).ToList();
-                    var govProjects = projects.Where(p => govProjectIds.Contains(p.ProjectID)).ToList();
+                    var govProjects = projects.Where(p => p.Governorates.Any(x => x.Code == g.Code)).ToList();
                     // Merge with national projects (avoid duplicates)
                     var allGovProjects = govProjects.Concat(nationalProjects)
                         .DistinctBy(p => p.ProjectID).ToList();
@@ -542,6 +556,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Where(g => g != null)
                 .OrderByDescending(g => g!.ProjectCount)
                 .ToList()!;
+            viewModel.TotalGovernorates = isAdmin
+                ? governorates.Count
+                : viewModel.GovernorateReports.Count(g => g.Provincial?.ProjectCount > 0);
 
             // Add "Entire Country" entry at the top if any national projects exist
             if (nationalProjects.Any())
@@ -584,9 +601,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     ProjectID    = p.ProjectID,
                     ProjectName  = p.ProjectName,
-                    MinistryName = p.Ministries.Select(m => isArabic
-                        ? m.MinistryDisplayName_AR
-                        : m.MinistryDisplayName_EN).FirstOrDefault() ?? "",
+                    // The owning ministry; the Ministries mirror list may still hold stale links.
+                    MinistryName = (p.Ministry == null
+                        ? null
+                        : isArabic ? p.Ministry.MinistryDisplayName_AR : p.Ministry.MinistryDisplayName_EN) ?? "",
                     EstimatedBudget = p.EstimatedBudget,
                     RealBudget = p.Phases
                         .Where(ph => ph.ActionPlan != null)
@@ -904,15 +922,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return new MinistryReportViewModel { Filter = filter };
             }
 
-            var effectiveMinistryCode = isAdmin ? filter.MinistryCode : scopedMinistryCode;
-
-            var stats = await _ministryStatistics.GetAsync(
-                effectiveMinistryCode, filter.FromDate, filter.ToDate);
+            var scope = await _ministryScope.GetScopeAsync();
+            var stats = await _ministryStatistics.GetForScopeAsync(
+                scope, isAdmin ? filter.MinistryCode : null, filter.FromDate, filter.ToDate);
 
             var converter = await _currencyConversion.GetConverterAsync();
 
             var projectsByMinistry = await _ministryStatistics.GetProjectsByMinistryAsync(
-                stats.Select(m => m.Code), filter.FromDate, filter.ToDate);
+                scope, stats.Select(m => m.Code), filter.FromDate, filter.ToDate);
 
             var groups = new List<MinistryReportGroup>();
             foreach (var ministry in stats)
@@ -1260,7 +1277,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var governorates = await _context.Governorates.ToListAsync();
             var districts = await _context.Districts.ToListAsync();
             var subDistricts = await _context.SubDistricts.ToListAsync();
-            var ministries = await _context.Ministries.ToListAsync();
+            // Feeds the map's ministry filter, which is serialized into the page's script.
+            var ministries = await _context.Ministries
+                .WithinScope(new MinistryScope(isAdmin, scopedMinistryCode))
+                .ToListAsync();
 
             // SubDistrict only carries DistrictCode, but the cascading governorate -> district
             // filter needs a governorate on every sub-district. Resolved from the districts already

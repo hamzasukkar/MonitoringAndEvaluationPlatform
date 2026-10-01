@@ -29,12 +29,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IStringLocalizer<SubOutputsController> _localizer;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private readonly IMinistryScopeService _ministryScope;
+
         public SubOutputsController(
             ApplicationDbContext context,
             IPerformanceService performanceService,
             IStringLocalizer<SubOutputsController> localizer,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _performanceService = performanceService;
             _localizer = localizer;
@@ -43,13 +47,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         // GET: SubOutputs
@@ -99,7 +98,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 query = query.Where(s =>
                     EF.Functions.Like(s.Name, $"%{searchString}%") ||
                     s.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%")) ||
-                    s.Indicators.Any(i => i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%"))
+                    // Project names count only for the caller's own projects.
+                    s.Indicators.Any(i => i.Project != null
+                        && (isAdmin || (scopedMinistryCode != null && i.Project.MinistryCode == scopedMinistryCode))
+                        && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%"))
                 );
             }
 
@@ -171,7 +173,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-                if (!isAdmin && outputWithFramework.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+                if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, outputWithFramework.Outcome?.Framework?.MinistryCode))
                 {
                     return Json(new { success = false, message = "You are not authorized to modify this output." });
                 }
@@ -241,7 +243,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (subOutput == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && subOutput.Output?.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, subOutput.Output?.Outcome?.Framework?.MinistryCode))
             {
                 return Forbid();
             }
@@ -265,7 +267,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (subOutput == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && subOutput.Output?.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, subOutput.Output?.Outcome?.Framework?.MinistryCode))
             {
                 return Forbid();
             }
@@ -332,7 +334,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (output == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && output.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, output.Outcome?.Framework?.MinistryCode))
             {
                 return Forbid();
             }
@@ -363,7 +365,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (output == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && output.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, output.Outcome?.Framework?.MinistryCode))
             {
                 return Forbid();
             }
@@ -401,7 +403,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadSubOutputs)]
         public async Task<IActionResult> ProjectsList(int? frameworkCode, int? outputCode, string searchString)
         {
+            // AsNoTracking: a legacy cross-linked project is detached from its indicator below.
             IQueryable<SubOutput> query = _context.SubOutputs
+                .AsNoTracking()
                 .Include(s => s.Output)
                 .Include(s => s.Indicators)
                     .ThenInclude(i => i.Project)
@@ -445,12 +449,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            // A legacy link can hang another ministry's project under one of the caller's own
+            // indicators; this page lists project names, so that project is dropped.
+            subOutputs.SelectMany(s => s.Indicators).HideForeignProjects(new MinistryScope(isAdmin, scopedMinistryCode));
+
             // Set ViewData for breadcrumb
             ViewData["frameworkCode"] = frameworkCode;
             ViewData["outputCode"] = outputCode;
 
-            // Load frameworks for filter dropdown
-            ViewBag.Frameworks = await _context.Frameworks.ToListAsync();
+            // Load frameworks for filter dropdown (the caller's own strategies only)
+            ViewBag.Frameworks = await _context.Frameworks
+                .WithinScope(await _ministryScope.GetScopeAsync())
+                .ToListAsync();
 
             return View(subOutputs);
         }

@@ -21,11 +21,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IMinistryStatisticsService _ministryStatistics;
 
+        private readonly IMinistryScopeService _ministryScope;
+
         public MonitoringController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IMinistryStatisticsService ministryStatistics)
+            IMinistryStatisticsService ministryStatistics,
+            IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _userManager = userManager;
             _ministryStatistics = ministryStatistics;
@@ -33,39 +37,31 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         public async Task<IActionResult> FrameworkDashboard(List<int> selectedMinistryIds)
         {
-            // 1) Load all ministries (for the filter dropdown, etc.)
-            var allMinistries = _context.Ministries.ToList();
+            var scope = await _ministryScope.GetScopeAsync();
 
-            // 2) Start from Frameworks, but now eagerly include Project.Ministries
+            // 1) Ministries for the filter checkboxes: a non-admin only ever sees their own.
+            var allMinistries = await _context.Ministries.WithinScope(scope).ToListAsync();
+
+            // 2) Start from Frameworks, but now eagerly include Project.Ministries. AsNoTracking:
+            // foreign projects are detached from their indicators below for non-admins.
             var frameworks = _context.Frameworks
+                .AsNoTracking()
                 .Include(f => f.Outcomes)
                     .ThenInclude(o => o.Outputs)
                         .ThenInclude(outp => outp.SubOutputs)
                             .ThenInclude(so => so.Indicators)
                                 .ThenInclude(i => i.Project)
                                     .ThenInclude(p => p.Ministries)
-                .AsQueryable();
+                .WithinScope(scope);
 
-            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin)
-            {
-                frameworks = scopedMinistryCode is null
-                    ? frameworks.Where(_ => false)
-                    : frameworks.Where(f => f.MinistryCode == scopedMinistryCode);
-            }
-
-            if (selectedMinistryIds != null && selectedMinistryIds.Any())
+            // The ministry facet is an administrator's tool; a non-admin has exactly one ministry.
+            if (scope.IsAdmin && selectedMinistryIds != null && selectedMinistryIds.Any())
             {
                 frameworks = frameworks
                     .Where(f =>
@@ -78,11 +74,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     );
             }
 
+            var frameworkList = await frameworks.ToListAsync();
+            frameworkList
+                .SelectMany(f => f.Outcomes)
+                .SelectMany(o => o.Outputs)
+                .SelectMany(op => op.SubOutputs)
+                .SelectMany(so => so.Indicators)
+                .HideForeignProjects(scope);
+
             var viewModel = new FrameworkDashboardViewModel
             {
-                Frameworks = frameworks.ToList(),
+                Frameworks = frameworkList,
                 Ministries = allMinistries,
-                SelectedMinistryIds = selectedMinistryIds
+                SelectedMinistryIds = selectedMinistryIds ?? new List<int>()
             };
 
             return View(viewModel);
@@ -109,9 +113,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // The argument is DISCARDED for a non-admin rather than combined with their scope, so a
             // hand-edited ?ministryCode= can never widen what they see.
-            var requested = isAdmin ? ministryCode : scopedMinistryCode;
-
-            var stats = await _ministryStatistics.GetAsync(requested, cancellationToken: cancellationToken);
+            var stats = await _ministryStatistics.GetForScopeAsync(
+                await _ministryScope.GetScopeAsync(cancellationToken),
+                isAdmin ? ministryCode : null,
+                cancellationToken: cancellationToken);
             var visible = stats.Select(s => s.Code).ToList();
 
             if (visible.Count == 0)
@@ -143,17 +148,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                           Outputs: g.Sum(x => x.OutputCount),
                           SubOutputs: g.Sum(x => x.SubOutputCount)));
 
-            // Phase counts, down the project-ownership path (either ministry edge) so they match the
-            // Phase link and Stats.ProjectCount. One query, grouped in memory.
+            // Phase counts, down the project-ownership path so they match the Phase link and
+            // Stats.ProjectCount. One query, grouped in memory.
             var phaseRows = await _context.ProjectPhases
                 .AsNoTracking()
-                .Where(pp => (pp.Project.MinistryCode != null && visible.Contains(pp.Project.MinistryCode.Value))
-                             || pp.Project.Ministries.Any(m => visible.Contains(m.Code)))
-                .Select(pp => new
-                {
-                    pp.Project.MinistryCode,
-                    Codes = pp.Project.Ministries.Select(m => m.Code).ToList()
-                })
+                .Where(pp => pp.Project.MinistryCode != null && visible.Contains(pp.Project.MinistryCode.Value))
+                .Select(pp => new { pp.Project.MinistryCode })
                 .ToListAsync(cancellationToken);
 
             var isArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
@@ -170,7 +170,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                             OutcomeCount = counts.Outcomes,
                             OutputCount = counts.Outputs,
                             SubOutputCount = counts.SubOutputs,
-                            PhaseCount = phaseRows.Count(r => r.MinistryCode == s.Code || r.Codes.Contains(s.Code))
+                            PhaseCount = phaseRows.Count(r => r.MinistryCode == s.Code)
                         };
                     })
                     .OrderByDescending(c => c.PerformanceValue)
@@ -184,7 +184,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Monitoring
         public async Task<IActionResult> Index(int? frameworkCode, int? ministryCode)
         {
+            // AsNoTracking: foreign projects are detached from their indicators below for non-admins.
             var query = _context.Frameworks
+                .AsNoTracking()
                 .Include(i => i.Outcomes)
                 .ThenInclude(i => i.Outputs)
                 .ThenInclude(i => i.SubOutputs)
@@ -211,6 +213,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.MinistryCode = ministryCode;
 
             var frameworks = await query.OrderByDescending(f => f.IndicatorsPerformance).ToListAsync();
+            frameworks
+                .SelectMany(f => f.Outcomes)
+                .SelectMany(o => o.Outputs)
+                .SelectMany(op => op.SubOutputs)
+                .SelectMany(so => so.Indicators)
+                .HideForeignProjects(new MinistryScope(isAdmin, scopedMinistryCode));
             return View(frameworks);
         }
 
@@ -437,7 +445,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var projectsQuery = _context.Projects
                 .Include(p => p.Sector)
                 .Include(p => p.Donors)
-                .Include(p => p.Ministries)
+                .Include(p => p.Ministry)
                 .Include(p => p.Communities)
                 .AsQueryable();
 
@@ -466,11 +474,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // honoured only for an admin, so a scoped user's ministryCode argument is discarded
             // rather than combined -- widening by hand-editing the URL is impossible by construction.
             //
-            // The predicate matches on EITHER ministry edge, the same rule as
-            // MinistryStatisticsService.BelongsTo. This filter previously used the ProjectMinistries
-            // join alone while the scope above used the MinistryCode FK, so a project attached by
-            // only one edge was scoped in but filtered out -- and the count disagreed with the
-            // ministry card, the Dashboard tier and the Ministry Report, which all use the union.
+            // The predicate matches the OWNING ministry (Project.MinistryCode), the same rule as
+            // MinistryStatisticsService, so the list agrees with the ministry card, the Dashboard
+            // tier and the Ministry Report. The ProjectMinistries mirror never grants membership.
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
             var effectiveMinistryCode = isAdmin ? ministryCode : scopedMinistryCode;
 
@@ -480,9 +486,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             else if (effectiveMinistryCode is int scopedOrFiltered)
             {
-                projectsQuery = projectsQuery.Where(p =>
-                    p.MinistryCode == scopedOrFiltered ||
-                    p.Ministries.Any(m => m.Code == scopedOrFiltered));
+                projectsQuery = projectsQuery.Where(p => p.MinistryCode == scopedOrFiltered);
             }
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -543,8 +547,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 phasesQuery = phasesQuery.Where(pp => pp.Project.Indicators.Any(i => i.SubOutput.Output.Outcome.FrameworkCode == frameworkCode.Value));
             }
 
-            // Same combined scope+filter, and the same either-edge rule as Projects, so the phase
-            // count on a ministry card equals the rows this page lists.
+            // Same combined scope+filter, and the same owner rule as Projects, so the phase count
+            // on a ministry card equals the rows this page lists.
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
             var effectiveMinistryCode = isAdmin ? ministryCode : scopedMinistryCode;
 
@@ -554,9 +558,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             else if (effectiveMinistryCode is int scopedOrFiltered)
             {
-                phasesQuery = phasesQuery.Where(pp =>
-                    pp.Project.MinistryCode == scopedOrFiltered ||
-                    pp.Project.Ministries.Any(m => m.Code == scopedOrFiltered));
+                phasesQuery = phasesQuery.Where(pp => pp.Project.MinistryCode == scopedOrFiltered);
             }
 
             ViewBag.MinistryCode = ministryCode;

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -19,21 +20,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public TreeController(ApplicationDbContext context, UserManager<ApplicationUser> userManager)
+        private readonly IMinistryScopeService _ministryScope;
+
+        public TreeController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _userManager = userManager;
         }
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         // Frameworks a ministry owns or reaches through its projects. Same union as the
@@ -99,7 +98,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // The framework node plus its whole subtree, flattened to the id/pid shape the
         // client's buildHierarchy() expects. Property names here are the client contract.
-        private static IEnumerable<object> BuildFrameworkNodes(Framework f, string parentId, bool includePhases)
+        private static IEnumerable<object> BuildFrameworkNodes(Framework f, string parentId, bool includePhases, MinistryScope scope)
         {
             return new object[]
             {
@@ -166,7 +165,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     DisbursementPerformance = Math.Round(i.DisbursementPerformance, 0).ToString() + "%"
                 };
 
-                if (!includePhases || i.Project == null)
+                // A legacy link can hang another ministry's project under this indicator; its
+                // phases are not the viewer's to see.
+                if (!includePhases || i.Project == null || !scope.CanSee(i.Project.MinistryCode))
                     return new object[] { indicatorNode }.AsEnumerable();
 
                 var phaseNodes = i.Project.Phases.Select(ph => (object)new
@@ -247,7 +248,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (framework == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
             {
                 return Forbid();
             }
@@ -292,7 +293,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var framework = await _context.Frameworks.FindAsync(id);
             if (framework == null) return NotFound();
 
-            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
             {
                 return Forbid();
             }
@@ -325,8 +326,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 var resolvedCodes = ministries.Select(m => m.Code).ToList();
 
-                var frameworks = await ScopeToMinistries(BuildHierarchyQuery(includePhases), resolvedCodes)
-                    .ToListAsync();
+                // Administrators keep the owned-or-reached union; a ministry user sees only the
+                // strategies their ministry owns.
+                var scope = new MinistryScope(isAdmin, scopedMinistryCode);
+                var frameworks = isAdmin
+                    ? await ScopeToMinistries(BuildHierarchyQuery(includePhases), resolvedCodes).ToListAsync()
+                    : await BuildHierarchyQuery(includePhases).WithinScope(scope).ToListAsync();
 
                 var parents = await ResolveFrameworkParentsAsync(frameworks, resolvedCodes);
 
@@ -335,7 +340,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 var nodes = frameworks
                     .Where(f => parents.ContainsKey(f.Code))
-                    .SelectMany(f => BuildFrameworkNodes(f, $"M{parents[f.Code]}", includePhases));
+                    .SelectMany(f => BuildFrameworkNodes(f, $"M{parents[f.Code]}", includePhases, scope));
 
                 return Json(ministryNodes.Concat(nodes));
             }
@@ -343,7 +348,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var framework = await _context.Frameworks.FindAsync(id);
             if (framework == null) return NotFound();
 
-            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
             {
                 return Forbid();
             }
@@ -357,7 +362,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ToListAsync();
 
             var frameworkNodes = singleFramework.SelectMany(f =>
-                BuildFrameworkNodes(f, ministry != null ? $"M{ministry.Code}" : "", includePhases));
+                BuildFrameworkNodes(f, ministry != null ? $"M{ministry.Code}" : "", includePhases,
+                    new MinistryScope(isAdmin, scopedMinistryCode)));
 
             if (ministry == null)
             {

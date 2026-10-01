@@ -2,7 +2,9 @@
 @using MonitoringAndEvaluationPlatform.Models
 @using Microsoft.EntityFrameworkCore
 @inject IViewLocalizer Localizer
+@using MonitoringAndEvaluationPlatform.Services
 @inject MonitoringAndEvaluationPlatform.Data.ApplicationDbContext Context
+@inject IMinistryScopeService MinistryScopeService
 
 @{
     var frameworkCode = ViewData["frameworkCode"] as int?;
@@ -18,15 +20,20 @@
     SubOutput subOutput = null;
     Project project = null;
 
+    // The codes come from the URL, so every lookup is scoped: a foreign code must render no
+    // breadcrumb rather than another ministry's names.
+    var breadcrumbScope = await MinistryScopeService.GetScopeAsync();
+
     if (projectCode.HasValue)
     {
-        project = await Context.Projects.FirstOrDefaultAsync(p => p.ProjectID == projectCode.Value);
+        project = await Context.Projects.WithinScope(breadcrumbScope).FirstOrDefaultAsync(p => p.ProjectID == projectCode.Value);
     }
 
     // Get hierarchy data based on available parameters
     if (subOutputCode.HasValue)
     {
         subOutput = await Context.SubOutputs
+            .WithinScope(breadcrumbScope)
             .Include(s => s.Output)
                 .ThenInclude(o => o.Outcome)
                 .ThenInclude(oc => oc.Framework)
@@ -42,6 +49,7 @@
     else if (outputCode.HasValue)
     {
         output = await Context.Outputs
+            .WithinScope(breadcrumbScope)
             .Include(o => o.Outcome)
                 .ThenInclude(oc => oc.Framework)
             .FirstOrDefaultAsync(o => o.Code == outputCode.Value);
@@ -55,6 +63,7 @@
     else if (outcomeCode.HasValue)
     {
         outcome = await Context.Outcomes
+            .WithinScope(breadcrumbScope)
             .Include(oc => oc.Framework)
             .FirstOrDefaultAsync(oc => oc.Code == outcomeCode.Value);
         
@@ -66,6 +75,7 @@
     else if (frameworkCode.HasValue)
     {
         framework = await Context.Frameworks
+            .WithinScope(breadcrumbScope)
             .FirstOrDefaultAsync(f => f.Code == frameworkCode.Value);
     }
 }

@@ -39,17 +39,18 @@
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="MinistryName" class="form-label">@Localizer["Ministry"]</label>
-                            <select asp-for="MinistryName" class="form-select">
+                            <label asp-for="MinistryCode" class="form-label">@Localizer["Ministry"]</label>
+                            <select asp-for="MinistryCode" class="form-select">
                                 <option value="">-- @Localizer["SelectMinistry"] --</option>
                                 @foreach (var ministry in Model.Ministries)
                                 {
                                     var displayName = isArabic ? ministry.MinistryDisplayName_AR : ministry.MinistryDisplayName_EN;
-                                    <option value="@ministry.MinistryDisplayName_EN" selected="@(ministry.MinistryDisplayName_EN == Model.MinistryName)">
+                                    <option value="@ministry.Code" selected="@(ministry.Code == Model.MinistryCode)">
                                         @displayName
                                     </option>
                                 }
                             </select>
+                            <span asp-validation-for="MinistryCode" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">

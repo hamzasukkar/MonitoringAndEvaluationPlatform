@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,9 @@ using MonitoringAndEvaluationPlatform.Models;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    // Login required: nothing here is public. No fallback policy exists, so without this
+    // attribute every action was reachable anonymously.
+    [Authorize]
     public class PublicSectorTypesController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -30,6 +34,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Inline Operations
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateInline(string EN_Name, string AR_Name)
         {
             if (string.IsNullOrWhiteSpace(EN_Name) || string.IsNullOrWhiteSpace(AR_Name))
@@ -56,6 +61,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineEdit(int id, string field, string value)
         {
             var publicSectorType = await _context.PublicSectorTypes.FindAsync(id);
@@ -86,6 +92,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineDelete(int id)
         {
             var publicSectorType = await _context.PublicSectorTypes.FindAsync(id);
@@ -112,6 +119,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> QuickUpdate(int id, string enName, string arName)
         {
             var publicSectorType = await _context.PublicSectorTypes.FindAsync(id);

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,23 +8,39 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    // Login required: nothing here is public. No fallback policy exists, so without this
+    // attribute every action was reachable anonymously.
+    //
+    // Every action checks that the action plan / phase belongs to one of the caller's own
+    // projects. Which ROLES may edit plans is a separate, still-open decision, so no
+    // role-restricting [Permission] attribute is applied here.
+    [Authorize]
     public class ActionPlansController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMinistryScopeService _ministryScope;
 
-        public ActionPlansController(ApplicationDbContext context)
+        public ActionPlansController(ApplicationDbContext context, IMinistryScopeService ministryScope)
         {
             _context = context;
+            _ministryScope = ministryScope;
         }
+
+        private async Task<SelectList> PhaseOptionsAsync(int? selected = null) =>
+            new SelectList(
+                await _context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project).ToListAsync(),
+                "Id", "Name", selected);
 
         // GET: ActionPlans
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.ActionPlans
+                .WithinScope(await _ministryScope.GetScopeAsync())
                 .Include(a => a.ProjectPhase)
                     .ThenInclude(pp => pp.Project);
             return View(await applicationDbContext.ToListAsync());
@@ -37,6 +54,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: ActionPlans/ActionPlan?phaseId=5
         public async Task<IActionResult> ActionPlan(int phaseId)
         {
+            // Checked before anything else: a missing action plan is auto-created below, so an
+            // unchecked foreign phaseId would also be a write into another ministry's project.
+            if (await _context.ProjectPhases.AnyAsync(p => p.Id == phaseId)
+                && !await _ministryScope.CanAccessPhaseAsync(phaseId))
+            {
+                return Forbid();
+            }
+
             // Fetch action plan for this specific phase
             var phaseActionPlan = await _context.ActionPlans
                 .Include(ap => ap.Plans)
@@ -116,16 +141,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .FirstOrDefaultAsync(m => m.Code == id);
 
             if (actionPlan == null) return NotFound();
+            if (!await _ministryScope.CanAccessActionPlanAsync(actionPlan.Code)) return Forbid();
 
             return View(actionPlan);
         }
 
         // GET: ActionPlans/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["ProjectPhaseId"] = new SelectList(
-                _context.ProjectPhases.Include(pp => pp.Project),
-                "Id", "Name");
+            ViewData["ProjectPhaseId"] = await PhaseOptionsAsync();
             return View();
         }
 
@@ -134,15 +158,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ActionPlan actionPlan)
         {
+            if (!await _ministryScope.CanAccessPhaseAsync(actionPlan.ProjectPhaseId)) return Forbid();
+
             if (ModelState.IsValid || true)
             {
                 _context.Add(actionPlan);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjectPhaseId"] = new SelectList(
-                _context.ProjectPhases.Include(pp => pp.Project),
-                "Id", "Name", actionPlan.ProjectPhaseId);
+            ViewData["ProjectPhaseId"] = await PhaseOptionsAsync(actionPlan.ProjectPhaseId);
             return View(actionPlan);
         }
 
@@ -153,10 +177,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var actionPlan = await _context.ActionPlans.FindAsync(id);
             if (actionPlan == null) return NotFound();
+            if (!await _ministryScope.CanAccessActionPlanAsync(actionPlan.Code)) return Forbid();
 
-            ViewData["ProjectPhaseId"] = new SelectList(
-                _context.ProjectPhases.Include(pp => pp.Project),
-                "Id", "Name", actionPlan.ProjectPhaseId);
+            ViewData["ProjectPhaseId"] = await PhaseOptionsAsync(actionPlan.ProjectPhaseId);
             return View(actionPlan);
         }
 
@@ -166,6 +189,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Code,PlansCount,ProjectPhaseId")] ActionPlan actionPlan)
         {
             if (id != actionPlan.Code) return NotFound();
+
+            // The form binds ProjectPhaseId, so it could also move the action plan into another
+            // ministry's phase.
+            if (!await _ministryScope.CanAccessActionPlanAsync(id)
+                || !await _ministryScope.CanAccessPhaseAsync(actionPlan.ProjectPhaseId))
+            {
+                return Forbid();
+            }
 
             if (ModelState.IsValid)
             {
@@ -181,9 +212,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ProjectPhaseId"] = new SelectList(
-                _context.ProjectPhases.Include(pp => pp.Project),
-                "Id", "Name", actionPlan.ProjectPhaseId);
+            ViewData["ProjectPhaseId"] = await PhaseOptionsAsync(actionPlan.ProjectPhaseId);
             return View(actionPlan);
         }
 
@@ -198,6 +227,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .FirstOrDefaultAsync(m => m.Code == id);
 
             if (actionPlan == null) return NotFound();
+            if (!await _ministryScope.CanAccessActionPlanAsync(actionPlan.Code)) return Forbid();
 
             return View(actionPlan);
         }
@@ -210,6 +240,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var actionPlan = await _context.ActionPlans.FindAsync(id);
             if (actionPlan != null)
             {
+                if (!await _ministryScope.CanAccessActionPlanAsync(actionPlan.Code)) return Forbid();
                 _context.ActionPlans.Remove(actionPlan);
             }
 

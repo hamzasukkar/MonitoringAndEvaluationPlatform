@@ -8,6 +8,7 @@ using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -33,11 +34,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStringLocalizer<ImpactIndicatorsController> _localizer;
 
+        private readonly IMinistryScopeService _ministryScope;
+
         public ImpactIndicatorsController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IStringLocalizer<ImpactIndicatorsController> localizer)
+            IStringLocalizer<ImpactIndicatorsController> localizer,
+            IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _userManager = userManager;
             _localizer = localizer;
@@ -48,13 +53,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         private async Task<bool> ProjectBelongsToScopeAsync(int projectId)

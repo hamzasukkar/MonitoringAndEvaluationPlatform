@@ -20,6 +20,13 @@ namespace MonitoringAndEvaluationPlatform.ViewModels
         [Display(Name = "Ministry Name")]
         public string? MinistryName { get; set; }
 
+        /// <summary>
+        /// The ministry this account is confined to. Ministry scoping reads this, not MinistryName:
+        /// a non-admin without it sees no data at all.
+        /// </summary>
+        [Display(Name = "Ministry")]
+        public int? MinistryCode { get; set; }
+
         [Display(Name = "Email Confirmed")]
         public bool EmailConfirmed { get; set; }
 

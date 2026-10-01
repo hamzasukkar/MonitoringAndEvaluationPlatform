@@ -22,8 +22,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private readonly ICurrencyConversionService _currencyConversion;
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, IGuideService guideService, ICurrencyConversionService currencyConversion)
+        private readonly IMinistryScopeService _ministryScope;
+
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, IGuideService guideService, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _logger = logger;
             _context = context;
             _userManager = userManager;
@@ -33,13 +36,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         public async Task<IActionResult> Index()
@@ -57,11 +55,54 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     : projectsQuery.Where(p => p.MinistryCode == scopedMinistryCode);
             }
 
+            var scope = new MinistryScope(isAdmin, scopedMinistryCode);
             var frameworks = await frameworksQuery.ToListAsync();
-            var ministries = await _context.Ministries.ToListAsync();
+            var ministries = await _context.Ministries.WithinScope(scope).ToListAsync();
             var governorates = await _context.Governorates.ToListAsync();
-            var donors = await _context.Donors.ToListAsync();
-            var sectors = await _context.Sectors.ToListAsync();
+            var donors = await _context.Donors.AsNoTracking().ToListAsync();
+            var sectors = await _context.Sectors.AsNoTracking().ToListAsync();
+
+            // The stored donor/sector performance is a national figure that blends every
+            // ministry's projects. A non-admin gets it recomputed from their own projects, and only
+            // for the donors/sectors those projects actually involve.
+            var ownProjects = isAdmin
+                ? new List<Project>()
+                : await projectsQuery
+                    .AsNoTracking()
+                    .Include(p => p.Donors)
+                    .Include(p => p.Phases)
+                        .ThenInclude(pp => pp.ActionPlan)
+                            .ThenInclude(ap => ap!.Plans)
+                    .ToListAsync();
+            var performanceConverter = await _currencyConversion.GetConverterAsync();
+            (double Indicators, double Disbursement)? ScopedPerformance(List<Project> rowProjects) =>
+                rowProjects.Count == 0
+                    ? null
+                    : (ScopedAggregates.IndicatorsPerformance(rowProjects),
+                       ScopedAggregates.DisbursementPerformance(rowProjects, performanceConverter));
+            if (!isAdmin)
+            {
+                donors = donors
+                    .Select(d => (Donor: d, Perf: ScopedPerformance(ownProjects.Where(p => p.Donors.Any(x => x.Code == d.Code)).ToList())))
+                    .Where(x => x.Perf != null)
+                    .Select(x =>
+                    {
+                        x.Donor.IndicatorsPerformance = x.Perf!.Value.Indicators;
+                        x.Donor.DisbursementPerformance = x.Perf.Value.Disbursement;
+                        return x.Donor;
+                    })
+                    .ToList();
+                sectors = sectors
+                    .Select(s => (Sector: s, Perf: ScopedPerformance(ownProjects.Where(p => p.SectorCode == s.Code).ToList())))
+                    .Where(x => x.Perf != null)
+                    .Select(x =>
+                    {
+                        x.Sector.IndicatorsPerformance = x.Perf!.Value.Indicators;
+                        x.Sector.DisbursementPerformance = x.Perf.Value.Disbursement;
+                        return x.Sector;
+                    })
+                    .ToList();
+            }
 
             var frameworksPerformance = frameworks.Select(f => new FrameworkPerformanceViewModel
             {
@@ -90,14 +131,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 OverallPerformance = (s.IndicatorsPerformance + s.DisbursementPerformance) / 2.0
             }).ToList();
 
-            // Get projects by ministry count
+            // Get projects by ministry count, by the OWNING ministry: the ProjectMinistries mirror
+            // of a legacy project can still name other ministries.
             var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
             var projectsByMinistry = await projectsQuery
-                .Include(p => p.Ministries)
-                .SelectMany(p => p.Ministries.Select(m => new { Ministry = m }))
-                .GroupBy(x => currentCulture == "ar"
-                    ? (x.Ministry.MinistryDisplayName_AR ?? x.Ministry.MinistryUserName)
-                    : (x.Ministry.MinistryDisplayName_EN ?? x.Ministry.MinistryUserName))
+                .Where(p => p.Ministry != null)
+                .GroupBy(p => currentCulture == "ar"
+                    ? (p.Ministry!.MinistryDisplayName_AR ?? p.Ministry.MinistryUserName)
+                    : (p.Ministry!.MinistryDisplayName_EN ?? p.Ministry.MinistryUserName))
                 .Select(g => new { Ministry = g.Key, Count = g.Count() })
                 .ToDictionaryAsync(x => x.Ministry, x => x.Count);
 
@@ -221,7 +262,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 TotalProjects = await projectsQuery.CountAsync(),
                 Projects = await projectsQuery
                     .Include(p => p.Sector)
-                    .Include(p => p.Ministries)
+                    .Include(p => p.Ministry)
                     .Include(p => p.Donors)
                     .Take(5)
                     .ToListAsync(),

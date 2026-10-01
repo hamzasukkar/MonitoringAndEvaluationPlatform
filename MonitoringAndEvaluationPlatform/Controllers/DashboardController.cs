@@ -25,11 +25,15 @@ public class DashboardController : Controller
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMinistryStatisticsService _ministryStatistics;
 
+    private readonly IMinistryScopeService _ministryScope;
+
     public DashboardController(
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
-        IMinistryStatisticsService ministryStatistics)
+        IMinistryStatisticsService ministryStatistics,
+        IMinistryScopeService ministryScope)
     {
+        _ministryScope = ministryScope;
         _context = context;
         _userManager = userManager;
         _ministryStatistics = ministryStatistics;
@@ -37,30 +41,15 @@ public class DashboardController : Controller
 
     private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
     {
-        if (User.IsInRole(UserRoles.SystemAdministrator))
-        {
-            return (true, null);
-        }
-
-        var user = await _userManager.GetUserAsync(User);
-        return (false, user?.MinistryCode);
+        var scope = await _ministryScope.GetScopeAsync();
+        return (scope.IsAdmin, scope.MinistryCode);
     }
 
-    private IQueryable<Framework> ApplyFrameworkScope(IQueryable<Framework> query, bool isAdmin, int? scopedMinistryCode)
-    {
-        if (isAdmin) return query;
-        return scopedMinistryCode is null
-            ? query.Where(_ => false)
-            : query.Where(f => f.MinistryCode == scopedMinistryCode);
-    }
+    private static IQueryable<Framework> ApplyFrameworkScope(IQueryable<Framework> query, bool isAdmin, int? scopedMinistryCode) =>
+        query.WithinScope(new MinistryScope(isAdmin, scopedMinistryCode));
 
-    private IQueryable<Project> ApplyProjectScope(IQueryable<Project> query, bool isAdmin, int? scopedMinistryCode)
-    {
-        if (isAdmin) return query;
-        return scopedMinistryCode is null
-            ? query.Where(_ => false)
-            : query.Where(p => p.MinistryCode == scopedMinistryCode);
-    }
+    private static IQueryable<Project> ApplyProjectScope(IQueryable<Project> query, bool isAdmin, int? scopedMinistryCode) =>
+        query.WithinScope(new MinistryScope(isAdmin, scopedMinistryCode));
 
     public async Task<IActionResult> FrameworkPerformance()
     {
@@ -80,8 +69,7 @@ public class DashboardController : Controller
                 .ThenInclude(o => o.Outputs)
                     .ThenInclude(op => op.SubOutputs)
                         .ThenInclude(so => so.Indicators)
-                            .ThenInclude(i => i.Project)
-                                .ThenInclude(p => p.Ministries); // include Ministry for filtering through project indicators
+                            .ThenInclude(i => i.Project);
 
         var frameworks = await frameworksQuery.ToListAsync();
 
@@ -93,12 +81,11 @@ public class DashboardController : Controller
              .SelectMany(o => o.Outputs)
              .SelectMany(op => op.SubOutputs)
              .SelectMany(so => so.Indicators)
-             .Where(i => i.Project != null &&
-                         (
-                           ministryCode == null
-                           || i.Project.Ministries.Any(min => min.Code == ministryCode)
-                         )
-             )
+             // Only projects the caller may see (a legacy link can hang another ministry's project
+             // under this strategy), filtered by their owning ministry.
+             .Where(i => i.Project != null
+                         && MinistryScope.Allows(isAdmin, scopedMinistryCode, i.Project.MinistryCode)
+                         && (ministryCode == null || i.Project.MinistryCode == ministryCode))
              .Select(i => i.Project!)
              .Distinct()
              .ToList();
@@ -139,7 +126,7 @@ public class DashboardController : Controller
             .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
 
         if (indicator == null) return NotFound();
-        if (!isAdmin && indicator.SubOutput?.Output?.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, indicator.SubOutput?.Output?.Outcome?.Framework?.MinistryCode))
         {
             return Forbid();
         }
@@ -356,7 +343,7 @@ public class DashboardController : Controller
             return NotFound();
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
         {
             return Forbid();
         }
@@ -497,6 +484,7 @@ public class DashboardController : Controller
                .ToListAsync(),
 
             Ministries = await _context.Ministries
+               .WithinScope(new MinistryScope(isAdmin, scopedMinistryCode))
                .Select(m => new SelectListItem { Value = m.Code.ToString(), Text = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN })
                .ToListAsync(),
             Sectors = await _context.Sectors
@@ -693,7 +681,7 @@ public class DashboardController : Controller
             return NotFound();
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
         {
             return Forbid();
         }
@@ -731,6 +719,13 @@ public class DashboardController : Controller
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
         var frameworkQuery = ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode);
+
+        // The ministry filter is honoured for an administrator only: a non-admin is pinned to
+        // their own ministry, so another ministry's projects can never be selected by code.
+        if (!isAdmin)
+        {
+            ministryCode = scopedMinistryCode;
+        }
 
         // Prioritize the most specific geographic filter
         if (frameworkCode.HasValue)
@@ -819,7 +814,8 @@ public class DashboardController : Controller
                     .Where(p =>
                         p != null &&
                         (!projectCode.HasValue || p.ProjectID == projectCode.Value) &&
-                        (!ministryCode.HasValue || p.Ministries.Any(m => m.Code == ministryCode.Value)) &&
+                        (isAdmin || (scopedMinistryCode != null && p.MinistryCode == scopedMinistryCode)) &&
+                        (!ministryCode.HasValue || p.MinistryCode == ministryCode.Value) &&
                         (communityCodes == null || !communityCodes.Any() || p.IsEntireCountry || p.Communities.Any(c => communityCodes.Contains(c.Code))) &&
                         (subDistrictCodes == null || !subDistrictCodes.Any() || p.IsEntireCountry || p.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))) &&
                         (districtCodes == null || !districtCodes.Any() || p.IsEntireCountry || p.Districts.Any(d => districtCodes.Contains(d.Code))) &&
@@ -872,8 +868,10 @@ public class DashboardController : Controller
             return Json(Array.Empty<object>());
         }
 
-        var requested = isAdmin ? ministryCode : scopedMinistryCode;
-        var stats = await _ministryStatistics.GetAsync(requested, cancellationToken: cancellationToken);
+        var stats = await _ministryStatistics.GetForScopeAsync(
+            await _ministryScope.GetScopeAsync(cancellationToken),
+            isAdmin ? ministryCode : null,
+            cancellationToken: cancellationToken);
 
         var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
@@ -916,21 +914,21 @@ public class DashboardController : Controller
     [HttpGet]
     public async Task<IActionResult> GetMinistriesByFramework(int frameworkCode)
     {
-        // Load the whole tree down to Project → Ministry
+        // Load the whole tree down to Project → owning Ministry
         var framework = await _context.Frameworks
             .Include(f => f.Outcomes)
                 .ThenInclude(o => o.Outputs)
                     .ThenInclude(op => op.SubOutputs)
                         .ThenInclude(so => so.Indicators)
                             .ThenInclude(i => i.Project)
-                                .ThenInclude(p => p.Ministries)
+                                .ThenInclude(p => p!.Ministry)
             .FirstOrDefaultAsync(f => f.Code == frameworkCode);
 
         if (framework == null)
             return Json(new List<object>());
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
         {
             return Json(new List<object>());
         }
@@ -940,9 +938,12 @@ public class DashboardController : Controller
              .SelectMany(o => o.Outputs)
              .SelectMany(op => op.SubOutputs)
              .SelectMany(so => so.Indicators)
-             .Where(i => i.Project != null)
-             .SelectMany(i => i.Project!.Ministries)
-             .Distinct()   // remove duplicates
+             // Owning ministries only, and only those the caller may see: the ProjectMinistries
+             // mirror, or a legacy link to another ministry's project, would name other ministries.
+             .Where(i => i.Project?.Ministry != null
+                         && MinistryScope.Allows(isAdmin, scopedMinistryCode, i.Project.MinistryCode))
+             .Select(i => i.Project!.Ministry!)
+             .DistinctBy(mn => mn.Code)   // remove duplicates
              .Select(mn => new
              {
                  id = mn.Code,         // your Ministry primary key
@@ -976,7 +977,7 @@ public class DashboardController : Controller
         }
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
         {
             return Json(new List<object>());
         }
@@ -985,7 +986,8 @@ public class DashboardController : Controller
             .SelectMany(o => o.Outputs)
             .SelectMany(op => op.SubOutputs)
             .SelectMany(so => so.Indicators)
-            .Where(i => i.Project != null)
+            .Where(i => i.Project != null
+                        && MinistryScope.Allows(isAdmin, scopedMinistryCode, i.Project.MinistryCode))
             .Select(i => i.Project!)
             .Distinct()
             .Select(p => new
@@ -1084,7 +1086,7 @@ public class DashboardController : Controller
         }
 
         var frameworks = await ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode)
-            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && i.Project.Ministries.Any(min => min.Code == ministryCode))))))
+            .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && i.Project.MinistryCode == ministryCode)))))
             .Select(f => new
             {
                 code = f.Code,
@@ -1106,7 +1108,7 @@ public class DashboardController : Controller
         }
 
         var projects = await ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode)
-            .Where(p => p.Ministries.Any(m => m.Code == ministryCode))
+            .Where(p => p.MinistryCode == ministryCode)
             .Select(p => new
             {
                 id = p.ProjectID,
@@ -1124,7 +1126,7 @@ public class DashboardController : Controller
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
         var project = await _context.Projects.FindAsync(projectCode);
         if (project == null) return Json(new List<object>());
-        if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, project.MinistryCode))
         {
             return Json(new List<object>());
         }
@@ -1148,14 +1150,16 @@ public class DashboardController : Controller
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
         var project = await _context.Projects.FindAsync(projectCode);
         if (project == null) return Json(new List<object>());
-        if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, project.MinistryCode))
         {
             return Json(new List<object>());
         }
 
+        // The owning ministry only: the ProjectMinistries mirror of a legacy project can still
+        // name other ministries.
         var currentCulture = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName;
         var ministries = await _context.Ministries
-            .Where(m => m.Projects.Any(p => p.ProjectID == projectCode))
+            .Where(m => m.Code == project.MinistryCode)
             .Select(m => new
             {
                 id = m.Code,
@@ -1174,7 +1178,7 @@ public class DashboardController : Controller
         if (framework == null) return Json(new List<object>());
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
         {
             return Json(new List<object>());
         }
@@ -1204,7 +1208,7 @@ public class DashboardController : Controller
         if (project == null) return Json(new List<object>());
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-        if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, project.MinistryCode))
         {
             return Json(new List<object>());
         }
@@ -1233,7 +1237,7 @@ public class DashboardController : Controller
         }
 
         var governorates = await ApplyProjectScope(_context.Projects, isAdmin, scopedMinistryCode)
-            .Where(p => p.Ministries.Any(m => m.Code == ministryCode))
+            .Where(p => p.MinistryCode == ministryCode)
             .SelectMany(p => p.Governorates) // many-to-many Project ↔ Governorate
             .Select(g => new
             {
@@ -1325,7 +1329,7 @@ public class DashboardController : Controller
         if (framework == null) return Json(new List<object>());
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-        if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
         {
             return Json(new List<object>());
         }
@@ -1357,7 +1361,7 @@ public class DashboardController : Controller
         }
 
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-        if (!isAdmin && goal.Framework?.MinistryCode != scopedMinistryCode)
+        if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, goal.Framework?.MinistryCode))
         {
             return Forbid();
         }
@@ -1798,6 +1802,13 @@ public class DashboardController : Controller
         var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
         var frameworkQuery = ApplyFrameworkScope(_context.Frameworks, isAdmin, scopedMinistryCode);
 
+        // The ministry filter is honoured for an administrator only: a non-admin is pinned to
+        // their own ministry, so another ministry's projects can never be selected by code.
+        if (!isAdmin)
+        {
+            ministryCode = scopedMinistryCode;
+        }
+
         if (frameworkCode.HasValue)
         {
             frameworkQuery = frameworkQuery.Where(fw => fw.Code == frameworkCode);
@@ -1878,7 +1889,8 @@ public class DashboardController : Controller
                     .Where(p =>
                         p != null &&
                         (!projectCode.HasValue || p.ProjectID == projectCode.Value) &&
-                        (!ministryCode.HasValue || p.Ministries.Any(m => m.Code == ministryCode.Value)) &&
+                        (isAdmin || (scopedMinistryCode != null && p.MinistryCode == scopedMinistryCode)) &&
+                        (!ministryCode.HasValue || p.MinistryCode == ministryCode.Value) &&
                         (communityCodes == null || !communityCodes.Any() || p.IsEntireCountry || p.Communities.Any(c => communityCodes.Contains(c.Code))) &&
                         (subDistrictCodes == null || !subDistrictCodes.Any() || p.IsEntireCountry || p.SubDistricts.Any(s => subDistrictCodes.Contains(s.Code))) &&
                         (districtCodes == null || !districtCodes.Any() || p.IsEntireCountry || p.Districts.Any(d => districtCodes.Contains(d.Code))) &&

@@ -115,4 +115,13 @@
   <data name="All data management operations are logged and require security confirmation. These operations cannot be undone. Please ensure you have a backup before performing any destructive operations." xml:space="preserve">
     <value>يتم تسجيل جميع عمليات إدارة البيانات وتتطلب تأكيد أمني. لا يمكن التراجع عن هذه العمليات. يرجى التأكد من وجود نسخة احتياطية قبل إجراء أي عمليات تدميرية.</value>
   </data>
+  <data name="Recalculate Ministry Performance" xml:space="preserve">
+    <value>إعادة حساب أداء الوزارات</value>
+  </data>
+  <data name="Recompute each ministry's performance from the projects it owns. Run once after the ministry ownership migration." xml:space="preserve">
+    <value>إعادة حساب أداء كل وزارة من المشاريع التابعة لها. يُنفَّذ مرة واحدة بعد ترحيل ملكية الوزارات.</value>
+  </data>
+  <data name="Recalculate" xml:space="preserve">
+    <value>إعادة الحساب</value>
+  </data>
 </root>

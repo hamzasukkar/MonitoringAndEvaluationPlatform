@@ -933,10 +933,11 @@
                                         </td>
                                         <td>
                                             @{
-                                                var ministryNames = (item.Ministries ?? new List<MonitoringAndEvaluationPlatform.Models.Ministry>())
-                                                    .Select(m => culture.StartsWith("ar") ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
+                                                // The owning ministry only; the Ministries mirror list may hold stale links.
+                                                var ministryNames = new[] { item.Ministry }
+                                                    .Where(m => m != null)
+                                                    .Select(m => culture.StartsWith("ar") ? m!.MinistryDisplayName_AR : m!.MinistryDisplayName_EN)
                                                     .Where(n => !string.IsNullOrWhiteSpace(n))
-                                                    .Distinct()
                                                     .ToList();
                                             }
                                             @if (ministryNames.Any())

@@ -17,15 +17,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStringLocalizer<RequestsController> _localizer;
+        private readonly IMinistryScopeService _ministryScope;
 
         public RequestsController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IStringLocalizer<RequestsController> localizer)
+            IStringLocalizer<RequestsController> localizer,
+            IMinistryScopeService ministryScope)
         {
             _context = context;
             _userManager = userManager;
             _localizer = localizer;
+            _ministryScope = ministryScope;
         }
 
         // ---------------------------------------------------------------- Management
@@ -144,7 +147,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var user = await _userManager.GetUserAsync(User);
             request.SubmittedByUserId = user?.Id;
-            request.MinistryCode ??= user?.MinistryCode;
+
+            // A non-admin's request always belongs to their own ministry; a posted MinistryCode
+            // is honoured for an administrator only.
+            var scope = await _ministryScope.GetScopeAsync();
+            request.MinistryCode = scope.IsAdmin
+                ? request.MinistryCode ?? user?.MinistryCode
+                : scope.MinistryCode;
             request.Status = RequestStatus.New;
             request.RequestNumber = await GenerateRequestNumberAsync(request.RequestDate);
 
@@ -680,15 +689,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task PopulateLookupsAsync(int? includeVersionId = null)
         {
-            var users = await _userManager.Users
-                .OrderBy(u => u.UserName)
-                .Select(u => new { u.Id, u.UserName })
-                .ToListAsync();
+            var scope = await _ministryScope.GetScopeAsync();
+
+            // The assignee list is only used by the admin-only Edit form. Account names are
+            // named after ministries, so nobody else is sent the full list.
+            var users = scope.IsAdmin
+                ? await _userManager.Users
+                    .OrderBy(u => u.UserName)
+                    .Select(u => new { u.Id, u.UserName })
+                    .ToListAsync()
+                : [];
 
             ViewBag.Users = new SelectList(users, "Id", "UserName");
 
             var isArabic = CultureInfo.CurrentUICulture.Name.StartsWith("ar");
-            var ministries = await _context.Ministries.ToListAsync();
+            var ministries = await _context.Ministries.WithinScope(scope).ToListAsync();
 
             ViewBag.Ministries = new SelectList(
                 ministries.OrderBy(m => isArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN),

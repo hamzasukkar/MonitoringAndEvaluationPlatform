@@ -3,47 +3,43 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @using MonitoringAndEvaluationPlatform.Data
 @using MonitoringAndEvaluationPlatform.Models
+@using MonitoringAndEvaluationPlatform.Services
 @inject ApplicationDbContext _context
-@inject UserManager<ApplicationUser> _userManager
+@inject IMinistryScopeService MinistryScopeService
 @inject IViewLocalizer Localizer
 
 @{
     var msdIsArabic = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
 
-    // Same scope rule as GetScopeAsync() in FrameworksController and friends:
-    // admins see everything, everyone else is restricted to their own ministry.
-    var msdIsAdmin = User.IsInRole(UserRoles.SystemAdministrator);
-    int? msdScopedMinistryCode = null;
-    if (!msdIsAdmin)
-    {
-        var msdCurrentUser = await _userManager.GetUserAsync(User);
-        msdScopedMinistryCode = msdCurrentUser?.MinistryCode;
-    }
+    // Admins see everything; everyone else only their own ministry and the strategies it OWNS.
+    var msdScope = await MinistryScopeService.GetScopeAsync();
 
-    // All strategies, ordered like policiesDropdown does.
+    // Strategies, ordered like policiesDropdown does.
     var msdFrameworks = _context.Frameworks
+        .WithinScope(msdScope)
         .OrderByDescending(f => f.IndicatorsPerformance)
         .Select(f => new { f.Code, f.Name, f.IndicatorsPerformance, f.MinistryCode })
         .ToList();
 
-    // Indirect strategy <-> ministry links, through each indicator's project.
-    // Same relationship FrameworksController.Index uses when scoping frameworks to a ministry.
-    var msdProjectLinks = _context.Indicators
-        .Where(i => i.Project != null)
-        .SelectMany(i => i.Project.Ministries.Select(m => new
-        {
-            FrameworkCode = i.SubOutput.Output.Outcome.FrameworkCode,
-            MinistryCode = m.Code
-        }))
-        .Distinct()
-        .ToList();
-
-    var msdLinksByMinistry = msdProjectLinks
-        .GroupBy(l => l.MinistryCode)
-        .ToDictionary(g => g.Key, g => g.Select(l => l.FrameworkCode).ToHashSet());
+    // Administrators also see a strategy under a ministry that reaches it through a project
+    // (the same union FrameworksController.Index offers them). A ministry user never does: that
+    // is how another ministry's strategies used to appear in their menu.
+    var msdLinksByMinistry = msdScope.IsAdmin
+        ? _context.Indicators
+            .Where(i => i.Project != null)
+            .SelectMany(i => i.Project.Ministries.Select(m => new
+            {
+                FrameworkCode = i.SubOutput.Output.Outcome.FrameworkCode,
+                MinistryCode = m.Code
+            }))
+            .Distinct()
+            .ToList()
+            .GroupBy(l => l.MinistryCode)
+            .ToDictionary(g => g.Key, g => g.Select(l => l.FrameworkCode).ToHashSet())
+        : new Dictionary<int, HashSet<int>>();
 
     var msdMinistries = _context.Ministries
-        .Where(m => msdIsAdmin || m.Code == msdScopedMinistryCode)
+        .WithinScope(msdScope)
         .ToList()
         .OrderBy(m => msdIsArabic ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
         .ToList();

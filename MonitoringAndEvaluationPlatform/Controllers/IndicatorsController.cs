@@ -32,8 +32,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IStringLocalizer<IndicatorsController> _localizer;
         private readonly IndicatorProjectPairService _pairService;
 
-        public IndicatorsController(ApplicationDbContext context, PlanService planService, UserManager<ApplicationUser> userManager, IStringLocalizer<IndicatorsController> localizer, IndicatorProjectPairService pairService)
+        private readonly IMinistryScopeService _ministryScope;
+
+        public IndicatorsController(ApplicationDbContext context, PlanService planService, UserManager<ApplicationUser> userManager, IStringLocalizer<IndicatorsController> localizer, IndicatorProjectPairService pairService, IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _planService = planService;
             _userManager = userManager;
@@ -43,13 +46,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         private async Task<bool> SubOutputBelongsToScopeAsync(int subOutputCode)
@@ -83,10 +81,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["subOutputCode"] = subOutputCode;
             ViewData["frameworkCode"] = frameworkCode;
 
-            // Get current user and check if they are a ministry user
-            var currentUser = await _userManager.GetUserAsync(User);
+            // Ministry and data-entry users work on their own projects' indicators only
             var isMinistryUser = User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry);
-            var userMinistryName = currentUser?.MinistryName;
+            var ministryScope = await _ministryScope.GetScopeAsync();
 
             var indicators = _context.Indicators
                 .Include(i => i.SubOutput)
@@ -111,14 +108,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 indicators = indicators.Where(i => i.SubOutputCode == subOutputCode);
             }
 
-            // Filter by ministry if user is a ministry user
-            if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
+            // Filter by ministry if user is a ministry user. Keyed by the project's owner, so an
+            // indicator with no project, or with another ministry's project, is never listed.
+            if (isMinistryUser && ministryScope.IsRestricted)
             {
-                indicators = indicators.Where(i =>
-                    i.Project != null && i.Project.Ministry != null &&
-                    (i.Project.Ministry.MinistryDisplayName_AR == userMinistryName ||
-                     i.Project.Ministry.MinistryDisplayName_EN == userMinistryName ||
-                     i.Project.Ministry.MinistryUserName == userMinistryName));
+                var ownMinistry = ministryScope.MinistryCode;
+                indicators = indicators.Where(i => i.Project != null && ownMinistry != null && i.Project.MinistryCode == ownMinistry);
             }
 
             // Restrict to ancestor framework's ministry for non-admins
@@ -136,7 +131,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 indicators = indicators.Where(i =>
                     EF.Functions.Like(i.Name, $"%{searchString}%") ||
                     (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
-                    (i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
+                    // Project names count only for the caller's own projects.
+                    (i.Project != null
+                        && (ministryScope.IsAdmin || (ministryScope.MinistryCode != null && i.Project.MinistryCode == ministryScope.MinistryCode))
+                        && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
             }
 
             // Apply hierarchy (Outcome / Output) filters
@@ -191,15 +189,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     : indicators.OrderByDescending(i => i.Name).ThenBy(i => i.IndicatorCode),
             };
 
+            // AsNoTracking: a foreign project is detached from its indicator for non-admins.
             var resultIndicators = await indicators
+                .AsNoTracking()
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+            resultIndicators.HideForeignProjects(ministryScope);
 
             // Pass suboutput name to view if viewing specific suboutput
             if (subOutputCode.HasValue)
             {
                 ViewBag.SubOutputName = await _context.SubOutputs
+                    .WithinScope(ministryScope)
                     .Where(s => s.Code == subOutputCode.Value)
                     .Select(s => s.Name)
                     .FirstOrDefaultAsync();
@@ -213,11 +215,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (frameworkCode.HasValue)
             {
                 outcomes = await _context.Outcomes
+                    .WithinScope(ministryScope)
                     .Where(o => o.FrameworkCode == frameworkCode.Value)
                     .OrderBy(o => o.Name)
                     .ToListAsync();
 
                 var outputsQuery = _context.Outputs
+                    .WithinScope(ministryScope)
                     .Where(o => o.Outcome.FrameworkCode == frameworkCode.Value);
                 if (outcomeCode.HasValue)
                     outputsQuery = outputsQuery.Where(o => o.OutcomeCode == outcomeCode.Value);
@@ -347,7 +351,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (existingIndicator != null)
             {
                 ModelState.AddModelError("Name", _localizer["An indicator with this name already exists in this suboutput."]);
-                ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+                ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs.WithinScope(await _ministryScope.GetScopeAsync()), "Code", "Name", indicator.SubOutputCode);
                 return View(indicator);
             }
 
@@ -366,7 +370,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return RedirectToAction(nameof(Index), new { frameworkCode = indicator.SubOutput.Output.Outcome.FrameworkCode, subOutputCode = indicator.SubOutputCode });
             }
 
-            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs.WithinScope(await _ministryScope.GetScopeAsync()), "Code", "Name", indicator.SubOutputCode);
             return View(indicator);
         }
 
@@ -704,7 +708,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             if (indicator.ProjectID.HasValue)
             {
-                var project = await _context.Projects.FindAsync(indicator.ProjectID.Value);
+                // Scoped: a legacy link can point the caller's indicator at another ministry's project.
+                var project = await _context.Projects
+                    .WithinScope(await _ministryScope.GetScopeAsync())
+                    .FirstOrDefaultAsync(p => p.ProjectID == indicator.ProjectID.Value);
                 ViewBag.ProjectName = project?.ProjectName;
             }
             return View(indicator);
@@ -765,10 +772,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs, "Code", "Name", indicator.SubOutputCode);
+            ViewData["SubOutputCode"] = new SelectList(_context.SubOutputs.WithinScope(await _ministryScope.GetScopeAsync()), "Code", "Name", indicator.SubOutputCode);
             if (indicator.ProjectID.HasValue)
             {
-                var project = await _context.Projects.FindAsync(indicator.ProjectID.Value);
+                // Scoped: a legacy link can point the caller's indicator at another ministry's project.
+                var project = await _context.Projects
+                    .WithinScope(await _ministryScope.GetScopeAsync())
+                    .FirstOrDefaultAsync(p => p.ProjectID == indicator.ProjectID.Value);
                 ViewBag.ProjectName = project?.ProjectName;
             }
             return View(indicator);
@@ -812,7 +822,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && indicator.SubOutput?.Output?.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, indicator.SubOutput?.Output?.Outcome?.Framework?.MinistryCode))
             {
                 return Forbid();
             }
@@ -873,12 +883,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> GetMeasureChartData(int indicatorCode)
         {
+            if (!await _ministryScope.CanAccessIndicatorAsync(indicatorCode))
+            {
+                return Forbid();
+            }
+            var scope = await _ministryScope.GetScopeAsync();
+
             // Get indicator to find its project
             var indicatorForChart = await _context.Indicators
                 .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
 
+            // Measures are the project's data, so they are scoped by the project's owner too: a
+            // legacy link can put another ministry's project behind the caller's own indicator.
             var data = indicatorForChart?.ProjectID.HasValue == true
                 ? await _context.Measures
+                    .WithinScope(scope)
                     .Where(m => m.ProjectPhase.ProjectID == indicatorForChart.ProjectID.Value)
                     .OrderBy(m => m.Date)
                     .Select(m => new { date = m.Date.ToString("yyyy-MM-dd"), value = m.Value })
@@ -897,6 +916,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> TrendData(int indicatorCode)
         {
+            if (!await _ministryScope.CanAccessIndicatorAsync(indicatorCode))
+            {
+                return Forbid();
+            }
+
             var indicator = await _context.Indicators
                 .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
 
@@ -904,6 +928,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new { monthly = Array.Empty<object>(), quarterly = Array.Empty<object>(), phases = Array.Empty<object>() });
 
             var measures = await _context.Measures
+                .WithinScope(await _ministryScope.GetScopeAsync())
                 .Include(m => m.ProjectPhase)
                 .Where(m => m.ProjectPhase.ProjectID == indicator.ProjectID.Value)
                 .OrderBy(m => m.Date)
@@ -961,11 +986,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [Permission(Permissions.ReadIndicators)]
         public async Task<IActionResult> MeasureTablePartial(int indicatorCode)
         {
+            if (!await _ministryScope.CanAccessIndicatorAsync(indicatorCode))
+            {
+                return Forbid();
+            }
+
             var indicatorForTable = await _context.Indicators
                 .FirstOrDefaultAsync(i => i.IndicatorCode == indicatorCode);
 
             var measures = indicatorForTable?.ProjectID.HasValue == true
                 ? await _context.Measures
+                    .WithinScope(await _ministryScope.GetScopeAsync())
                     .Where(m => m.ProjectPhase.ProjectID == indicatorForTable.ProjectID.Value)
                     .OrderBy(m => m.Date)
                     .ToListAsync()
@@ -1261,17 +1292,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 query = query.Where(i => i.SubOutputCode == subOutputCode.Value);
 
             // Filter by ministry if user is a ministry user (same rules as Index)
-            var currentUser = await _userManager.GetUserAsync(User);
             var isMinistryUser = User.IsInRole(UserRoles.MinistriesUser) || User.IsInRole(UserRoles.DataEntry);
-            var userMinistryName = currentUser?.MinistryName;
+            var ministryScope = await _ministryScope.GetScopeAsync();
 
-            if (isMinistryUser && !string.IsNullOrEmpty(userMinistryName))
+            if (isMinistryUser && ministryScope.IsRestricted)
             {
-                query = query.Where(i =>
-                    i.Project != null && i.Project.Ministry != null &&
-                    (i.Project.Ministry.MinistryDisplayName_AR == userMinistryName ||
-                     i.Project.Ministry.MinistryDisplayName_EN == userMinistryName ||
-                     i.Project.Ministry.MinistryUserName == userMinistryName));
+                var ownMinistry = ministryScope.MinistryCode;
+                query = query.Where(i => i.Project != null && ownMinistry != null && i.Project.MinistryCode == ownMinistry);
             }
 
             // Restrict to ancestor framework's ministry for non-admins
@@ -1288,7 +1315,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 query = query.Where(i =>
                     EF.Functions.Like(i.Name, $"%{searchString}%") ||
                     (i.SubOutput != null && EF.Functions.Like(i.SubOutput.Name, $"%{searchString}%")) ||
-                    (i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
+                    // Project names count only for the caller's own projects.
+                    (i.Project != null
+                        && (ministryScope.IsAdmin || (ministryScope.MinistryCode != null && i.Project.MinistryCode == ministryScope.MinistryCode))
+                        && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")));
             }
 
             query = performanceBand?.ToLower() switch

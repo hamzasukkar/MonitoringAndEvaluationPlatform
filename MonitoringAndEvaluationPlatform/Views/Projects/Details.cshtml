@@ -117,7 +117,8 @@
                                     @Localizer["Ministry"]
                                 </div>
                                 <div class="info-value">
-                                    @foreach (var ministry in Model.Ministries)
+                                    @* The owning ministry only; the Ministries mirror list may hold stale links. *@
+                                    @if (Model.Ministry is { } ministry)
                                     {
                                         <span class="modern-badge badge-primary">
                                             @if (!string.IsNullOrEmpty(ministry.Logo))

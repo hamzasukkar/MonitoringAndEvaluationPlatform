@@ -265,13 +265,10 @@
                             <td>@(project.ProjectManager?.Name ?? Localizer["unavailable"].Value)</td>
                             @if (FeatureFlags.Value.ShowSupervisors) { <td>@(project.SuperVisor?.Name ?? Localizer["unavailable"].Value)</td> }
                             <td>
-                                @if (project.Ministries.Any())
+                                @* The owning ministry only; the Ministries mirror list may hold stale links. *@
+                                @if (project.Ministry != null)
                                 {
-                                    <span>@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? project.Ministries.First().MinistryDisplayName_AR : project.Ministries.First().MinistryDisplayName_EN)</span>
-                                    @if (project.Ministries.Count > 1)
-                                    {
-                                        <span class="badge bg-secondary ms-1">+@(project.Ministries.Count - 1) @Localizer["more"]</span>
-                                    }
+                                    <span>@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? project.Ministry.MinistryDisplayName_AR : project.Ministry.MinistryDisplayName_EN)</span>
                                 }
                                 else
                                 {

@@ -35,8 +35,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IPerformanceService _performanceService;
         private readonly IAuthorizationService _authorizationService;
 
-        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer, ICurrencyConversionService currencyConversion, IndicatorProjectPairService pairService, IPerformanceService performanceService, IAuthorizationService authorizationService)
+        private readonly IMinistryScopeService _ministryScope;
+
+        public ProjectsController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, PlanService planService, IProjectValidationService validationService, IStringLocalizer<ProjectsController> localizer, ICurrencyConversionService currencyConversion, IndicatorProjectPairService pairService, IPerformanceService performanceService, IAuthorizationService authorizationService, IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
@@ -51,13 +54,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         /// <summary>
@@ -146,7 +144,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Index(ProgramFilterViewModel filter)
         {
             // Load dropdown/filter data
-            filter.Ministries = await _context.Ministries.ToListAsync();
+            var scope = await _ministryScope.GetScopeAsync();
+            filter.Ministries = await _context.Ministries.WithinScope(scope).ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
             filter.ProjectManagers = await _context.ProjectManagers.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
@@ -157,13 +156,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // under the selected ministry/ministries - same "Project.Ministries" definition
             // the SelectedMinistries project filter itself uses below, for consistency.
             filter.Frameworks = filter.SelectedMinistries.Any()
-                ? await _context.Frameworks
+                ? await _context.Frameworks.WithinScope(scope)
                     .Where(f => f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so =>
                         so.Indicators.Any(i => i.Project != null &&
                             i.Project.Ministries.Any(m => filter.SelectedMinistries.Contains(m.Code)))))))
                     .OrderBy(f => f.Name)
                     .ToListAsync()
-                : await _context.Frameworks.OrderBy(f => f.Name).ToListAsync();
+                : await _context.Frameworks.WithinScope(scope).OrderBy(f => f.Name).ToListAsync();
 
             // If the currently selected Framework (and anything cascading from it) no longer
             // belongs to the narrowed list, clear it - otherwise the dropdown silently shows
@@ -211,11 +210,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Finalize and assign the current page's results (eager-load Ministries and
             // the Indicator -> SubOutput -> Output -> Outcome -> Framework chain so the
             // view can show each project's ministries and frameworks)
+            var isAdminScope = scope.IsAdmin;
+            var ownMinistry = scope.MinistryCode;
             filter.Projects = await projectQuery
                 .Skip((filter.CurrentPage - 1) * filter.PageSize)
                 .Take(filter.PageSize)
-                .Include(p => p.Ministries)
-                .Include(p => p.Indicators)
+                .Include(p => p.Ministry)
+                // Only indicators under strategies the viewer may see, so the strategy column
+                // never names another ministry's strategy for a legacy cross-linked project.
+                .Include(p => p.Indicators.Where(i => isAdminScope || (ownMinistry != null && i.SubOutput.Output.Outcome.Framework.MinistryCode == ownMinistry)))
                     .ThenInclude(i => i.SubOutput)
                         .ThenInclude(so => so.Output)
                             .ThenInclude(o => o.Outcome)
@@ -229,36 +232,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Mutates the supplied filter to set IsMinistryUser and the hierarchy display names.
         private async Task<IQueryable<Project>> BuildFilteredProjectsQueryAsync(ProgramFilterViewModel filter)
         {
-            // Get the logged-in user
-            var user = await _userManager.GetUserAsync(User);
-
-            // Start with base project query
-            var projectQuery = _context.Projects.AsQueryable();
-
-            // If the user is associated with a Ministry (and not SystemAdministrator), filter projects to only that Ministry
-            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                projectQuery = projectQuery
-                    .Where(p => p.Ministries
-                                 .Any(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName));
-                filter.IsMinistryUser = true;
-            }
-
             // Restrict by MinistryCode for any non-admin (authoritative scoping)
-            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin)
+            var scope = await _ministryScope.GetScopeAsync();
+            var projectQuery = _context.Projects.WithinScope(scope);
+            if (scope.IsRestricted)
             {
-                projectQuery = scopedMinistryCode is null
-                    ? projectQuery.Where(_ => false)
-                    : projectQuery.Where(p => p.MinistryCode == scopedMinistryCode);
                 filter.IsMinistryUser = true;
             }
 
             // Apply SubOutput filter if provided (legacy URL parameter)
             if (filter.SubOutputCode.HasValue)
             {
-                // Get the SubOutput name for display
-                var subOutput = await _context.SubOutputs.FindAsync(filter.SubOutputCode.Value);
+                // Get the SubOutput name for display (the code comes from the URL)
+                var subOutput = await _context.SubOutputs.WithinScope(scope)
+                    .FirstOrDefaultAsync(so => so.Code == filter.SubOutputCode.Value);
                 if (subOutput != null)
                 {
                     filter.SubOutputName = subOutput.Name;
@@ -279,7 +266,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(i => i.SubOutputCode == filter.SelectedSubOutputCode.Value));
 
                 // Get display names for breadcrumb
-                var subOutput = await _context.SubOutputs
+                var subOutput = await _context.SubOutputs.WithinScope(scope)
                     .Include(so => so.Output)
                         .ThenInclude(o => o.Outcome)
                             .ThenInclude(oc => oc.Framework)
@@ -305,7 +292,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display names
-                var output = await _context.Outputs
+                var output = await _context.Outputs.WithinScope(scope)
                     .Include(o => o.Outcome)
                         .ThenInclude(oc => oc.Framework)
                     .FirstOrDefaultAsync(o => o.Code == filter.SelectedOutputCode.Value);
@@ -329,7 +316,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display names
-                var outcome = await _context.Outcomes
+                var outcome = await _context.Outcomes.WithinScope(scope)
                     .Include(oc => oc.Framework)
                     .FirstOrDefaultAsync(oc => oc.Code == filter.SelectedOutcomeCode.Value);
                 if (outcome != null)
@@ -351,7 +338,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                  .Any(i => subOutputCodes.Contains(i.SubOutputCode)));
 
                 // Get display name
-                var framework = await _context.Frameworks.FindAsync(filter.SelectedFrameworkCode.Value);
+                var framework = await _context.Frameworks.WithinScope(scope)
+                    .FirstOrDefaultAsync(f => f.Code == filter.SelectedFrameworkCode.Value);
                 if (framework != null)
                 {
                     filter.FrameworkName = framework.Name;
@@ -453,9 +441,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var projectQuery = await BuildFilteredProjectsQueryAsync(filter);
 
+            var scope = await _ministryScope.GetScopeAsync();
+            var isAdminScope = scope.IsAdmin;
+            var ownMinistry = scope.MinistryCode;
             var projects = await projectQuery
-                .Include(p => p.Ministries)
-                .Include(p => p.Indicators)
+                .Include(p => p.Ministry)
+                .Include(p => p.Indicators.Where(i => isAdminScope || (ownMinistry != null && i.SubOutput.Output.Outcome.Framework.MinistryCode == ownMinistry)))
                     .ThenInclude(i => i.SubOutput)
                         .ThenInclude(so => so.Output)
                             .ThenInclude(o => o.Outcome)
@@ -496,10 +487,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             int row = 2;
             foreach (var project in projects)
             {
-                var ministries = string.Join(", ", (project.Ministries ?? new List<Ministry>())
-                    .Select(m => isRtl ? m.MinistryDisplayName_AR : m.MinistryDisplayName_EN)
-                    .Where(n => !string.IsNullOrWhiteSpace(n))
-                    .Distinct());
+                // The owning ministry; the Ministries mirror list may still hold stale links.
+                var ministries = project.Ministry == null
+                    ? string.Empty
+                    : (isRtl ? project.Ministry.MinistryDisplayName_AR : project.Ministry.MinistryDisplayName_EN) ?? string.Empty;
 
                 var frameworks = string.Join(", ", (project.Indicators ?? new List<Indicator>())
                     .Select(i => i.SubOutput?.Output?.Outcome?.Framework?.Name)
@@ -622,11 +613,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .ThenBy(d => d.Partner)
                 .ToList();
             var sectors = _context.Sectors.ToList();
-            var ministries = _context.Ministries.ToList();
+            var scope = await _ministryScope.GetScopeAsync();
+            var ministries = await _context.Ministries.WithinScope(scope).ToListAsync();
             var supervisors = _context.SuperVisors.ToList();
             var projectManagers = _context.ProjectManagers.ToList();
             var goals = _context.Goals.ToList();
             var isArabic = CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar";
+
+            // The linked indicator/suboutput decides the project's ministry below, so a foreign one
+            // would both reveal that ministry and pre-select it.
+            if (indicatorId.HasValue && !await _ministryScope.CanAccessIndicatorAsync(indicatorId.Value))
+            {
+                return Forbid();
+            }
+            if (pendingIndicatorSubOutputCode.HasValue && !await _ministryScope.CanAccessSubOutputAsync(pendingIndicatorSubOutputCode.Value))
+            {
+                return Forbid();
+            }
 
             ViewBag.Governorates = _context.Governorates.ToList();
 
@@ -640,21 +643,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.PendingIndicatorSubOutputCode = pendingIndicatorSubOutputCode;
             ViewBag.PreFilledProjectName = preFilledProjectName;
 
-            // Get the logged-in user
-            var user = await _userManager.GetUserAsync(User);
-            int? userMinistryCode = null;
-            bool isMinistryUser = false;
-
-            // Check if the user is associated with a Ministry (and not SystemAdministrator)
-            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
-                if (userMinistry != null)
-                {
-                    userMinistryCode = userMinistry.Code;
-                    isMinistryUser = true;
-                }
-            }
+            // A non-admin's project always belongs to their own ministry.
+            int? userMinistryCode = scope.IsRestricted ? scope.MinistryCode : null;
+            bool isMinistryUser = userMinistryCode.HasValue;
 
             // If this project is being created from a linked indicator whose program (SubOutput →
             // Output → Outcome → Framework) belongs to a ministry, that ministry wins over the
@@ -698,7 +689,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.SectorList = new SelectList(sectors, "Code", isArabic ? "AR_Name" : "EN_Name", project.SectorCode);
             ViewBag.PublicSectorTypeList = new SelectList(_context.PublicSectorTypes.ToList(), "Code", isArabic ? "AR_Name" : "EN_Name");
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
-            ViewBag.Ministries = ministries; // Pass full ministry list with Logo property
+            ViewBag.Ministries = ministries; // Scoped ministry list with Logo property (just their own for non-admins)
             ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
             ViewBag.SuperVisor = new SelectList(supervisors, "Code", "Name");
 
@@ -753,6 +744,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 // suboutput still drove the ministry override below.
                 if (PendingIndicatorSubOutputCode.HasValue &&
                     !await SubOutputBelongsToScopeAsync(PendingIndicatorSubOutputCode.Value))
+                {
+                    return Forbid();
+                }
+
+                // Same for an existing indicator: it decides the project's ministry below and is
+                // re-pointed at the new project, so a foreign one would be a cross-ministry write.
+                if (LinkedIndicatorId.HasValue &&
+                    !await _ministryScope.CanAccessIndicatorAsync(LinkedIndicatorId.Value))
                 {
                     return Forbid();
                 }
@@ -1030,7 +1029,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(p => p.Donors)
                 .Include(p => p.ProjectDonors)
                     .ThenInclude(pd => pd.Donor)
-                .Include(p => p.Ministries)
+                .Include(p => p.Ministry)
                 .Include(p => p.Governorates)
                 .Include(p => p.Districts)
                 .Include(p => p.SubDistricts)
@@ -1062,9 +1061,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var (isAdminDetails, scopedMinistryCodeDetails) = await GetScopeAsync();
-            if (!isAdminDetails && project.MinistryCode != scopedMinistryCodeDetails)
+            if (!MinistryScope.Allows(isAdminDetails, scopedMinistryCodeDetails, project.MinistryCode))
             {
                 return Forbid();
+            }
+
+            // A legacy link can put this project under another ministry's strategy; that
+            // strategy's names are not the viewer's to see. Safe to trim: loaded AsNoTracking.
+            if (!isAdminDetails)
+            {
+                project.Indicators = project.Indicators
+                    .Where(i => MinistryScope.Allows(false, scopedMinistryCodeDetails, i.SubOutput?.Output?.Outcome?.Framework?.MinistryCode))
+                    .ToList();
             }
 
             return View(project);
@@ -1122,7 +1130,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (project == null) return NotFound();
 
             var (isAdminEditGet, scopedMinistryCodeEditGet) = await GetScopeAsync();
-            if (!isAdminEditGet && project.MinistryCode != scopedMinistryCodeEditGet)
+            if (!MinistryScope.Allows(isAdminEditGet, scopedMinistryCodeEditGet, project.MinistryCode))
             {
                 return Forbid();
             }
@@ -1206,29 +1214,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             );
             ViewBag.DonorFundingData = JsonConvert.SerializeObject(donorFundingData);
 
-            // Build the Ministry SelectList, marking the project's existing ministry code as "selected":
-            var allMinistries = await _context.Ministries.ToListAsync();
-            // Get the currently selected ministry code from the first ministry in the collection
-            var selectedMinistryCode = project.Ministries.FirstOrDefault()?.Code;
-            // Set the MinistryCode property for binding
-            project.MinistryCode = selectedMinistryCode;
+            // Build the Ministry SelectList, marking the project's owning ministry as "selected".
+            // MinistryCode is the owner; the Ministries collection only mirrors it, and for a legacy
+            // project linked to several ministries its first entry would be an arbitrary pick.
+            var scope = await _ministryScope.GetScopeAsync();
+            var allMinistries = await _context.Ministries.WithinScope(scope).ToListAsync();
+            var selectedMinistryCode = project.MinistryCode;
 
-            // Get the logged-in user for ministry check
-            var user = await _userManager.GetUserAsync(User);
-            bool isMinistryUser = false;
-
-            // Check if the user is associated with a Ministry (and not SystemAdministrator)
-            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                var userMinistry = allMinistries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
-                if (userMinistry != null)
-                {
-                    isMinistryUser = true;
-                    // For ministry users, ensure the ministry code is set to their ministry
-                    selectedMinistryCode = userMinistry.Code;
-                    project.MinistryCode = selectedMinistryCode;
-                }
-            }
+            // The guard above already confined a non-admin to their own ministry's project.
+            bool isMinistryUser = scope.IsRestricted && scope.MinistryCode.HasValue;
 
             ViewBag.MinistryList = new SelectList(
                 allMinistries,
@@ -1236,7 +1230,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN",      // text field
                 selectedMinistryCode  // selected value
             );
-            ViewBag.Ministries = allMinistries; // Pass full ministry list with Logo property
+            ViewBag.Ministries = allMinistries; // Scoped ministry list with Logo property (just their own for non-admins)
             ViewBag.PlatformRates = await _currencyConversion.GetFallbackRatesAsync();
 
             // Pass ministry user info to the view
@@ -1265,7 +1259,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (project == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, project.MinistryCode))
             {
                 return Forbid();
             }
@@ -1304,7 +1298,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(p => p.MinistryCode)
                 .FirstOrDefaultAsync();
             var (isAdminEditPost, scopedMinistryCodeEditPost) = await GetScopeAsync();
-            if (!isAdminEditPost && existingMinistryCode != scopedMinistryCodeEditPost)
+            if (!MinistryScope.Allows(isAdminEditPost, scopedMinistryCodeEditPost, existingMinistryCode))
             {
                 return Forbid();
             }
@@ -1582,6 +1576,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var monitoringService = new MonitoringService(_context);
             await monitoringService.UpdateDisbursementPerformancesForProject(id);
 
+            // A project moved to another ministry changes BOTH ministries' stored figures; the
+            // cascade above only reaches the new owner.
+            if (existingMinistryCode != project.MinistryCode)
+            {
+                if (existingMinistryCode is int previousOwner)
+                    await monitoringService.RecalculateMinistryAggregatesAsync(previousOwner);
+                if (project.MinistryCode is int newOwner)
+                    await monitoringService.RecalculateMinistryAggregatesAsync(newOwner);
+            }
+
             // Tell the redirect target to clear the locally cached draft for this form.
             TempData["ClearDraftKey"] = $"draft:project:edit:{id}";
 
@@ -1644,22 +1648,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(d => d.Code.ToString())
                 .ToList();
 
-            var allMinistries = await _context.Ministries.ToListAsync();
+            var ministryScope = await _ministryScope.GetScopeAsync();
+            var allMinistries = await _context.Ministries.WithinScope(ministryScope).ToListAsync();
 
-            // Get the logged-in user for ministry check
-            var user = await _userManager.GetUserAsync(User);
-            bool isMinistryUser = false;
-
-            // Check if the user is associated with a Ministry (and not SystemAdministrator)
-            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
+            // A non-admin's project always belongs to their own ministry.
+            bool isMinistryUser = ministryScope.IsRestricted && ministryScope.MinistryCode.HasValue;
+            if (isMinistryUser)
             {
-                var userMinistry = allMinistries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
-                if (userMinistry != null)
-                {
-                    isMinistryUser = true;
-                    // For ministry users, ensure the ministry code is set to their ministry
-                    project.MinistryCode = userMinistry.Code;
-                }
+                project.MinistryCode = ministryScope.MinistryCode;
             }
 
             ViewBag.MinistryList = new SelectList(
@@ -1699,7 +1695,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && program.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, program.MinistryCode))
             {
                 return Forbid();
             }
@@ -1722,7 +1718,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 if (project != null)
                 {
                     var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-                    if (!isAdmin && project.MinistryCode != scopedMinistryCode)
+                    if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, project.MinistryCode))
                     {
                         return Forbid();
                     }
@@ -1809,10 +1805,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
+            var scope = await _ministryScope.GetScopeAsync();
             var model = new LinkProjectIndicatorViewModel
             {
                 SelectedProjectId = projectId,
                 Frameworks = _context.Frameworks
+                    .WithinScope(scope)
                     .Select(f => new SelectListItem { Value = f.Code.ToString(), Text = f.Name })
                     .ToList(),
 
@@ -1952,6 +1950,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
+            // Every indicator must sit under the caller's own strategies: linking re-points the
+            // indicator at this project, so a foreign one would be taken from another ministry.
+            foreach (var indicatorCode in model.SelectedIndicatorCodes)
+            {
+                if (!await _ministryScope.CanAccessIndicatorAsync(indicatorCode))
+                {
+                    return Forbid();
+                }
+            }
+
             // Logic to link indicators to the selected project
             foreach (var indicatorCode in model.SelectedIndicatorCodes)
             {
@@ -1968,42 +1976,55 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return RedirectToAction("Index");
         }
 
-        public JsonResult GetOutcomes(int frameworkCode)
+        // Cascading dropdowns for the Projects pages. A foreign code yields an empty list.
+        [Permission(Permissions.ReadProjects)]
+        public async Task<JsonResult> GetOutcomes(int frameworkCode)
         {
-            var outcomes = _context.Outcomes
+            var scope = await _ministryScope.GetScopeAsync();
+            var outcomes = await _context.Outcomes
+                .WithinScope(scope)
                 .Where(o => o.FrameworkCode == frameworkCode)
                 .Select(o => new { o.Code, o.Name })
-                .ToList();
+                .ToListAsync();
 
             return Json(outcomes);
         }
 
-        public JsonResult GetOutputs(int outcomeCode)
+        [Permission(Permissions.ReadProjects)]
+        public async Task<JsonResult> GetOutputs(int outcomeCode)
         {
-            var outputs = _context.Outputs
+            var scope = await _ministryScope.GetScopeAsync();
+            var outputs = await _context.Outputs
+                .WithinScope(scope)
                 .Where(o => o.OutcomeCode == outcomeCode)
                 .Select(o => new { o.Code, o.Name })
-                .ToList();
+                .ToListAsync();
 
             return Json(outputs);
         }
 
-        public JsonResult GetSubOutputs(int outputCode)
+        [Permission(Permissions.ReadProjects)]
+        public async Task<JsonResult> GetSubOutputs(int outputCode)
         {
-            var subOutputs = _context.SubOutputs
+            var scope = await _ministryScope.GetScopeAsync();
+            var subOutputs = await _context.SubOutputs
+                .WithinScope(scope)
                 .Where(s => s.OutputCode == outputCode)
                 .Select(s => new { s.Code, s.Name })
-                .ToList();
+                .ToListAsync();
 
             return Json(subOutputs);
         }
 
-        public JsonResult GetIndicators(int subOutputCode)
+        [Permission(Permissions.ReadProjects)]
+        public async Task<JsonResult> GetIndicators(int subOutputCode)
         {
-            var indicators = _context.Indicators
+            var scope = await _ministryScope.GetScopeAsync();
+            var indicators = await _context.Indicators
+                .WithinScope(scope)
                 .Where(i => i.SubOutputCode == subOutputCode)
                 .Select(i => new { i.IndicatorCode, i.Name })
-                .ToList();
+                .ToListAsync();
 
             return Json(indicators);
         }
@@ -2199,22 +2220,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.SectorList = new SelectList(_context.Sectors, "Code", isArabic ? "AR_Name" : "EN_Name");
             ViewBag.PublicSectorTypeList = new SelectList(await _context.PublicSectorTypes.ToListAsync(), "Code", isArabic ? "AR_Name" : "EN_Name");
 
-            // Get the logged-in user for ministry check
-            var user = await _userManager.GetUserAsync(User);
-            int? userMinistryCode = null;
-            bool isMinistryUser = false;
-            var ministries = _context.Ministries.ToList();
-
-            // Check if the user is associated with a Ministry (and not SystemAdministrator)
-            if (user?.MinistryName != null && !User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                var userMinistry = ministries.FirstOrDefault(m => m.MinistryDisplayName_AR == user.MinistryName || m.MinistryDisplayName_EN == user.MinistryName || m.MinistryUserName == user.MinistryName);
-                if (userMinistry != null)
-                {
-                    userMinistryCode = userMinistry.Code;
-                    isMinistryUser = true;
-                }
-            }
+            // A non-admin's project always belongs to their own ministry.
+            var scope = await _ministryScope.GetScopeAsync();
+            var ministries = await _context.Ministries.WithinScope(scope).ToListAsync();
+            int? userMinistryCode = scope.IsRestricted ? scope.MinistryCode : null;
+            bool isMinistryUser = userMinistryCode.HasValue;
 
             ViewBag.MinistryList = new SelectList(ministries, "Code", isArabic ? "MinistryDisplayName_AR" : "MinistryDisplayName_EN", userMinistryCode);
             ViewBag.Ministries = ministries; // Drives the rich dropdown items (with logo) in Create.cshtml

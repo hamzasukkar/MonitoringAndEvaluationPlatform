@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,26 +14,67 @@ using Microsoft.Extensions.Localization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    // Login required: nothing here is public. No fallback policy exists, so without this
+    // attribute every action was reachable anonymously.
+    [Authorize]
     public class DonorsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IStringLocalizer<DonorsController> _localizer;
         private readonly ICurrencyConversionService _currencyConversion;
 
-        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer, ICurrencyConversionService currencyConversion)
+        private readonly IMinistryScopeService _ministryScope;
+
+        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope)
         {
             _currencyConversion = currencyConversion;
             _context = context;
             _localizer = localizer;
+            _ministryScope = ministryScope;
+        }
+
+        /// <summary>
+        /// A donor's stored performance is a national figure built from every ministry's projects.
+        /// An administrator gets it as stored; anyone else gets only the donors their own projects
+        /// involve, with the figures recomputed from those projects. Loaded AsNoTracking so the
+        /// recomputed values can never be saved onto the shared rows.
+        /// </summary>
+        private async Task<List<Donor>> ScopedDonorsAsync(IQueryable<Donor> donors)
+        {
+            var scope = await _ministryScope.GetScopeAsync();
+            if (scope.IsAdmin) return await donors.ToListAsync();
+
+            var list = await donors.AsNoTracking().ToListAsync();
+            var ownProjects = await _context.Projects
+                .AsNoTracking()
+                .WithinScope(scope)
+                .Include(p => p.Donors)
+                .Include(p => p.Phases)
+                    .ThenInclude(ph => ph.ActionPlan)
+                        .ThenInclude(ap => ap!.Plans)
+                .ToListAsync();
+            var converter = await _currencyConversion.GetConverterAsync();
+
+            var result = new List<Donor>();
+            foreach (var donor in list)
+            {
+                var donorProjects = ownProjects.Where(p => p.Donors.Any(d => d.Code == donor.Code)).ToList();
+                if (donorProjects.Count == 0) continue;
+
+                donor.IndicatorsPerformance = ScopedAggregates.IndicatorsPerformance(donorProjects);
+                donor.DisbursementPerformance = ScopedAggregates.DisbursementPerformance(donorProjects, converter);
+                result.Add(donor);
+            }
+            return result;
         }
 
         // GET: Donors
         public async Task<IActionResult> Index()
         {
             // Get donors sorted by IndicatorsPerformance in descending order (large to small)
-            var donors = await _context.Donors
+            var donors = (await ScopedDonorsAsync(_context.Donors))
                 .OrderByDescending(d => d.IndicatorsPerformance)
-                .ToListAsync();
+                .ToList();
 
             return View(donors);
         }
@@ -42,7 +84,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var donors = _context.Donors.Where(d => d.donorCategory == donorCategory);
             ViewData["DonorCategory"] = donorCategory;
-            return View(await donors.ToListAsync());
+            return View(await ScopedDonorsAsync(donors));
         }
 
         // GET: Donors/Details/5
@@ -62,7 +104,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         .ThenInclude(p => p.SuperVisor)
                 .Include(d => d.ProjectDonors)
                     .ThenInclude(pd => pd.Project)
-                        .ThenInclude(p => p.Ministries)
+                        .ThenInclude(p => p.Ministry)
                 .Include(d => d.ProjectDonors)
                     .ThenInclude(pd => pd.Project)
                         .ThenInclude(p => p.Governorates)
@@ -72,8 +114,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            // Get projects list
-            var projects = donor.ProjectDonors.Select(pd => pd.Project).ToList();
+            // Get projects list: only the caller's own; a donor funds several ministries' projects.
+            var scope = await _ministryScope.GetScopeAsync();
+            var projects = donor.ProjectDonors
+                .Select(pd => pd.Project)
+                .Where(p => scope.CanSee(p.MinistryCode))
+                .ToList();
 
             // Calculate statistics
             ViewBag.TotalProjects = projects.Count;
@@ -93,6 +139,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Inline Operations
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateInline(string Partner, int donorCategory)
         {
             if (string.IsNullOrWhiteSpace(Partner))
@@ -119,6 +166,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineEdit(int id, string field, string value)
         {
             var donor = await _context.Donors.FindAsync(id);
@@ -156,6 +204,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineDelete(int id)
         {
             var donor = await _context.Donors.FindAsync(id);
@@ -175,6 +224,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> QuickUpdate(int id, string partner, int donorCategory)
         {
             var donor = await _context.Donors.FindAsync(id);
@@ -211,7 +261,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (donor == null)
                 return Json(new { success = false, message = "Donor not found" });
 
-            var projects = donor.ProjectDonors.Select(pd => new
+            var scope = await _ministryScope.GetScopeAsync();
+            var projects = donor.ProjectDonors
+                .Where(pd => scope.CanSee(pd.Project.MinistryCode))
+                .Select(pd => new
             {
                 code = pd.Project.ProjectID,
                 name = pd.Project.ProjectName,

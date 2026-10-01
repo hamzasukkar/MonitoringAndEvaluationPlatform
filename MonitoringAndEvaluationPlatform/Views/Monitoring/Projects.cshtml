@@ -204,7 +204,7 @@
                             </div>
                             <div class="detail-content">
                                 <div class="detail-label">@Localizer["Ministry"]</div>
-                                <div class="detail-value">@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? (item.Ministries?.FirstOrDefault()?.MinistryDisplayName_AR ?? Localizer["unavailable"].Value) : (item.Ministries?.FirstOrDefault()?.MinistryDisplayName_EN ?? Localizer["unavailable"].Value))</div>
+                                <div class="detail-value">@(System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar" ? (item.Ministry?.MinistryDisplayName_AR ?? Localizer["unavailable"].Value) : (item.Ministry?.MinistryDisplayName_EN ?? Localizer["unavailable"].Value))</div>
                             </div>
                         </div>
 

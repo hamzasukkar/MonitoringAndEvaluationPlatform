@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -22,10 +23,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class UnitsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IMinistryScopeService _ministryScope;
 
-        public UnitsController(ApplicationDbContext context)
+        public UnitsController(ApplicationDbContext context, IMinistryScopeService ministryScope)
         {
             _context = context;
+            _ministryScope = ministryScope;
         }
 
         // GET: Units
@@ -43,6 +46,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Units/CreateInline
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateInline(string EN_Name, string AR_Name, string? FR_Name)
         {
             if (string.IsNullOrWhiteSpace(EN_Name) || string.IsNullOrWhiteSpace(AR_Name))
@@ -116,6 +120,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Units/InlineEdit
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineEdit(int id, string field, string value)
         {
             var unit = await _context.MeasurementUnits.FindAsync(id);
@@ -159,6 +164,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Units/InlineDelete
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineDelete(int id)
         {
             var unit = await _context.MeasurementUnits.FindAsync(id);
@@ -188,6 +194,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Units/QuickUpdate
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> QuickUpdate(int id, string enName, string arName, string? frName)
         {
             var unit = await _context.MeasurementUnits.FindAsync(id);
@@ -254,22 +261,31 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 u.Code != (exceptCode ?? 0) &&
                 (u.EN_Name == name || u.AR_Name == name));
 
-        /// <summary>How many records of each kind reference each unit, for the whole table at once.</summary>
+        /// <summary>
+        /// How many records of each kind reference each unit, for the whole table at once. Counted
+        /// within the caller's ministry: the national totals would describe other ministries' data.
+        /// (The delete-safety check, UsageForAsync, deliberately stays national.)
+        /// </summary>
         private async Task<Dictionary<int, UnitUsage>> UsageCountsAsync()
         {
+            var scope = await _ministryScope.GetScopeAsync();
+
             var indicators = await _context.ImpactIndicators
+                .WithinScope(scope)
                 .Where(i => i.UnitCode != null)
                 .GroupBy(i => i.UnitCode!.Value)
                 .Select(g => new { Code = g.Key, Count = g.Count() })
                 .ToListAsync();
 
             var goals = await _context.FrameworkGoals
+                .WithinScope(scope)
                 .Where(g => g.UnitCode != null)
                 .GroupBy(g => g.UnitCode!.Value)
                 .Select(g => new { Code = g.Key, Count = g.Count() })
                 .ToListAsync();
 
             var measures = await _context.Measures
+                .WithinScope(scope)
                 .Where(m => m.UnitCode != null)
                 .GroupBy(m => m.UnitCode!.Value)
                 .Select(g => new { Code = g.Key, Count = g.Count() })

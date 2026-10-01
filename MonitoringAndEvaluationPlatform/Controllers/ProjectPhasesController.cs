@@ -1,22 +1,33 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    // Login required: nothing here is public. No fallback policy exists, so without this
+    // attribute every action was reachable anonymously.
+    //
+    // Every action checks that the phase/project belongs to the caller's own ministry. Which
+    // ROLES may edit phases is a separate, still-open decision, so no role-restricting
+    // [Permission] attribute is applied here.
+    [Authorize]
     public class ProjectPhasesController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly MonitoringService _monitoringService;
         private readonly IStringLocalizer<ProjectPhasesController> _localizer;
+        private readonly IMinistryScopeService _ministryScope;
 
-        public ProjectPhasesController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<ProjectPhasesController> localizer)
+        public ProjectPhasesController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<ProjectPhasesController> localizer, IMinistryScopeService ministryScope)
         {
             _context = context;
             _monitoringService = monitoringService;
             _localizer = localizer;
+            _ministryScope = ministryScope;
         }
 
         // GET: ProjectPhases/Edit/5
@@ -28,6 +39,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .FirstOrDefaultAsync(pp => pp.Id == id);
 
             if (phase == null) return NotFound();
+            if (!await _ministryScope.CanAccessPhaseAsync(id)) return Forbid();
 
             var otherBudgetSum = phase.Project.Phases.Where(pp => pp.Id != id).Sum(pp => pp.Budget);
             ViewBag.Project = phase.Project;
@@ -43,6 +55,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,EndDate,Budget,ProjectID")] ProjectPhase phase)
         {
             if (id != phase.Id) return NotFound();
+
+            var storedProjectId = await _context.ProjectPhases
+                .Where(pp => pp.Id == id)
+                .Select(pp => (int?)pp.ProjectID)
+                .FirstOrDefaultAsync();
+            if (storedProjectId is null) return NotFound();
+            if (!await _ministryScope.CanAccessPhaseAsync(id)) return Forbid();
+
+            // ProjectID is bound from the form but only used to find the project; a phase cannot be
+            // moved, and a forged value must not validate against, or recalculate, another project.
+            if (phase.ProjectID != storedProjectId.Value) return BadRequest();
 
             ModelState.Remove(nameof(phase.Project));
             ModelState.Remove(nameof(phase.Measures));
@@ -119,6 +142,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
             if (project == null) return NotFound();
+            if (!await _ministryScope.CanAccessProjectAsync(projectId)) return Forbid();
 
             var selected = (SelectedPhases ?? new List<string>())
                 .Select(s => s?.Trim())
@@ -184,6 +208,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var phase = await _context.ProjectPhases.FindAsync(id);
             if (phase == null) return NotFound();
+            if (!await _ministryScope.CanAccessPhaseAsync(id)) return Forbid();
 
             int projectId = phase.ProjectID;
 
@@ -244,6 +269,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (dto.Phases.Any(p => p.Weight < 0))
                 return BadRequest(new { message = "All weights must be non-negative." });
 
+            // All-or-nothing: one phase outside the caller's ministry rejects the whole update.
+            if (!await _ministryScope.CanAccessPhasesAsync(dto.Phases.Select(p => p.PhaseId).ToList()))
+                return Forbid();
+
             foreach (var phaseDto in dto.Phases)
             {
                 var phase = await _context.ProjectPhases.FindAsync(phaseDto.PhaseId);
@@ -274,6 +303,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .FirstOrDefaultAsync(pp => pp.Id == id);
 
             if (phase == null) return NotFound();
+            if (!await _ministryScope.CanAccessPhaseAsync(id)) return Forbid();
 
             return Ok(new
             {

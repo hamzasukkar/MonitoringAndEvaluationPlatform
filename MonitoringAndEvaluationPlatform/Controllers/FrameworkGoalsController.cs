@@ -17,6 +17,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using Microsoft.AspNetCore.Localization;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -28,12 +29,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private readonly IMinistryScopeService _ministryScope;
+
         public FrameworkGoalsController(
             ApplicationDbContext context,
             IStringLocalizer<FrameworkGoalsController> localizer,
             IWebHostEnvironment webHostEnvironment,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _localizer = localizer;
             _webHostEnvironment = webHostEnvironment;
@@ -42,13 +47,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         private async Task<List<Framework>> GetScopedFrameworksAsync()
@@ -280,7 +280,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-                if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+                if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
                 {
                     return Json(new { success = false, message = _localizer["You are not authorized to modify this framework."].Value });
                 }

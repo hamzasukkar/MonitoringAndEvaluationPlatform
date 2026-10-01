@@ -214,14 +214,13 @@ public class MonitoringService
     private async Task UpdateCrossCuttingEntitiesForProject(int projectId)
     {
         var project = await _context.Projects
-            .Include(p => p.Ministries)
             .Include(p => p.Donors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
         if (project == null) return;
 
-        foreach (var ministry in project.Ministries)
-            await UpdateMinistryPerformanceByMinistryCode(ministry.Code);
+        if (project.MinistryCode is int owner)
+            await UpdateMinistryPerformanceByMinistryCode(owner);
 
         await UpdateSectorPerformanceBySectorId(project.SectorCode);
 
@@ -229,16 +228,22 @@ public class MonitoringService
             await UpdateDonorPerformanceByDonorCode(donor.Code);
     }
 
+    // Over the projects the ministry OWNS (Project.MinistryCode). Ministry.Projects is the
+    // ProjectMinistries mirror, which can hold stale links to other ministries' projects.
     private async Task UpdateMinistryPerformanceByMinistryCode(int ministryCode)
     {
         var ministry = await _context.Ministries
-            .Include(m => m.Projects)
             .FirstOrDefaultAsync(m => m.Code == ministryCode);
 
         if (ministry == null) return;
 
-        ministry.IndicatorsPerformance = ministry.Projects.Any()
-            ? ministry.Projects.Average(p => p.performance)
+        var ownedPerformance = await _context.Projects
+            .Where(p => p.MinistryCode == ministryCode)
+            .Select(p => p.performance)
+            .ToListAsync();
+
+        ministry.IndicatorsPerformance = ownedPerformance.Any()
+            ? ownedPerformance.Average()
             : 0;
 
         _context.Ministries.Update(ministry);
@@ -291,7 +296,6 @@ public class MonitoringService
             .Include(p => p.Phases)
                 .ThenInclude(pp => pp.ActionPlan)
                     .ThenInclude(ap => ap.Plans)
-            .Include(p => p.Ministries)
             .Include(p => p.Donors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
@@ -328,8 +332,8 @@ public class MonitoringService
         }
 
         // Update cross-cutting disbursement
-        foreach (var ministry in project.Ministries)
-            await UpdateMinistryDisbursementPerformanceByCode(ministry.Code);
+        if (project.MinistryCode is int owner)
+            await UpdateMinistryDisbursementPerformanceByCode(owner);
         await UpdateSectorDisbursementPerformanceByCode(project.SectorCode);
         foreach (var donor in project.Donors)
             await UpdateDonorDisbursementPerformanceByCode(donor.Code);
@@ -510,14 +514,18 @@ public class MonitoringService
         await _context.SaveChangesAsync();
     }
 
+    // Over the projects the ministry OWNS, as for IndicatorsPerformance above.
     private async Task UpdateMinistryDisbursementPerformanceByCode(int ministryCode)
     {
         var ministry = await _context.Ministries
-            .Include(m => m.Projects)
             .FirstOrDefaultAsync(m => m.Code == ministryCode);
         if (ministry == null) return;
 
-        var projects = await GetProjectsForIndicators(ministry.Projects.Select(p => p.ProjectID));
+        var ownedProjectIds = await _context.Projects
+            .Where(p => p.MinistryCode == ministryCode)
+            .Select(p => p.ProjectID)
+            .ToListAsync();
+        var projects = await GetProjectsForIndicators(ownedProjectIds);
         ministry.DisbursementPerformance = projects.Any() ? await CalcDisbursementPerfForProjects(projects) : 0;
 
         _context.Ministries.Update(ministry);
@@ -604,7 +612,6 @@ public class MonitoringService
     {
         var project = await _context.Projects
             .Include(p => p.Indicators)
-            .Include(p => p.Ministries)
             .Include(p => p.Donors)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
@@ -613,7 +620,7 @@ public class MonitoringService
 
         var indicatorIds = project.Indicators.Select(i => i.IndicatorCode).ToList();
         var subOutputCodes = project.Indicators.Select(i => i.SubOutputCode).Distinct().Where(c => c != 0).ToList();
-        var ministryCodes = project.Ministries.Select(m => m.Code).ToList();
+        var ministryCodes = project.MinistryCode is int owner ? new List<int> { owner } : new List<int>();
         var sectorCode = project.SectorCode;
         var donorCodes = project.Donors.Select(d => d.Code).ToList();
 
@@ -642,11 +649,35 @@ public class MonitoringService
     public async Task UpdateMinistryPerformance(int projectId)
     {
         var project = await _context.Projects
-            .Include(p => p.Ministries)
             .FirstOrDefaultAsync(p => p.ProjectID == projectId);
-        if (project == null) return;
-        foreach (var ministry in project.Ministries)
-            await UpdateMinistryPerformanceByMinistryCode(ministry.Code);
+        if (project?.MinistryCode is int owner)
+            await UpdateMinistryPerformanceByMinistryCode(owner);
+    }
+
+    /// <summary>
+    /// Recomputes one ministry's stored IndicatorsPerformance and DisbursementPerformance from the
+    /// projects it owns — e.g. for the previous owner when a project moves to another ministry.
+    /// </summary>
+    public async Task RecalculateMinistryAggregatesAsync(int ministryCode)
+    {
+        await UpdateMinistryPerformanceByMinistryCode(ministryCode);
+        await UpdateMinistryDisbursementPerformanceByCode(ministryCode);
+    }
+
+    /// <summary>
+    /// Recomputes every ministry's stored figures. Run once after the BackfillMinistryOwnership
+    /// migration: the stored values were built from the ProjectMinistries mirror, and only a
+    /// ministry whose projects change afterwards would otherwise be brought onto the owner basis.
+    /// Returns the number of ministries recalculated.
+    /// </summary>
+    public async Task<int> RecalculateAllMinistryAggregatesAsync()
+    {
+        var codes = await _context.Ministries.Select(m => m.Code).ToListAsync();
+        foreach (var code in codes)
+        {
+            await RecalculateMinistryAggregatesAsync(code);
+        }
+        return codes.Count;
     }
 
     public async Task UpdateSectorPerformance(int projectId)

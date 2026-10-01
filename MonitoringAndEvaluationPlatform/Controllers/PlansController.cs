@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,16 +19,30 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public long NewValue { get; set; }
     }
 
+    // Login required: nothing here is public. No fallback policy exists, so without this
+    // attribute every action was reachable anonymously.
+    //
+    // Every action checks that the plan belongs to one of the caller's own projects. Which ROLES
+    // may enter plan values is a separate, still-open decision, so no role-restricting
+    // [Permission] attribute is applied here.
+    [Authorize]
     public class PlansController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly PlanService _planService;
+        private readonly IMinistryScopeService _ministryScope;
 
-        public PlansController(ApplicationDbContext context, PlanService planService)
+        public PlansController(ApplicationDbContext context, PlanService planService, IMinistryScopeService ministryScope)
         {
             _context = context;
             _planService = planService;
+            _ministryScope = ministryScope;
         }
+
+        private async Task<SelectList> ActionPlanOptionsAsync(int? selected = null) =>
+            new SelectList(
+                await _context.ActionPlans.WithinScope(await _ministryScope.GetScopeAsync()).ToListAsync(),
+                "Code", "Code", selected);
 
         [HttpPost]
         public async Task<IActionResult> UpdatePlanValues([FromBody] List<PlanValueUpdate> updates)
@@ -35,6 +50,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (updates == null || !updates.Any())
             {
                 return Json(new { success = false, message = "No updates provided." });
+            }
+
+            // All-or-nothing: one plan outside the caller's ministry rejects the whole batch.
+            if (!await _ministryScope.CanAccessPlansAsync(updates.Select(u => u.PlanCode).ToList()))
+            {
+                return Forbid();
             }
 
             try
@@ -83,6 +104,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new { success = false, message = "Invalid number. Please enter a whole number." });
             }
 
+            if (!await _ministryScope.CanAccessPlansAsync(new[] { planCode }))
+            {
+                return Forbid();
+            }
+
             try
             {
                 // Find the Plan entity directly by its Primary Key (Code)
@@ -117,6 +143,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Index()
         {
             var applicationDbContext = _context.Plans
+                .WithinScope(await _ministryScope.GetScopeAsync())
                 .Include(p => p.ActionPlan)
                     .ThenInclude(ap => ap.ProjectPhase)
                         .ThenInclude(ph => ph.Project);
@@ -125,9 +152,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         public async Task<IActionResult> ProjectPlans(int? id)
         {
+            if (id.HasValue && !await _ministryScope.CanAccessProjectAsync(id.Value))
+            {
+                return Forbid();
+            }
+
             ViewBag.ProjectId = id;
 
+            // The project's plans when one is given; otherwise every plan the caller may see.
             var applicationDbContext = _context.Plans
+                .WithinScope(await _ministryScope.GetScopeAsync())
+                .Where(p => !id.HasValue || p.ActionPlan.ProjectPhase.ProjectID == id.Value)
                 .Include(p => p.ActionPlan)
                     .ThenInclude(ap => ap.ProjectPhase)
                         .ThenInclude(ph => ph.Project);
@@ -151,14 +186,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
+            if (!await _ministryScope.CanAccessPlansAsync(new[] { plan.Code }))
+            {
+                return Forbid();
+            }
 
             return View(plan);
         }
 
         // GET: Plans/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code");
+            ViewData["ActionPlanCode"] = await ActionPlanOptionsAsync();
             return View();
         }
 
@@ -171,13 +210,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             ModelState.Remove(nameof(plan.ActionPlan));
 
+            if (!await _ministryScope.CanAccessActionPlanAsync(plan.ActionPlanCode))
+            {
+                return Forbid();
+            }
+
             if (ModelState.IsValid)
             {
                 _context.Add(plan);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", plan.ActionPlanCode);
+            ViewData["ActionPlanCode"] = await ActionPlanOptionsAsync(plan.ActionPlanCode);
             return View(plan);
         }
 
@@ -194,7 +238,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
-            ViewData["ActionPlanCode"] = new SelectList(_context.ActionPlans, "Code", "Code", plan.ActionPlanCode);
+            if (!await _ministryScope.CanAccessPlansAsync(new[] { plan.Code }))
+            {
+                return Forbid();
+            }
+            ViewData["ActionPlanCode"] = await ActionPlanOptionsAsync(plan.ActionPlanCode);
             return View(plan);
         }
 
@@ -209,6 +257,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (id != plan.Code)
             {
                 return NotFound();
+            }
+
+            // The form binds ActionPlanCode, so it could also move the plan into another
+            // ministry's action plan.
+            if (!await _ministryScope.CanAccessPlansAsync(new[] { id })
+                || !await _ministryScope.CanAccessActionPlanAsync(plan.ActionPlanCode))
+            {
+                return Forbid();
             }
 
             ModelState.Remove(nameof(plan.ActionPlan));
@@ -252,6 +308,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
+            if (!await _ministryScope.CanAccessPlansAsync(new[] { plan.Code }))
+            {
+                return Forbid();
+            }
 
             return View(plan);
         }
@@ -264,6 +324,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             var plan = await _context.Plans.FindAsync(id);
             if (plan != null)
             {
+                if (!await _ministryScope.CanAccessPlansAsync(new[] { plan.Code }))
+                {
+                    return Forbid();
+                }
                 _context.Plans.Remove(plan);
             }
 

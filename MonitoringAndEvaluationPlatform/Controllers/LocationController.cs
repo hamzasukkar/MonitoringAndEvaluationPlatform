@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
@@ -7,6 +8,9 @@ using MonitoringAndEvaluationPlatform.ViewModel;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    // Login required: nothing here is public. No fallback policy exists, so without this
+    // attribute every action was reachable anonymously.
+    [Authorize]
     public class LocationController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -60,6 +64,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateLocation(LocationInputViewModel model)
         {
             if (ModelState.IsValid)
@@ -93,6 +98,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public IActionResult CreateGovernorate() => View();
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateGovernorate(Governorate model)
         {
             if (ModelState.IsValid)
@@ -120,6 +126,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateDistrict(District model)
         {
             ModelState.Remove(nameof(model.Governorate));
@@ -150,6 +157,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateSubDistrict(SubDistrict model)
         {
             ModelState.Remove(nameof(model.District));
@@ -181,6 +189,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateCommunity(Community model)
         {
             ModelState.Remove(nameof(model.SubDistrict));
@@ -196,6 +205,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Edit Governorate
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public IActionResult EditGovernorate(int id)
         {
             var gov = _context.Governorates.Find(id);
@@ -205,6 +215,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // POST: Edit Governorate
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public IActionResult EditGovernorate(Governorate model)
         {
             if (ModelState.IsValid)
@@ -217,6 +228,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Delete Governorate
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public IActionResult DeleteGovernorate(int id)
         {
             var gov = _context.Governorates.Find(id);

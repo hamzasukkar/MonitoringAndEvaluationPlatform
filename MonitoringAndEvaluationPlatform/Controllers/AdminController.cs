@@ -168,6 +168,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateUser(CreateUserViewModel model)
         {
+            var ministry = await ResolveSelectedMinistryAsync(model.MinistryCode);
+
             if (ModelState.IsValid)
             {
                 var user = new ApplicationUser
@@ -175,7 +177,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     UserName = model.UserName,
                     Email = model.Email,
                     EmailConfirmed = model.EmailConfirmed,
-                    MinistryName = model.MinistryName
+                    MinistryCode = ministry?.Code,
+                    MinistryName = ministry?.MinistryDisplayName_EN
                 };
 
                 var result = await _userManager.CreateAsync(user, model.Password);
@@ -189,6 +192,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
 
                     TempData["SuccessMessage"] = $"User '{user.UserName}' created successfully.";
+                    WarnIfNoMinistry(user.UserName, ministry, model.SelectedRoles);
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -226,6 +230,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 Email = user.Email!,
                 EmailConfirmed = user.EmailConfirmed,
                 MinistryName = user.MinistryName,
+                MinistryCode = await CurrentMinistryCodeAsync(user),
                 LockoutEnabled = user.LockoutEnabled,
                 SelectedRoles = userRoles.ToList(),
                 AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync(),
@@ -240,6 +245,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(EditUserViewModel model)
         {
+            var ministry = await ResolveSelectedMinistryAsync(model.MinistryCode);
+
             if (ModelState.IsValid)
             {
                 var user = await _userManager.FindByIdAsync(model.Id);
@@ -251,7 +258,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 user.UserName = model.UserName;
                 user.Email = model.Email;
                 user.EmailConfirmed = model.EmailConfirmed;
-                user.MinistryName = model.MinistryName;
+                user.MinistryCode = ministry?.Code;
+                user.MinistryName = ministry?.MinistryDisplayName_EN;
                 user.LockoutEnabled = model.LockoutEnabled;
 
                 var result = await _userManager.UpdateAsync(user);
@@ -274,6 +282,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
 
                     TempData["SuccessMessage"] = $"User '{user.UserName}' updated successfully.";
+                    WarnIfNoMinistry(user.UserName, ministry, model.SelectedRoles);
                     return RedirectToAction(nameof(Index));
                 }
 
@@ -286,6 +295,56 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             model.AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync();
             model.Ministries = await _context.Ministries.ToListAsync();
             return View(model);
+        }
+
+        /// <summary>
+        /// The ministry picked on the user form, or null for none. An unknown code is a model
+        /// error rather than silently saved as "no ministry".
+        /// </summary>
+        private async Task<Ministry?> ResolveSelectedMinistryAsync(int? ministryCode)
+        {
+            if (ministryCode is not int code) return null;
+
+            var ministry = await _context.Ministries.FindAsync(code);
+            if (ministry == null)
+            {
+                ModelState.AddModelError(nameof(EditUserViewModel.MinistryCode), "The selected ministry does not exist.");
+            }
+            return ministry;
+        }
+
+        /// <summary>
+        /// Accounts created before the form bound MinistryCode carry only the free-text
+        /// MinistryName. Pre-select the ministry it names when exactly one matches, so saving the
+        /// form does not quietly drop the account's ministry.
+        /// </summary>
+        private async Task<int?> CurrentMinistryCodeAsync(ApplicationUser user)
+        {
+            if (user.MinistryCode.HasValue || string.IsNullOrWhiteSpace(user.MinistryName))
+            {
+                return user.MinistryCode;
+            }
+
+            var name = user.MinistryName.Trim();
+            var matches = await _context.Ministries
+                .Where(m => m.MinistryDisplayName_EN == name
+                            || m.MinistryDisplayName_AR == name
+                            || m.MinistryUserName == name)
+                .Select(m => m.Code)
+                .Distinct()
+                .ToListAsync();
+
+            return matches.Count == 1 ? matches[0] : null;
+        }
+
+        // A non-admin with no ministry is confined to nothing and sees an empty platform.
+        private void WarnIfNoMinistry(string? userName, Ministry? ministry, List<string>? roles)
+        {
+            if (ministry == null && !(roles ?? new List<string>()).Contains(UserRoles.SystemAdministrator))
+            {
+                TempData["WarningMessage"] =
+                    $"User '{userName}' has no ministry, so they will not see any data until one is assigned.";
+            }
         }
 
         // POST: Admin/DeleteUser

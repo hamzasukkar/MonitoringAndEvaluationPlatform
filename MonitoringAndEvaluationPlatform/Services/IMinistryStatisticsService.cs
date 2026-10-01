@@ -112,31 +112,32 @@ namespace MonitoringAndEvaluationPlatform.Services
     public interface IMinistryStatisticsService
     {
         /// <summary>
-        /// Rolls up statistics for one ministry or all of them.
+        /// Rolls up statistics for the ministries <paramref name="scope"/> may see.
         /// </summary>
-        /// <param name="ministryCode">
-        /// Null for every ministry; a value for just that one. Callers are responsible for
-        /// scoping — pass the caller's own ministry code for a non-admin.
+        /// <param name="requestedMinistryCode">
+        /// An administrator gets just this ministry, or every ministry when null. Anyone else
+        /// gets their own ministry only, and nothing at all if they asked for a different one or
+        /// have no ministry — the scope is applied here, not left to the caller.
         /// </param>
         /// <param name="fromDate">
         /// Optional range, matched by OVERLAP rather than containment: a project active at any
         /// point in the range is included, the same rule the Units report uses.
         /// </param>
-        Task<IReadOnlyList<MinistryStatistics>> GetAsync(
-            int? ministryCode = null,
+        Task<IReadOnlyList<MinistryStatistics>> GetForScopeAsync(
+            MinistryScope scope,
+            int? requestedMinistryCode = null,
             DateTime? fromDate = null,
             DateTime? toDate = null,
             CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The projects behind <see cref="MinistryStatistics"/>, keyed by ministry code — the row
-        /// detail for a report. Same membership rule and date filter as <see cref="GetAsync"/>,
-        /// so the rows always add up to the totals.
-        ///
-        /// Takes every ministry at once rather than one at a time: a project can belong to two
-        /// ministries, so a per-ministry call would re-query the same rows N times.
+        /// detail for a report. Same membership rule and date filter as
+        /// <see cref="GetForScopeAsync"/>, so the rows always add up to the totals. Codes outside
+        /// <paramref name="scope"/> come back empty.
         /// </summary>
         Task<IReadOnlyDictionary<int, IReadOnlyList<Project>>> GetProjectsByMinistryAsync(
+            MinistryScope scope,
             IEnumerable<int> ministryCodes,
             DateTime? fromDate = null,
             DateTime? toDate = null,

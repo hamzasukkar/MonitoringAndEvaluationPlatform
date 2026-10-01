@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,39 +12,76 @@ using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    // Login required: nothing here is public. No fallback policy exists, so without this
+    // attribute every action was reachable anonymously.
+    [Authorize]
     public class SectorsController : Controller
     {
         private readonly ApplicationDbContext _context;
 
         private readonly ICurrencyConversionService _currencyConversion;
+        private readonly IMinistryScopeService _ministryScope;
 
-        public SectorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion)
+        public SectorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope)
         {
             _currencyConversion = currencyConversion;
             _context = context;
+            _ministryScope = ministryScope;
+        }
+
+        /// <summary>
+        /// A sector's stored performance is a national figure built from every ministry's projects.
+        /// An administrator gets it as stored; anyone else gets only the sectors their own projects
+        /// fall in, with the figures recomputed from those projects. Loaded AsNoTracking so the
+        /// recomputed values can never be saved onto the shared rows.
+        /// </summary>
+        private async Task<List<Sector>> ScopedSectorsAsync(IQueryable<Sector> sectors)
+        {
+            var scope = await _ministryScope.GetScopeAsync();
+            if (scope.IsAdmin) return await sectors.ToListAsync();
+
+            var list = await sectors.AsNoTracking().ToListAsync();
+            var ownProjects = await _context.Projects
+                .AsNoTracking()
+                .WithinScope(scope)
+                .Include(p => p.Phases)
+                    .ThenInclude(ph => ph.ActionPlan)
+                        .ThenInclude(ap => ap!.Plans)
+                .ToListAsync();
+            var converter = await _currencyConversion.GetConverterAsync();
+
+            var result = new List<Sector>();
+            foreach (var sector in list)
+            {
+                var sectorProjects = ownProjects.Where(p => p.SectorCode == sector.Code).ToList();
+                if (sectorProjects.Count == 0) continue;
+
+                sector.IndicatorsPerformance = ScopedAggregates.IndicatorsPerformance(sectorProjects);
+                sector.DisbursementPerformance = ScopedAggregates.DisbursementPerformance(sectorProjects, converter);
+                result.Add(sector);
+            }
+            return result;
         }
 
         // GET: Sectors
         public async Task<IActionResult> Index()
         {
             // Get sectors sorted by IndicatorsPerformance in descending order (large to small)
-            var sectors = await _context.Sectors
+            var sectors = (await ScopedSectorsAsync(_context.Sectors))
                 .OrderByDescending(s => s.IndicatorsPerformance)
-                .ToListAsync();
+                .ToList();
 
             return View(sectors);
         }
 
         public async Task<IActionResult> ResultIndex(int code)
         {
-            var sector = await _context.Sectors.FirstOrDefaultAsync(s => s.Code == code);
-
-            if (sector == null)
+            if (!await _context.Sectors.AnyAsync(s => s.Code == code))
             {
                 return NotFound();
             }
 
-            return View(new List<Sector> { sector });
+            return View(await ScopedSectorsAsync(_context.Sectors.Where(s => s.Code == code)));
         }
 
         // GET: Sectors/Details/5
@@ -54,13 +92,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            // AsNoTracking: Projects is narrowed below to the caller's own, which must never be
+            // saved back.
             var sector = await _context.Sectors
+                .AsNoTracking()
                 .Include(s => s.Projects)
                     .ThenInclude(p => p.ProjectManager)
                 .Include(s => s.Projects)
                     .ThenInclude(p => p.SuperVisor)
                 .Include(s => s.Projects)
-                    .ThenInclude(p => p.Ministries)
+                    .ThenInclude(p => p.Ministry)
                 .Include(s => s.Projects)
                     .ThenInclude(p => p.Governorates)
                 .FirstOrDefaultAsync(m => m.Code == id);
@@ -68,6 +109,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return NotFound();
             }
+
+            // A sector spans every ministry; list only the caller's own projects in it.
+            var scope = await _ministryScope.GetScopeAsync();
+            sector.Projects = sector.Projects.Where(p => scope.CanSee(p.MinistryCode)).ToList();
 
             // Calculate statistics
             ViewBag.TotalProjects = sector.Projects.Count;
@@ -86,6 +131,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Inline Operations
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> CreateInline(string EN_Name, string AR_Name)
         {
             if (string.IsNullOrWhiteSpace(EN_Name) || string.IsNullOrWhiteSpace(AR_Name))
@@ -112,6 +158,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineEdit(int id, string field, string value)
         {
             var sector = await _context.Sectors.FindAsync(id);
@@ -142,6 +189,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineDelete(int id)
         {
             var sector = await _context.Sectors.FindAsync(id);
@@ -168,6 +216,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> QuickUpdate(int id, string enName, string arName)
         {
             var sector = await _context.Sectors.FindAsync(id);

@@ -9,6 +9,7 @@ using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -31,11 +32,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStringLocalizer<ImpactController> _localizer;
 
+        private readonly IMinistryScopeService _ministryScope;
+
         public ImpactController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
-            IStringLocalizer<ImpactController> localizer)
+            IStringLocalizer<ImpactController> localizer,
+            IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _userManager = userManager;
             _localizer = localizer;
@@ -47,13 +52,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         private static bool IsArabic =>
@@ -106,6 +106,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Select(po => po.Id)
                 .ToHashSet();
 
+            // Only after the edit rule has seen the whole output: a shared output is shown to a
+            // ministry user as their own part of it (their ministry tag, strategies and
+            // indicators), and its percentages are computed from their own indicators.
+            var scope = new MinistryScope(isAdmin, scopedMinistryCode);
+            foreach (var output in outputs)
+            {
+                output.TrimToScope(scope);
+            }
+
             return View(outputs);
         }
 
@@ -138,6 +147,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             // Drives the Edit button in the header — same rule as Index, same single source.
             ViewBag.CanEditThis = isAdmin || !HasLinksOutsideScope(projectOutput, scopedMinistryCode);
+
+            // As on Index: a ministry user sees their own part of a shared output.
+            projectOutput.TrimToScope(new MinistryScope(isAdmin, scopedMinistryCode));
 
             return View(projectOutput);
         }

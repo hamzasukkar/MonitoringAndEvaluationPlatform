@@ -7,7 +7,8 @@ using System.Security.Claims;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    [Authorize]
+    // Development tooling: some GETs here seed or delete demo data.
+    [Authorize(Roles = UserRoles.SystemAdministrator)]
     public class DebugController : Controller
     {
         private readonly ApplicationDbContext _context;

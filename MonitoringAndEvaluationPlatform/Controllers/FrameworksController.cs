@@ -17,6 +17,7 @@ using ClosedXML.Excel;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -27,11 +28,15 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IStringLocalizer<FrameworksController> _localizer;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private readonly IMinistryScopeService _ministryScope;
+
         public FrameworksController(
             ApplicationDbContext context,
             IStringLocalizer<FrameworksController> localizer,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _localizer = localizer;
             _userManager = userManager;
@@ -42,13 +47,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // are restricted to no frameworks.
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         // Resolves the MinistryCode a framework should be saved with.
@@ -208,7 +208,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // scope flags the views use to lock the dropdown for ministry users.
         private async Task PopulateMinistrySelectionAsync(bool isAdmin, int? scopedMinistryCode)
         {
-            ViewBag.Ministries = await _context.Ministries.ToListAsync();
+            ViewBag.Ministries = await _context.Ministries
+                .WithinScope(new MinistryScope(isAdmin, scopedMinistryCode))
+                .ToListAsync();
             ViewBag.IsMinistryUser = !isAdmin;
             ViewBag.UserMinistryCode = scopedMinistryCode;
         }
@@ -235,18 +237,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewData["DisbursementSortParm"] = sortOrder == "disbursement" ? "disbursement_desc" : "disbursement";
             ViewData["CurrentFilter"] = searchString;
 
-            // Load dropdown/filter data for the ViewModel
-            filter.Ministries = await _context.Ministries.ToListAsync();
+            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
+            var scope = new MinistryScope(isAdmin, scopedMinistryCode);
+
+            // Load dropdown/filter data for the ViewModel. Scoping the ministries here also
+            // limits the badges BuildFrameworkMinistriesAsync puts on each strategy.
+            filter.Ministries = await _context.Ministries.WithinScope(scope).ToListAsync();
             filter.Donors = await _context.Donors.ToListAsync();
             filter.Sectors = await _context.Sectors.ToListAsync();
-
-            var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
             filter.IsMinistryUser = !isAdmin; // non-admins are tied to one ministry -> hide the ministry filter
             ViewBag.UserMinistryCode = scopedMinistryCode; // preselects + locks the inline create dropdown
 
             // Ministry names come from BuildFrameworkMinistriesAsync below, so the Ministry
             // navigation does not need eager loading here.
+            // AsNoTracking: a legacy cross-linked project is detached from its indicator below for
+            // non-admins, which must never reach SaveChanges.
             IQueryable<Framework> frameworksQuery = _context.Frameworks
+                .AsNoTracking()
                 .Include(f => f.Outcomes)
                     .ThenInclude(o => o.Outputs)
                         .ThenInclude(op => op.SubOutputs)
@@ -254,23 +261,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 .ThenInclude(i => i.Project)
                 .AsQueryable();
 
-            if (!isAdmin)
-            {
-                if (scopedMinistryCode is null)
-                {
-                    frameworksQuery = frameworksQuery.Where(f => false);
-                }
-                else
-                {
-                    // A framework belongs to the ministry if EITHER its own MinistryCode matches
-                    // OR one of its indicators' projects belongs to that ministry.
-                    frameworksQuery = frameworksQuery.Where(f =>
-                        f.MinistryCode == scopedMinistryCode ||
-                        f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so =>
-                            so.Indicators.Any(i => i.Project != null &&
-                                i.Project.Ministries.Any(min => min.Code == scopedMinistryCode))))));
-                }
-            }
+            // A non-admin sees the strategies their ministry OWNS. Reaching a strategy through a
+            // project link is not ownership: it used to surface other ministries' strategies here.
+            frameworksQuery = frameworksQuery.WithinScope(scope);
 
             if (!string.IsNullOrEmpty(searchString))
             {
@@ -280,11 +273,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     f.Outcomes.Any(o => o.Outputs.Any(op => EF.Functions.Like(op.Name, $"%{searchString}%"))) ||
                     f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => EF.Functions.Like(so.Name, $"%{searchString}%")))) ||
                     f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%"))))) ||
-                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")))))
+                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null
+                        && (isAdmin || (scopedMinistryCode != null && i.Project.MinistryCode == scopedMinistryCode))
+                        && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")))))
                 );
             }
 
-            if (filter.SelectedMinistries != null && filter.SelectedMinistries.Any())
+            // The ministry facet is an administrator's tool; a non-admin has exactly one ministry.
+            if (isAdmin && filter.SelectedMinistries != null && filter.SelectedMinistries.Any())
             {
                 // Match either the framework's own MinistryCode or its projects' ministries.
                 frameworksQuery = frameworksQuery.Where(f =>
@@ -341,6 +337,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             filter.Frameworks = await frameworksQuery.ToListAsync();
+            filter.Frameworks
+                .SelectMany(f => f.Outcomes)
+                .SelectMany(o => o.Outputs)
+                .SelectMany(op => op.SubOutputs)
+                .SelectMany(so => so.Indicators)
+                .HideForeignProjects(scope);
             filter.FrameworkMinistries = await BuildFrameworkMinistriesAsync(filter.Frameworks, filter.Ministries);
 
             // Captured before the buckets below narrow filter.Frameworks: MinistryGroups is built
@@ -502,7 +504,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (framework == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
             {
                 return Forbid();
             }
@@ -562,7 +564,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (framework == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && framework.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, framework.MinistryCode))
             {
                 return Forbid();
             }
@@ -973,7 +975,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     f.Outcomes.Any(o => o.Outputs.Any(op => EF.Functions.Like(op.Name, $"%{searchString}%"))) ||
                     f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => EF.Functions.Like(so.Name, $"%{searchString}%")))) ||
                     f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%"))))) ||
-                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")))))
+                    f.Outcomes.Any(o => o.Outputs.Any(op => op.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null
+                        && (isAdmin || (scopedMinistryCode != null && i.Project.MinistryCode == scopedMinistryCode))
+                        && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")))))
                 );
             }
 

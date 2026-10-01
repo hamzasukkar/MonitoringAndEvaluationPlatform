@@ -7,6 +7,8 @@
 @using Microsoft.EntityFrameworkCore
 @using MonitoringAndEvaluationPlatform.Data
 @inject ApplicationDbContext _context
+@inject MonitoringAndEvaluationPlatform.Services.IMinistryScopeService LayoutMinistryScope
+@using MonitoringAndEvaluationPlatform.Services
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
 
@@ -968,7 +970,7 @@
                             <i class="fas fa-sitemap me-1"></i> @Localizer["National Development Strategy"]
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="policiesDropdown">
-                            @foreach (var framework in _context.Frameworks
+                            @foreach (var framework in _context.Frameworks.WithinScope(await LayoutMinistryScope.GetScopeAsync())
                             .OrderByDescending(f => f.IndicatorsPerformance)
                             .ToList())
                             {

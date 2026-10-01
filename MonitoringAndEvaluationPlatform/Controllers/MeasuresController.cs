@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,23 +10,33 @@ using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Models;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    // Login required: nothing here is public. No fallback policy exists, so without this
+    // attribute every action was reachable anonymously.
+    //
+    // Every action checks that the measure/phase belongs to one of the caller's own projects.
+    // Which ROLES may enter measure values is a separate, still-open decision, so no
+    // role-restricting [Permission] attribute is applied here.
+    [Authorize]
     public class MeasuresController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly MonitoringService _monitoringService;
         private readonly IStringLocalizer<MeasuresController> _localizer;
+        private readonly IMinistryScopeService _ministryScope;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer, IWebHostEnvironment webHostEnvironment)
+        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer, IWebHostEnvironment webHostEnvironment, IMinistryScopeService ministryScope)
         {
             _context = context;
             _monitoringService = monitoringService;
             _localizer = localizer;
             _webHostEnvironment = webHostEnvironment;
+            _ministryScope = ministryScope;
         }
 
         // POST: add-measure (AJAX)
@@ -34,6 +45,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var phase = await _context.ProjectPhases.FindAsync(dto.PhaseId);
             if (phase == null) return NotFound();
+            if (!await _ministryScope.CanAccessPhaseAsync(dto.PhaseId)) return Forbid();
 
             // Value is always derived from Quantity ÷ the phase target.
             if (!dto.Quantity.HasValue)
@@ -62,6 +74,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMeasuresByPhase(int phaseId)
         {
+            if (!await _ministryScope.CanAccessPhaseAsync(phaseId)) return Forbid();
+
             var measures = await _context.Measures
                 .Where(m => m.ProjectPhaseId == phaseId)
                 .OrderBy(m => m.Date)
@@ -95,7 +109,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Measures
         public async Task<IActionResult> Index(int? phaseId)
         {
+            if (phaseId.HasValue && !await _ministryScope.CanAccessPhaseAsync(phaseId.Value)) return Forbid();
+
             var query = _context.Measures
+                .WithinScope(await _ministryScope.GetScopeAsync())
                 .Include(m => m.ProjectPhase)
                     .ThenInclude(pp => pp.Project)
                 .Include(m => m.Files)
@@ -116,7 +133,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewData["PhaseId"] = new SelectList(
-                _context.ProjectPhases.Include(pp => pp.Project),
+                _context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project),
                 "Id", "Name");
 
             return View(await query.ToListAsync());
@@ -133,6 +150,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .FirstOrDefaultAsync(m => m.Code == id);
 
             if (measure == null) return NotFound();
+            if (!await _ministryScope.CanAccessMeasureAsync(measure.Code)) return Forbid();
 
             return View(measure);
         }
@@ -145,6 +163,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(measure.ProjectPhase));
 
             measure.MeasureType = MeasureType.Quantitative;
+
+            if (!await _ministryScope.CanAccessPhaseAsync(measure.ProjectPhaseId)) return Forbid();
 
             var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
 
@@ -212,6 +232,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // GET: Measures/Create
         public async Task<IActionResult> Create(int? phaseId)
         {
+            if (phaseId.HasValue && !await _ministryScope.CanAccessPhaseAsync(phaseId.Value)) return Forbid();
+
             if (phaseId.HasValue)
             {
                 var phase = await _context.ProjectPhases
@@ -224,13 +246,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 ViewBag.SelectedProjectId = phase?.ProjectID;
 
                 ViewData["Phases"] = new SelectList(
-                    _context.ProjectPhases.Include(pp => pp.Project),
+                    _context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project),
                     "Id", "Name", phaseId.Value);
             }
             else
             {
                 ViewData["Phases"] = new SelectList(
-                    _context.ProjectPhases.Include(pp => pp.Project),
+                    _context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project),
                     "Id", "Name");
             }
 
@@ -246,6 +268,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             measure.MeasureType = MeasureType.Quantitative;
 
+            if (!await _ministryScope.CanAccessPhaseAsync(measure.ProjectPhaseId)) return Forbid();
+
             var phase = await _context.ProjectPhases.FindAsync(measure.ProjectPhaseId);
 
             // Save user-supplied target quantity to the phase (any measure, as long as no target is set yet)
@@ -259,14 +283,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (!measure.Quantity.HasValue)
             {
                 ModelState.AddModelError("Quantity", _localizer["Quantity is required."]);
-                ViewData["Phases"] = new SelectList(_context.ProjectPhases.Include(pp => pp.Project), "Id", "Name", measure.ProjectPhaseId);
+                ViewData["Phases"] = new SelectList(_context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project), "Id", "Name", measure.ProjectPhaseId);
                 return View(measure);
             }
 
             if (phase == null || !phase.TargetQuantity.HasValue || phase.TargetQuantity.Value <= 0)
             {
                 ModelState.AddModelError("Quantity", _localizer["Phase target is required for Quantitative measures."]);
-                ViewData["Phases"] = new SelectList(_context.ProjectPhases.Include(pp => pp.Project), "Id", "Name", measure.ProjectPhaseId);
+                ViewData["Phases"] = new SelectList(_context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project), "Id", "Name", measure.ProjectPhaseId);
                 return View(measure);
             }
 
@@ -283,7 +307,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     ModelState.AddModelError("Value", _localizer["Total measures value for this phase cannot exceed 100%."]);
                     ViewData["Phases"] = new SelectList(
-                        _context.ProjectPhases.Include(pp => pp.Project),
+                        _context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project),
                         "Id", "Name", measure.ProjectPhaseId);
                     return View(measure);
                 }
@@ -298,7 +322,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewData["Phases"] = new SelectList(
-                _context.ProjectPhases.Include(pp => pp.Project),
+                _context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project),
                 "Id", "Name", measure.ProjectPhaseId);
             return View(measure);
         }
@@ -310,9 +334,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             var measure = await _context.Measures.FindAsync(id);
             if (measure == null) return NotFound();
+            if (!await _ministryScope.CanAccessMeasureAsync(measure.Code)) return Forbid();
 
             ViewData["Phases"] = new SelectList(
-                _context.ProjectPhases.Include(pp => pp.Project),
+                _context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project),
                 "Id", "Name", measure.ProjectPhaseId);
             return View(measure);
         }
@@ -322,6 +347,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Measure measure)
         {
+            if (!await _ministryScope.CanAccessMeasureAsync(id)) return Forbid();
+
             // AJAX inline edit
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest" ||
                 Request.ContentType?.Contains("application/x-www-form-urlencoded") == true)
@@ -375,6 +402,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             // Regular form POST
             if (id != measure.Code) return NotFound();
 
+            // The form binds ProjectPhaseId, so it could move the measure into another ministry's phase.
+            if (!await _ministryScope.CanAccessPhaseAsync(measure.ProjectPhaseId)) return Forbid();
+
             ModelState.Remove(nameof(measure.ProjectPhase));
             measure.MeasureType = MeasureType.Quantitative;
 
@@ -397,7 +427,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ViewData["Phases"] = new SelectList(
-                _context.ProjectPhases.Include(pp => pp.Project),
+                _context.ProjectPhases.WithinScope(await _ministryScope.GetScopeAsync()).Include(pp => pp.Project),
                 "Id", "Name", measure.ProjectPhaseId);
             return View(measure);
         }
@@ -411,6 +441,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .FirstOrDefaultAsync(m => m.Code == id);
 
             if (measure == null) return NotFound();
+            if (!await _ministryScope.CanAccessMeasureAsync(measure.Code)) return Forbid();
 
             return View(measure);
         }
@@ -420,6 +451,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            if (MeasureExists(id) && !await _ministryScope.CanAccessMeasureAsync(id)) return Forbid();
+
             var monitoringService = new MonitoringService(_context);
             try
             {

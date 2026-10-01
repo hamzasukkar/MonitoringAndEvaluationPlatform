@@ -22,34 +22,33 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
 
         private readonly ICurrencyConversionService _currencyConversion;
+        private readonly IMinistryScopeService _ministryScope;
 
-        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ICurrencyConversionService currencyConversion)
+        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _currencyConversion = currencyConversion;
+            _ministryScope = ministryScope;
         }
         // GET: Ministries
         [Permission(Permissions.ReadMinistries)]
         public async Task<IActionResult> Index()
         {
-            var ministries = await _context.Ministries.ToListAsync();
+            var scope = await _ministryScope.GetScopeAsync();
+            var ministries = await _context.Ministries.WithinScope(scope).ToListAsync();
             return View(ministries);
         }
 
         // GET: Ministries
         public async Task<IActionResult> ResultIndex(int? ministryCode)
         {
-            IQueryable<Ministry> query = _context.Ministries
-                .Include(m => m.Projects)
-                    .ThenInclude(p => p.Sector)
-                .Include(m => m.Projects)
-                    .ThenInclude(p => p.Donors)
-                .Include(m => m.Projects)
-                    .ThenInclude(p => p.ProjectManager)
-                .Include(m => m.Projects)
-                    .ThenInclude(p => p.SuperVisor);
+            var scope = await _ministryScope.GetScopeAsync();
+
+            // AsNoTracking: each ministry's Projects is replaced below with the projects it OWNS,
+            // and that must never be saved back onto the ProjectMinistries mirror.
+            IQueryable<Ministry> query = _context.Ministries.AsNoTracking().WithinScope(scope);
 
             if (ministryCode.HasValue)
             {
@@ -58,9 +57,25 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             var ministries = await query.ToListAsync();
+            var codes = ministries.Select(m => m.Code).ToList();
+
+            var ownedProjects = await _context.Projects
+                .AsNoTracking()
+                .WithinScope(scope)
+                .Where(p => p.MinistryCode != null && codes.Contains(p.MinistryCode.Value))
+                .Include(p => p.Sector)
+                .Include(p => p.Donors)
+                .Include(p => p.ProjectManager)
+                .Include(p => p.SuperVisor)
+                .ToListAsync();
+
+            foreach (var ministry in ministries)
+            {
+                ministry.Projects = ownedProjects.Where(p => p.MinistryCode == ministry.Code).ToList();
+            }
 
             // Calculate overall statistics
-            var allProjects = ministries.SelectMany(m => m.Projects).Distinct().ToList();
+            var allProjects = ownedProjects;
             ViewBag.TotalProjects = allProjects.Count;
             ViewBag.ActiveProjects = allProjects.Count(p => p.EndDate >= DateTime.Now);
             ViewBag.CompletedProjects = allProjects.Count(p => p.EndDate < DateTime.Now);
@@ -84,13 +99,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
-            // Get associated projects
+            if (!await _ministryScope.CanAccessMinistryAsync(ministry.Code))
+            {
+                return Forbid();
+            }
+
+            // Get the projects this ministry owns
             var projects = await _context.Projects
                 .Include(p => p.Sector)
                 .Include(p => p.Donors)
                 .Include(p => p.ProjectManager)
                 .Include(p => p.SuperVisor)
-                .Where(p => p.Ministries.Any(m => m.Code == id))
+                .Where(p => p.MinistryCode == id)
                 .ToListAsync();
 
             // Calculate statistics
@@ -100,10 +120,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.TotalBudget = (await _currencyConversion.GetConverterAsync()).SumBudget(projects);
             ViewBag.Projects = projects;
 
-            // Get ministry users
-            var ministryUsers = await _userManager.Users
-                .Where(u => u.MinistryName == ministry.MinistryUserName)
-                .ToListAsync();
+            // Get ministry users: account administration, so administrators only.
+            var ministryUsers = User.IsInRole(UserRoles.SystemAdministrator)
+                ? await _userManager.Users
+                    .Where(u => u.MinistryCode == ministry.Code)
+                    .ToListAsync()
+                : new List<ApplicationUser>();
             ViewBag.MinistryUsers = ministryUsers;
 
             return View(ministry);
@@ -112,6 +134,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // 🔹 Create Ministry (Automatically Creates User & Role)
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.CreateMinistry)]
         public async Task<IActionResult> Create(Ministry ministry)
         {
             if (ModelState.IsValid)
@@ -133,7 +156,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     UserName = ministry.MinistryUserName,
                     Email = $"{ministry.MinistryUserName.ToLower()}@example.com", // Example email
                     EmailConfirmed = true,
-                    MinistryName = ministry.MinistryUserName
+                    MinistryName = ministry.MinistryDisplayName_EN,
+                    // Ministry scoping reads MinistryCode; without it the account sees nothing.
+                    MinistryCode = ministry.Code
                 };
 
                 var result = await _userManager.CreateAsync(user, defaultPassword);
@@ -162,6 +187,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // Inline Operations
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Permission(Permissions.CreateMinistry)]
         public async Task<IActionResult> CreateInline(string MinistryDisplayName_AR, string MinistryDisplayName_EN, string MinistryUserName, string Logo)
         {
             if (string.IsNullOrWhiteSpace(MinistryDisplayName_AR) && string.IsNullOrWhiteSpace(MinistryDisplayName_EN))
@@ -190,6 +216,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.ModifyMinistry)]
         public async Task<IActionResult> InlineEdit(int id, string field, string value)
         {
             var ministry = await _context.Ministries.FindAsync(id);
@@ -226,6 +253,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.ModifyMinistry)]
         public async Task<IActionResult> QuickUpdate(int id, string displayNameAR, string displayNameEN, string userName, string logo)
         {
             var ministry = await _context.Ministries.FindAsync(id);
@@ -252,6 +280,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [Permission(Permissions.DeleteMinistry)]
         public async Task<IActionResult> InlineDelete(int id)
         {
             var ministry = await _context.Ministries.FindAsync(id);
@@ -278,18 +307,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return NotFound();
             }
 
+            // AsNoTracking: Projects is replaced below with the projects the ministry OWNS, and
+            // that must never be saved back onto the ProjectMinistries mirror.
             var ministry = await _context.Ministries
-                .Include(m => m.Projects)
-                    .ThenInclude(p => p.Indicators)
-                .Include(m => m.Projects)
-                    .ThenInclude(p => p.Phases)
-                        .ThenInclude(pp => pp.Measures)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.Code == id);
 
             if (ministry == null)
             {
                 return NotFound();
             }
+
+            if (!await _ministryScope.CanAccessMinistryAsync(ministry.Code))
+            {
+                return Forbid();
+            }
+
+            ministry.Projects = await _context.Projects
+                .AsNoTracking()
+                .Where(p => p.MinistryCode == ministry.Code)
+                .Include(p => p.Indicators)
+                .Include(p => p.Phases)
+                    .ThenInclude(pp => pp.Measures)
+                .ToListAsync();
 
             // Calculate the performance breakdown.
             // Per-indicator Performance % = project.performance (passthrough — same as

@@ -29,12 +29,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IStringLocalizer<OutputsController> _localizer;
         private readonly UserManager<ApplicationUser> _userManager;
 
+        private readonly IMinistryScopeService _ministryScope;
+
         public OutputsController(
             ApplicationDbContext context,
             IPerformanceService performanceService,
             IStringLocalizer<OutputsController> localizer,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager,
+            IMinistryScopeService ministryScope)
         {
+            _ministryScope = ministryScope;
             _context = context;
             _performanceService = performanceService;
             _localizer = localizer;
@@ -43,13 +47,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         private async Task<(bool IsAdmin, int? MinistryCode)> GetScopeAsync()
         {
-            if (User.IsInRole(UserRoles.SystemAdministrator))
-            {
-                return (true, null);
-            }
-
-            var user = await _userManager.GetUserAsync(User);
-            return (false, user?.MinistryCode);
+            var scope = await _ministryScope.GetScopeAsync();
+            return (scope.IsAdmin, scope.MinistryCode);
         }
 
         // GET: Outputs
@@ -102,7 +101,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     EF.Functions.Like(o.Name, $"%{searchString}%") ||
                     o.SubOutputs.Any(so => EF.Functions.Like(so.Name, $"%{searchString}%")) ||
                     o.SubOutputs.Any(so => so.Indicators.Any(i => EF.Functions.Like(i.Name, $"%{searchString}%"))) ||
-                    o.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")))
+                    // Project names count only for the caller's own projects.
+                    o.SubOutputs.Any(so => so.Indicators.Any(i => i.Project != null
+                        && (isAdmin || (scopedMinistryCode != null && i.Project.MinistryCode == scopedMinistryCode))
+                        && EF.Functions.Like(i.Project.ProjectName, $"%{searchString}%")))
                 );
             }
 
@@ -170,7 +172,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-                if (!isAdmin && outcomeWithFramework.Framework?.MinistryCode != scopedMinistryCode)
+                if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, outcomeWithFramework.Framework?.MinistryCode))
                 {
                     return Json(new { success = false, message = "You are not authorized to modify this outcome." });
                 }
@@ -229,7 +231,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (output == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && output.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, output.Outcome?.Framework?.MinistryCode))
             {
                 return Forbid();
             }
@@ -251,7 +253,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (output == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && output.Outcome?.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, output.Outcome?.Framework?.MinistryCode))
             {
                 return Forbid();
             }
@@ -317,7 +319,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (outcome == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && outcome.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, outcome.Framework?.MinistryCode))
             {
                 return Forbid();
             }
@@ -348,7 +350,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (outcome == null) return NotFound();
 
             var (isAdmin, scopedMinistryCode) = await GetScopeAsync();
-            if (!isAdmin && outcome.Framework?.MinistryCode != scopedMinistryCode)
+            if (!MinistryScope.Allows(isAdmin, scopedMinistryCode, outcome.Framework?.MinistryCode))
             {
                 return Forbid();
             }

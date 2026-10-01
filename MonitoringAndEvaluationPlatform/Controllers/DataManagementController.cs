@@ -36,6 +36,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(model);
         }
 
+        // POST: DataManagement/RecalculateMinistryPerformance
+        //
+        // Brings every ministry's stored IndicatorsPerformance / DisbursementPerformance onto the
+        // projects it OWNS. Run once after the BackfillMinistryOwnership migration; safe to repeat,
+        // since it only recomputes values from the current data.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RecalculateMinistryPerformance()
+        {
+            var count = await new MonitoringService(_context).RecalculateAllMinistryAggregatesAsync();
+            TempData["SuccessMessage"] = $"Recalculated the performance of {count} ministries.";
+            return RedirectToAction(nameof(Index));
+        }
+
         // GET: DataManagement/Backup
         public async Task<IActionResult> Backup()
         {

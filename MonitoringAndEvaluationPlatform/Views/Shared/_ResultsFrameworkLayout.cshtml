@@ -5,6 +5,8 @@
 @using Microsoft.EntityFrameworkCore
 @using MonitoringAndEvaluationPlatform.Data
 @inject ApplicationDbContext _context
+@inject MonitoringAndEvaluationPlatform.Services.IMinistryScopeService LayoutMinistryScope
+@using MonitoringAndEvaluationPlatform.Services
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
 
@@ -138,7 +140,7 @@
                             <li><hr class="dropdown-divider my-1"></li>
                             <!-- Scrollable Framework List -->
                             <div class="policies-dropdown-scroll">
-                            @foreach (var framework in _context.Frameworks
+                            @foreach (var framework in _context.Frameworks.WithinScope(await LayoutMinistryScope.GetScopeAsync())
                             .OrderByDescending(f => f.IndicatorsPerformance)
                             .ToList())
                             {

@@ -7,9 +7,9 @@ namespace MonitoringAndEvaluationPlatform.Services
     /// <summary>
     /// Rolls ministry statistics up in a fixed number of queries regardless of how many
     /// ministries are asked for: one pass over projects, one over strategies, one over impact
-    /// outputs. Per-ministry grouping happens in memory afterwards, because a project can belong
-    /// to a ministry by either of two edges and that predicate is cheaper to evaluate once per
-    /// project than to push into N queries.
+    /// outputs, grouped per ministry in memory afterwards. A project belongs to the ministry that
+    /// owns it (Project.MinistryCode); the ProjectMinistries mirror only feeds the mismatch
+    /// diagnostic.
     /// </summary>
     public sealed class MinistryStatisticsService : IMinistryStatisticsService
     {
@@ -35,14 +35,22 @@ namespace MonitoringAndEvaluationPlatform.Services
                 .SelectMany(phase => phase.ActionPlan!.Plans)
                 .Sum(plan => (double)plan.Realised) ?? 0;
 
-        public async Task<IReadOnlyList<MinistryStatistics>> GetAsync(
-            int? ministryCode = null,
+        public async Task<IReadOnlyList<MinistryStatistics>> GetForScopeAsync(
+            MinistryScope scope,
+            int? requestedMinistryCode = null,
             DateTime? fromDate = null,
             DateTime? toDate = null,
             CancellationToken cancellationToken = default)
         {
-            var ministriesQuery = _context.Ministries.AsNoTracking();
-            if (ministryCode is int only)
+            // A non-admin who asks for another ministry gets nothing rather than their own, so a
+            // hand-edited ?ministryCode= can neither widen nor silently redirect what they see.
+            if (scope.IsRestricted && requestedMinistryCode is int asked && asked != scope.MinistryCode)
+            {
+                return Array.Empty<MinistryStatistics>();
+            }
+
+            var ministriesQuery = _context.Ministries.AsNoTracking().WithinScope(scope);
+            if (requestedMinistryCode is int only)
             {
                 ministriesQuery = ministriesQuery.Where(m => m.Code == only);
             }
@@ -55,12 +63,11 @@ namespace MonitoringAndEvaluationPlatform.Services
 
             var codes = ministries.Select(m => m.Code).ToList();
 
-            // ── 1. Projects, by either edge ──────────────────────────────────────────────
+            // ── 1. Projects, by owner ────────────────────────────────────────────────────
             var projects = await ApplyDateOverlap(
                     _context.Projects
                         .AsNoTracking()
-                        .Where(p => (p.MinistryCode != null && codes.Contains(p.MinistryCode.Value))
-                                    || p.Ministries.Any(m => codes.Contains(m.Code))),
+                        .Where(p => p.MinistryCode != null && codes.Contains(p.MinistryCode.Value)),
                     fromDate, toDate)
                 .Include(p => p.Ministries)
                 .Include(p => p.Phases)
@@ -101,7 +108,32 @@ namespace MonitoringAndEvaluationPlatform.Services
                 .Include(po => po.IndicatorLinks)
                     .ThenInclude(link => link.ImpactIndicator)
                         .ThenInclude(indicator => indicator.YearlyValues)
+                .Include(po => po.IndicatorLinks)
+                    .ThenInclude(link => link.ImpactIndicator)
+                        .ThenInclude(indicator => indicator.Project)
                 .ToListAsync(cancellationToken);
+
+            // A shared output counts for a ministry user through their own indicators only, so its
+            // achievement is theirs rather than a blend with the partner ministries'. Safe: the
+            // query above is AsNoTracking, so nothing trimmed here can be saved.
+            foreach (var output in impactOutputs)
+            {
+                output.TrimToScope(scope);
+            }
+
+            // Diagnostic for administrators only: projects that name one of these ministries in the
+            // ProjectMinistries mirror but are not owned by it. They are not counted as the
+            // ministry's, which is exactly what the mismatch figure is there to flag.
+            var mirrorOnly = scope.IsAdmin
+                ? await ApplyDateOverlap(
+                        _context.Projects
+                            .AsNoTracking()
+                            .Where(p => (p.MinistryCode == null || !codes.Contains(p.MinistryCode.Value))
+                                        && p.Ministries.Any(m => codes.Contains(m.Code))),
+                        fromDate, toDate)
+                    .Select(p => p.Ministries.Select(m => m.Code).ToList())
+                    .ToListAsync(cancellationToken)
+                : new List<List<int>>();
 
             var converter = await _currencyConversion.GetConverterAsync(cancellationToken);
             var today = DateTime.Now;
@@ -112,7 +144,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             {
                 var code = ministry.Code;
 
-                var ministryProjects = projects.Where(p => BelongsTo(p, code)).ToList();
+                var ministryProjects = projects.Where(p => p.MinistryCode == code).ToList();
                 var ministryStrategies = strategiesByMinistry.GetValueOrDefault(code) ?? new();
                 var ministryOutputs = impactOutputs
                     .Where(po => po.Ministries.Any(m => m.Code == code))
@@ -155,7 +187,8 @@ namespace MonitoringAndEvaluationPlatform.Services
                         ? Math.Round(ratedOutputs.Average(po => po.WeightedAchievementRate), 2)
                         : null,
 
-                    LinkageMismatchCount = ministryProjects.Count(p => IsLinkageMismatch(p, code))
+                    LinkageMismatchCount = ministryProjects.Count(p => !p.Ministries.Any(m => m.Code == code))
+                                           + mirrorOnly.Count(linked => linked.Contains(code))
                 });
             }
 
@@ -163,12 +196,13 @@ namespace MonitoringAndEvaluationPlatform.Services
         }
 
         public async Task<IReadOnlyDictionary<int, IReadOnlyList<Project>>> GetProjectsByMinistryAsync(
+            MinistryScope scope,
             IEnumerable<int> ministryCodes,
             DateTime? fromDate = null,
             DateTime? toDate = null,
             CancellationToken cancellationToken = default)
         {
-            var codes = ministryCodes.Distinct().ToList();
+            var codes = ministryCodes.Distinct().Where(code => scope.CanSee(code)).ToList();
             if (codes.Count == 0)
             {
                 return new Dictionary<int, IReadOnlyList<Project>>();
@@ -177,8 +211,7 @@ namespace MonitoringAndEvaluationPlatform.Services
             var projects = await ApplyDateOverlap(
                     _context.Projects
                         .AsNoTracking()
-                        .Where(p => (p.MinistryCode != null && codes.Contains(p.MinistryCode.Value))
-                                    || p.Ministries.Any(m => codes.Contains(m.Code))),
+                        .Where(p => p.MinistryCode != null && codes.Contains(p.MinistryCode.Value)),
                     fromDate, toDate)
                 .Include(p => p.Ministries)
                 .Include(p => p.Sector)
@@ -191,32 +224,13 @@ namespace MonitoringAndEvaluationPlatform.Services
             var byMinistry = codes.ToDictionary(code => code, _ => new List<Project>());
             foreach (var project in projects)
             {
-                foreach (var code in codes)
-                {
-                    if (BelongsTo(project, code))
-                    {
-                        byMinistry[code].Add(project);
-                    }
-                }
+                byMinistry[project.MinistryCode!.Value].Add(project);
             }
 
             return byMinistry.ToDictionary(
                 pair => pair.Key,
                 pair => (IReadOnlyList<Project>)pair.Value);
         }
-
-        /// <summary>
-        /// A project belongs to a ministry if EITHER edge says so. The FK is what authorization
-        /// and every project list read; the many-to-many is what the stored Ministry.*Performance
-        /// columns read. Honouring only one would make this page contradict the other.
-        /// </summary>
-        private static bool BelongsTo(Project project, int ministryCode) =>
-            project.MinistryCode == ministryCode
-            || project.Ministries.Any(m => m.Code == ministryCode);
-
-        private static bool IsLinkageMismatch(Project project, int ministryCode) =>
-            (project.MinistryCode == ministryCode)
-            != project.Ministries.Any(m => m.Code == ministryCode);
 
         /// <summary>
         /// Overlap, not containment: a project running 2023–2027 belongs in a 2025 report, which
