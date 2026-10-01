@@ -33,6 +33,12 @@ namespace MonitoringAndEvaluationPlatform.ViewModels
         [Display(Name = "Lockout Enabled")]
         public bool LockoutEnabled { get; set; }
 
+        /// <summary>
+        /// True when this account's SystemAdministrator role may not be removed: it is the signed-in
+        /// administrator's own account, or the last active administrator.
+        /// </summary>
+        public bool AdminRoleLocked { get; set; }
+
         [Display(Name = "Roles")]
         public List<string>? SelectedRoles { get; set; }
 

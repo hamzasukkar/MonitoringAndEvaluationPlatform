@@ -66,21 +66,17 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            [Required]
+            // Sign-in is by username; the form has no email field. A required Email property used
+            // to make every post invalid, which is why validation had been switched off. The
+            // messages are Arabic because the login page itself is Arabic-only.
+            [Required(ErrorMessage = "اسم المستخدم مطلوب.")]
             public string UserName { get; set; }
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [EmailAddress]
-            public string Email { get; set; }
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Required]
+            [Required(ErrorMessage = "كلمة المرور مطلوبة.")]
             [DataType(DataType.Password)]
             public string Password { get; set; }
 
@@ -115,7 +111,7 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
 
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
-            if (ModelState.IsValid || true)
+            if (ModelState.IsValid)
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true

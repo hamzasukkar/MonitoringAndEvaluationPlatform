@@ -117,6 +117,20 @@
     .form-check {
         margin-bottom: 0.5rem;
     }
+
+    /* The layout loads Bootstrap's LTR stylesheet, which floats each checkbox to the LEFT edge of
+       its own cell. In Arabic the label sits at the right edge, so the box ended up beside the
+       neighbouring label. Mirror Bootstrap's spacing so the box sits right next to its own label. */
+    [dir="rtl"] .form-check {
+        padding-left: 0;
+        padding-right: 1.5em;
+    }
+
+    [dir="rtl"] .form-check .form-check-input {
+        float: right;
+        margin-left: 0;
+        margin-right: -1.5em;
+    }
 </style>
 
 @section Scripts {

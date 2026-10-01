@@ -110,7 +110,7 @@
                         <option value="">@Localizer["AllRoles"]</option>
                         @foreach (var role in Model.AvailableRoles)
                         {
-                            <option value="@role" selected="@(role == Model.RoleFilter)">@role</option>
+                            <option value="@role" selected="@(role == Model.RoleFilter)">@Localizer[role]</option>
                         }
                     </select>
                 </div>
@@ -180,7 +180,7 @@
                                 <td>
                                     @foreach (var role in user.Roles)
                                     {
-                                        <span class="badge bg-primary me-1">@role</span>
+                                        <span class="badge bg-primary me-1">@Localizer[role]</span>
                                     }
                                 </td>
                                 <td>
@@ -208,12 +208,16 @@
                                         <button type="button" class="btn btn-sm btn-secondary" onclick="resetPassword('@user.Id', '@user.UserName')" title="@Localizer["ResetPassword"]">
                                             <i class="fas fa-key"></i>
                                         </button>
-                                        <button type="button" class="btn btn-sm @(user.IsLocked ? "btn-success" : "btn-warning")" onclick="toggleLockout('@user.Id', '@user.UserName', @user.IsLocked.ToString().ToLower())" title="@Localizer["ToggleLockout"]">
-                                            <i class="fas fa-@(user.IsLocked ? "unlock" : "lock")"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-sm btn-danger" onclick="deleteUser('@user.Id', '@user.UserName')" title="@Localizer["Delete"]">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        @* Not offered for your own account or the last active administrator. *@
+                                        @if (user.CanRemoveAccess)
+                                        {
+                                            <button type="button" class="btn btn-sm @(user.IsLocked ? "btn-success" : "btn-warning")" onclick="toggleLockout('@user.Id', '@user.UserName', @user.IsLocked.ToString().ToLower())" title="@Localizer["ToggleLockout"]">
+                                                <i class="fas fa-@(user.IsLocked ? "unlock" : "lock")"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-danger" onclick="deleteUser('@user.Id', '@user.UserName')" title="@Localizer["Delete"]">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        }
                                     </div>
                                 </td>
                             </tr>
@@ -302,8 +306,9 @@
 </style>
 
 <script>
+    @* GetString, not Localizer[...]: the indexer runs the translation through string.Format, which throws on the {0} placeholders that the script fills in below. Json.Serialize makes it a safe JavaScript string. *@
     function deleteUser(userId, userName) {
-        if (confirm('@Localizer["ConfirmDeleteUser"]'.replace('{0}', userName))) {
+        if (confirm(@(Json.Serialize(Localizer.GetString("ConfirmDeleteUser").Value)).replace('{0}', userName))) {
             fetch('@Url.Action("DeleteUser", "Admin")', {
                 method: 'POST',
                 headers: {
@@ -325,7 +330,7 @@
     }
 
     function resetPassword(userId, userName) {
-        const newPassword = prompt('@Localizer["EnterNewPassword"]'.replace('{0}', userName));
+        const newPassword = prompt(@(Json.Serialize(Localizer.GetString("EnterNewPassword").Value)).replace('{0}', userName));
         if (newPassword) {
             fetch('@Url.Action("ResetPassword", "Admin")', {
                 method: 'POST',
@@ -347,7 +352,7 @@
 
     function toggleLockout(userId, userName, isLocked) {
         const action = isLocked ? '@Localizer["Unlock"]' : '@Localizer["Lock"]';
-        if (confirm('@Localizer["ConfirmToggleLockout"]'.replace('{0}', action).replace('{1}', userName))) {
+        if (confirm(@(Json.Serialize(Localizer.GetString("ConfirmToggleLockout").Value)).replace('{0}', action).replace('{1}', userName))) {
             fetch('@Url.Action("ToggleLockout", "Admin")', {
                 method: 'POST',
                 headers: {

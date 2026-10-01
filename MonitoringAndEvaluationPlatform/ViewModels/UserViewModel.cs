@@ -12,6 +12,12 @@ namespace MonitoringAndEvaluationPlatform.ViewModels
         public DateTimeOffset? LockoutEnd { get; set; }
         public List<string> Roles { get; set; } = new List<string>();
 
+        /// <summary>
+        /// False for the signed-in administrator's own account and for the last active administrator:
+        /// the list hides their lock and delete buttons (the server refuses those actions as well).
+        /// </summary>
+        public bool CanRemoveAccess { get; set; } = true;
+
         public bool IsLocked => LockoutEnd.HasValue && LockoutEnd.Value > DateTimeOffset.UtcNow;
     }
 }

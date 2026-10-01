@@ -327,13 +327,14 @@
 
     updateEstimate();
 
+    @* GetString, not Localizer[...]: the indexer runs the translation through string.Format, which throws on the {0} placeholders that the script fills in below. Json.Serialize makes it a safe JavaScript string. *@
     function confirmGenerate() {
         const total = document.getElementById('estTotal').textContent;
-        return confirm('@Localizer["ConfirmGenerate"]'.replace('{0}', total));
+        return confirm(@(Json.Serialize(Localizer.GetString("ConfirmGenerate").Value)).replace('{0}', total));
     }
 
     function confirmDelete() {
         const prefix = document.getElementById('prefix').value;
-        return confirm('@Localizer["ConfirmDelete"]'.replace('{0}', prefix));
+        return confirm(@(Json.Serialize(Localizer.GetString("ConfirmDelete").Value)).replace('{0}', prefix));
     }
 </script>

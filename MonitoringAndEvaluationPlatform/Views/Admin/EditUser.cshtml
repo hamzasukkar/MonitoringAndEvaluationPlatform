@@ -58,15 +58,28 @@
                             <div class="roles-checkboxes">
                                 @foreach (var role in Model.AvailableRoles)
                                 {
+                                    var roleLocked = Model.AdminRoleLocked && role == MonitoringAndEvaluationPlatform.Models.UserRoles.SystemAdministrator;
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="SelectedRoles" value="@role" id="role_@role"
-                                               checked="@(Model.SelectedRoles != null && Model.SelectedRoles.Contains(role))" />
+                                               checked="@(Model.SelectedRoles != null && Model.SelectedRoles.Contains(role))"
+                                               disabled="@roleLocked" />
+                                        @if (roleLocked)
+                                        {
+                                            @* A disabled checkbox is not posted; this keeps the role in the submitted list. *@
+                                            <input type="hidden" name="SelectedRoles" value="@role" />
+                                        }
                                         <label class="form-check-label" for="role_@role">
                                             @Localizer[role]
                                         </label>
                                     </div>
                                 }
                             </div>
+                            @if (Model.AdminRoleLocked)
+                            {
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-shield-alt me-1"></i>@Localizer["AdminRoleLocked"]
+                                </small>
+                            }
                         </div>
 
                         <div class="row mb-4">
@@ -115,6 +128,20 @@
 
     .form-check {
         margin-bottom: 0.5rem;
+    }
+
+    /* The layout loads Bootstrap's LTR stylesheet, which floats each checkbox to the LEFT edge of
+       its own cell. In Arabic the label sits at the right edge, so the box ended up beside the
+       neighbouring label. Mirror Bootstrap's spacing so the box sits right next to its own label. */
+    [dir="rtl"] .form-check {
+        padding-left: 0;
+        padding-right: 1.5em;
+    }
+
+    [dir="rtl"] .form-check .form-check-input {
+        float: right;
+        margin-left: 0;
+        margin-right: -1.5em;
     }
 </style>
 

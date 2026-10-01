@@ -103,4 +103,10 @@
   <data name="ReadingUser" xml:space="preserve">
     <value>مستخدم للقراءة فقط</value>
   </data>
+  <data name="MinistryStrategyManager" xml:space="preserve">
+    <value>مدير استراتيجية الوزارة</value>
+  </data>
+  <data name="AdminRoleLocked" xml:space="preserve">
+    <value>لا يمكن إزالة دور مدير النظام من حسابك أنت، ولا من آخر مدير نظام نشط، حتى لا يبقى النظام بلا مدير.</value>
+  </data>
 </root>

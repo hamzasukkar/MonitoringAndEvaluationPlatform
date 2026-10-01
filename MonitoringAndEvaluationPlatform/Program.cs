@@ -73,6 +73,12 @@ builder.Services.AddAuthorization(options =>
 
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
+// How often a signed-in session is re-checked against the database (default: 30 minutes). Locking,
+// deleting, resetting the password of, or changing the roles of an account rotates its security
+// stamp, so the user's open session ends at the next check — keep it short.
+builder.Services.Configure<SecurityStampValidatorOptions>(options =>
+    options.ValidationInterval = TimeSpan.FromMinutes(1));
+
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath = "/Identity/Account/Login"; // Default login path

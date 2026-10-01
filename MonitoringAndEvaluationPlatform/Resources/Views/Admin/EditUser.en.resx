@@ -103,4 +103,10 @@
   <data name="ReadingUser" xml:space="preserve">
     <value>Reading User</value>
   </data>
+  <data name="MinistryStrategyManager" xml:space="preserve">
+    <value>Ministry Strategy Manager</value>
+  </data>
+  <data name="AdminRoleLocked" xml:space="preserve">
+    <value>The System Administrator role can't be removed from your own account or from the last active administrator, so the system is never left without one.</value>
+  </data>
 </root>
