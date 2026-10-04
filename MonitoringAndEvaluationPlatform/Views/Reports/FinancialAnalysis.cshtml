@@ -28,7 +28,7 @@
     {
         SpendingStatus.OverBudget    => isRtl ? "تجاوز الميزانية" : "Over Budget",
         SpendingStatus.OnTarget      => isRtl ? "ضمن الهدف"      : "On Target",
-        SpendingStatus.UnderSpending => isRtl ? "تحت الصرف"      : "Under Spending",
+        SpendingStatus.UnderSpending => isRtl ? "تحت الإنفاق"      : "Under Spending",
         _                            => isRtl ? "لم يبدأ"        : "Not Started"
     };
 }
@@ -57,7 +57,7 @@
                 @(isRtl ? "التحليل المالي للمشاريع" : "Financial Analysis Report")
             </h1>
             <p class="dashboard-subtitle">
-                @(isRtl ? "مقارنة الميزانية المخططة مقابل الفعلية وتصنيف المشاريع حسب نسبة الصرف"
+                @(isRtl ? "مقارنة الميزانية المخططة مقابل الفعلية وتصنيف المشاريع حسب نسبة الإنفاق"
                         : "Estimated vs. actual budget comparison and project classification by spending rate")
             </p>
         </div>
@@ -100,7 +100,7 @@
                 <div class="card-body text-center py-4">
                     <i class="fas fa-coins fa-2x mb-2 opacity-75"></i>
                     <div class="fs-2 fw-bold">@FormatBudget(Model.TotalRealBudget) <small>@(isRtl ? "ل.س" : "SYP")</small></div>
-                    <div class="small opacity-75">@(isRtl ? "إجمالي الصرف الفعلي (من الخطط)" : "Total Actual Spending (from Plans)")</div>
+                    <div class="small opacity-75">@(isRtl ? "إجمالي الإنفاق الفعلي (من الخطط)" : "Total Actual Spending (from Plans)")</div>
                 </div>
             </div>
         </div>
@@ -113,7 +113,7 @@
                 <div class="card-body text-center py-4">
                     <i class="fas fa-percentage fa-2x mb-2 opacity-75"></i>
                     <div class="fs-1 fw-bold">@Model.AverageSpendingRate%</div>
-                    <div class="small opacity-75">@(isRtl ? "متوسط نسبة الصرف" : "Average Spending Rate")</div>
+                    <div class="small opacity-75">@(isRtl ? "متوسط نسبة الإنفاق" : "Average Spending Rate")</div>
                 </div>
             </div>
         </div>
@@ -155,7 +155,7 @@
                     </div>
                     <div>
                         <div class="fs-2 fw-bold text-warning">@Model.UnderSpendingCount</div>
-                        <div class="text-muted small">@(isRtl ? "تحت الصرف" : "Under Spending") (<80%)</div>
+                        <div class="text-muted small">@(isRtl ? "تحت الإنفاق" : "Under Spending") (<80%)</div>
                     </div>
                 </div>
             </div>
@@ -168,7 +168,7 @@
                     </div>
                     <div>
                         <div class="fs-2 fw-bold text-secondary">@Model.NotStartedCount</div>
-                        <div class="text-muted small">@(isRtl ? "لم يبدأ الصرف" : "Not Started") (0%)</div>
+                        <div class="text-muted small">@(isRtl ? "لم يبدأ الإنفاق" : "Not Started") (0%)</div>
                     </div>
                 </div>
             </div>
@@ -197,7 +197,7 @@
                 <div class="card-header bg-white border-0 pt-3 pb-0">
                     <h6 class="fw-bold mb-0">
                         <i class="fas fa-chart-pie me-2 text-primary"></i>
-                        @(isRtl ? "توزيع المشاريع حسب حالة الصرف" : "Project Distribution by Spending Status")
+                        @(isRtl ? "توزيع المشاريع حسب حالة الإنفاق" : "Project Distribution by Spending Status")
                     </h6>
                 </div>
                 <div class="card-body d-flex align-items-center justify-content-center">
@@ -220,7 +220,7 @@
                     <option value="">@(isRtl ? "جميع الحالات" : "All Statuses")</option>
                     <option value="OverBudget">@(isRtl ? "تجاوز الميزانية" : "Over Budget")</option>
                     <option value="OnTarget">@(isRtl ? "ضمن الهدف" : "On Target")</option>
-                    <option value="UnderSpending">@(isRtl ? "تحت الصرف" : "Under Spending")</option>
+                    <option value="UnderSpending">@(isRtl ? "تحت الإنفاق" : "Under Spending")</option>
                     <option value="NotStarted">@(isRtl ? "لم يبدأ" : "Not Started")</option>
                 </select>
                 <!-- Search -->
@@ -236,9 +236,9 @@
                             <th data-col="name">@(isRtl ? "اسم المشروع" : "Project Name")</th>
                             <th data-col="ministry">@(isRtl ? "الوزارة" : "Ministry")</th>
                             <th data-col="estimated" class="text-end">@(isRtl ? "الميزانية المخططة" : "Estimated Budget")</th>
-                            <th data-col="real" class="text-end">@(isRtl ? "الصرف الفعلي" : "Actual Spending")</th>
+                            <th data-col="real" class="text-end">@(isRtl ? "الإنفاق الفعلي" : "Actual Spending")</th>
                             <th data-col="variance" class="text-end">@(isRtl ? "الفجوة" : "Variance")</th>
-                            <th data-col="rate">@(isRtl ? "نسبة الصرف" : "Spending Rate")</th>
+                            <th data-col="rate">@(isRtl ? "نسبة الإنفاق" : "Spending Rate")</th>
                             <th data-col="status">@(isRtl ? "الحالة" : "Status")</th>
                         </tr>
                     </thead>
@@ -319,7 +319,7 @@
 
     const isRtl = @(isRtl ? "true" : "false");
     const labels = isRtl
-        ? { over: 'تجاوز الميزانية', on: 'ضمن الهدف', under: 'تحت الصرف', none: 'لم يبدأ' }
+        ? { over: 'تجاوز الميزانية', on: 'ضمن الهدف', under: 'تحت الإنفاق', none: 'لم يبدأ' }
         : { over: 'Over Budget',     on: 'On Target',  under: 'Under Spending', none: 'Not Started' };
 
     // ── Bar Chart ──
@@ -335,7 +335,7 @@
                     borderRadius: 4
                 },
                 {
-                    label: isRtl ? 'الصرف الفعلي (من الخطط)' : 'Actual Spending (from Plans)',
+                    label: isRtl ? 'الإنفاق الفعلي (من الخطط)' : 'Actual Spending (from Plans)',
                     data: projects.map(p => p.real),
                     backgroundColor: 'rgba(25,135,84,0.7)',
                     borderRadius: 4
