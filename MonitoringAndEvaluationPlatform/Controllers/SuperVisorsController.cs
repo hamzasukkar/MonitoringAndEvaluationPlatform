@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
@@ -18,11 +19,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
 
         private readonly ICurrencyConversionService _currencyConversion;
+        private readonly IStringLocalizer<SuperVisorsController> _localizer;
 
-        public SuperVisorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion)
+        public SuperVisorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion, IStringLocalizer<SuperVisorsController> localizer)
         {
             _currencyConversion = currencyConversion;
             _context = context;
+            _localizer = localizer;
         }
 
         // GET: SuperVisors
@@ -134,11 +137,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> InlineDelete(int id)
         {
             var supervisor = await _context.SuperVisors.FindAsync(id);
             if (supervisor == null)
                 return Json(new { success = false, message = "SuperVisor not found" });
+
+            // Projects.SuperVisorCode is a cascading FK: deleting a supervisor in use would silently
+            // delete every one of their projects with all its phases, plans and measures.
+            var projectCount = await _context.Projects.CountAsync(p => p.SuperVisorCode == id);
+            if (projectCount > 0)
+                return Json(new { success = false, message = _localizer["This supervisor is assigned to {0} project(s). Reassign them to another supervisor before deleting.", projectCount].Value });
 
             try
             {

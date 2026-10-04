@@ -717,7 +717,10 @@
                 $.ajax({
                     url: '@Url.Action("InlineDelete")',
                     type: 'POST',
-                    data: { id: id },
+                    data: {
+                        id: id,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
                     success: function(response) {
                         console.log('Delete response:', response);
                         if (response.success) {

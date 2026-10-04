@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.ViewModel;
@@ -14,10 +15,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     public class LocationController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IStringLocalizer<LocationController> _localizer;
 
-        public LocationController(ApplicationDbContext context)
+        public LocationController(ApplicationDbContext context, IStringLocalizer<LocationController> localizer)
         {
             _context = context;
+            _localizer = localizer;
         }
 
         public IActionResult Index()
@@ -227,16 +230,42 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             return View(model);
         }
 
-        // GET: Delete Governorate
+        // POST: Delete Governorate
+        // Districts, sub-districts, communities and every project's location links cascade from a
+        // governorate, so only one added by mistake (no districts, no projects) may be deleted.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize(Roles = UserRoles.SystemAdministrator)]
-        public IActionResult DeleteGovernorate(int id)
+        public async Task<IActionResult> DeleteGovernorate(string id)
         {
-            var gov = _context.Governorates.Find(id);
+            var gov = await _context.Governorates.FindAsync(id);
             if (gov == null) return NotFound();
 
-            _context.Governorates.Remove(gov);
-            _context.SaveChanges();
-            return RedirectToAction("Governorates");
+            var name = System.Globalization.CultureInfo.CurrentUICulture.TwoLetterISOLanguageName == "ar"
+                ? gov.AR_Name : gov.EN_Name;
+
+            var districtCount = await _context.Districts.CountAsync(d => d.GovernorateCode == id);
+            var projectCount = await _context.Projects.CountAsync(p => p.Governorates.Any(g => g.Code == id));
+            if (districtCount > 0 || projectCount > 0)
+            {
+                TempData["ErrorMessage"] = _localizer["Governorate '{0}' cannot be deleted: it has {1} district(s) and is linked to {2} project(s). Only a governorate added by mistake, with no districts or projects, can be deleted.", name, districtCount, projectCount].Value;
+                return RedirectToAction(nameof(Governorates));
+            }
+
+            try
+            {
+                _context.Governorates.Remove(gov);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                // A table outside the model (or added later) may still point at it.
+                TempData["ErrorMessage"] = _localizer["Governorate '{0}' cannot be deleted because other records in the system still refer to it.", name].Value;
+                return RedirectToAction(nameof(Governorates));
+            }
+
+            TempData["SuccessMessage"] = _localizer["Governorate '{0}' has been deleted.", name].Value;
+            return RedirectToAction(nameof(Governorates));
         }
 
         [HttpGet]

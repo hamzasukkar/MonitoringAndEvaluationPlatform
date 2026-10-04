@@ -58,10 +58,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="unavailable" xml:space="preserve">
-    <value>unavailable</value>
+    <data name="Governorate '{0}' cannot be deleted: it has {1} district(s) and is linked to {2} project(s). Only a governorate added by mistake, with no districts or projects, can be deleted." xml:space="preserve">
+    <value>لا يمكن حذف المحافظة '{0}': فيها {1} منطقة ومرتبطة بـ {2} مشروع. يمكن حذف المحافظة فقط إذا أُضيفت بالخطأ ولا تحتوي مناطق ولا مشاريع.</value>
   </data>
-  <data name="This donor is linked to {0} project(s), including their funding records. Remove it from those projects before deleting." xml:space="preserve">
-    <value>This donor is linked to {0} project(s), including their funding records. Remove it from those projects before deleting.</value>
+  <data name="Governorate '{0}' cannot be deleted because other records in the system still refer to it." xml:space="preserve">
+    <value>لا يمكن حذف المحافظة '{0}' لأن سجلات أخرى في النظام ما زالت مرتبطة بها.</value>
+  </data>
+  <data name="Governorate '{0}' has been deleted." xml:space="preserve">
+    <value>تم حذف المحافظة '{0}'.</value>
   </data>
 </root>

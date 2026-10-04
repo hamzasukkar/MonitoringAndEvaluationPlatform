@@ -512,7 +512,7 @@
 
                     // Save changes
                     $.ajax({
-                        url: '@Url.Action("InlineEdit", "SuperVisor")',
+                        url: '@Url.Action("InlineEdit", "SuperVisors")',
                         type: 'POST',
                         data: {
                             id: id,
@@ -568,7 +568,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: '@Url.Action("InlineDelete", "SuperVisor")',
+                        url: '@Url.Action("InlineDelete", "SuperVisors")',
                         type: 'POST',
                         data: { 
                             id: id,
@@ -623,7 +623,7 @@
                 if (nameSpan.text() !== newName) {
                     updatePromises.push(
                         $.ajax({
-                            url: '@Url.Action("InlineEdit", "SuperVisor")',
+                            url: '@Url.Action("InlineEdit", "SuperVisors")',
                             type: 'POST',
                             data: {
                                 id: code,
@@ -639,7 +639,7 @@
                 if (phoneSpan.text() !== newPhone) {
                     updatePromises.push(
                         $.ajax({
-                            url: '@Url.Action("InlineEdit", "SuperVisor")',
+                            url: '@Url.Action("InlineEdit", "SuperVisors")',
                             type: 'POST',
                             data: {
                                 id: code,
@@ -655,7 +655,7 @@
                 if (emailSpan.text() !== newEmail) {
                     updatePromises.push(
                         $.ajax({
-                            url: '@Url.Action("InlineEdit", "SuperVisor")',
+                            url: '@Url.Action("InlineEdit", "SuperVisors")',
                             type: 'POST',
                             data: {
                                 id: code,

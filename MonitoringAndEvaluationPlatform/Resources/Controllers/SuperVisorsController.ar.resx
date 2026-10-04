@@ -58,10 +58,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="unavailable" xml:space="preserve">
-    <value>unavailable</value>
-  </data>
-  <data name="This donor is linked to {0} project(s), including their funding records. Remove it from those projects before deleting." xml:space="preserve">
-    <value>This donor is linked to {0} project(s), including their funding records. Remove it from those projects before deleting.</value>
+    <data name="This supervisor is assigned to {0} project(s). Reassign them to another supervisor before deleting." xml:space="preserve">
+    <value>هذا المشرف مرتبط بـ {0} مشروع. انقل هذه المشاريع إلى مشرف آخر قبل الحذف.</value>
   </data>
 </root>

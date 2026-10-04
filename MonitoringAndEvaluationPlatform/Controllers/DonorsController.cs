@@ -204,12 +204,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         [Authorize(Roles = UserRoles.SystemAdministrator)]
         public async Task<IActionResult> InlineDelete(int id)
         {
             var donor = await _context.Donors.FindAsync(id);
             if (donor == null)
                 return Json(new { success = false, message = "Donor not found" });
+
+            // Both project links cascade: deleting a donor in use would silently wipe its funding
+            // amounts and percentages from every project it funds.
+            var projectCount = await _context.Projects.CountAsync(p =>
+                p.Donors!.Any(d => d.Code == id) || p.ProjectDonors.Any(pd => pd.DonorCode == id));
+            if (projectCount > 0)
+                return Json(new { success = false, message = _localizer["This donor is linked to {0} project(s), including their funding records. Remove it from those projects before deleting.", projectCount].Value });
 
             try
             {
