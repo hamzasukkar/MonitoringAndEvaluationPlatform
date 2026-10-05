@@ -1350,7 +1350,7 @@
     <value>الخطط</value>
   </data>
   <data name="Plans provide detailed monthly tracking of project disbursement at the operational level." xml:space="preserve">
-    <value>توفر الخطط تتبعاً شهرياً تفصيلياً لصرف المشروع على المستوى التشغيلي.</value>
+    <value>توفر الخطط تتبعاً شهرياً تفصيلياً لإنفاق المشروع على المستوى التشغيلي.</value>
   </data>
   <data name="11.1 Action Plans" xml:space="preserve">
     <value>11.1 خطط العمل</value>
@@ -1371,7 +1371,7 @@
     <value>11.2 تحديث القيم المحققة</value>
   </data>
   <data name="Each monthly Plan entry holds a Realised value representing the amount disbursed that month. Update it inline directly in the Action Plan table:" xml:space="preserve">
-    <value>يحمل كل مدخل خطة شهري قيمة محققة تمثل المبلغ المصروف في ذلك الشهر. حدّثها مباشرة في جدول خطة العمل:</value>
+    <value>يحمل كل مدخل خطة شهري قيمة محققة تمثل المبلغ المنفق في ذلك الشهر. حدّثها مباشرة في جدول خطة العمل:</value>
   </data>
   <data name="Navigate to Action Plan" xml:space="preserve">
     <value>انتقل إلى خطة العمل</value>
@@ -1389,13 +1389,13 @@
     <value>أدخل القيمة الجديدة</value>
   </data>
   <data name="Type the new value and press Enter. Disbursement performance is recalculated automatically and cascades up the framework hierarchy." xml:space="preserve">
-    <value>اكتب القيمة الجديدة واضغط Enter. يُعاد حساب أداء الصرف تلقائياً ويُتسلسل صعوداً في تسلسل الهدف الاستراتيجي الهرمي.</value>
+    <value>اكتب القيمة الجديدة واضغط Enter. يُعاد حساب أداء الإنفاق تلقائياً ويُتسلسل صعوداً في تسلسل الهدف الاستراتيجي الهرمي.</value>
   </data>
   <data name="How Disbursement Is Calculated" xml:space="preserve">
-    <value>كيف يُحسب الصرف</value>
+    <value>كيف يُحسب الإنفاق</value>
   </data>
   <data name="Project disbursement performance = (sum of all Realised values across phases / Project Estimated Budget) × 100. Time-phased planned targets are not used." xml:space="preserve">
-    <value>أداء صرف المشروع = (مجموع جميع القيم المحققة عبر المراحل / الميزانية التقديرية للمشروع) × 100. لا تُستخدم الأهداف المخططة المرحلية.</value>
+    <value>أداء إنفاق المشروع = (مجموع جميع القيم المحققة عبر المراحل / الميزانية التقديرية للمشروع) × 100. لا تُستخدم الأهداف المخططة المرحلية.</value>
   </data>
   <data name="Plans Update Screenshot" xml:space="preserve">
     <value>لقطة شاشة تحديث الخطط</value>
@@ -1938,7 +1938,7 @@
     <value>أدخل المبلغ لا الأصفار</value>
   </data>
   <data name="If a budget is 5 million and you set the Budget Unit to Millions, enter 5 — not 5,000,000. Setting the unit incorrectly will distort budget totals and disbursement performance." xml:space="preserve">
-    <value>إذا كانت الميزانية 5 ملايين وضبطت وحدة الميزانية على «ملايين»، فأدخل 5 — لا 5,000,000. ضبط الوحدة بشكل خاطئ سيشوّه إجماليات الميزانية وأداء الصرف.</value>
+    <value>إذا كانت الميزانية 5 ملايين وضبطت وحدة الميزانية على «ملايين»، فأدخل 5 — لا 5,000,000. ضبط الوحدة بشكل خاطئ سيشوّه إجماليات الميزانية وأداء الإنفاق.</value>
   </data>
   <data name="The platform uses role-based access control with five predefined roles:" xml:space="preserve">
     <value>تستخدم المنصة نظام تحكم بالوصول قائماً على الأدوار، بخمسة أدوار معرّفة مسبقاً:</value>
@@ -2743,7 +2743,7 @@
     <value>المالية</value>
   </data>
   <data name="Budget (SYP), Disbursed and Spend Rate. A warning shows how many projects were left out because they have no exchange rate." xml:space="preserve">
-    <value>الموازنة (ل.س)، والمنصرف، ونسبة الإنفاق. ويظهر تنبيه بعدد المشاريع المستبعدة لعدم وجود سعر صرف لها.</value>
+    <value>الموازنة (ل.س)، والمنفق، ونسبة الإنفاق. ويظهر تنبيه بعدد المشاريع المستبعدة لعدم وجود سعر صرف لها.</value>
   </data>
   <data name="Counts" xml:space="preserve">
     <value>الأعداد</value>
@@ -2789,7 +2789,7 @@
     <value>شريط الأدوات</value>
   </data>
   <data name="Indicators, Both, Disbursement" xml:space="preserve">
-    <value>المشاريع، كلاهما، الصرف</value>
+    <value>المشاريع، كلاهما، الإنفاق</value>
   </data>
   <data name="which performance each node shows" xml:space="preserve">
     <value>نوع الأداء الذي تعرضه كل عقدة</value>
@@ -3038,7 +3038,7 @@
     <value>يقارن «الأداء حسب الوزارة» رقمين مختلفين عن قصد: متوسط أداء مشاريع الوزارة، وتجميع أداء أهدافها الاستراتيجية.</value>
   </data>
   <data name="Detail by ministry shows each ministry's performance, finances, counts and development impact, followed by a table of its projects with sector, budget, amount disbursed, spend rate, performance and dates. Export to Excel and Export to PDF save the report with the current filters; Print prints it." xml:space="preserve">
-    <value>يعرض «التفاصيل حسب الوزارة» أداء كل وزارة وماليتها وأعدادها وأثرها التنموي، يليها جدول بمشاريعها يتضمن القطاع والموازنة والمبلغ المنصرف ونسبة الإنفاق والأداء والتواريخ. ويحفظ «تصدير إلى Excel» و«تصدير إلى PDF» التقرير بعوامل التصفية الحالية، ويطبعه زر «طباعة».</value>
+    <value>يعرض «التفاصيل حسب الوزارة» أداء كل وزارة وماليتها وأعدادها وأثرها التنموي، يليها جدول بمشاريعها يتضمن القطاع والموازنة والمبلغ المنفق ونسبة الإنفاق والأداء والتواريخ. ويحفظ «تصدير إلى Excel» و«تصدير إلى PDF» التقرير بعوامل التصفية الحالية، ويطبعه زر «طباعة».</value>
   </data>
   <data name="Ministry Report Screenshot" xml:space="preserve">
     <value>لقطة شاشة تقرير الوزارات</value>
@@ -3089,7 +3089,7 @@
     <value>جدول المشاريع</value>
   </data>
   <data name="project name, scope, ministry, community, framework, budget, performance, disbursement, total disbursed and dates. Click a heading to sort; a totals row sums the list." xml:space="preserve">
-    <value>اسم المشروع والنطاق والجهة والمجتمع والهدف الاستراتيجي والموازنة والأداء والإنفاق وإجمالي المنصرف والتواريخ. انقر على عنوان عمود للفرز، ويلخّص صف الإجماليات القائمة.</value>
+    <value>اسم المشروع والنطاق والجهة والمجتمع والهدف الاستراتيجي والموازنة والأداء والإنفاق وإجمالي المنفق والتواريخ. انقر على عنوان عمود للفرز، ويلخّص صف الإجماليات القائمة.</value>
   </data>
   <data name="Country-wide Projects" xml:space="preserve">
     <value>مشاريع مستوى القطر</value>

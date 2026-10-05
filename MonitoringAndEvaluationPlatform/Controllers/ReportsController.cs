@@ -1016,7 +1016,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 isArabic ? "تجميع الأهداف الاستراتيجية (%)" : "Strategy Roll-up (%)",
                 isArabic ? "الإنفاق (%)" : "Disbursement (%)",
                 isArabic ? "الموازنة (ل.س)" : "Budget (SYP)",
-                isArabic ? "المنصرف (ل.س)" : "Disbursed (SYP)",
+                isArabic ? "المنفق (ل.س)" : "Disbursed (SYP)",
                 isArabic ? "نسبة الإنفاق (%)" : "Spend Rate (%)",
                 isArabic ? "الأهداف الاستراتيجية" : "Strategies",
                 isArabic ? "المؤشرات" : "Indicators",
@@ -1143,7 +1143,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                                 header.Cell().Background(Colors.Blue.Darken2).Padding(6)
                                     .Text(isArabic ? "الموازنة (ل.س)" : "Budget (SYP)").FontColor(Colors.White).Bold();
                                 header.Cell().Background(Colors.Blue.Darken2).Padding(6)
-                                    .Text(isArabic ? "المنصرف (ل.س)" : "Disbursed (SYP)").FontColor(Colors.White).Bold();
+                                    .Text(isArabic ? "المنفق (ل.س)" : "Disbursed (SYP)").FontColor(Colors.White).Bold();
                                 header.Cell().Background(Colors.Blue.Darken2).Padding(6)
                                     .Text(isArabic ? "أهداف/مؤشرات/مشاريع" : "Strat./Ind./Proj.").FontColor(Colors.White).Bold();
                                 header.Cell().Background(Colors.Blue.Darken2).Padding(6)

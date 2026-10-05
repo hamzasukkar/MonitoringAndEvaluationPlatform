@@ -135,7 +135,7 @@
   </data>
   <!-- Plan Performance Section -->
   <data name="PlanPerformanceIntro" xml:space="preserve">
-    <value>الخطط (إدخالات شهرية ضمن خطة عمل كل مرحلة) والقياسات (المسجَّلة لكل مرحلة) هي مدخلات المستوى الأدنى. تُغذِّي أداء المرحلة وأداء الصرف.</value>
+    <value>الخطط (إدخالات شهرية ضمن خطة عمل كل مرحلة) والقياسات (المسجَّلة لكل مرحلة) هي مدخلات المستوى الأدنى. تُغذِّي أداء المرحلة وأداء الإنفاق.</value>
   </data>
   <data name="ActivityTypes" xml:space="preserve">
     <value>أنواع الأنشطة</value>
@@ -144,7 +144,7 @@
     <value>أداء الانفاق</value>
   </data>
   <data name="DisbursementPerformanceDesc" xml:space="preserve">
-    <value>يتتبع تقدم صرف الأموال - مقارنة الإنفاق المخطط مقابل الفعلي</value>
+    <value>يتتبع تقدم إنفاق الأموال - مقارنة الإنفاق المخطط مقابل الفعلي</value>
   </data>
   <data name="FieldMonitoring" xml:space="preserve">
     <value>الرصد الميداني</value>
@@ -172,7 +172,7 @@
   </data>
   <!-- Project Performance Section -->
   <data name="ProjectPerformanceIntro" xml:space="preserve">
-    <value>يتتبع كل مشروع قيمتين منفصلتين للأداء: الأداء الإجمالي (متوسط مرجح لأداء المراحل، الذي يأتي من القياسات) وأداء الصرف (يستند إلى قيم "المتحقق" في الخطط مقارنةً بالميزانية المقدَّرة).</value>
+    <value>يتتبع كل مشروع قيمتين منفصلتين للأداء: الأداء الإجمالي (متوسط مرجح لأداء المراحل، الذي يأتي من القياسات) وأداء الإنفاق (يستند إلى قيم "المتحقق" في الخطط مقارنةً بالميزانية المقدَّرة).</value>
   </data>
   <data name="Formula" xml:space="preserve">
     <value>الصيغة</value>
@@ -196,7 +196,7 @@
     <value>جمع جميع الخطط المرتبطة بالمشروع من خلال خطط العمل والأنشطة</value>
   </data>
   <data name="ProjectCalcStep2" xml:space="preserve">
-    <value>تجميع الخطط حسب نوع النشاط (الصرف، الرصد الميداني، إلخ)</value>
+    <value>تجميع الخطط حسب نوع النشاط (الإنفاق، الرصد الميداني، إلخ)</value>
   </data>
   <data name="ProjectCalcStep3" xml:space="preserve">
     <value>لكل نوع: جمع جميع القيم المخططة وجمع جميع القيم المحققة</value>
@@ -218,7 +218,7 @@
     <value>تفاصيل الحساب</value>
   </data>
   <data name="IndicatorCalcDetail1" xml:space="preserve">
-    <value>كل مؤشر يحمل أداء المشروع الإجمالي وأداء الصرف للمشروع المرتبط به مباشرةً.</value>
+    <value>كل مؤشر يحمل أداء المشروع الإجمالي وأداء الإنفاق للمشروع المرتبط به مباشرةً.</value>
   </data>
   <data name="IndicatorCalcDetail2" xml:space="preserve">
     <value>المؤشرات غير المرتبطة بأي مشروع تأخذ أداءً افتراضيًا قدره 0 وتُستثنى من المتوسطات المرجحة في المستويات الأعلى.</value>
@@ -407,6 +407,6 @@
     <value>يُقسَّم كل مشروع إلى مراحل. أداء المرحلة هو مجموع قيم جميع القياسات المسجَّلة لها.</value>
   </data>
   <data name="PlanPerformanceNote" xml:space="preserve">
-    <value>لكل مشروع خطة عمل واحدة لكل مرحلة، مع إدخالات خطة شهرية تحمل قيمة "المتحقق". يُحسب أداء الصرف مرة واحدة عبر جميع خطط جميع المراحل.</value>
+    <value>لكل مشروع خطة عمل واحدة لكل مرحلة، مع إدخالات خطة شهرية تحمل قيمة "المتحقق". يُحسب أداء الإنفاق مرة واحدة عبر جميع خطط جميع المراحل.</value>
   </data>
 </root>
