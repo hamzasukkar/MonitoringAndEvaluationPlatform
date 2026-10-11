@@ -1,11 +1,16 @@
 /* User Guide inline editor (admin only).
    Config is provided by the view as window.__guideEditor:
-   { overrides, canEdit, saveUrl, historyUrl, token, tinymceUrl } */
+   { overrides, appBase, canEdit, saveUrl, historyUrl, token, tinymceUrl } */
 (function () {
     "use strict";
 
     var cfg = window.__guideEditor || {};
     var overrides = cfg.overrides || {};
+    var appBase = cfg.appBase || "/";
+
+    // The shipped markup of each overridden section, so an admin can pull in
+    // a newer default (e.g. new screenshots) that the saved copy predates.
+    var defaults = {};
 
     // The section currently open in the modal.
     var current = { key: null, el: null, originalHtml: "", title: "" };
@@ -27,10 +32,45 @@
         Object.keys(overrides).forEach(function (key) {
             var el = document.getElementById(key);
             if (el && el.classList.contains("guide-section")) {
-                el.innerHTML = overrides[key];
+                defaults[key] = cleanHtml(el.innerHTML);
+                el.innerHTML = cleanHtml(overrides[key]);
                 el.classList.add("guide-section-overridden");
             }
         });
+    }
+
+    /* ---- Saved-HTML hygiene ----
+       A section is saved from the live DOM, so it can carry state that only
+       belonged to that page view: the edit/upload UI, the "already decorated"
+       marker, the display:none an image's onerror set while its file was
+       missing, and TinyMCE's page-relative "../images/guide/x.png" URLs.
+       Any of these can keep a screenshot hidden on another server even after
+       its file is deployed, so strip them on display and before saving. */
+    var guideImgRe = /(?:^|\/)images\/guide\/([^\/?#]+)(\?[^#]*)?$/i;
+
+    function cleanHtml(html) {
+        var tpl = document.createElement("template");
+        tpl.innerHTML = html || "";
+        var root = tpl.content;
+
+        root.querySelectorAll(".guide-section-edit-btn, .guide-img-upload-hint, .guide-img-status")
+            .forEach(function (n) { n.remove(); });
+        root.querySelectorAll("[data-guide-img-ready]").forEach(function (n) {
+            n.removeAttribute("data-guide-img-ready");
+        });
+        // Let onerror decide again on this page instead of a stale saved state.
+        root.querySelectorAll(".screenshot-frame img, .screenshot-missing").forEach(function (n) {
+            n.style.removeProperty("display");
+            if (!n.getAttribute("style")) n.removeAttribute("style");
+        });
+        root.querySelectorAll("img[src]").forEach(function (img) {
+            var src = img.getAttribute("src");
+            if (/^(data|blob):/i.test(src)) return;
+            var m = guideImgRe.exec(src);
+            if (m) img.setAttribute("src", appBase + "images/guide/" + m[1] + (m[2] || ""));
+        });
+
+        return tpl.innerHTML.trim();
     }
 
     function sectionTitle(el) {
@@ -122,6 +162,9 @@
             '<div class="guide-modal-footer">' +
             '  <small class="text-muted" id="guideStatus"></small>' +
             '  <div>' +
+            '    <button type="button" class="btn btn-outline-warning btn-sm" id="guideLoadDefaultBtn"' +
+            '      title="يستبدل ما في المحرر بالمحتوى الافتراضي الحالي للقسم (بما فيه أحدث الصور). لا يُحفظ شيء حتى تضغط حفظ.">' +
+            '      <i class="fas fa-rotate-left me-1"></i>تحميل المحتوى الافتراضي</button>' +
             '    <button type="button" class="btn btn-outline-secondary btn-sm" id="guideCancelBtn">إلغاء</button>' +
             '    <button type="button" class="btn btn-primary btn-sm" id="guideShowConfirm"><i class="fas fa-save me-1"></i>حفظ...</button>' +
             '  </div>' +
@@ -144,6 +187,14 @@
             document.getElementById("guideConfirmBox").classList.remove("show");
         });
         document.getElementById("guideConfirmYes").addEventListener("click", saveChanges);
+        document.getElementById("guideLoadDefaultBtn").addEventListener("click", function () {
+            var html = defaults[current.key];
+            if (!html) return;
+            if (!window.confirm("سيتم استبدال ما في المحرر بالمحتوى الافتراضي الحالي لهذا القسم. هل تريد المتابعة؟")) return;
+            loadTinyMce(function () { setEditorContent(html); });
+            document.getElementById("guideStatus").textContent =
+                "تم تحميل المحتوى الافتراضي في المحرر. راجعه ثم احفظ.";
+        });
     }
 
     function switchPane(pane) {
@@ -167,6 +218,7 @@
         document.getElementById("guideStatus").textContent = "";
         document.getElementById("guideConfirmBox").classList.remove("show");
         document.getElementById("guideNote").value = "";
+        document.getElementById("guideLoadDefaultBtn").style.display = defaults[el.id] ? "" : "none";
         switchPane("edit");
 
         document.getElementById("guideBackdrop").classList.add("show");
@@ -182,11 +234,9 @@
         document.getElementById("guideModal").classList.remove("show");
     }
 
-    // The edit button markup is injected at runtime - never store it.
+    // The edit/upload UI is injected at runtime - never store it.
     function getSectionEditableHtml(el) {
-        var clone = el.cloneNode(true);
-        clone.querySelectorAll(".guide-section-edit-btn").forEach(function (n) { n.remove(); });
-        return clone.innerHTML.trim();
+        return cleanHtml(el.innerHTML);
     }
 
     /* ---- 6. TinyMCE ---- */
@@ -224,6 +274,9 @@
                 base_url: cfg.tinymceBase,
                 suffix: ".min",
                 verify_html: false,
+                // Keep URLs as written; TinyMCE would otherwise make them
+                // relative to this page ("../images/guide/x.png").
+                convert_urls: false,
                 valid_elements: "*[*]",
                 extended_valid_elements: "*[*]",
                 content_style: "body{font-family:'Segoe UI',Tahoma,sans-serif;direction:rtl;}"
@@ -293,7 +346,7 @@
 
     /* ---- 8. Save ---- */
     function saveChanges() {
-        var newHtml = getEditorContent();
+        var newHtml = cleanHtml(getEditorContent());
         if (!newHtml || !newHtml.trim()) {
             document.getElementById("guideStatus").textContent = "المحتوى فارغ.";
             return;
@@ -318,6 +371,8 @@
         })
             .then(function (r) { return r.ok ? r.json() : Promise.reject(r); })
             .then(function () {
+                // A first save turns a default section into an override.
+                if (!defaults[current.key]) defaults[current.key] = current.originalHtml;
                 // Reflect the change immediately on the page.
                 current.el.innerHTML = newHtml;
                 current.el.classList.add("guide-section-overridden");

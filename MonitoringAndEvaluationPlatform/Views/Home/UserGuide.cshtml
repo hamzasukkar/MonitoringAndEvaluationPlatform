@@ -3059,6 +3059,7 @@
     <script>
         window.__guideEditor = {
             overrides: @Html.Raw(guideOverridesJson),
+            appBase: '@Url.Content("~/")',
             canEdit: @(guideCanEdit ? "true" : "false"),
             saveUrl: '@Url.Action("SaveSection", "Guide")',
             uploadUrl: '@Url.Action("UploadImage", "Guide")',
