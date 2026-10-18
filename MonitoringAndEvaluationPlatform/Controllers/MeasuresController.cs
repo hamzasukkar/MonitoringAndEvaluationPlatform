@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
+using MonitoringAndEvaluationPlatform.Helpers;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 
@@ -196,6 +197,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (existingTotal + measure.Value > 100)
                 return BadRequest(new { message = _localizer["Total measures value for this phase cannot exceed 100%."].Value });
 
+            var rejectedFiles = UploadFileRules.Rejected(MeasureFiles);
+            if (rejectedFiles.Count > 0)
+                return BadRequest(new { message = _localizer["File type not allowed: {0}. Allowed types: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP).", string.Join("، ", rejectedFiles)].Value });
+
             if (ModelState.IsValid)
             {
                 _context.Add(measure);
@@ -205,16 +210,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 {
                     var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "measures");
                     Directory.CreateDirectory(uploadsFolder);
-                    foreach (var file in MeasureFiles.Where(f => f.Length > 0))
+                    foreach (var file in MeasureFiles.Where(f => f.Length > 0 && UploadFileRules.IsAllowed(f)))
                     {
-                        var uniqueName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                        var safeName = UploadFileRules.SafeName(file);
+                        var uniqueName = $"{Guid.NewGuid()}_{safeName}";
                         var filePath = Path.Combine(uploadsFolder, uniqueName);
                         using var fs = new FileStream(filePath, FileMode.Create);
                         await file.CopyToAsync(fs);
                         _context.MeasureFiles.Add(new Models.MeasureFile
                         {
                             MeasureCode = measure.Code,
-                            FileName = file.FileName,
+                            FileName = safeName,
                             FilePath = $"/uploads/measures/{uniqueName}"
                         });
                     }

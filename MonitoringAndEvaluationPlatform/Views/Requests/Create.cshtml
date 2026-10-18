@@ -98,7 +98,7 @@
 
                     <div class="col-12">
                         <label for="UploadedFiles" class="form-label">@Localizer["Attachments"]</label>
-                        <input type="file" id="UploadedFiles" name="UploadedFiles" class="form-control" multiple />
+                        <input type="file" accept="@UploadFileRules.AcceptAttribute" id="UploadedFiles" name="UploadedFiles" class="form-control" multiple />
                         <div class="form-text">@Localizer["AttachmentsHint"]</div>
                     </div>
 

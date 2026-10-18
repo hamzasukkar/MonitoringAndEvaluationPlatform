@@ -453,7 +453,7 @@
                                         <input type="text" name="body" class="form-control" placeholder="@Localizer["WriteReply"]" required />
                                         <button type="submit" class="btn btn-primary">@Localizer["Send"]</button>
                                     </div>
-                                    <input type="file" name="uploadedFiles" multiple class="form-control form-control-sm mt-1" />
+                                    <input type="file" accept="@UploadFileRules.AcceptAttribute" name="uploadedFiles" multiple class="form-control form-control-sm mt-1" />
                                 </form>
                             </div>
                         }
@@ -488,7 +488,7 @@
                                 </div>
                                 <div class="col-12">
                                     <label class="form-label small mb-1">@Localizer["Attachments"]</label>
-                                    <input type="file" name="uploadedFiles" multiple class="form-control form-control-sm" />
+                                    <input type="file" accept="@UploadFileRules.AcceptAttribute" name="uploadedFiles" multiple class="form-control form-control-sm" />
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary btn-sm">

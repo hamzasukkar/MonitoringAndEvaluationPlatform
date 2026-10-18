@@ -894,6 +894,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     }
                 }
 
+                var rejectedFiles = UploadFileRules.Rejected(UploadedFiles);
+                if (rejectedFiles.Count > 0)
+                    ModelState.AddModelError("", _localizer["File type not allowed: {0}. Allowed types: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP).", string.Join("، ", rejectedFiles)]);
+
                 if (!ModelState.IsValid)
                 {
                     await RepopulateCreateViewAsync();
@@ -1370,6 +1374,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             NormalizeExchangeRate(project);
 
+            var rejectedFiles = UploadFileRules.Rejected(UploadedFiles);
+            if (rejectedFiles.Count > 0)
+                ModelState.AddModelError("", _localizer["File type not allowed: {0}. Allowed types: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP).", string.Join("، ", rejectedFiles)]);
+
             if (!ModelState.IsValid)
             {
                 // If validation fails, re‐populate all dropdowns with the already‐selected codes:
@@ -1544,9 +1552,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 foreach (var file in UploadedFiles)
                 {
-                    if (file.Length > 0)
+                    if (file.Length > 0 && UploadFileRules.IsAllowed(file))
                     {
-                        var uniqueName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                        var safeName = UploadFileRules.SafeName(file);
+                        var uniqueName = $"{Guid.NewGuid()}_{safeName}";
                         var filePath = Path.Combine(uploadsFolder, uniqueName);
 
                         using var fs = new FileStream(filePath, FileMode.Create);
@@ -1555,7 +1564,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                         _context.ProjectFiles.Add(new ProjectFile
                         {
                             ProjectId = dbProject.ProjectID,
-                            FileName = file.FileName,
+                            FileName = safeName,
                             FilePath = "/uploads/" + uniqueName
                         });
                     }
@@ -1838,8 +1847,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             // Delete the physical file
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-            if (System.IO.File.Exists(fullPath))
+            var fullPath = UploadFileRules.ResolveStoredPath(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), file.FilePath);
+            if (fullPath != null && System.IO.File.Exists(fullPath))
             {
                 System.IO.File.Delete(fullPath);
             }
@@ -1867,8 +1876,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-            if (!System.IO.File.Exists(filePath))
+            var filePath = UploadFileRules.ResolveStoredPath(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), file.FilePath);
+            if (filePath == null || !System.IO.File.Exists(filePath))
             {
                 return NotFound();
             }
@@ -1897,8 +1906,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Forbid();
             }
 
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.FilePath.TrimStart('/'));
-            if (!System.IO.File.Exists(filePath))
+            var filePath = UploadFileRules.ResolveStoredPath(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), file.FilePath);
+            if (filePath == null || !System.IO.File.Exists(filePath))
             {
                 return NotFound();
             }
@@ -2133,9 +2142,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             foreach (var file in uploadedFiles)
             {
-                if (file.Length > 0)
+                if (file.Length > 0 && UploadFileRules.IsAllowed(file))
                 {
-                    var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                    var safeName = UploadFileRules.SafeName(file);
+                    var uniqueFileName = $"{Guid.NewGuid()}_{safeName}";
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -2146,7 +2156,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     _context.ProjectFiles.Add(new ProjectFile
                     {
                         ProjectId = projectId,
-                        FileName = file.FileName,
+                        FileName = safeName,
                         FilePath = "/uploads/" + uniqueFileName
                     });
                 }

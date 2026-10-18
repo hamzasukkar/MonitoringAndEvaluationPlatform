@@ -7,6 +7,7 @@ using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
+using MonitoringAndEvaluationPlatform.Helpers;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 
@@ -50,6 +51,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(r => r.RequestEmployee)
                 .Include(r => r.Files)
                 .Include(r => r.Tests).ThenInclude(t => t.RequestEmployee)
+                .AsSplitQuery()   // see Details: avoids one wide files x tests join
                 .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -139,6 +141,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ModelState.Remove(nameof(Models.Request.RequestNumber));
             ModelState.Remove(nameof(Models.Request.SubmittedByUserId));
 
+            AddRejectedFilesError(UploadedFiles);
+
             if (!ModelState.IsValid)
             {
                 await PopulateLookupsAsync();
@@ -205,6 +209,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(r => r.Comments).ThenInclude(c => c.OnBehalfOfEmployee)
                 .Include(r => r.Tests).ThenInclude(t => t.RequestEmployee)
                 .Include(r => r.Tests).ThenInclude(t => t.RecordedByUser)
+                // One query per collection. As a single query, files x comments x tests are
+                // multiplied into one wide result that needs a large memory grant, and it timed
+                // out waiting for memory on a busy SQL Server.
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (request == null) return NotFound();
@@ -259,6 +267,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             ModelState.Remove(nameof(Models.Request.RequestNumber));
             ModelState.Remove(nameof(Models.Request.SubmittedByUserId));
+
+            AddRejectedFilesError(UploadedFiles);
 
             if (!ModelState.IsValid)
             {
@@ -357,6 +367,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (string.IsNullOrWhiteSpace(body) && kind != CommentKind.TestPassed)
             {
                 this.SetErrorMessage(_localizer["The comment cannot be empty."].Value);
+                return RedirectToAction(nameof(Details), new { id = requestId });
+            }
+
+            var rejectedFiles = UploadFileRules.Rejected(uploadedFiles);
+            if (rejectedFiles.Count > 0)
+            {
+                this.SetErrorMessage(RejectedFilesMessage(rejectedFiles));
                 return RedirectToAction(nameof(Details), new { id = requestId });
             }
 
@@ -587,9 +604,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             foreach (var file in uploadedFiles)
             {
-                if (file.Length > 0)
+                if (file.Length > 0 && UploadFileRules.IsAllowed(file))
                 {
-                    var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                    var safeName = UploadFileRules.SafeName(file);
+                    var uniqueFileName = $"{Guid.NewGuid()}_{safeName}";
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -600,7 +618,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     _context.RequestFiles.Add(new RequestFile
                     {
                         RequestId = requestId,
-                        FileName = file.FileName,
+                        FileName = safeName,
                         FilePath = "/uploads/" + uniqueFileName
                     });
                 }
@@ -625,9 +643,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
             foreach (var file in uploadedFiles)
             {
-                if (file.Length > 0)
+                if (file.Length > 0 && UploadFileRules.IsAllowed(file))
                 {
-                    var uniqueFileName = $"{Guid.NewGuid()}_{Path.GetFileName(file.FileName)}";
+                    var safeName = UploadFileRules.SafeName(file);
+                    var uniqueFileName = $"{Guid.NewGuid()}_{safeName}";
                     var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                     using (var stream = new FileStream(filePath, FileMode.Create))
@@ -638,7 +657,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     _context.RequestCommentAttachments.Add(new RequestCommentAttachment
                     {
                         RequestCommentId = commentId,
-                        FileName = file.FileName,
+                        FileName = safeName,
                         FilePath = "/uploads/requestcomments/" + uniqueFileName
                     });
                 }
@@ -647,14 +666,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             await _context.SaveChangesAsync();
         }
 
+        private string RejectedFilesMessage(List<string> rejectedFiles) =>
+            _localizer["File type not allowed: {0}. Allowed types: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP).", string.Join("، ", rejectedFiles)].Value;
+
+        private void AddRejectedFilesError(List<IFormFile>? uploadedFiles)
+        {
+            var rejectedFiles = UploadFileRules.Rejected(uploadedFiles);
+            if (rejectedFiles.Count > 0)
+                ModelState.AddModelError("", RejectedFilesMessage(rejectedFiles));
+        }
+
         private static void DeletePhysicalFile(string? storedPath)
         {
-            if (string.IsNullOrWhiteSpace(storedPath)) return;
+            var fullPath = UploadFileRules.ResolveStoredPath(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), storedPath);
 
-            var relative = storedPath.TrimStart('/', '\\');
-            var fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", relative);
-
-            if (System.IO.File.Exists(fullPath))
+            if (fullPath != null && System.IO.File.Exists(fullPath))
             {
                 System.IO.File.Delete(fullPath);
             }

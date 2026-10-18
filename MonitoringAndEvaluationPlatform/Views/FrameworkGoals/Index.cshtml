@@ -1463,7 +1463,7 @@
                     }
                 }
             </h6>
-            <input type="file" id="attachmentFileInput" style="display: none;" onchange="uploadAttachment(this)" />
+            <input type="file" accept="@UploadFileRules.AcceptAttribute" id="attachmentFileInput" style="display: none;" onchange="uploadAttachment(this)" />
             <div id="sidebarAttachmentsList">
                 <p class="text-muted mb-0">@Localizer["No attachments"]</p>
             </div>

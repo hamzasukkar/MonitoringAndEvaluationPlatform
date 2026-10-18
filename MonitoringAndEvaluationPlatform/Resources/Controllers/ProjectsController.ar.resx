@@ -142,4 +142,7 @@
   <data name="Currency" xml:space="preserve">
     <value>العملة</value>
   </data>
+  <data name="File type not allowed: {0}. Allowed types: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP)." xml:space="preserve">
+    <value>نوع الملف غير مسموح: {0}. الأنواع المسموحة: PDF وWord وExcel وPowerPoint وCSV وTXT والصور (JPG وPNG وGIF وWebP).</value>
+  </data>
 </root>

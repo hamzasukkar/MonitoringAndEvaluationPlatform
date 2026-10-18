@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 
@@ -25,13 +26,15 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ILogger<LoginModel> _logger;
         private readonly IAuditService _auditService;
+        private readonly IdentityOptions _identityOptions;
 
-        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ILogger<LoginModel> logger, IAuditService auditService)
+        public LoginModel(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager, ILogger<LoginModel> logger, IAuditService auditService, IOptions<IdentityOptions> identityOptions)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _logger = logger;
             _auditService = auditService;
+            _identityOptions = identityOptions.Value;
         }
 
         /// <summary>
@@ -113,9 +116,9 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                // Wrong passwords count towards lockout (limits set in Program.cs). A locked account
+                // is refused even with the right password until the lockout ends.
+                var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     var user = await _userManager.FindByNameAsync(Input.UserName);
@@ -131,7 +134,12 @@ namespace MonitoringAndEvaluationPlatform.Areas.Identity.Pages.Account
                 {
                     await _auditService.LogAuthenticationAsync("LoginFailed", null, Input.UserName, null, false, "Account locked out");
                     _logger.LogWarning("User account locked out.");
-                    return RedirectToPage("./Lockout");
+                    // Shown here rather than on the English Lockout page. Worded for both kinds of
+                    // lock: the automatic one after failed attempts, and an administrator's lock.
+                    var minutes = (int)_identityOptions.Lockout.DefaultLockoutTimeSpan.TotalMinutes;
+                    ModelState.AddModelError(string.Empty,
+                        $"هذا الحساب مقفل حالياً. إذا كان القفل بسبب تكرار إدخال كلمة مرور خاطئة فسيُفتح تلقائياً بعد {minutes} دقيقة، وإلا فتواصل مع مدير النظام.");
+                    return Page();
                 }
                 else
                 {

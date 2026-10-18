@@ -11,6 +11,7 @@ using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Enums;
+using MonitoringAndEvaluationPlatform.Helpers;
 using MonitoringAndEvaluationPlatform.Models;
 using ClosedXML.Excel;
 using QuestPDF.Fluent;
@@ -811,6 +812,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     return Json(new { success = false, message = _localizer["Please select a file to upload."].Value });
                 }
 
+                if (!UploadFileRules.IsAllowed(file))
+                {
+                    return Json(new { success = false, message = _localizer["File type not allowed: {0}. Allowed types: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP).", UploadFileRules.SafeName(file)].Value });
+                }
+
                 var goal = await _context.FrameworkGoals.FindAsync(goalId);
                 if (goal == null)
                 {
@@ -829,8 +835,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                     Directory.CreateDirectory(uploadsFolder);
                 }
 
-                // Generate unique filename
-                var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
+                // Generate unique filename. Never put file.FileName in a path: it comes from the
+                // client and can contain directory parts that would write outside uploads/.
+                var safeName = UploadFileRules.SafeName(file);
+                var uniqueFileName = $"{Guid.NewGuid()}_{safeName}";
                 var filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
                 // Save file to disk
@@ -843,7 +851,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 var attachment = new FrameworkGoalFile
                 {
                     FrameworkGoalID = goalId,
-                    FileName = file.FileName,
+                    FileName = safeName,
                     FilePath = $"/uploads/frameworkgoals/{uniqueFileName}",
                     UploadedDate = DateTime.Now
                 };
@@ -890,8 +898,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 // Delete physical file
-                var filePath = Path.Combine(_webHostEnvironment.WebRootPath, attachment.FilePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
-                if (System.IO.File.Exists(filePath))
+                var filePath = UploadFileRules.ResolveStoredPath(_webHostEnvironment.WebRootPath, attachment.FilePath);
+                if (filePath != null && System.IO.File.Exists(filePath))
                 {
                     System.IO.File.Delete(filePath);
                 }

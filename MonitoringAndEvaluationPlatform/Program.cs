@@ -48,7 +48,12 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 {
     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-    // Other options...
+
+    // Brute-force protection: 5 wrong passwords in a row lock the account for 15 minutes.
+    // A successful sign-in resets the counter; an administrator can unlock early from Admin/Users.
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.AllowedForNewUsers = true;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -317,6 +322,17 @@ using (var scope = app.Services.CreateScope())
     {
         await userManager.AddToRoleAsync(readingUser, UserRoles.ReadingUser);
     }
+}
+
+// Failed-login lockout only applies to accounts whose LockoutEnabled flag is set, and the old
+// Edit User form could switch it off. Turn it on for every account. Own scope: the seeding
+// above shares its DbContext with the un-awaited DbInitializer.SeedAsync.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Users
+        .Where(u => !u.LockoutEnabled)
+        .ExecuteUpdateAsync(s => s.SetProperty(u => u.LockoutEnabled, true));
 }
 
 app.Run();

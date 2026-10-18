@@ -247,7 +247,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 MinistryName = user.MinistryName,
                 MinistryCode = await CurrentMinistryCodeAsync(user),
                 AdminRoleLocked = await AdminAccessRemovalBlockedAsync(user) != null,
-                LockoutEnabled = user.LockoutEnabled,
                 SelectedRoles = userRoles.ToList(),
                 AvailableRoles = await _roleManager.Roles.Select(r => r.Name!).ToListAsync(),
                 Ministries = await _context.Ministries.ToListAsync()
@@ -287,7 +286,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 user.EmailConfirmed = model.EmailConfirmed;
                 user.MinistryCode = ministry?.Code;
                 user.MinistryName = ministry?.MinistryDisplayName_EN;
-                user.LockoutEnabled = model.LockoutEnabled;
 
                 var result = await _userManager.UpdateAsync(user);
 
@@ -513,7 +511,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
 
                 // Lock user for 100 years. LockoutEnd is ignored for an account whose LockoutEnabled
-                // flag is off (it can be unticked on the edit form), so switch it on. Rotating the
+                // flag is off (Program.cs turns it on for all accounts at startup), so make sure. Rotating the
                 // security stamp ends a session the user already has at its next validation, instead
                 // of letting it run on until the cookie expires.
                 await _userManager.SetLockoutEnabledAsync(user, true);
