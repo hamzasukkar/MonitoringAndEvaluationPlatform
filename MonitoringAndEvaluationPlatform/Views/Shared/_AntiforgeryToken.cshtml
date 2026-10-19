@@ -1,0 +1,6 @@
+@*
+    Renders the antiforgery token that wwwroot/js/antiforgery.js reads and attaches to
+    AJAX requests. Included by every layout; harmless on pages that also render their
+    own form token.
+*@
+@Html.AntiForgeryToken()
