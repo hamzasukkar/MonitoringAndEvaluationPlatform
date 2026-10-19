@@ -1,5 +1,4 @@
 ﻿@model MonitoringAndEvaluationPlatform.Models.Project
-@using Newtonsoft.Json
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer Localizer
 @using Microsoft.AspNetCore.Localization
@@ -9,11 +8,11 @@
     ViewData["Title"] = "Edit Project";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var governorates = ViewBag.Governorates as List<Governorate>;
-    // EscapeHtml writes <, >, &, ' and " inside names as unicode escapes, so a location
-    // name cannot close the <script> block below. Newtonsoft (not Json.Serialize) keeps the
-    // PascalCase property names that script reads (loc.GovernorateCode, ...).
-    var selectedLocationsJson = JsonConvert.SerializeObject((object)ViewBag.SelectedLocations,
-        new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
+    // System.Text.Json with default options: its encoder writes <, >, &, ' and " inside
+    // names as unicode escapes, so a location name cannot close the <script> block below,
+    // and it keeps the PascalCase property names that script reads (loc.GovernorateCode).
+    // Json.Serialize would camelCase them.
+    var selectedLocationsJson = System.Text.Json.JsonSerializer.Serialize((object)ViewBag.SelectedLocations);
 }
 
 <!-- Dashboard Header -->

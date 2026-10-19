@@ -3,7 +3,6 @@
 
 /* Import Component Styles */
 @import url('../components/components-base.css');
-@import url('../components/components-modern-glass.css');
 @import url('../components/theme-dropdown.css');
 
 :root[data-theme="modern-glass"] {

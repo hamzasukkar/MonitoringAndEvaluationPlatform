@@ -1,6 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Build.Framework;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using MonitoringAndEvaluationPlatform.Models;
+
+// NOTE: [Required] here previously resolved to Microsoft.Build.Framework.RequiredAttribute -
+// an MSBuild task-parameter attribute that MVC model validation ignores entirely - because
+// the file imported Microsoft.Build.Framework. It now uses the DataAnnotations attribute
+// that was clearly intended.
 
 namespace MonitoringAndEvaluationPlatform.ViewModel
 {

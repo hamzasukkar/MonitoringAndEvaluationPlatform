@@ -293,7 +293,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (string.IsNullOrEmpty(value))
                 return "";
 
-            return value.Replace("\"", "\"\"").Replace("\n", " ").Replace("\r", " ");
+            var escaped = value.Replace("\"", "\"\"").Replace("\n", " ").Replace("\r", " ");
+
+            // CSV formula injection: Excel and Calc execute a cell that begins with =, +, -,
+            // @, or a leading tab/CR. Audit values are attacker-influenced (they are just
+            // user input echoed back), and this export is opened by an administrator, so a
+            // crafted project name could run a formula on their workstation. Prefixing with
+            // a single quote makes the cell inert while still displaying the original text.
+            if (escaped.Length > 0 && "=+-@\t\r".Contains(escaped[0]))
+            {
+                escaped = "'" + escaped;
+            }
+
+            return escaped;
         }
     }
 }

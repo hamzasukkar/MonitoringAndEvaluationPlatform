@@ -10,12 +10,14 @@ namespace MonitoringAndEvaluationPlatform.Services
         private readonly ApplicationDbContext _context;
         private readonly PlanService _planService;
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment? _webHostEnvironment;
 
-        public DataManagementService(ApplicationDbContext context, PlanService planService, IConfiguration configuration)
+        public DataManagementService(ApplicationDbContext context, PlanService planService, IConfiguration configuration, IWebHostEnvironment? webHostEnvironment = null)
         {
             _context = context;
             _planService = planService;
             _configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<DataManagementIndexViewModel> GetIndexStatisticsAsync()
@@ -65,6 +67,13 @@ namespace MonitoringAndEvaluationPlatform.Services
                 tablesToBackup.Add("AuditLogs");
             }
 
+            // NOTE: includeIdentityData is deliberately NOT honoured. Adding the AspNetUsers
+            // table here would write password hashes, security stamps and concurrency stamps
+            // into a plaintext .sql file that is then downloaded over HTTP. If identity data
+            // ever needs exporting, export the non-secret columns explicitly - do not add the
+            // table to this list.
+            _ = includeIdentityData;
+
             foreach (var tableName in tablesToBackup)
             {
                 await GenerateTableBackupScript(sb, tableName);
@@ -97,6 +106,25 @@ namespace MonitoringAndEvaluationPlatform.Services
             if (string.IsNullOrWhiteSpace(directory))
             {
                 directory = @"C:\MREBackups\";
+            }
+
+            // A full database dump must never land somewhere the web server will serve.
+            // This value is operator-configured and was previously used unvalidated.
+            if (!System.IO.Path.IsPathFullyQualified(directory))
+            {
+                throw new InvalidOperationException(
+                    "BackupSettings:Directory must be an absolute path.");
+            }
+
+            var webRoot = _webHostEnvironment?.WebRootPath;
+            if (!string.IsNullOrWhiteSpace(webRoot))
+            {
+                var webRootFull = System.IO.Path.GetFullPath(webRoot + System.IO.Path.DirectorySeparatorChar);
+                if (System.IO.Path.GetFullPath(directory).StartsWith(webRootFull, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new InvalidOperationException(
+                        "BackupSettings:Directory must not be inside wwwroot - database backups would become web-accessible.");
+                }
             }
 
             System.IO.Directory.CreateDirectory(directory);

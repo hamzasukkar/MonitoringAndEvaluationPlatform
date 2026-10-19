@@ -15,8 +15,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `dotnet ef database drop` - Drop the database (use with caution)
 
 ### Configuration
-- Update connection string in `appsettings.json` for your SQL Server instance (default DB: `mre-New`)
-- Default credentials: admin@example.com / Admin@123 · ministry@example.com / Ministry@123 · dataentry@example.com / DataEntry@123 · reader@example.com / Reader@123
+The connection string is **never** committed. `appsettings.json` is git-ignored (an earlier
+tracked copy leaked credentials, and the repository is public).
+
+- Development: `dotnet user-secrets set "ConnectionStrings:DefaultConnection" "<conn>"`
+- Production: set the `ConnectionStrings__DefaultConnection` environment variable
+
+Demo accounts are Development-only and opt-in. Set `Seeding:EnableDemoUsers` to `true` in
+`appsettings.Development.json` and supply each password via user secrets
+(`Seeding:AdminPassword`, `Seeding:MinistryPassword`, `Seeding:DataEntryPassword`,
+`Seeding:ReaderPassword`). Accounts without a configured password are skipped. There are no
+hardcoded default credentials.
+
+Every account is created with `MustChangePassword` set, so the first sign-in is redirected
+to the change-password page.
+
+### Security tests
+- `dotnet test tests/MonitoringAndEvaluationPlatform.SecurityTests` — authorization, CSRF,
+  cross-ministry IDOR, upload validation, headers and rate limiting. See `SECURITY.md`.
 
 ## Architecture Overview
 
@@ -74,7 +90,7 @@ Key entities:
 **Reporting / Monitoring:** DashboardController, MonitoringController, ReportsController, TreeController
 **Strategic:** FrameworkGoalsController
 **Admin:** AdminController, AuditLogsController, DataManagementController
-**Other:** ChatbotController, HomeController, DebugController, TestController
+**Other:** ChatbotController, HomeController, FilesController (authorized attachment access)
 
 ---
 
@@ -94,7 +110,7 @@ Policies are registered in `Program.cs` per permission constant.
 
 ## Data & Persistence
 
-- **ORM:** Entity Framework Core 8 with SQL Server (SQLite available as alternative)
+- **ORM:** Entity Framework Core 8 with SQL Server
 - **Context:** `Data/ApplicationDbContext.cs` — Identity + all domain entities
 - **Audit logging:** `AuditInterceptor` intercepts `SaveChanges` and writes to `AuditLog` table (user, timestamp, entity, operation, old/new values)
 - **Seed data:** `Infrastructure/DbInitializer.cs` runs on startup — creates roles, 4 default users, and loads location hierarchy from JSON files in `SeedData/`
@@ -121,7 +137,7 @@ Suffix-based localization: views look up `.ar.resx` / `.en.resx` / `.fr.resx` re
 Located in `ViewModels/`:
 - User/role management: `CreateUserViewModel`, `EditUserViewModel`, `UserManagementViewModel`, `RoleViewModel`, `RoleManagementViewModel`, `UserViewModel`
 - Audit: `AuditLogViewModel`
-- Data management: `BackupViewModel`, `ClearDataViewModel`, `DeleteProjectViewModel`, `ResetValuesViewModel`, `SecurityConfirmationViewModel` (security confirmation required for destructive ops)
+- Data management: `BackupViewModel`, `ClearDataViewModel`, `DeleteProjectViewModel`, `ResetValuesViewModel` (destructive operations re-check the administrator's password)
 
 ---
 
@@ -129,11 +145,11 @@ Located in `ViewModels/`:
 
 | Package | Purpose |
 |---------|---------|
-| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` 8.0.11 | Identity with EF Core |
-| `Microsoft.EntityFrameworkCore.SqlServer` 8.0.11 | SQL Server provider |
-| `Microsoft.EntityFrameworkCore.Sqlite` 8.0.11 | SQLite alternative |
-| `Microsoft.EntityFrameworkCore.Tools` 8.0.11 | Migrations CLI |
+| `Microsoft.AspNetCore.Identity.EntityFrameworkCore` 8.0.20 | Identity with EF Core |
+| `Microsoft.EntityFrameworkCore.SqlServer` 8.0.20 | SQL Server provider |
+| `Microsoft.EntityFrameworkCore.Tools` 8.0.20 | Migrations CLI (design-time only) |
 | `ClosedXML` 0.104.2 | Excel export/import |
+| `HtmlSanitizer` 9.1.982 | Sanitizes administrator-edited user-guide HTML |
 | `QuestPDF` 2024.12.2 | PDF generation (Community license — set in `Program.cs`) |
 
 ---
@@ -158,7 +174,16 @@ Located in `ViewModels/`:
 ## Key Patterns & Conventions
 
 - **Service layer** – All business logic in `Services/`; controllers are thin
-- **No unit tests** – `DebugController` and `TestController` serve as development-mode testing endpoints
+- **Tests** – `tests/MonitoringAndEvaluationPlatform.SecurityTests` holds the security
+  regression suite (authorization, CSRF, IDOR, uploads, headers). There is still no
+  functional/unit test coverage of business logic. `DebugController` and `TestController`
+  were removed; do not reintroduce debug endpoints as a testing mechanism.
+- **Ministry scoping** – any action that loads a record by ID must gate it with
+  `IMinistryScopeService`; every method there fails closed
+- **Uploads** – always go through `IUploadValidationService`, which stores files outside
+  `wwwroot` under a server-generated name. Serve them only via `FilesController`
+- **Permissions** – `Infrastructure/PermissionMap.cs` is the single source of truth; do not
+  add a second copy of the role→permission mapping
 - **Performance propagation** – Always update via `PlanService.UpdateProjectPerformance()` to keep hierarchy metrics consistent; never update performance fields directly
 - **Permissions** – Use the `Permissions` constants when adding new `[Authorize(Policy = ...)]` attributes; register the policy in `Program.cs`
 - **Migrations** – Run `dotnet ef migrations add <Name>` then `dotnet ef database update` after any model change; never edit existing migration files
