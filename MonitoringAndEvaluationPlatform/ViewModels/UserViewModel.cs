@@ -18,6 +18,12 @@ namespace MonitoringAndEvaluationPlatform.ViewModels
         /// </summary>
         public bool CanRemoveAccess { get; set; } = true;
 
+        /// <summary>
+        /// Whether the user completed authenticator enrolment. An administrator can clear it
+        /// but can never set it - only the account holder can scan the QR code.
+        /// </summary>
+        public bool TwoFactorEnabled { get; set; }
+
         public bool IsLocked => LockoutEnd.HasValue && LockoutEnd.Value > DateTimeOffset.UtcNow;
     }
 }
