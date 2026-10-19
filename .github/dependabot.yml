@@ -1,0 +1,19 @@
+version: 2
+
+updates:
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
+    groups:
+      # Keep the ASP.NET Core / EF Core stack moving together; mixing patch levels
+      # across those packages is how the project ended up pinned to 8.0.11.
+      microsoft:
+        patterns:
+          - "Microsoft.*"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

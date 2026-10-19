@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Security regression tests
+        run: dotnet test tests/MonitoringAndEvaluationPlatform.SecurityTests --no-build --configuration Release --verbosity normal
+
+      - name: Vulnerable package scan
+        run: |
+          # 'dotnet list package --vulnerable' exits 0 even when it finds something,
+          # so the output has to be inspected explicitly.
+          dotnet list package --vulnerable --include-transitive 2>&1 | tee vulnerable.txt
+          if grep -qiE '\b(Critical|High|Moderate|Low)\b' vulnerable.txt; then
+            echo "::error::Vulnerable NuGet packages detected (see output above)."
+            exit 1
+          fi
+          echo "No vulnerable packages reported."
+
+      - name: Deprecated package report
+        # Informational only - deprecation is not a build-breaking condition.
+        continue-on-error: true
+        run: dotnet list package --deprecated
+
+  secret-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Reject connection strings committed in appsettings
+        run: |
+          # appsettings.json has carried real credentials before. Fail fast if a password
+          # ever reappears in a tracked settings file.
+          if git ls-files -z '*appsettings*.json' | xargs -0 --no-run-if-empty \
+               grep -inE '(password|pwd)\s*=\s*[^"; ]+' ; then
+            echo "::error::A password appears in a tracked appsettings file. Use user-secrets or environment variables."
+            exit 1
+          fi
+          echo "No credentials found in tracked appsettings files."

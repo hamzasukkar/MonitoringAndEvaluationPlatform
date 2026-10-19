@@ -137,7 +137,7 @@ CSP is **report-only** deliberately — see SECURITY-DECISIONS.md.
 dotnet test tests/MonitoringAndEvaluationPlatform.SecurityTests
 ```
 
-416 tests. They boot the real pipeline via `WebApplicationFactory` against an in-memory
+431 tests. They boot the real pipeline via `WebApplicationFactory` against an in-memory
 database, so middleware order, authorization policies and antiforgery are exercised as
 assembled rather than in isolation.
 
@@ -149,7 +149,9 @@ assembled rather than in isolation.
 | `PermissionMapTests` | 360 role × permission pairs — enforcement and the `/Admin/Roles` display must agree |
 | `UploadValidationServiceTests` | Traversal, content-type spoofing, oversize, display-name sanitisation, path containment |
 | `SecurityHeaderTests` | Headers present; `/uploads` not served statically |
-| `RateLimitingTests` | Login rate limiting actually triggers |
+| `RateLimitingTests` | Repeated sign-in attempts are throttled; merely opening the login page is not |
+| `AccountProtectionTests` | Lockout after five wrong passwords; forced password change on first sign-in; a ministry with linked records cannot be deleted, an unlinked one can |
+| `TwoFactorTests`, `AdminTwoFactorTests` | Enrolment URI and QR scripts; admin reset clears the factor, needs the administrator role and an antiforgery token |
 
 CI (`.github/workflows/ci.yml`) runs these plus a vulnerable-package gate — note that
 `dotnet list package --vulnerable` exits 0 even on findings, so the workflow inspects its
