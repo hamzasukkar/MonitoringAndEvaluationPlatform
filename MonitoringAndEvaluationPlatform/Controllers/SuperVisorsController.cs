@@ -19,13 +19,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
 
         private readonly ICurrencyConversionService _currencyConversion;
-        private readonly IStringLocalizer<SuperVisorsController> _localizer;
+        private readonly IStringLocalizer<SuperVisorsController> _localizer;
 
-        public SuperVisorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion, IStringLocalizer<SuperVisorsController> localizer)
+        private readonly ILogger<SuperVisorsController> _logger;
+
+
+        public SuperVisorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion, IStringLocalizer<SuperVisorsController> localizer, ILogger<SuperVisorsController> logger)
         {
             _currencyConversion = currencyConversion;
             _context = context;
             _localizer = localizer;
+            _logger = logger;
         }
 
         // GET: SuperVisors
@@ -99,7 +103,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error creating supervisor: " + ex.Message });
+                _logger.LogError(ex, "SuperVisors.CreateInline failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -132,7 +137,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "SuperVisors.InlineEdit failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -158,7 +164,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "SuperVisors.InlineDelete failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -181,7 +188,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "SuperVisors.QuickUpdate failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
     }

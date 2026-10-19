@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
@@ -24,10 +25,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IMinistryScopeService _ministryScope;
+        private readonly ILogger<UnitsController> _logger;
 
-        public UnitsController(ApplicationDbContext context, IMinistryScopeService ministryScope)
+        public UnitsController(ApplicationDbContext context, IMinistryScopeService ministryScope, ILogger<UnitsController> logger)
         {
             _context = context;
+            _logger = logger;
             _ministryScope = ministryScope;
         }
 
@@ -157,7 +160,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Units.InlineEdit failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -187,7 +191,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Units.InlineDelete failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -218,7 +223,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Units.QuickUpdate failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -252,7 +258,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return (null, "Error creating unit: " + ex.Message);
+                _logger.LogError(ex, "Units.CreateUnitAsync failed");
+                return (null, "An unexpected error occurred. Please try again or contact an administrator.");
             }
         }
 

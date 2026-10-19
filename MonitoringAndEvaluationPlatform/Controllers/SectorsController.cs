@@ -18,13 +18,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
 
         private readonly ICurrencyConversionService _currencyConversion;
-        private readonly IMinistryScopeService _ministryScope;
+        private readonly IMinistryScopeService _ministryScope;
 
-        public SectorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope)
+        private readonly ILogger<SectorsController> _logger;
+
+
+        public SectorsController(ApplicationDbContext context, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope, ILogger<SectorsController> logger)
         {
             _currencyConversion = currencyConversion;
             _context = context;
             _ministryScope = ministryScope;
+            _logger = logger;
         }
 
         /// <summary>
@@ -151,7 +155,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error creating sector: " + ex.Message });
+                _logger.LogError(ex, "Sectors.CreateInline failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -182,7 +187,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Sectors.InlineEdit failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -209,7 +215,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Sectors.InlineDelete failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -234,7 +241,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Sectors.QuickUpdate failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
     }

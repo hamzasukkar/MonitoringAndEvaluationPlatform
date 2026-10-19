@@ -1742,7 +1742,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (InvalidOperationException ex)
             {
-                return NotFound(ex.Message);
+                return NotFound();
             }
             return RedirectToAction(nameof(Index));
         }
@@ -1782,7 +1782,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 }
                 catch (Exception ex)
                 {
-                    errors.Add($"Project {id}: {ex.Message}");
+                    _logger.LogError(ex, "Bulk delete failed for project {ProjectId}", id);
+                    errors.Add($"Project {id}");
                 }
             }
 

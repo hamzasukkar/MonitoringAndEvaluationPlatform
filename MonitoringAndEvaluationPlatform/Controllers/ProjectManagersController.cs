@@ -113,7 +113,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error creating project manager: " + ex.Message });
+                _logger.LogError(ex, "ProjectManagers.CreateInline failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -146,7 +147,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "ProjectManagers.InlineEdit failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -169,7 +171,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "ProjectManagers.InlineDelete failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -192,7 +195,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "ProjectManagers.QuickUpdate failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 

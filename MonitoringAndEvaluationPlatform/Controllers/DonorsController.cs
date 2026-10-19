@@ -22,14 +22,18 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IStringLocalizer<DonorsController> _localizer;
         private readonly ICurrencyConversionService _currencyConversion;
 
-        private readonly IMinistryScopeService _ministryScope;
+        private readonly IMinistryScopeService _ministryScope;
 
-        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope)
+        private readonly ILogger<DonorsController> _logger;
+
+
+        public DonorsController(ApplicationDbContext context, IStringLocalizer<DonorsController> localizer, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope, ILogger<DonorsController> logger)
         {
             _currencyConversion = currencyConversion;
             _context = context;
             _localizer = localizer;
             _ministryScope = ministryScope;
+            _logger = logger;
         }
 
         /// <summary>
@@ -160,7 +164,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error creating donor: " + ex.Message });
+                _logger.LogError(ex, "Donors.CreateInline failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -198,7 +203,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Donors.InlineEdit failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -226,7 +232,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Donors.InlineDelete failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -251,7 +258,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Donors.QuickUpdate failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 

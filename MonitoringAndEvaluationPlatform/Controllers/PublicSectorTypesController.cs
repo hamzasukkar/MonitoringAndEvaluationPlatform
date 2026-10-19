@@ -15,9 +15,13 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        public PublicSectorTypesController(ApplicationDbContext context)
+        private readonly ILogger<PublicSectorTypesController> _logger;
+
+
+        public PublicSectorTypesController(ApplicationDbContext context, ILogger<PublicSectorTypesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: PublicSectorTypes
@@ -55,7 +59,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error creating public sector type: " + ex.Message });
+                _logger.LogError(ex, "PublicSectorTypes.CreateInline failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -86,7 +91,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "PublicSectorTypes.InlineEdit failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -113,7 +119,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "PublicSectorTypes.InlineDelete failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -138,7 +145,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "PublicSectorTypes.QuickUpdate failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
     }

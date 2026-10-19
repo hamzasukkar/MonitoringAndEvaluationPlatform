@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
 using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
@@ -22,11 +23,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<MinistriesController> _logger;
+        private readonly IStringLocalizer<MinistriesController> _localizer;
 
         private readonly ICurrencyConversionService _currencyConversion;
         private readonly IMinistryScopeService _ministryScope;
 
-        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope, ILogger<MinistriesController> logger)
+        public MinistriesController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ICurrencyConversionService currencyConversion, IMinistryScopeService ministryScope, ILogger<MinistriesController> logger, IStringLocalizer<MinistriesController> localizer)
         {
             _context = context;
             _userManager = userManager;
@@ -34,6 +36,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             _currencyConversion = currencyConversion;
             _ministryScope = ministryScope;
             _logger = logger;
+            _localizer = localizer;
         }
 
         /// <summary>
@@ -258,7 +261,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "Error creating ministry: " + ex.Message });
+                _logger.LogError(ex, "Ministries.CreateInline failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -296,7 +300,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Ministries.InlineEdit failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -324,7 +329,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Ministries.QuickUpdate failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 
@@ -335,7 +341,23 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var ministry = await _context.Ministries.FindAsync(id);
             if (ministry == null)
-                return Json(new { success = false, message = "Ministry not found" });
+                return Json(new { success = false, message = _localizer["Ministry not found"].Value });
+
+            // Refuse while anything still points at the ministry. Users, frameworks and owned
+            // projects would fail on a foreign key anyway, but project and output links cascade
+            // away silently and requests are detached (SET NULL) - so check everything first and
+            // tell the administrator exactly what to move.
+            var linked = new List<string>();
+            void Add(string label, int count) { if (count > 0) linked.Add(_localizer[label, count].Value); }
+            Add("Users: {0}", await _context.Users.CountAsync(u => u.MinistryCode == id));
+            Add("Projects: {0}", await _context.Projects.CountAsync(p => p.MinistryCode == id || p.Ministries.Any(m => m.Code == id)));
+            Add("Frameworks: {0}", await _context.Frameworks.CountAsync(f => f.MinistryCode == id));
+            Add("Project outputs: {0}", await _context.ProjectOutputs.CountAsync(o => o.Ministries.Any(m => m.Code == id)));
+            Add("Requests: {0}", await _context.Requests.CountAsync(r => r.MinistryCode == id));
+            if (linked.Count > 0)
+            {
+                return Json(new { success = false, message = _localizer["This ministry cannot be deleted because it is still linked to: {0}. Move or delete these records first.", string.Join(" · ", linked)].Value });
+            }
 
             try
             {
@@ -345,7 +367,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                _logger.LogError(ex, "Ministries.InlineDelete failed");
+                return Json(new { success = false, message = "An unexpected error occurred. Please try again or contact an administrator." });
             }
         }
 

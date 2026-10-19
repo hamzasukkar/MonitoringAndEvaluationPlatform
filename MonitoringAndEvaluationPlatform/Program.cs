@@ -2,6 +2,7 @@
 using System.Net;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
@@ -231,6 +232,26 @@ builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDataManagementService, DataManagementService>();
 builder.Services.AddScoped<ITestDataGeneratorService, TestDataGeneratorService>();
 builder.Services.AddScoped<IUploadValidationService, UploadValidationService>();
+
+// Persist data-protection keys. Without this they live in the app-pool profile and are
+// regenerated on recycle, which silently invalidates every auth cookie, antiforgery token and
+// password-reset link. DataProtection:KeyPath overrides the folder; the default sits next to
+// the uploads in App_Data (git-ignored, outside wwwroot, and kept across redeploys).
+var dataProtectionKeyPath = builder.Configuration["DataProtection:KeyPath"];
+if (string.IsNullOrWhiteSpace(dataProtectionKeyPath))
+{
+    dataProtectionKeyPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys");
+}
+Directory.CreateDirectory(dataProtectionKeyPath);
+var dataProtection = builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeyPath))
+    .SetApplicationName("MonitoringAndEvaluationPlatform");
+if (OperatingSystem.IsWindows())
+{
+    // Encrypt the key files at rest, so a file read alone cannot forge sign-in cookies.
+    // Machine scope keeps them readable if the app-pool identity changes.
+    dataProtection.ProtectKeysWithDpapi(protectToLocalMachine: true);
+}
 builder.Services.AddScoped<IGuideService, GuideService>();
 // Converts project budgets to SYP for cross-project totals; caches the rate table briefly
 // because nearly every page that shows a total needs it.
@@ -307,6 +328,9 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// Before UseStaticFiles so the headers cover static assets too.
+app.UseSecurityHeaders();
 
 // User uploads must never be served as static files. UseStaticFiles runs before
 // UseAuthentication, so anything under wwwroot is anonymous - which meant every project,
