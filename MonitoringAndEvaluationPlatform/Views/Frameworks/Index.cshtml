@@ -1293,6 +1293,7 @@
                     <td class="text-center">
                         <div class="btn-group action-buttons" role="group">
                             <form action="/Tree/Index/${framework.code}" method="post" class="d-inline">
+                                <input type="hidden" name="__RequestVerificationToken" value="${(document.querySelector('input[name=__RequestVerificationToken]') || {}).value || ''}">
                                 <button class="btn btn-outline-success btn-sm action-btn" title="Tree View">
                                     <i class="fas fa-project-diagram"></i>
                                 </button>

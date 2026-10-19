@@ -35,6 +35,25 @@
                 defaults[key] = cleanHtml(el.innerHTML);
                 el.innerHTML = cleanHtml(overrides[key]);
                 el.classList.add("guide-section-overridden");
+                wireScreenshotFallbacks(el);
+            }
+        });
+    }
+
+    // Saved sections are sanitized on the server, which strips inline handlers such as the
+    // onerror that swaps a missing screenshot for its placeholder. Attach it from here instead.
+    function wireScreenshotFallbacks(root) {
+        root.querySelectorAll(".screenshot-frame img").forEach(function (img) {
+            function showPlaceholder() {
+                img.style.display = "none";
+                var missing = img.nextElementSibling;
+                if (missing && missing.classList.contains("screenshot-missing")) {
+                    missing.style.display = "flex";
+                }
+            }
+            img.addEventListener("error", showPlaceholder);
+            if (img.complete && img.naturalWidth === 0 && img.getAttribute("src")) {
+                showPlaceholder();
             }
         });
     }
@@ -376,6 +395,7 @@
                 // Reflect the change immediately on the page.
                 current.el.innerHTML = newHtml;
                 current.el.classList.add("guide-section-overridden");
+                wireScreenshotFallbacks(current.el);
                 decorateSections();
                 decorateImageSlots();
                 document.getElementById("guideStatus").textContent = "تم الحفظ بنجاح.";

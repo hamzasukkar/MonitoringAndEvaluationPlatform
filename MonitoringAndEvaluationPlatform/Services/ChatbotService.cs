@@ -71,9 +71,26 @@ Answer user questions about the platform clearly and concisely. Help them naviga
                 new { role = "system", content = SystemPrompt + "\n\n" + localeInstruction }
             };
 
-            foreach (var msg in messages)
+            // The role is clamped to user/assistant and the history is bounded. Previously
+            // msg.Role was passed through verbatim, so a client could inject its own
+            // role:"system" message after the platform prompt and override the instructions
+            // above - and send an unbounded history to a metered API.
+            const int maxMessages = 20;
+            const int maxContentChars = 4000;
+
+            foreach (var msg in messages.TakeLast(maxMessages))
             {
-                chatMessages.Add(new { role = msg.Role, content = msg.Content });
+                if (string.IsNullOrWhiteSpace(msg.Content))
+                {
+                    continue;
+                }
+
+                var role = msg.Role == "assistant" ? "assistant" : "user";
+                var messageText = msg.Content.Length > maxContentChars
+                    ? msg.Content[..maxContentChars]
+                    : msg.Content;
+
+                chatMessages.Add(new { role, content = messageText });
             }
 
             var requestBody = new

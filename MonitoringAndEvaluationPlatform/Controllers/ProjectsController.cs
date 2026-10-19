@@ -703,7 +703,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             ViewBag.IsMinistryLockedByProgram = isMinistryLockedByProgram;
 
             // Initialize empty donor funding data for create form
-            ViewBag.DonorFundingData = JsonConvert.SerializeObject(new Dictionary<string, decimal>());
+            ViewBag.DonorFundingData = new Dictionary<string, decimal>();
             ViewBag.ProjectManager = new SelectList(projectManagers, "Code", "Name");
             ViewBag.Goals = new SelectList(
                 goals,
@@ -776,6 +776,12 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 // Remove navigation properties from model state FIRST, before any validation
                 RemoveNavigationPropertiesFromModelState();
+
+                // Server-owned values must never be bound from the request. These are computed
+                // from measures and plans and cascade up the reporting hierarchy; binding them
+                // let a caller post fabricated performance figures for a brand-new project.
+                project.performance = 0;
+                project.DisbursementPerformance = 0;
 
                 // Remove form parameters from ModelState (they're not part of the Project model)
                 ModelState.Remove("selections");
@@ -1220,7 +1226,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 pd => pd.DonorCode.ToString(),
                 pd => pd.FundingPercentage
             );
-            ViewBag.DonorFundingData = JsonConvert.SerializeObject(donorFundingData);
+            // A dictionary, not a JSON string: Edit.cshtml emits it with Json.Serialize.
+            ViewBag.DonorFundingData = donorFundingData;
 
             // Build the Ministry SelectList, marking the project's owning ministry as "selected".
             // MinistryCode is the owner; the Ministries collection only mirrors it, and for a legacy

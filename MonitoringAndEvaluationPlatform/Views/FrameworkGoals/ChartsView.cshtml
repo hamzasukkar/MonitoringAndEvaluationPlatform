@@ -173,7 +173,10 @@
             };
 
             const frameworkChartData = {
-                labels: [@Html.Raw(string.Join(", ", frameworkGoalCounts.Keys.Select(k => $"\"{k}\"")))],
+                @* Json.Serialize, not hand-rolled quoting: framework names are user-supplied,
+                   and manually wrapping them in quotes let a name containing a quote or
+                   </script> break out of the string and out of this script block. *@
+                labels: @Json.Serialize(frameworkGoalCounts.Keys),
                 data: [@string.Join(", ", frameworkGoalCounts.Values)]
             };
 

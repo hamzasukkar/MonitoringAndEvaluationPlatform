@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using MonitoringAndEvaluationPlatform.Infrastructure;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 
@@ -21,9 +23,17 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         [HttpPost("stream")]
-        [IgnoreAntiforgeryToken]
+        [EnableRateLimiting(RateLimitPolicies.Chatbot)]
         public async Task StreamChat([FromBody] ChatRequestDto request)
         {
+            // [IgnoreAntiforgeryToken] removed: this is a cookie-authenticated POST, and the
+            // widget now sends the token via wwwroot/js/antiforgery.js.
+            if (request?.Messages == null || request.Messages.Count == 0)
+            {
+                Response.StatusCode = StatusCodes.Status400BadRequest;
+                return;
+            }
+
             Response.ContentType = "text/event-stream";
             Response.Headers["Cache-Control"] = "no-cache";
             Response.Headers["Connection"] = "keep-alive";
@@ -47,7 +57,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "Gemini API request failed");
+                _logger.LogError(ex, "Chatbot provider request failed");
                 var error = JsonSerializer.Serialize(new { token = "[Error: AI service unavailable]" });
                 await Response.WriteAsync($"data: {error}\n\n");
                 await Response.WriteAsync("data: [DONE]\n\n");
@@ -55,8 +65,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
+                // Log the detail; return a generic message. This previously streamed
+                // ex.Message straight to the browser.
                 _logger.LogError(ex, "Chatbot streaming error");
-                var error = JsonSerializer.Serialize(new { token = "[Error: " + ex.Message + "]" });
+                var error = JsonSerializer.Serialize(new { token = "[Error: AI service unavailable]" });
                 await Response.WriteAsync($"data: {error}\n\n");
                 await Response.WriteAsync("data: [DONE]\n\n");
                 await Response.Body.FlushAsync();

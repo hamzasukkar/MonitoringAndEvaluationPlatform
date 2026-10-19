@@ -9,7 +9,11 @@
     ViewData["Title"] = "Edit Project";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
     var governorates = ViewBag.Governorates as List<Governorate>;
-    var selectedLocationsJson = JsonConvert.SerializeObject(ViewBag.SelectedLocations);
+    // EscapeHtml writes <, >, &, ' and " inside names as unicode escapes, so a location
+    // name cannot close the <script> block below. Newtonsoft (not Json.Serialize) keeps the
+    // PascalCase property names that script reads (loc.GovernorateCode, ...).
+    var selectedLocationsJson = JsonConvert.SerializeObject((object)ViewBag.SelectedLocations,
+        new JsonSerializerSettings { StringEscapeHandling = StringEscapeHandling.EscapeHtml });
 }
 
 <!-- Dashboard Header -->
@@ -1610,7 +1614,11 @@
                 {
                     <text>
                     try {
-                        existingFundingData = JSON.parse('@Html.Raw(ViewBag.DonorFundingData)');
+                        @* Json.Serialize emits a JS literal with <, >, & and ' escaped, so no
+                           JSON.parse and no surrounding quotes are needed. The previous form
+                           dropped raw JSON inside a single-quoted string, which broke on any
+                           apostrophe and allowed script-block breakout. *@
+                        existingFundingData = @Json.Serialize(ViewBag.DonorFundingData);
                     } catch (e) {
                         console.error('Error parsing donor funding data:', e);
                         existingFundingData = {};
@@ -1833,7 +1841,7 @@
 </script>
 @* In the Razor view (Edit.cshtml) *@
 <script type="text/javascript">
-    // Inject the pre-selected locations into JavaScript
+    // Inject the pre-selected locations into JavaScript (HTML-escaped JSON, see top of file).
     var initialSelections = @Html.Raw(selectedLocationsJson);    // Pre-fill the selections array with their code values
     var selections2 = initialSelections.map(function(loc) {
         return [loc.GovernorateCode, loc.DistrictCode, loc.SubDistrictCode, loc.CommunityCode];
