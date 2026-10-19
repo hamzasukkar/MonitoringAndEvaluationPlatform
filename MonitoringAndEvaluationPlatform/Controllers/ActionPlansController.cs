@@ -10,12 +10,11 @@ using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
 using MonitoringAndEvaluationPlatform.ViewModel;
+using Microsoft.AspNetCore.Authorization;
+using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    // Login required: nothing here is public. No fallback policy exists, so without this
-    // attribute every action was reachable anonymously.
-    //
     // Every action checks that the action plan / phase belongs to one of the caller's own
     // projects. Which ROLES may edit plans is a separate, still-open decision, so no
     // role-restricting [Permission] attribute is applied here.
@@ -158,9 +157,11 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ActionPlan actionPlan)
         {
+            ModelState.Remove(nameof(actionPlan.ProjectPhase));
+
             if (!await _ministryScope.CanAccessPhaseAsync(actionPlan.ProjectPhaseId)) return Forbid();
 
-            if (ModelState.IsValid || true)
+            if (ModelState.IsValid)
             {
                 _context.Add(actionPlan);
                 await _context.SaveChangesAsync();
@@ -197,6 +198,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             {
                 return Forbid();
             }
+
+            ModelState.Remove(nameof(actionPlan.ProjectPhase));
 
             if (ModelState.IsValid)
             {

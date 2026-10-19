@@ -338,11 +338,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public async Task<IActionResult> Create(Indicator indicator)
         {
             ModelState.Remove(nameof(indicator.SubOutput));
+            ModelState.Remove(nameof(indicator.Project));
 
             if (!await SubOutputBelongsToScopeAsync(indicator.SubOutputCode))
             {
                 return Forbid();
             }
+
+            // Server-owned values must never come from the request. These are computed from
+            // measures and from RedistributeWeights below; binding them let a caller post
+            // fabricated performance figures straight into the reporting hierarchy.
+            indicator.IndicatorsPerformance = 0;
+            indicator.DisbursementPerformance = 0;
+            indicator.GAGRA = 0;
+            indicator.GAGRR = 0;
+            indicator.Weight = 1;
 
             // Check if indicator name already exists within the same suboutput
             var existingIndicator = await _context.Indicators
@@ -355,8 +365,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return View(indicator);
             }
 
-            //To Fix
-            if (ModelState.IsValid || true)
+            if (ModelState.IsValid)
             {
                 // Add the new indicator
                 _context.Add(indicator);

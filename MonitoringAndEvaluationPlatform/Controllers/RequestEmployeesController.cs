@@ -5,6 +5,7 @@ using MonitoringAndEvaluationPlatform.Attributes;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -13,6 +14,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
     /// system accounts. Managed by whoever can manage requests.
     /// </summary>
     [Permission(Permissions.ManageRequests)]
+    [Authorize]
     public class RequestEmployeesController : Controller
     {
         private readonly ApplicationDbContext _context;

@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
@@ -19,9 +20,6 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         public long NewValue { get; set; }
     }
 
-    // Login required: nothing here is public. No fallback policy exists, so without this
-    // attribute every action was reachable anonymously.
-    //
     // Every action checks that the plan belongs to one of the caller's own projects. Which ROLES
     // may enter plan values is a separate, still-open decision, so no role-restricting
     // [Permission] attribute is applied here.
@@ -31,12 +29,14 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly ApplicationDbContext _context;
         private readonly PlanService _planService;
         private readonly IMinistryScopeService _ministryScope;
+        private readonly ILogger<PlansController> _logger;
 
-        public PlansController(ApplicationDbContext context, PlanService planService, IMinistryScopeService ministryScope)
+        public PlansController(ApplicationDbContext context, PlanService planService, IMinistryScopeService ministryScope, ILogger<PlansController> logger)
         {
             _context = context;
             _planService = planService;
             _ministryScope = ministryScope;
+            _logger = logger;
         }
 
         private async Task<SelectList> ActionPlanOptionsAsync(int? selected = null) =>
@@ -87,7 +87,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "An internal server error occurred: " + ex.Message });
+                _logger.LogError(ex, "Failed to update plan values.");
+                return Json(new { success = false, message = "An internal server error occurred." });
             }
         }
 
@@ -136,7 +137,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = "An internal server error occurred: " + ex.Message });
+                _logger.LogError(ex, "Failed to update plan {PlanCode}.", planCode);
+                return Json(new { success = false, message = "An internal server error occurred." });
             }
         }
         // GET: Plans
@@ -268,6 +270,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
 
             ModelState.Remove(nameof(plan.ActionPlan));
+
             if (ModelState.IsValid)
             {
                 try

@@ -12,8 +12,6 @@ using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    // Login required: nothing here is public. No fallback policy exists, so without this
-    // attribute every action was reachable anonymously.
     [Authorize]
     public class SectorsController : Controller
     {

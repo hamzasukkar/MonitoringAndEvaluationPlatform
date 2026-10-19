@@ -6,11 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MonitoringAndEvaluationPlatform.Data;
 using MonitoringAndEvaluationPlatform.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    // Login required: nothing here is public. No fallback policy exists, so without this
-    // attribute every action was reachable anonymously.
     [Authorize]
     public class PublicSectorTypesController : Controller
     {

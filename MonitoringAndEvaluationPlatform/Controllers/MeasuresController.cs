@@ -15,9 +15,6 @@ using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    // Login required: nothing here is public. No fallback policy exists, so without this
-    // attribute every action was reachable anonymously.
-    //
     // Every action checks that the measure/phase belongs to one of the caller's own projects.
     // Which ROLES may enter measure values is a separate, still-open decision, so no
     // role-restricting [Permission] attribute is applied here.
@@ -44,6 +41,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost("add-measure")]
         public async Task<IActionResult> AddMeasure([FromBody] AddMeasureDto dto)
         {
+            // Measures are the performance evidence this platform reports on; without this
+            // check any authenticated user could falsify another ministry's figures.
             var phase = await _context.ProjectPhases.FindAsync(dto.PhaseId);
             if (phase == null) return NotFound();
             if (!await _ministryScope.CanAccessPhaseAsync(dto.PhaseId)) return Forbid();

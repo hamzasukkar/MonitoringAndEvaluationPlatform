@@ -10,9 +10,11 @@ using MonitoringAndEvaluationPlatform.Enums;
 using MonitoringAndEvaluationPlatform.Helpers;
 using MonitoringAndEvaluationPlatform.Models;
 using MonitoringAndEvaluationPlatform.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
+    [Authorize]
     public class RequestsController : Controller
     {
         private readonly ApplicationDbContext _context;

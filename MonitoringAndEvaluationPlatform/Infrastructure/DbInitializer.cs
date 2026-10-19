@@ -8,7 +8,11 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
 {
     public static class DbInitializer
     {
-        public static async Task SeedAsync(IServiceProvider serviceProvider)
+        /// <param name="seedDemoUsers">
+        /// When false (the default, and always outside Development) no demo accounts are
+        /// created. Reference data - ministries, goals, locations - is seeded regardless.
+        /// </param>
+        public static async Task SeedAsync(IServiceProvider serviceProvider, bool seedDemoUsers = false)
         {
             // Create a scope to manage the context's lifetime
             using (var scope = serviceProvider.CreateScope())
@@ -16,6 +20,8 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+                var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+                var logger = scope.ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(nameof(DbInitializer));
 
                 if (!context.Ministries.Any())
                 {
@@ -53,137 +59,75 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     await context.SaveChangesAsync(); // Ensure ministries are saved before creating users
                 }
 
-                // Create users for all ministries (runs independently of ministry seeding)
-                if (context.Ministries.Any())
+                // Roles must always exist - they are referenced by authorization policies
+                // regardless of whether any demo account is seeded.
+                foreach (var roleName in new[]
+                         {
+                             UserRoles.MinistriesUser,
+                             UserRoles.DataEntry,
+                             UserRoles.MinistryStrategyManager
+                         })
+                {
+                    if (!await roleManager.RoleExistsAsync(roleName))
+                    {
+                        await roleManager.CreateAsync(new IdentityRole(roleName));
+                    }
+                }
+
+                // Per-ministry demo accounts. This block used to run in EVERY environment and
+                // created 81 accounts (one per ministry plus _DE and _SM variants) that all
+                // shared the literal password "Ministry@123", with predictable usernames and
+                // EmailConfirmed = true. It also re-asserted role membership on every boot,
+                // silently undoing any deliberate role removal.
+                //
+                // Now: opt-in via configuration, password from configuration only (no literal
+                // fallback), every account flagged MustChangePassword, and no role re-assertion.
+                if (seedDemoUsers && context.Ministries.Any())
                 {
                     var ministries = context.Ministries.ToList();
 
-                    // Ensure MinistriesUser role exists
-                    string ministriesRoleName = "MinistriesUser";
-                    if (!await roleManager.RoleExistsAsync(ministriesRoleName))
+                    var demoPassword = configuration["Seeding:MinistryPassword"];
+                    if (string.IsNullOrWhiteSpace(demoPassword))
                     {
-                        await roleManager.CreateAsync(new IdentityRole(ministriesRoleName));
+                        logger?.LogWarning(
+                            "Demo user seeding is enabled but Seeding:MinistryPassword is not configured. Skipping ministry demo accounts.");
                     }
-
-                    // Ensure DataEntry role exists
-                    string dataEntryRoleName = "DataEntry";
-                    if (!await roleManager.RoleExistsAsync(dataEntryRoleName))
+                    else
                     {
-                        await roleManager.CreateAsync(new IdentityRole(dataEntryRoleName));
-                    }
-
-                    // Ensure MinistryStrategyManager role exists
-                    string strategyManagerRoleName = UserRoles.MinistryStrategyManager;
-                    if (!await roleManager.RoleExistsAsync(strategyManagerRoleName))
-                    {
-                        await roleManager.CreateAsync(new IdentityRole(strategyManagerRoleName));
-                    }
-
-                    foreach (var ministry in ministries)
-                    {
-                        string userName = ministry.MinistryUserName;
-                        string email = $"{userName.ToLower()}@example.com";
-                        string defaultPassword = "Ministry@123";
-
-                        // Create Ministry user if it doesn't exist
-                        var existingUser = await userManager.FindByNameAsync(userName);
-                        if (existingUser == null)
+                        async Task CreateMinistryUserAsync(string userName, Ministry ministry, string role)
                         {
+                            if (await userManager.FindByNameAsync(userName) != null)
+                            {
+                                return;
+                            }
+
                             var user = new ApplicationUser
                             {
                                 UserName = userName,
-                                Email = email,
+                                Email = $"{userName.ToLower()}@example.com",
                                 EmailConfirmed = true,
                                 MinistryName = ministry.MinistryDisplayName_EN,
-                                MinistryCode = ministry.Code
+                                MinistryCode = ministry.Code,
+                                MustChangePassword = true
                             };
 
-                            var result = await userManager.CreateAsync(user, defaultPassword);
+                            var result = await userManager.CreateAsync(user, demoPassword);
                             if (result.Succeeded)
                             {
-                                await userManager.AddToRoleAsync(user, ministriesRoleName);
+                                await userManager.AddToRoleAsync(user, role);
                             }
                             else
                             {
-                                Console.WriteLine($"⚠️ Failed to create user {userName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                            }
-                        }
-                        else
-                        {
-                            // Ensure existing user has the correct role
-                            if (!await userManager.IsInRoleAsync(existingUser, ministriesRoleName))
-                            {
-                                await userManager.AddToRoleAsync(existingUser, ministriesRoleName);
+                                logger?.LogWarning("Failed to create demo user {UserName}: {Errors}",
+                                    userName, string.Join(", ", result.Errors.Select(e => e.Description)));
                             }
                         }
 
-                        // Create Data Entry user for each ministry
-                        string dataEntryUserName = $"{ministry.MinistryUserName}_DE";
-                        string dataEntryEmail = $"{dataEntryUserName.ToLower()}@example.com";
-
-                        var existingDataEntryUser = await userManager.FindByNameAsync(dataEntryUserName);
-                        if (existingDataEntryUser == null)
+                        foreach (var ministry in ministries)
                         {
-                            var dataEntryUser = new ApplicationUser
-                            {
-                                UserName = dataEntryUserName,
-                                Email = dataEntryEmail,
-                                EmailConfirmed = true,
-                                MinistryName = ministry.MinistryDisplayName_EN,
-                                MinistryCode = ministry.Code
-                            };
-
-                            var result = await userManager.CreateAsync(dataEntryUser, defaultPassword);
-                            if (result.Succeeded)
-                            {
-                                await userManager.AddToRoleAsync(dataEntryUser, dataEntryRoleName);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"⚠️ Failed to create data entry user {dataEntryUserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                            }
-                        }
-                        else
-                        {
-                            // Ensure existing data entry user has the correct role
-                            if (!await userManager.IsInRoleAsync(existingDataEntryUser, dataEntryRoleName))
-                            {
-                                await userManager.AddToRoleAsync(existingDataEntryUser, dataEntryRoleName);
-                            }
-                        }
-
-                        // Create Strategy Manager (admin owner) user for each ministry
-                        string strategyManagerUserName = $"{ministry.MinistryUserName}_SM";
-                        string strategyManagerEmail = $"{strategyManagerUserName.ToLower()}@example.com";
-
-                        var existingStrategyManagerUser = await userManager.FindByNameAsync(strategyManagerUserName);
-                        if (existingStrategyManagerUser == null)
-                        {
-                            var strategyManagerUser = new ApplicationUser
-                            {
-                                UserName = strategyManagerUserName,
-                                Email = strategyManagerEmail,
-                                EmailConfirmed = true,
-                                MinistryName = ministry.MinistryDisplayName_EN,
-                                MinistryCode = ministry.Code
-                            };
-
-                            var result = await userManager.CreateAsync(strategyManagerUser, defaultPassword);
-                            if (result.Succeeded)
-                            {
-                                await userManager.AddToRoleAsync(strategyManagerUser, strategyManagerRoleName);
-                            }
-                            else
-                            {
-                                Console.WriteLine($"⚠️ Failed to create strategy manager user {strategyManagerUserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-                            }
-                        }
-                        else
-                        {
-                            if (!await userManager.IsInRoleAsync(existingStrategyManagerUser, strategyManagerRoleName))
-                            {
-                                await userManager.AddToRoleAsync(existingStrategyManagerUser, strategyManagerRoleName);
-                            }
+                            await CreateMinistryUserAsync(ministry.MinistryUserName, ministry, UserRoles.MinistriesUser);
+                            await CreateMinistryUserAsync($"{ministry.MinistryUserName}_DE", ministry, UserRoles.DataEntry);
+                            await CreateMinistryUserAsync($"{ministry.MinistryUserName}_SM", ministry, UserRoles.MinistryStrategyManager);
                         }
                     }
                 }

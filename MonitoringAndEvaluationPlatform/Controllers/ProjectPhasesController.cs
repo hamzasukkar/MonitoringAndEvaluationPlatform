@@ -8,9 +8,6 @@ using MonitoringAndEvaluationPlatform.Services;
 
 namespace MonitoringAndEvaluationPlatform.Controllers
 {
-    // Login required: nothing here is public. No fallback policy exists, so without this
-    // attribute every action was reachable anonymously.
-    //
     // Every action checks that the phase/project belongs to the caller's own ministry. Which
     // ROLES may edit phases is a separate, still-open decision, so no role-restricting
     // [Permission] attribute is applied here.
@@ -142,6 +139,8 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .FirstOrDefaultAsync(p => p.ProjectID == projectId);
 
             if (project == null) return NotFound();
+            // This action deletes and recreates phases (and their action plans and plans),
+            // so an unscoped projectId would let any user restructure another ministry's project.
             if (!await _ministryScope.CanAccessProjectAsync(projectId)) return Forbid();
 
             var selected = (SelectedPhases ?? new List<string>())
