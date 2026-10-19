@@ -159,8 +159,8 @@
                                     <div class="d-flex align-items-center gap-3">
                                         @if (isImage)
                                         {
-                                            <a href="@file.FilePath" target="_blank">
-                                                <img src="@file.FilePath" alt="@file.FileName"
+                                            <a href="@Url.Action("Request", "Files", new { id = file.Id })" target="_blank">
+                                                <img src="@Url.Action("Request", "Files", new { id = file.Id })" alt="@file.FileName"
                                                      style="width:64px;height:64px;object-fit:cover;border-radius:6px;" />
                                             </a>
                                         }
@@ -168,7 +168,7 @@
                                         {
                                             <i class="fas fa-file fa-2x text-secondary"></i>
                                         }
-                                        <a href="@file.FilePath" target="_blank" download="@file.FileName">@file.FileName</a>
+                                        <a href="@Url.Action("Request", "Files", new { id = file.Id, download = true })" download="@file.FileName">@file.FileName</a>
                                     </div>
                                     @if (canManage)
                                     {
@@ -340,8 +340,8 @@
                                             <div class="border rounded p-1 d-flex align-items-center gap-1">
                                                 @if (isImage)
                                                 {
-                                                    <a href="@att.FilePath" target="_blank">
-                                                        <img src="@att.FilePath" alt="@att.FileName"
+                                                    <a href="@Url.Action("RequestComment", "Files", new { id = att.Id })" target="_blank">
+                                                        <img src="@Url.Action("RequestComment", "Files", new { id = att.Id })" alt="@att.FileName"
                                                              style="width:40px;height:40px;object-fit:cover;border-radius:4px;" />
                                                     </a>
                                                 }
@@ -349,7 +349,7 @@
                                                 {
                                                     <i class="fas fa-file text-secondary"></i>
                                                 }
-                                                <a href="@att.FilePath" target="_blank" download="@att.FileName" class="small">@att.FileName</a>
+                                                <a href="@Url.Action("RequestComment", "Files", new { id = att.Id, download = true })" target="_blank" download="@att.FileName" class="small">@att.FileName</a>
                                                 @if (isAdmin || c.AuthorUserId == currentUserId)
                                                 {
                                                     <form asp-action="DeleteCommentAttachment" asp-route-id="@att.Id" method="post" class="d-inline"
@@ -394,8 +394,8 @@
                                                     <div class="border rounded p-1 d-flex align-items-center gap-1">
                                                         @if (isImage)
                                                         {
-                                                            <a href="@att.FilePath" target="_blank">
-                                                                <img src="@att.FilePath" alt="@att.FileName"
+                                                            <a href="@Url.Action("RequestComment", "Files", new { id = att.Id })" target="_blank">
+                                                                <img src="@Url.Action("RequestComment", "Files", new { id = att.Id })" alt="@att.FileName"
                                                                      style="width:36px;height:36px;object-fit:cover;border-radius:4px;" />
                                                             </a>
                                                         }
@@ -403,7 +403,7 @@
                                                         {
                                                             <i class="fas fa-file text-secondary"></i>
                                                         }
-                                                        <a href="@att.FilePath" target="_blank" download="@att.FileName" class="small">@att.FileName</a>
+                                                        <a href="@Url.Action("RequestComment", "Files", new { id = att.Id, download = true })" target="_blank" download="@att.FileName" class="small">@att.FileName</a>
                                                         @if (isAdmin || reply.AuthorUserId == currentUserId)
                                                         {
                                                             <form asp-action="DeleteCommentAttachment" asp-route-id="@att.Id" method="post" class="d-inline"

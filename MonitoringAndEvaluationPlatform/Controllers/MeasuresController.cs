@@ -27,14 +27,16 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly IMinistryScopeService _ministryScope;
 
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IUploadValidationService _uploadValidation;
 
-        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer, IWebHostEnvironment webHostEnvironment, IMinistryScopeService ministryScope)
+        public MeasuresController(ApplicationDbContext context, MonitoringService monitoringService, IStringLocalizer<MeasuresController> localizer, IWebHostEnvironment webHostEnvironment, IMinistryScopeService ministryScope, IUploadValidationService uploadValidation)
         {
             _context = context;
             _monitoringService = monitoringService;
             _localizer = localizer;
             _webHostEnvironment = webHostEnvironment;
             _ministryScope = ministryScope;
+            _uploadValidation = uploadValidation;
         }
 
         // POST: add-measure (AJAX)
@@ -196,9 +198,9 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (existingTotal + measure.Value > 100)
                 return BadRequest(new { message = _localizer["Total measures value for this phase cannot exceed 100%."].Value });
 
-            var rejectedFiles = UploadFileRules.Rejected(MeasureFiles);
+            var rejectedFiles = UploadFileRules.Rejected(_uploadValidation, MeasureFiles);
             if (rejectedFiles.Count > 0)
-                return BadRequest(new { message = _localizer["File type not allowed: {0}. Allowed types: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP).", string.Join("، ", rejectedFiles)].Value });
+                return BadRequest(new { message = _localizer["Cannot attach {0}. Allowed: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP), up to 25 MB per file.", string.Join("، ", rejectedFiles)].Value });
 
             if (ModelState.IsValid)
             {
@@ -207,20 +209,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
                 if (MeasureFiles != null && MeasureFiles.Count > 0)
                 {
-                    var uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "measures");
-                    Directory.CreateDirectory(uploadsFolder);
-                    foreach (var file in MeasureFiles.Where(f => f.Length > 0 && UploadFileRules.IsAllowed(f)))
+                    foreach (var file in MeasureFiles.Where(f => f.Length > 0))
                     {
-                        var safeName = UploadFileRules.SafeName(file);
-                        var uniqueName = $"{Guid.NewGuid()}_{safeName}";
-                        var filePath = Path.Combine(uploadsFolder, uniqueName);
-                        using var fs = new FileStream(filePath, FileMode.Create);
-                        await file.CopyToAsync(fs);
+                        var upload = await _uploadValidation.SaveAsync(file, UploadPurpose.Attachment, "measures");
+                        if (!upload.Ok)
+                        {
+                            continue;
+                        }
+
                         _context.MeasureFiles.Add(new Models.MeasureFile
                         {
                             MeasureCode = measure.Code,
-                            FileName = safeName,
-                            FilePath = $"/uploads/measures/{uniqueName}"
+                            FileName = _uploadValidation.SanitizeDisplayName(file.FileName),
+                            FilePath = upload.RelativePath!
                         });
                     }
                     await _context.SaveChangesAsync();

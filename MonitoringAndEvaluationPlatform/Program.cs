@@ -221,6 +221,7 @@ builder.Services.AddScoped<INotificationService, NotificationService>();
 builder.Services.AddScoped<IAuditService, AuditService>();
 builder.Services.AddScoped<IDataManagementService, DataManagementService>();
 builder.Services.AddScoped<ITestDataGeneratorService, TestDataGeneratorService>();
+builder.Services.AddScoped<IUploadValidationService, UploadValidationService>();
 builder.Services.AddScoped<IGuideService, GuideService>();
 // Converts project budgets to SYP for cross-project totals; caches the rate table briefly
 // because nearly every page that shows a total needs it.
@@ -297,6 +298,24 @@ else
 }
 
 app.UseHttpsRedirection();
+
+// User uploads must never be served as static files. UseStaticFiles runs before
+// UseAuthentication, so anything under wwwroot is anonymous - which meant every project,
+// request, measure and goal attachment was readable by URL, and an uploaded .html or .svg
+// executed as same-origin script. New uploads live outside wwwroot; this 404 also covers
+// files written to wwwroot/uploads before that change. They stay reachable through the
+// authorized download actions only.
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/uploads", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    await next();
+});
+
 app.UseStaticFiles();
 
 app.UseRouting();

@@ -21,17 +21,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IStringLocalizer<RequestsController> _localizer;
         private readonly IMinistryScopeService _ministryScope;
+        private readonly IUploadValidationService _uploadValidation;
 
         public RequestsController(
             ApplicationDbContext context,
             UserManager<ApplicationUser> userManager,
             IStringLocalizer<RequestsController> localizer,
-            IMinistryScopeService ministryScope)
+            IMinistryScopeService ministryScope,
+            IUploadValidationService uploadValidation)
         {
             _context = context;
             _userManager = userManager;
             _localizer = localizer;
             _ministryScope = ministryScope;
+            _uploadValidation = uploadValidation;
         }
 
         // ---------------------------------------------------------------- Management
@@ -209,6 +212,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 .Include(r => r.Files)
                 .Include(r => r.Comments).ThenInclude(c => c.AuthorUser)
                 .Include(r => r.Comments).ThenInclude(c => c.OnBehalfOfEmployee)
+                .Include(r => r.Comments).ThenInclude(c => c.Attachments)
                 .Include(r => r.Tests).ThenInclude(t => t.RequestEmployee)
                 .Include(r => r.Tests).ThenInclude(t => t.RecordedByUser)
                 // One query per collection. As a single query, files x comments x tests are
@@ -316,13 +320,20 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         {
             var request = await _context.Requests
                 .Include(r => r.Files)
+                .Include(r => r.Comments).ThenInclude(c => c.Attachments)
+                .AsSplitQuery()
                 .FirstOrDefaultAsync(r => r.Id == id);
 
             if (request == null) return NotFound();
 
+            // The rows cascade with the request; the files on disk do not.
             foreach (var file in request.Files)
             {
                 DeletePhysicalFile(file.FilePath);
+            }
+            foreach (var attachment in request.Comments.SelectMany(c => c.Attachments))
+            {
+                DeletePhysicalFile(attachment.FilePath);
             }
 
             _context.Requests.Remove(request);
@@ -372,7 +383,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return RedirectToAction(nameof(Details), new { id = requestId });
             }
 
-            var rejectedFiles = UploadFileRules.Rejected(uploadedFiles);
+            var rejectedFiles = UploadFileRules.Rejected(_uploadValidation, uploadedFiles);
             if (rejectedFiles.Count > 0)
             {
                 this.SetErrorMessage(RejectedFilesMessage(rejectedFiles));
@@ -592,36 +603,29 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         /// <summary>
-        /// Mirrors ProjectsController.ProcessFileUploadsAsync: stores under
-        /// wwwroot/uploads with a GUID-prefixed name and records the row.
+        /// Validates and stores request attachments via IUploadValidationService, which keeps
+        /// them outside wwwroot under a server-generated name.
         /// </summary>
         private async Task<bool> ProcessFileUploadsAsync(int requestId, List<IFormFile> uploadedFiles)
         {
             if (uploadedFiles == null || !uploadedFiles.Any())
                 return true;
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
             foreach (var file in uploadedFiles)
             {
-                if (file.Length > 0 && UploadFileRules.IsAllowed(file))
+                if (file.Length > 0)
                 {
-                    var safeName = UploadFileRules.SafeName(file);
-                    var uniqueFileName = $"{Guid.NewGuid()}_{safeName}";
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    var upload = await _uploadValidation.SaveAsync(file, UploadPurpose.Attachment, "requests");
+                    if (!upload.Ok)
                     {
-                        await file.CopyToAsync(stream);
+                        continue;
                     }
 
                     _context.RequestFiles.Add(new RequestFile
                     {
                         RequestId = requestId,
-                        FileName = safeName,
-                        FilePath = "/uploads/" + uniqueFileName
+                        FileName = _uploadValidation.SanitizeDisplayName(file.FileName),
+                        FilePath = upload.RelativePath!
                     });
                 }
             }
@@ -639,28 +643,21 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             if (uploadedFiles == null || !uploadedFiles.Any())
                 return;
 
-            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads/requestcomments");
-            if (!Directory.Exists(uploadsFolder))
-                Directory.CreateDirectory(uploadsFolder);
-
             foreach (var file in uploadedFiles)
             {
-                if (file.Length > 0 && UploadFileRules.IsAllowed(file))
+                if (file.Length > 0)
                 {
-                    var safeName = UploadFileRules.SafeName(file);
-                    var uniqueFileName = $"{Guid.NewGuid()}_{safeName}";
-                    var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    var upload = await _uploadValidation.SaveAsync(file, UploadPurpose.Attachment, "requestcomments");
+                    if (!upload.Ok)
                     {
-                        await file.CopyToAsync(stream);
+                        continue;
                     }
 
                     _context.RequestCommentAttachments.Add(new RequestCommentAttachment
                     {
                         RequestCommentId = commentId,
-                        FileName = safeName,
-                        FilePath = "/uploads/requestcomments/" + uniqueFileName
+                        FileName = _uploadValidation.SanitizeDisplayName(file.FileName),
+                        FilePath = upload.RelativePath!
                     });
                 }
             }
@@ -669,18 +666,19 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         private string RejectedFilesMessage(List<string> rejectedFiles) =>
-            _localizer["File type not allowed: {0}. Allowed types: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP).", string.Join("، ", rejectedFiles)].Value;
+            _localizer["Cannot attach {0}. Allowed: PDF, Word, Excel, PowerPoint, CSV, TXT and images (JPG, PNG, GIF, WebP), up to 25 MB per file.", string.Join("، ", rejectedFiles)].Value;
 
         private void AddRejectedFilesError(List<IFormFile>? uploadedFiles)
         {
-            var rejectedFiles = UploadFileRules.Rejected(uploadedFiles);
+            var rejectedFiles = UploadFileRules.Rejected(_uploadValidation, uploadedFiles);
             if (rejectedFiles.Count > 0)
                 ModelState.AddModelError("", RejectedFilesMessage(rejectedFiles));
         }
 
-        private static void DeletePhysicalFile(string? storedPath)
+        private void DeletePhysicalFile(string? storedPath)
         {
-            var fullPath = UploadFileRules.ResolveStoredPath(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"), storedPath);
+            // Containment-checked, and handles both the current and the legacy wwwroot location.
+            var fullPath = string.IsNullOrWhiteSpace(storedPath) ? null : _uploadValidation.ResolveStoredPath(storedPath);
 
             if (fullPath != null && System.IO.File.Exists(fullPath))
             {
