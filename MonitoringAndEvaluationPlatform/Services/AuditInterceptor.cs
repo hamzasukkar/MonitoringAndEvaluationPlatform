@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using MonitoringAndEvaluationPlatform.Models;
 using System.Text.Json;
@@ -7,6 +9,9 @@ namespace MonitoringAndEvaluationPlatform.Services
 {
     public class AuditInterceptor : SaveChangesInterceptor
     {
+        /// <summary>Stands in for a credential in OldValues/NewValues.</summary>
+        public const string Redacted = "[redacted]";
+
         private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AuditInterceptor(IHttpContextAccessor httpContextAccessor)
@@ -62,7 +67,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                         auditLog.Action = "Create";
                         auditLog.NewValues = SerializeProperties(entry.Properties
                             .Where(p => p.CurrentValue != null)
-                            .ToDictionary(p => p.Metadata.Name, p => p.CurrentValue));
+                            .ToDictionary(p => p.Metadata.Name, p => AuditValue(entry, p, p.CurrentValue)));
                         break;
 
                     case EntityState.Modified:
@@ -75,9 +80,9 @@ namespace MonitoringAndEvaluationPlatform.Services
                             continue;
 
                         auditLog.OldValues = SerializeProperties(modifiedProperties
-                            .ToDictionary(p => p.Metadata.Name, p => p.OriginalValue));
+                            .ToDictionary(p => p.Metadata.Name, p => AuditValue(entry, p, p.OriginalValue)));
                         auditLog.NewValues = SerializeProperties(modifiedProperties
-                            .ToDictionary(p => p.Metadata.Name, p => p.CurrentValue));
+                            .ToDictionary(p => p.Metadata.Name, p => AuditValue(entry, p, p.CurrentValue)));
                         auditLog.ChangedColumns = string.Join(", ", modifiedProperties
                             .Select(p => p.Metadata.Name));
                         break;
@@ -86,7 +91,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                         auditLog.Action = "Delete";
                         auditLog.OldValues = SerializeProperties(entry.Properties
                             .Where(p => p.OriginalValue != null)
-                            .ToDictionary(p => p.Metadata.Name, p => p.OriginalValue));
+                            .ToDictionary(p => p.Metadata.Name, p => AuditValue(entry, p, p.OriginalValue)));
                         break;
 
                     default:
@@ -102,6 +107,30 @@ namespace MonitoringAndEvaluationPlatform.Services
             }
 
             return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+
+        /// <summary>
+        /// The value to record for one property. Credentials are replaced with
+        /// <see cref="Redacted"/>: the column name still lands in ChangedColumns, so the log shows
+        /// that a password or second factor changed, but never the hash, the security stamp, or
+        /// an authenticator key / recovery codes (stored as IdentityUserToken.Value). Recording
+        /// those would let anyone who can read the audit log - an administrator, a database
+        /// backup - generate valid sign-in codes or attack the hashes offline.
+        /// </summary>
+        private static object? AuditValue(EntityEntry entry, PropertyEntry property, object? value)
+        {
+            if (value is null)
+                return null;
+
+            var name = property.Metadata.Name;
+            var isCredential = entry.Entity switch
+            {
+                IdentityUser => name is nameof(IdentityUser.PasswordHash) or nameof(IdentityUser.SecurityStamp),
+                IdentityUserToken<string> => name == nameof(IdentityUserToken<string>.Value),
+                _ => false
+            };
+
+            return isCredential ? Redacted : value;
         }
 
         private static string? GetEntityDisplayName(Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry entry)
