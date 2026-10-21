@@ -16,7 +16,7 @@ namespace MonitoringAndEvaluationPlatform.Services
                 ["Subprogram Management"] = new() { Permissions.ReadSubprograms, Permissions.AddSubprogram, Permissions.EditSubprogram, Permissions.DeleteSubprogram },
                 ["Project Management"] = new() { Permissions.ReadProjects, Permissions.AddProject, Permissions.EditProject, Permissions.DeleteProject },
                 ["Project Forms"] = new() { Permissions.ReadProjectForms, Permissions.FillProjectForm, Permissions.EditProjectForm, Permissions.DeleteProjectForm },
-                ["Project Metrics"] = new() { Permissions.ReadProjectMetrics, Permissions.AddMetricValue, Permissions.EditMetricValues, Permissions.DeleteMetricValues },
+                ["Project Metrics"] = new() { Permissions.ReadProjectMetrics, Permissions.AddMetricValue, Permissions.EditMetricValues, Permissions.DeleteMetricValues, Permissions.RecordProgress },
                 ["Action Plans"] = new() { Permissions.ReadActionPlans, Permissions.ModifyPlanStatus, Permissions.DeleteActionPlan },
                 ["Control Panel"] = new() { Permissions.ViewControlPanel },
                 ["Ministries Management"] = new() { Permissions.ReadMinistries, Permissions.CreateMinistry, Permissions.ModifyMinistry, Permissions.DeleteMinistry, Permissions.DisplayMinistryIndicators },

@@ -10,7 +10,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Monitoring & Evaluation System</title>
+    <title>@ViewData["Title"] - البرنامج الوطني لمتابعة وتقييم الأداء التنموي</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,7 +36,8 @@
         body {
             background-color: var(--primary-background-color); /* Main background */
             font-family: var(--font-family-sans-serif);
-            height: 100vh;
+            /* min-height, not height: a card taller than the window scrolls instead of being cut off at the top. */
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -180,7 +181,7 @@
         <div class="card-header">
             <!-- Assuming your new logo is syrian_emblem.png in the img folder -->
             <img src="~/img/syrian_emblem.png" alt="Syrian Emblem" class="brand-logo">
-            <h2>المنصة الوطنية للرصد والتقييم</h2>
+            <h2>البرنامج الوطني لمتابعة وتقييم الأداء التنموي</h2>
         </div>
         <div class="card-body">
             <form method="post">

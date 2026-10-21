@@ -144,6 +144,26 @@ body.rtl .nav-links .nav {
         background-color: rgba(255, 255, 255, 0.08); /* Subtle highlight */
     }
 
+/* The Arabic platform name is long: below 1500px the header tightens so the title
+   and the nav stay on one row. */
+@media (max-width: 1500px) {
+    .topbar {
+        gap: 1rem;
+    }
+
+    .title {
+        font-size: 1.2rem;
+    }
+
+    .topbar .nav-item {
+        margin-inline-end: 0.25rem;
+    }
+
+    .topbar .nav-link {
+        padding: 0.5rem 0.6rem;
+    }
+}
+
 .dropdown-menu {
     border: none;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */

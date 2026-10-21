@@ -482,6 +482,10 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 return Json(new { success = false, message = "User not found." });
             }
 
+            // The administrator now knows this password, so the account holder must replace it
+            // at the next sign-in. Set before the reset so both persist in the same update.
+            user.MustChangePassword = true;
+
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             var result = await _userManager.ResetPasswordAsync(user, token, newPassword);
 

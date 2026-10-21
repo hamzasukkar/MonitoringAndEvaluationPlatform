@@ -28,6 +28,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: ProjectPhases/Edit/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Edit(int id)
         {
             var phase = await _context.ProjectPhases
@@ -47,6 +48,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: ProjectPhases/Edit/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,StartDate,EndDate,Budget,ProjectID")] ProjectPhase phase)
@@ -130,6 +132,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
         // POST: ProjectPhases/SyncPhases
         // Adds any newly-checked phase names and removes any unchecked ones.
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SyncPhases(int projectId, List<string>? SelectedPhases, string? returnTo)
@@ -201,6 +204,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: ProjectPhases/Delete/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, string? returnTo = null)
@@ -253,6 +257,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: ProjectPhases/UpdateWeights  (AJAX)
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         public async Task<IActionResult> UpdateWeights([FromBody] UpdateWeightsDto dto)
         {

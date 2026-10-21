@@ -67,7 +67,7 @@
     <value>دليل الاستخدام</value>
   </data>
   <data name="Complete documentation for the National Monitoring &amp; Evaluation Platform" xml:space="preserve">
-    <value>دليل استخدام منصة الرصد و التقييم</value>
+    <value>دليل استخدام البرنامج الوطني لمتابعة وتقييم الأداء التنموي</value>
   </data>
   <data name="Print Guide" xml:space="preserve">
     <value>طباعة الدليل</value>
@@ -138,7 +138,7 @@
   </data>
   <!-- Section 1: Introduction -->
   <data name="Welcome to the National Monitoring &amp; Evaluation Platform. This comprehensive system helps you track development projects, measure performance indicators, and generate reports across multiple strategic frameworks." xml:space="preserve">
-    <value>مرحباً بك في النظام الوطني للرصد والتقييم. يساعدك هذا النظام الشامل على تتبع مشاريع التنمية وقياس مؤشرات الأداء وإنشاء التقارير عبر أهداف استراتيجية متعددة.</value>
+    <value>مرحباً بك في البرنامج الوطني لمتابعة وتقييم الأداء التنموي. يساعدك هذا النظام الشامل على تتبع مشاريع التنمية وقياس مؤشرات الأداء وإنشاء التقارير عبر أهداف استراتيجية متعددة.</value>
   </data>
   <data name="What You Can Do" xml:space="preserve">
     <value>ما يمكنك فعله</value>
@@ -1671,7 +1671,7 @@
     <value>مستخدم للقراءة فقط</value>
   </data>
   <data name="View-only access to the dashboard, reports, maps, monitoring and development impact. Cannot open project pages or change any data." xml:space="preserve">
-    <value>صلاحية عرض فقط للوحة المعلومات والتقارير والخرائط والرصد والأثر التنموي، دون إمكانية فتح صفحات المشاريع أو تعديل أي بيانات.</value>
+    <value>صلاحية عرض فقط للوحة المعلومات والتقارير والخرائط والرصد و«النتائج والأثر»، دون إمكانية فتح صفحات المشاريع أو تعديل أي بيانات.</value>
   </data>
   <data name="18.1 Permission Summary" xml:space="preserve">
     <value>18.1 ملخص الصلاحيات</value>
@@ -2197,14 +2197,14 @@
   </data>
   <!-- Section 13: Development Impact -->
   <data name="Development Impact" xml:space="preserve">
-    <value>الأثر التنموي</value>
+    <value>النتائج والأثر</value>
   </data>
   <!-- Section 13: Development Impact (content) -->
   <data name="Development Impact measures what projects deliver, not only how well they are executed. Each project records its outputs against a target year by year, and those outputs are grouped into development impact indicators that show the result for a ministry or a strategic goal." xml:space="preserve">
     <value>يقيس الأثر التنموي ما تحققه المشاريع، لا مدى جودة تنفيذها فقط. يسجّل كل مشروع مخرجاته مقابل قيمة مستهدفة سنة بسنة، وتُجمَّع هذه المخرجات في مؤشرات أثر تنموي تُظهر النتيجة على مستوى الوزارة أو الهدف الاستراتيجي.</value>
   </data>
   <data name="Open it from Impact in the top bar. It is not in the sidebar." xml:space="preserve">
-    <value>افتحه من «الأثر» في الشريط العلوي، فهو غير موجود في القائمة الجانبية.</value>
+    <value>افتح صفحة «النتائج والأثر» من الشريط العلوي، فهي غير موجودة في القائمة الجانبية.</value>
   </data>
   <data name="13.1 Key Concepts" xml:space="preserve">
     <value>13.1 المفاهيم الأساسية</value>
@@ -2291,7 +2291,7 @@
     <value>الشكل 13.1: مؤشرات مخرج المشروع</value>
   </data>
   <data name="13.3 The Development Impact Page" xml:space="preserve">
-    <value>13.3 صفحة الأثر التنموي</value>
+    <value>13.3 صفحة النتائج والأثر</value>
   </data>
   <data name="The page opens with three summary cards: the number of development impact indicators, the linked project output indicators, and the years covered. Below them you can search by name, filter by ministry, and reset the filters." xml:space="preserve">
     <value>تبدأ الصفحة بثلاث بطاقات ملخّصة: عدد مؤشرات الأثر التنموي، ومؤشرات مخرج المشروع المرتبطة، والسنوات المشمولة. وتحتها يمكنك البحث بالاسم، والتصفية حسب الوزارة، وإعادة تعيين عوامل التصفية.</value>
@@ -2375,13 +2375,13 @@
     <value>يحذف مؤشر الأثر التنموي. راجع 13.7.</value>
   </data>
   <data name="Development Impact Page Screenshot" xml:space="preserve">
-    <value>لقطة شاشة صفحة الأثر التنموي</value>
+    <value>لقطة شاشة صفحة النتائج والأثر</value>
   </data>
   <data name="Screenshot: Development Impact Page" xml:space="preserve">
-    <value>لقطة شاشة: صفحة الأثر التنموي</value>
+    <value>لقطة شاشة: صفحة النتائج والأثر</value>
   </data>
   <data name="Figure 13.2: The Development Impact Page" xml:space="preserve">
-    <value>الشكل 13.2: صفحة الأثر التنموي</value>
+    <value>الشكل 13.2: صفحة النتائج والأثر</value>
   </data>
   <data name="13.4 Adding and Editing a Development Impact Indicator" xml:space="preserve">
     <value>13.4 إضافة مؤشر أثر تنموي وتعديله</value>
@@ -2637,7 +2637,7 @@
     <value>هذا الدليل.</value>
   </data>
   <data name="Development Impact opens from Impact in the top bar rather than the sidebar — see section 13." xml:space="preserve">
-    <value>يُفتح الأثر التنموي من «الأثر» في الشريط العلوي لا من القائمة الجانبية — راجع القسم 13.</value>
+    <value>تُفتح صفحة «النتائج والأثر» من الشريط العلوي لا من القائمة الجانبية — راجع القسم 13.</value>
   </data>
   <data name="Home" xml:space="preserve">
     <value>الصفحة الرئيسية</value>

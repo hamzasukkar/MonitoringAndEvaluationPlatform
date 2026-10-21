@@ -42,6 +42,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: add-measure (AJAX)
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost("add-measure")]
         public async Task<IActionResult> AddMeasure([FromBody] AddMeasureDto dto)
         {
@@ -160,6 +161,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: CreateFromDetails (AJAX inline creation)
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateFromDetails(Measure measure, List<IFormFile>? MeasureFiles, double? PhaseTargetQuantity)
@@ -238,6 +240,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Measures/Create
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Create(int? phaseId)
         {
             if (phaseId.HasValue && !await _ministryScope.CanAccessPhaseAsync(phaseId.Value)) return Forbid();
@@ -268,6 +271,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: Measures/Create
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Code,Name,Date,Value,Note,Quantity,UnitCode,ProjectPhaseId")] Measure measure, double? PhaseTargetQuantity)
@@ -336,6 +340,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Measures/Edit/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -351,6 +356,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: Measures/Edit/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Measure measure)
@@ -441,6 +447,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Measures/Delete/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Delete(int id)
         {
             var measure = await _context.Measures
@@ -455,6 +462,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: Measures/Delete/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

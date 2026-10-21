@@ -44,6 +44,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
                 await _context.ActionPlans.WithinScope(await _ministryScope.GetScopeAsync()).ToListAsync(),
                 "Code", "Code", selected);
 
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         public async Task<IActionResult> UpdatePlanValues([FromBody] List<PlanValueUpdate> updates)
         {
@@ -92,6 +93,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
             }
         }
 
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         public async Task<IActionResult> UpdatePlanValue(int planCode, string valueType, string newValue)
         {
@@ -197,6 +199,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Plans/Create
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Create()
         {
             ViewData["ActionPlanCode"] = await ActionPlanOptionsAsync();
@@ -206,6 +209,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         // POST: Plans/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Code,Name,Date,Realised,ActionPlanCode")] Plan plan)
@@ -228,6 +232,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: Plans/Edit/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -254,6 +259,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
 
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Edit(int id, [Bind("Code,Name,Date,Realised,ActionPlanCode")] Plan plan)
         {
             if (id != plan.Code)
@@ -295,6 +301,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
 
 
         // GET: Plans/Delete/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -320,6 +327,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: Plans/Delete/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

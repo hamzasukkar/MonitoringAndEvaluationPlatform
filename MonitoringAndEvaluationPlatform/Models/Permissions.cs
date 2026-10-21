@@ -48,6 +48,10 @@ namespace MonitoringAndEvaluationPlatform.Models
         public const string EditMetricValues = "EditMetricValues";
         public const string DeleteMetricValues = "DeleteMetricValues";
 
+        // Recording progress - measurements, monthly disbursement, action plans and phases.
+        // Enforced on the Measures, Plans, ActionPlans and ProjectPhases write actions.
+        public const string RecordProgress = "RecordProgress";
+
         // Interface 9 - Action Plans
         public const string ReadActionPlans = "ReadActionPlans";
         public const string ModifyPlanStatus = "ModifyPlanStatus";

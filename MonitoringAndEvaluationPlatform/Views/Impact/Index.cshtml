@@ -5,7 +5,7 @@
 @inject IViewLocalizer Localizer
 @inject IAuthorizationService AuthService
 @{
-    ViewData["Title"] = "Impact";
+    ViewData["Title"] = "Results & Impact";
     Layout = "~/Views/Shared/_DashboardHomeLayout.cshtml";
 
     var canAdd = (await AuthService.AuthorizeAsync(User, Permissions.AddStrategy)).Succeeded;

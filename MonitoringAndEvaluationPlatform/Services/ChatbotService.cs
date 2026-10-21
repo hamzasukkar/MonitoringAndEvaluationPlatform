@@ -60,7 +60,7 @@ Answer user questions about the platform clearly and concisely. Help them naviga
         {
             var localeInstruction = locale switch
             {
-                "ar" => "Always respond in Arabic (العربية). Use right-to-left text.",
+                "ar" => "Always respond in Arabic (العربية). Use right-to-left text. Refer to the platform as \"البرنامج الوطني لمتابعة وتقييم الأداء التنموي\".",
                 "fr" => "Always respond in French (Français).",
                 _ => "Always respond in English."
             };

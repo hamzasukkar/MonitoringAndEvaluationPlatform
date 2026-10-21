@@ -146,6 +146,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: ActionPlans/Create
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Create()
         {
             ViewData["ProjectPhaseId"] = await PhaseOptionsAsync();
@@ -153,6 +154,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: ActionPlans/Create
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ActionPlan actionPlan)
@@ -172,6 +174,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: ActionPlans/Edit/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -185,6 +188,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: ActionPlans/Edit/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Code,PlansCount,ProjectPhaseId")] ActionPlan actionPlan)
@@ -220,6 +224,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // GET: ActionPlans/Delete/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -236,6 +241,7 @@ namespace MonitoringAndEvaluationPlatform.Controllers
         }
 
         // POST: ActionPlans/Delete/5
+        [Authorize(Policy = Permissions.RecordProgress)]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

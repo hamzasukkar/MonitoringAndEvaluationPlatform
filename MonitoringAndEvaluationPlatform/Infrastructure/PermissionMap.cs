@@ -90,6 +90,13 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                 Permissions.AddMetricValue or Permissions.EditMetricValues or Permissions.DeleteMetricValues =>
                     userRoles.Contains(UserRoles.DataEntry),
 
+                // Recording progress - every role except the read-only ReadingUser. Ministry scope
+                // still limits it to the projects of the user's own ministry.
+                Permissions.RecordProgress =>
+                    userRoles.Contains(UserRoles.MinistryStrategyManager) ||
+                    userRoles.Contains(UserRoles.MinistriesUser) ||
+                    userRoles.Contains(UserRoles.DataEntry),
+
                 // Action Plans - SystemAdmin, MinistriesUser, DataEntry can read; Only DataEntry can modify
                 Permissions.ReadActionPlans => userRoles.Contains(UserRoles.SystemAdministrator) ||
                                              userRoles.Contains(UserRoles.MinistriesUser) ||
