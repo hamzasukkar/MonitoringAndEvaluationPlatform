@@ -385,92 +385,14 @@ namespace MonitoringAndEvaluationPlatform.Infrastructure
                     await context.SaveChangesAsync();
                 }
        
-                if (!context.Frameworks.Include(f => f.Outcomes).Any())
-                {
-                    var frameworks = new List<Framework>
-                {
-                    new Framework
-                    {
-                        Name = "Health Framework",
-                        IndicatorsPerformance = 80,
-                        DisbursementPerformance = 90,
-                        Outcomes = new List<Outcome>
-                        {
-                            new Outcome
-                            {
-                                Name = "Reduced Child Mortality",
-                                IndicatorsPerformance = 78,
-                                DisbursementPerformance = 88,
-                                Weight = 0.4,
-                                Outputs = new List<Output>
-                                {
-                                    new Output
-                                    {
-                                        Name = "Improved Vaccination Coverage",
-                                        IndicatorsPerformance = 75,
-                                        DisbursementPerformance = 85,
-                                        Weight = 0.6,
-                                        SubOutputs = new List<SubOutput>
-                                        {
-                                            new SubOutput
-                                            {
-                                                Name = "Increase in Immunization Rates",
-                                                IndicatorsPerformance = 77,
-                                                DisbursementPerformance = 87,
-                                                Weight = 0.7,
-                                                Indicators = new List<Indicator>
-                                                {
-                                                    new Indicator
-                                                    {
-                                                        Name = "Percentage of Fully Immunized Children",
-                                                        IndicatorsPerformance = 80,
-                                                        Weight = 0.5,
-                                                        Target = 95,
-                                                        GAGRA = 5.0,
-                                                        GAGRR = 4.5,
-                                                        Concept = "Increase immunization",
-                                                        Description = "Measure of vaccination rates",
-                                                        MethodOfComputation = "Survey data analysis",
-                                                        Comment = "Expected to improve with awareness campaigns"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                };
+                // No sample framework is seeded: a new database used to receive a "Health Framework"
+                // with typed-in performance figures and fractional weights, which contradicts the
+                // rule that performance is only ever calculated (BR-06.4) and weights total 100.
 
-                    context.Frameworks.AddRange(frameworks);
-                    await context.SaveChangesAsync();
-                }
-
-                // Seed Governorates (Syria regions) if they don't exist
-                if (!context.Governorates.Any())
-                {
-                    var governorates = new List<Governorate>
-                    {
-                        new Governorate { Code = "01", AR_Name = "دمشق", EN_Name = "Damascus" },
-                        new Governorate { Code = "02", AR_Name = "ريف دمشق", EN_Name = "Damascus Countryside" },
-                        new Governorate { Code = "03", AR_Name = "حلب", EN_Name = "Aleppo" },
-                        new Governorate { Code = "04", AR_Name = "حمص", EN_Name = "Homs" },
-                        new Governorate { Code = "05", AR_Name = "حماة", EN_Name = "Hama" },
-                        new Governorate { Code = "06", AR_Name = "اللاذقية", EN_Name = "Latakia" },
-                        new Governorate { Code = "07", AR_Name = "طرطوس", EN_Name = "Tartous" },
-                        new Governorate { Code = "08", AR_Name = "إدلب", EN_Name = "Idlib" },
-                        new Governorate { Code = "09", AR_Name = "درعا", EN_Name = "Daraa" },
-                        new Governorate { Code = "10", AR_Name = "السويداء", EN_Name = "As-Suwayda" },
-                        new Governorate { Code = "11", AR_Name = "القنيطرة", EN_Name = "Quneitra" },
-                        new Governorate { Code = "12", AR_Name = "دير الزور", EN_Name = "Deir ez-Zor" },
-                        new Governorate { Code = "13", AR_Name = "الرقة", EN_Name = "Ar-Raqqah" },
-                        new Governorate { Code = "14", AR_Name = "الحسكة", EN_Name = "Al-Hasakah" }
-                    };
-
-                    context.Governorates.AddRange(governorates);
-                    context.SaveChanges();
-                }
+                // Governorates are not seeded here: ApplicationDbInitializer loads the whole location
+                // hierarchy from SeedData/*.json, whose districts reference the JSON governorate codes
+                // (SY01...). Seeding a second list first left that table non-empty with other codes, so
+                // a new database failed on the district foreign key.
 
                 // Seed example projects with indicators and measures
                // await SeedExampleProjectsAsync(context);

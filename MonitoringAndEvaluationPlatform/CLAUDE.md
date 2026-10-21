@@ -27,6 +27,12 @@ Demo accounts are Development-only and opt-in. Set `Seeding:EnableDemoUsers` to 
 `Seeding:ReaderPassword`). Accounts without a configured password are skipped. There are no
 hardcoded default credentials.
 
+A new installation (any environment) gets its first administrator from `Bootstrap:AdminPassword`,
+set in the server's own `appsettings.json` or as the `Bootstrap__AdminPassword` environment
+variable; `Bootstrap:AdminUserName` (default `admin`) and `Bootstrap:AdminEmail` are optional.
+It is used only while no SystemAdministrator exists, so remove it after the first sign-in.
+See `Infrastructure/AdminBootstrap.cs`.
+
 Every account is created with `MustChangePassword` set, so the first sign-in is redirected
 to the change-password page.
 

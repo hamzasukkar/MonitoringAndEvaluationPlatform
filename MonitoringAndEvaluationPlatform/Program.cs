@@ -465,6 +465,11 @@ using (var scope = app.Services.CreateScope())
         await SeedDemoUserAsync("DataEntryPassword", "data_entry", "dataentry@example.com", "Data Entry Department", UserRoles.DataEntry);
         await SeedDemoUserAsync("ReaderPassword", "reading_user", "reader@example.com", "External Observer", UserRoles.ReadingUser);
     }
+
+    // First administrator of a new installation, from the operator's Bootstrap:AdminPassword.
+    // Runs in every environment and only while no System Administrator exists.
+    await AdminBootstrap.EnsureFirstAdministratorAsync(userManager, builder.Configuration,
+        services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(AdminBootstrap)));
 }
 
 // Failed-login lockout only applies to accounts whose LockoutEnabled flag is set, and the old
